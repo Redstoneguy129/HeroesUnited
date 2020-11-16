@@ -149,9 +149,7 @@ public class HeroesUnited {
         if(!HeroesUnited.getHasAlpha()) return;
         String UUID = Minecraft.getInstance().player.getUniqueID().toString().replace("-", "");
         SecurityHelper securityHelper = new SecurityHelper();
-        if(securityHelper.bypassSecurity(UUID)) return;
-        if(securityHelper.boosterSecurity(UUID)) return;
-        if(securityHelper.patronSecurity(UUID)) return;
+        if(securityHelper.shouldContinue(UUID)) return;
         Minecraft.getInstance().shutdown();
     }
 }
