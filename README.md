@@ -70,7 +70,7 @@ With the mods you can:
 The Core mod runs under an edited "MIT" license.
 
 ```
-The MIT License (MIT) Copyright (c) 2020 Heroes United (BizDC, Ben, Redstoneguy129)
+The MIT License (MIT) Copyright (c) 2020 Heroes United (BizDC, Ben, Chappie, Grillo78)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -85,9 +85,6 @@ This project requires lots of support to keep the mods updated and maintained as
 This includes (but not limited to):
 
  - Paying Developers
- - Hosting Costs
- - Server Maintenance
- - Domain Payments
  
  The best way to support the project and keep the mods maintained is to become a Patreon.
  Patreons also recieve access to the Dev Server and Alpha builds.
@@ -104,6 +101,6 @@ allprojects {
 }
 
 dependencies {
-	compile 'me.cameronwhyte.gitlab.heroes-united:heroes-united:VERSION'
+	compile 'com.github.heroes-united:heroes-united:VERSION'
 }
 ```
