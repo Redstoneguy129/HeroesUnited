@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "xyz.heroesunited.heroesunited.mixin",
+  "refmap": "heroesunited.refmap.json",
+  "client": [
+    "client.MixinMinecraft",
+    "client.MixinPlayerModel"
+  ],
+  "mixins": [
+    "block.MixinBlock",
+    "block.MixinCactusBlock",
+    "block.MixinFourWayBlock",
+    "block.MixinWallBlock"
+  ]
+}

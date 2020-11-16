@@ -1,0 +1,42 @@
+{
+  "key.categories.heroesunited": "Heroes United",
+  "heroesunited.key.ability_1": "Habilidad 1",
+  "heroesunited.key.ability_2": "Habilidad 2",
+  "heroesunited.key.ability_3": "Habilidad 3",
+  "heroesunited.key.ability_4": "Habilidad 4",
+  "heroesunited.key.ability_5": "Habilidad 5",
+  "heroesunited.key.abilities_screen": "Pantalla de habilidades",
+
+  "entity.heroesunited.horas": "HORAS",
+
+  "subtitles.flying": "Volando",
+
+  "item.heroesunited.comic": "5YL Comic",
+  "item.heroesunited.titanium_ingot": "Lingote de titanio",
+  "item.heroesunited.titanium": "Bloque de titanio",
+  "item.heroesunited.titanium_ore": "Mena de titanio",
+  "item.heroesunited.horas": "Horas",
+  "item.heroesunited.heroes_united": "Heroes United",
+
+  "block.heroesunited.titanium": "Bloque de titanio",
+  "block.heroesunited.titanium_ore": "Mena de titanio",
+
+  "advancements.heroesunited.root.title": "Heroes United",
+  "advancements.heroesunited.root.description": "¡Descarga Heroes United!",
+
+  "config.heroesunited.renderhead": "Dibujar cabeza de Patreon",
+  "gui.heroesunited.changehead": "Activar cabeza de Patreon",
+  "gui.heroesunited.abilities": "Interfaz de habilidades,",
+
+  "commands.heroesunited.DidntExist": "Esto no existe",
+  "commands.heroesunited.suit.set.single": "%s recivió el traje de %s",
+  "commands.heroesunited.suit.set.multiple": "Las entidades recivieron el traje de %s",
+  "commands.heroesunited.superpower.removed": "El %s ha sido eliminado",
+  "commands.heroesunited.superpower.removed.multiple": "El %s ha sido eliminado",
+  "commands.heroesunited.ability.disabled": "Las habilidades fueron desactivadas",
+  "commands.heroesunited.superpower.set.single": "El superpoder de %s ha sido establecido a %s",
+  "commands.heroesunited.superpower.set.multiple": "El superpoder de % entidades ha sido establecido a %s",
+
+  "heroesunited.jumpBoost": "Salto alto",
+  "heroesunited.fallResistance": "Resistencia a las caidas"
+}

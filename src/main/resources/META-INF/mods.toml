@@ -1,0 +1,24 @@
+modLoader="javafml"
+loaderVersion="[35,)"
+license="MIT"
+
+[[mods]]
+modId="heroesunited"
+version="${file.jarVersion}"
+displayName="Heroes United"
+authors="BizDC, Chappie, Grillo78, Ben, FatherKhimsky"
+credits="Thanks to the Patreons for making this mod possible!"
+description="Heroes United is a Minecraft mod.\nThis mod helps developers create abilities for the player.\nWe provide Events and Keybinds that link the the events.\nHORAS is also in the mod. (HORAS is from the 'And Beyond' series by The Ink Tank)\nHORAS is an entity you can interact with and will give you information on entities and dimensions from the mods that use Heroes United."
+
+[[dependencies.heroesunited]]
+    modId="forge"
+    mandatory=true
+    versionRange="[35,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.heroesunited]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16.4]"
+    ordering="NONE"
+    side="BOTH"

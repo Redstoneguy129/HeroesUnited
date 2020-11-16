@@ -1,0 +1,42 @@
+{
+  "key.categories.heroesunited": "Heroes United",
+  "heroesunited.key.ability_1": "Ability 1",
+  "heroesunited.key.ability_2": "Ability 2",
+  "heroesunited.key.ability_3": "Ability 3",
+  "heroesunited.key.ability_4": "Ability 4",
+  "heroesunited.key.ability_5": "Ability 5",
+  "heroesunited.key.abilities_screen": "Abilities Screen",
+
+  "entity.heroesunited.horas": "HORAS",
+
+  "subtitles.flying": "Flying",
+
+  "item.heroesunited.comic": "5YL Comic",
+  "item.heroesunited.titanium_ingot": "Titanium Ingot",
+  "item.heroesunited.titanium": "Titanium Block",
+  "item.heroesunited.titanium_ore": "Titanium Ore",
+  "item.heroesunited.horas": "Horas",
+  "item.heroesunited.heroes_united": "Heroes United",
+
+  "block.heroesunited.titanium": "Titanium Block",
+  "block.heroesunited.titanium_ore": "Titanium Ore",
+
+  "advancements.heroesunited.root.title": "Heroes United",
+  "advancements.heroesunited.root.description": "Download Heroes United!",
+
+  "config.heroesunited.renderhead": "Render Patreon Head",
+  "gui.heroesunited.changehead": "Toggle Patreon Head",
+  "gui.heroesunited.abilities": "Abilities gui,",
+
+  "commands.heroesunited.DidntExist": "This didnt exist",
+  "commands.heroesunited.suit.set.single": "%s gived %s suit",
+  "commands.heroesunited.suit.set.multiple": "Entities gived %s suit",
+  "commands.heroesunited.superpower.removed": "%s superpower has been removed",
+  "commands.heroesunited.superpower.removed.multiple": "%s superpower has been removed",
+  "commands.heroesunited.ability.disabled": "Abilities has been disabled",
+  "commands.heroesunited.superpower.set.single": "%s superpower has been set to %s",
+  "commands.heroesunited.superpower.set.multiple": "%s entities Superpower has been set to %s",
+
+  "heroesunited.jumpBoost": "JumpBoost",
+  "heroesunited.fallResistance": "FallResistance"
+}

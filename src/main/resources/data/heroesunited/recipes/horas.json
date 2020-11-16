@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#i#",
+    "iEI",
+    " i "
+  ],
+  "key": {
+    "#": {
+      "item": "heroesunited:titanium"
+    },
+    "i": {
+      "item": "heroesunited:titanium_ingot"
+    },
+    "E": {
+      "item": "minecraft:end_crystal"
+    },
+    "I": {
+      "item": "minecraft:iron_trapdoor"
+    }
+  },
+  "result": {
+    "item": "heroesunited:horas",
+    "count": 1
+  }
+}

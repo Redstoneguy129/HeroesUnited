@@ -1,0 +1,42 @@
+{
+  "key.categories.heroesunited": "Объеденение Героев",
+  "heroesunited.key.ability_1": "Способность 1",
+  "heroesunited.key.ability_2": "Способность 2",
+  "heroesunited.key.ability_3": "Способность 3",
+  "heroesunited.key.ability_4": "Способность 4",
+  "heroesunited.key.ability_5": "Способность 5",
+  "heroesunited.key.abilities_screen": "Окно Способностей",
+
+  "entity.heroesunited.horas": "ХОРАС",
+
+  "subtitles.flying": "Летает",
+
+  "item.heroesunited.comic": "5YL комикс",
+  "item.heroesunited.titanium_ingot": "Слиток Титаниума",
+  "item.heroesunited.titanium": "Блок Титаниума",
+  "item.heroesunited.titanium_ore": "Титаниумовая руда",
+  "item.heroesunited.horas": "ХОРАС",
+  "item.heroesunited.heroes_united": "Объеденение Героев",
+
+  "block.heroesunited.titanium": "Блок Титаниума",
+  "block.heroesunited.titanium_ore": "Титаниумовая руда",
+
+  "advancements.heroesunited.root.title": "Объеденение Героев",
+  "advancements.heroesunited.root.description": "Вы скачали Объеденение Героев!",
+
+  "config.heroesunited.renderhead": "Рендерить голову для Патреонов",
+  "gui.heroesunited.changehead": "Переключить голову Патреона",
+  "gui.heroesunited.abilities": "Окно Способностей",
+
+  "commands.heroesunited.DidntExist": "Это не существует",
+  "commands.heroesunited.suit.set.single": "%s выдан %s костюм",
+  "commands.heroesunited.suit.set.multiple": "Сущностям выдано %s костюм",
+  "commands.heroesunited.superpower.removed": "%s суперспособность была удалена",
+  "commands.heroesunited.superpower.removed.multiple": "%s суперспособности была удалены",
+  "commands.heroesunited.ability.disabled": "Способности отключены",
+  "commands.heroesunited.superpower.set.single": "%s суперспособность была установлена на %s",
+  "commands.heroesunited.superpower.set.multiple": "У %s сущностей суперспособность была установлена на %s",
+
+  "heroesunited.jumpBoost": "Прыгучесть",
+  "heroesunited.fallResistance": "Защита от Падения"
+}

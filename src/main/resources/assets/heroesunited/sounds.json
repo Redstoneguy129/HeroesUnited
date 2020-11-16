@@ -1,0 +1,6 @@
+{
+	"flying": {
+		"sounds": ["heroesunited:flying"],
+		"subtitle": "subtitles.flying"
+	}
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "titanium_ingot",
+  "ingredients": [
+    {
+      "item": "heroesunited:titanium"
+    }
+  ],
+  "result": {
+    "item": "heroesunited:titanium_ingot",
+    "count": 9
+  }
+}
