@@ -3,7 +3,6 @@
 
 A Minecraft mod series for Forge 1.16+
 
-[![](https://jitpack.io/v/me.cameronwhyte.gitlab.heroes-united/heroes-united.svg)](https://jitpack.io/#me.cameronwhyte.gitlab.heroes-united/heroes-united)
 [![](https://cf.way2muchnoise.eu/full_386012_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/heroes-united)
 [![](https://cf.way2muchnoise.eu/versions/386012.svg)](https://www.curseforge.com/minecraft/mc-mods/heroes-united)
 [![](https://forthebadge.com/images/badges/built-by-developers.svg)](https://forthebadge.com)
@@ -34,7 +33,7 @@ These special players could be (but not limited to):
  
 
 ## Issue Reporting
-[Submit an Issue!](https://gitlab.cameronwhyte.me/heroes-united/heroes-united/-/issues)
+[Submit an Issue!](https://github.com/Heroes-United/HeroesUnited/issues)
 
 Please include the following:
 
