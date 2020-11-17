@@ -24,17 +24,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SecurityHelper {
 
-    ResultSet users;
-
     public boolean shouldContinue(String UUID) {
         try {
             String st = "https://raw.githubusercontent.com/Heroes-United/patreonlist/main/users.csv";
             URL stockURL = new URL(st);
             BufferedReader in = new BufferedReader(new InputStreamReader(stockURL.openStream()));
-            String s;
-            while ((s=in.readLine())!=null) {
-                String[] user = s.replace("\"","").split(",");
-                if(user[1].equals(UUID)){
+            String user;
+            while ((user=in.readLine())!=null) {
+                if(user.replace("\"","").equals(UUID)){
                     return true;
                 }
             }
