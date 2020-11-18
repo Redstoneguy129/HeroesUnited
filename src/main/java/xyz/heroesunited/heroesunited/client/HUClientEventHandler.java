@@ -163,7 +163,7 @@ public class HUClientEventHandler {
         });
     }
 
-    private static class AbilityKeyBinding extends KeyBinding {
+    public static class AbilityKeyBinding extends KeyBinding {
 
         public final int index;
 
