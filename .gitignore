@@ -26,3 +26,4 @@ buildmod.bat
 
 # Files from Forge MDK
 forge*changelog.txt
+gradlew menu.bat

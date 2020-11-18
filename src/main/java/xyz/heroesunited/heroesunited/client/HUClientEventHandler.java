@@ -1,7 +1,6 @@
 package xyz.heroesunited.heroesunited.client;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.CustomizeSkinScreen;
 import net.minecraft.client.gui.widget.button.Button;
@@ -15,6 +14,8 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
@@ -40,13 +41,12 @@ import xyz.heroesunited.heroesunited.util.HUClientUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
+@OnlyIn(Dist.CLIENT)
 public class HUClientEventHandler {
 
     public static final KeyBinding ABILITIES_SCREEN = new KeyBinding(HeroesUnited.MODID+".key.abilities_screen", GLFW.GLFW_KEY_H, "key.categories."+ HeroesUnited.MODID);
     public static List<AbilityKeyBinding> ABILITY_KEYS = Lists.newArrayList();
-    public static Map<Integer, Boolean> KEY_STATE = Maps.newHashMap();
 
     public HUClientEventHandler() {
         if (Minecraft.getInstance() != null) {

@@ -11,6 +11,7 @@ import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.OreFeatureConfig;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -98,6 +99,7 @@ public class HeroesUnited {
         LOGGER.info(MODID+": common is ready!");
     }
 
+    @OnlyIn(Dist.CLIENT)
     private void clientSetup(final FMLClientSetupEvent event) {
         HURichPresence.getPresence().setDiscordRichPresence("In the Menus", null, HURichPresence.MiniLogos.NONE, null);
         if(FMLEnvironment.production) {
@@ -140,16 +142,18 @@ public class HeroesUnited {
     This Basically adds a Donation check to see if player is a donor or not.
     This only runs if an Alpha dependant is being used.
      */
+    @OnlyIn(Dist.CLIENT)
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void runSecurity(EntityJoinWorldEvent event) {
-        if(!event.getEntity().world.isRemote || !(event.getEntity() instanceof PlayerEntity)) return;
-        assert Minecraft.getInstance().player != null;
-        if(Minecraft.getInstance().player.getUniqueID() != event.getEntity().getUniqueID()) return;
-        HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United", null, HURichPresence.MiniLogos.NONE, null);
-        if(!HeroesUnited.getHasAlpha()) return;
-        String UUID = Minecraft.getInstance().player.getUniqueID().toString().replace("-", "");
-        SecurityHelper securityHelper = new SecurityHelper();
-        if(securityHelper.shouldContinue(UUID)) return;
-        Minecraft.getInstance().shutdown();
+        if(event.getEntity() instanceof PlayerEntity) {
+            assert Minecraft.getInstance().player != null;
+            if (Minecraft.getInstance().player.getUniqueID() != event.getEntity().getUniqueID()) return;
+            HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United", null, HURichPresence.MiniLogos.NONE, null);
+            if (!HeroesUnited.getHasAlpha()) return;
+            String UUID = Minecraft.getInstance().player.getUniqueID().toString().replace("-", "");
+            SecurityHelper securityHelper = new SecurityHelper();
+            if (securityHelper.shouldContinue(UUID)) return;
+            Minecraft.getInstance().shutdown();
+        }
     }
 }

@@ -157,6 +157,7 @@ public abstract class Suit extends ForgeRegistryEntry<Suit> {
         suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.getEntityTranslucent(new ResourceLocation(getSuitTexture(player.getItemStackFromSlot(CHEST), player, CHEST)))), packedLightIn, player);
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void hidePlayerSecondLayer(PlayerEntity player, PlayerModel model) {
         if (player.getItemStackFromSlot(HEAD).getItem() instanceof SuitItem) {
             model.bipedHeadwear.showModel = false;
