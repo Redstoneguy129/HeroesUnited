@@ -145,15 +145,14 @@ public class HeroesUnited {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void runSecurity(EntityJoinWorldEvent event) {
-        if(event.getEntity() instanceof PlayerEntity) {
-            assert Minecraft.getInstance().player != null;
-            if (Minecraft.getInstance().player.getUniqueID() != event.getEntity().getUniqueID()) return;
-            HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United", null, HURichPresence.MiniLogos.NONE, null);
-            if (!HeroesUnited.getHasAlpha()) return;
-            String UUID = Minecraft.getInstance().player.getUniqueID().toString().replace("-", "");
-            SecurityHelper securityHelper = new SecurityHelper();
-            if (securityHelper.shouldContinue(UUID)) return;
-            Minecraft.getInstance().shutdown();
-        }
+        if(!event.getEntity().world.isRemote || !(event.getEntity() instanceof PlayerEntity)) return;
+        assert Minecraft.getInstance().player != null;
+        if(Minecraft.getInstance().player.getUniqueID() != event.getEntity().getUniqueID()) return;
+        HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United", null, HURichPresence.MiniLogos.NONE, null);
+        if(!HeroesUnited.getHasAlpha()) return;
+        String UUID = Minecraft.getInstance().player.getUniqueID().toString().replace("-", "");
+        SecurityHelper securityHelper = new SecurityHelper();
+        if(securityHelper.shouldContinue(UUID)) return;
+        Minecraft.getInstance().shutdown();
     }
 }
