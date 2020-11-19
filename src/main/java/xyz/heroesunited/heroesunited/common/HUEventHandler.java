@@ -6,6 +6,7 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
@@ -23,6 +24,7 @@ import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.command.HUCoreCommand;
 import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
 import xyz.heroesunited.heroesunited.common.objects.HUSounds;
+import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 public class HUEventHandler {
@@ -43,7 +45,7 @@ public class HUEventHandler {
                 for (AbilityType type : AbilityHelper.getAbilities(pl)) type.create().onUpdate(pl);
                 if (Suit.getSuit(pl) != null) Suit.getSuit(pl).onUpdate(pl);
                 if (a.isFlying() && !pl.isOnGround()) {
-                    HUPlayerUtil.playSoundToAll(pl.world, HUPlayerUtil.getPlayerPos(pl), 10, IFlyingAbility.getFlyingAbility(pl) != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() : HUSounds.FLYING, SoundCategory.PLAYERS, 0.05F, 0.5F);
+                    HUPlayerUtil.playSoundToAll(pl.world, HUPlayerUtil.getPlayerPos(pl), 10, IFlyingAbility.getFlyingAbility(pl) != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() : HUSounds.FLYING : HUSounds.FLYING, SoundCategory.PLAYERS, 0.05F, 0.5F);
                     if (pl.moveForward > 0F) {
                         Vector3d vec = pl.getLookVec();
                         double speed = pl.isSprinting() ? 2.5f : 1f;
@@ -96,5 +98,10 @@ public class HUEventHandler {
         if (!e.getEntityLiving().isCrouching() && e.getEntityLiving().getAttribute(HUAttributes.JUMP_BOOST) != null) {
             e.getEntityLiving().setMotion(motion.x, motion.y + 0.1F * e.getEntityLiving().getAttribute(HUAttributes.JUMP_BOOST).getValue(), motion.z);
         }
+    }
+
+    @SubscribeEvent
+    public void addListenerEvent(AddReloadListenerEvent event) {
+        event.addListener(new HUPackSuperpowers());
     }
 }

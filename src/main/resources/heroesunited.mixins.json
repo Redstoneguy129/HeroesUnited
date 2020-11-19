@@ -10,6 +10,7 @@
     "block.MixinBlock",
     "block.MixinCactusBlock",
     "block.MixinFourWayBlock",
-    "block.MixinWallBlock"
+    "block.MixinWallBlock",
+    "MixinMinecraftServer"
   ]
 }

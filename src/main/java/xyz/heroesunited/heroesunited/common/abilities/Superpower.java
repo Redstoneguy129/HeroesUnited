@@ -10,30 +10,24 @@ import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistryEntry;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryBuilder;
-import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
+import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = HeroesUnited.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class Superpower extends ForgeRegistryEntry<Superpower> {
+public class Superpower {
 
-    public static IForgeRegistry<Superpower> SUPERPOWERS;
+    private final ResourceLocation name;
     private List<AbilityType> containedAbilities;
 
-    public Superpower() {
+    public Superpower(ResourceLocation name) {
+        this.name = name;
     }
 
-    public Superpower(List<AbilityType> containerAbilities) {
-        this.containedAbilities = containerAbilities;
+    public Superpower(ResourceLocation name, List<AbilityType> containedAbilities) {
+        this.name = name;
+        this.containedAbilities = containedAbilities;
     }
 
     public List<AbilityType> getContainedAbilities(PlayerEntity player) {
@@ -46,13 +40,17 @@ public class Superpower extends ForgeRegistryEntry<Superpower> {
     }
 
     public ITextComponent getDisplayName() {
-        return new TranslationTextComponent(Util.makeTranslationKey("superpowers", this.getRegistryName()));
+        return new TranslationTextComponent(Util.makeTranslationKey("superpowers", name));
+    }
+
+    public ResourceLocation getRegistryName() {
+        return name;
     }
 
     public CompoundNBT serializeNBT(PlayerEntity player) {
         CompoundNBT nbt = new CompoundNBT();
         ListNBT listNBT = new ListNBT();
-        nbt.putString("name", this.getRegistryName().toString());
+        nbt.putString("name", name.toString());
         List<AbilityType> types = getContainedAbilities(player);
         for (AbilityType type : types) {
             listNBT.add(StringNBT.valueOf(type.getRegistryName().toString()));
@@ -62,7 +60,7 @@ public class Superpower extends ForgeRegistryEntry<Superpower> {
     }
 
     public static Superpower deserializeNBT(CompoundNBT nbt) {
-        Superpower superpower = Superpower.SUPERPOWERS.getValue(new ResourceLocation(nbt.getString("name")));
+        Superpower superpower = HUPackSuperpowers.getInstance().getSuperpowers().get(new ResourceLocation(nbt.getString("name")));
         if (superpower != null) {
             superpower.containedAbilities = Lists.newArrayList();
             ListNBT listNBT = nbt.getList("contain", Constants.NBT.TAG_STRING);
@@ -73,10 +71,5 @@ public class Superpower extends ForgeRegistryEntry<Superpower> {
             }
         }
         return superpower;
-    }
-
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onRegisterNewRegistries(RegistryEvent.NewRegistry e) {
-        SUPERPOWERS = new RegistryBuilder<Superpower>().setName(new ResourceLocation(HeroesUnited.MODID, "superpowers")).setType(Superpower.class).setIDRange(0, 2048).create();
     }
 }
