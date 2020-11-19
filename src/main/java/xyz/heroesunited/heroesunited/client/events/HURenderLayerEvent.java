@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.entity.LivingEntity;
+import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
 public class HURenderLayerEvent<T extends LivingEntity, M extends EntityModel<T>> extends Event {
@@ -90,6 +91,28 @@ public class HURenderLayerEvent<T extends LivingEntity, M extends EntityModel<T>
 
         public PlayerRenderer getRenderer() {
             return renderer;
+        }
+    }
+
+    public static class Armor extends HURenderLayerEvent {
+
+        public Armor(LivingRenderer renderer, LivingEntity livingEntity, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+            super(renderer, livingEntity, matrixStack, bufferIn, packedLightIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+        }
+
+        @Cancelable
+        public static class Pre extends Armor {
+
+            public Pre(LivingRenderer renderer, LivingEntity livingEntity, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+                super(renderer, livingEntity, matrixStack, bufferIn, packedLightIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+            }
+        }
+
+        public static class Post extends Armor {
+
+            public Post(LivingRenderer renderer, LivingEntity livingEntity, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+                super(renderer, livingEntity, matrixStack, bufferIn, packedLightIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+            }
         }
     }
 }
