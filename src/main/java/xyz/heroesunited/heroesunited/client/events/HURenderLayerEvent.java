@@ -5,8 +5,10 @@ import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
+import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
@@ -113,6 +115,26 @@ public class HURenderLayerEvent<T extends LivingEntity, M extends EntityModel<T>
             public Post(LivingRenderer renderer, LivingEntity livingEntity, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
                 super(renderer, livingEntity, matrixStack, bufferIn, packedLightIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
             }
+        }
+
+        public static class HUSetArmorPartVisibility extends Event {
+
+            private BipedModel armorModel;
+            private EquipmentSlotType slot;
+
+            public HUSetArmorPartVisibility(BipedModel modelIn, EquipmentSlotType slotIn) {
+                this.armorModel = modelIn;
+                this.slot = slotIn;
+            }
+
+            public BipedModel getArmorModel() {
+                return armorModel;
+            }
+
+            public EquipmentSlotType getSlot() {
+                return slot;
+            }
+
         }
     }
 }
