@@ -40,6 +40,14 @@ public class HURenderLayerEvent<T extends LivingEntity, M extends EntityModel<T>
         this.headPitch = headPitch;
     }
 
+    public T getLivingEntity() {
+        return livingEntity;
+    }
+
+    public LivingRenderer<T, M> getRenderer() {
+        return renderer;
+    }
+
     public MatrixStack getMatrixStack() {
         return matrixStack;
     }
