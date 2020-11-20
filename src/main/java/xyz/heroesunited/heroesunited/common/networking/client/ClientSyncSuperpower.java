@@ -8,6 +8,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 
 import java.util.function.Supplier;
 
@@ -37,7 +38,7 @@ public class ClientSyncSuperpower {
             if (entity instanceof AbstractClientPlayerEntity) {
                 entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(data -> {
                     if (this.superpower != null) {
-                        data.setSuperpower(Superpower.SUPERPOWERS.getValue(superpower));
+                        data.setSuperpower(HUPackSuperpowers.getInstance().getSuperpowers().get(superpower));
                     }
                 });
             }

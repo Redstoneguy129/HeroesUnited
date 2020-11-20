@@ -18,6 +18,7 @@ import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 import java.util.Collection;
@@ -78,7 +79,7 @@ public class HUCoreCommand {
 
     public static Superpower getSuperpower(CommandContext<CommandSource> context, String key) throws CommandSyntaxException {
         ResourceLocation resourceLocation = context.getArgument(key, ResourceLocation.class);
-            Superpower superpower = Superpower.SUPERPOWERS.getValue(resourceLocation);
+            Superpower superpower = HUPackSuperpowers.getInstance().getSuperpowers().get(resourceLocation);
         if (superpower == null) {
             throw DIDNT_EXIST.create(resourceLocation);
         } else {
@@ -123,7 +124,7 @@ public class HUCoreCommand {
     }
 
     private static final SuggestionProvider<CommandSource> SUGGEST_SUPERPOWERS = (context, builder) -> {
-        Collection<Superpower> superpowers = Superpower.SUPERPOWERS.getValues();
+        Collection<Superpower> superpowers = HUPackSuperpowers.getInstance().getSuperpowers().values();
         return ISuggestionProvider.func_212476_a(superpowers.stream().map(Superpower::getRegistryName), builder);
     };
 
