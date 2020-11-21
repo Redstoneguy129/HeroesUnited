@@ -52,7 +52,6 @@ import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.security.SecurityHelper;
-import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
 
 import java.util.Objects;
@@ -126,7 +125,7 @@ public class HeroesUnited {
         new HorasInfo.DimensionInfo("Nether", "Default      Dimension", new ResourceLocation("the_nether"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/the_nether.png"));
         new HorasInfo.DimensionInfo("End", "Default      Dimension", new ResourceLocation("the_end"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/the_end.png"));
         Runtime.getRuntime().addShutdownHook(new HURichPresence.CloseRichPresence());
-        HUClientUtil.createFoldersAndLoadThemes();
+        HUPacks.HUPackFinder.createFoldersAndLoadThemes();
         LOGGER.info(MODID+": client is ready!");
     }
 

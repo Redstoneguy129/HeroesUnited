@@ -1,5 +1,7 @@
 package xyz.heroesunited.heroesunited.hupacks;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.*;
 import net.minecraftforge.api.distmarker.Dist;
@@ -7,12 +9,15 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.moddiscovery.ModFile;
 import net.minecraftforge.fml.packs.ModFileResourcePack;
+import org.apache.commons.io.FileUtils;
+import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
+import xyz.heroesunited.heroesunited.util.HUClientUtil;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -23,9 +28,11 @@ public class HUPacks {
     public ResourcePackList hupackFinder = new ResourcePackList(new HUPackFinder());
     private SimpleReloadableResourceManager resourceManager = new SimpleReloadableResourceManager(ResourcePackType.SERVER_DATA);
     public static final File HUPACKS_DIR = new File(Minecraft.getInstance().gameDir, "hupacks");
+    public static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     public HUPacks() {
         instance = this;
+
         Map<ModFile, ModFileResourcePack> modResourcePacks = ModList.get().getModFiles().stream()
                 .filter(mf->!Objects.equals(mf.getModLoader(),"minecraft"))
                 .map(mf -> new ModFileResourcePack(mf.getFile()))
@@ -34,7 +41,7 @@ public class HUPacks {
         this.hupackFinder.getAllPacks().stream().map(ResourcePackInfo::getResourcePack).collect(Collectors.toList()).forEach(pack -> resourceManager.addResourcePack(pack));
         modResourcePacks.forEach((file, pack) -> resourceManager.addResourcePack(pack));
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> Minecraft.getInstance().getResourcePackList().addPackFinder(new HUPackFinder()));
-        //FMLJavaModLoadingContext.get().getModEventBus().register(new HUPackSuit());
+        new HUPackSuit();
     }
 
     public static void init() {
@@ -65,6 +72,29 @@ public class HUPacks {
                 Arrays.stream(files).map(file -> ResourcePackInfo.createResourcePack("hupack:" + file.getName(), true,
                         file.isDirectory() ? () -> new FolderPack(file) : () -> new FilePack(file), infoFactory,
                         ResourcePackInfo.Priority.TOP, IPackNameDecorator.PLAIN)).filter(Objects::nonNull).forEach(infoConsumer::accept);
+            }
+        }
+
+        public static void createFoldersAndLoadThemes() {
+            List<File> resultList = new ArrayList<>();
+
+            try {
+                if (!HUPACKS_DIR.exists()) FileUtils.forceMkdir(HUPACKS_DIR);
+                File[] files = HUPACKS_DIR.listFiles((file) -> {
+                    boolean isZip = file.isFile() && file.getName().endsWith(".zip");
+                    boolean hasMeta = file.isDirectory() && (new File(file, "pack.mcmeta")).isFile();
+                    return isZip || hasMeta;
+                });
+                if (files != null) for (File file : files) {
+                    File themesDir = new File(file, "/themes");
+                    if (!themesDir.exists()) FileUtils.forceMkdir(themesDir);
+                    Files.find(Paths.get(themesDir.toString()), Integer.MAX_VALUE, (filePath, fileAttr) -> fileAttr.isRegularFile()).forEach((fileResult) -> resultList.add(fileResult.toFile()));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            for (File file : resultList) {
+                AbilityHelper.addTheme(HUClientUtil.fileToTexture(file));
             }
         }
     }

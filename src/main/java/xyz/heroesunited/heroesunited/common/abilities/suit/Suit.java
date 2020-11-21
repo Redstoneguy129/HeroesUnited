@@ -7,8 +7,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -16,15 +14,13 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryBuilder;
@@ -36,46 +32,45 @@ import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static net.minecraft.inventory.EquipmentSlotType.*;
-
-@Mod.EventBusSubscriber(modid = HeroesUnited.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public abstract class Suit extends ForgeRegistryEntry<Suit> {
 
     public static IForgeRegistry<Suit> SUITS;
+    protected Item helmet;
+    protected Item chestplate;
+    protected Item legs;
+    protected Item boots;
 
-    public Suit() {}
+    public Suit() {
+        this.registerItems(ForgeRegistries.ITEMS);
+    }
 
     public Suit(String modid, String name) {
         this.setRegistryName(modid, name);
+        this.registerItems(ForgeRegistries.ITEMS);
     }
 
-    public ITextComponent getDisplayName() {
-        return new TranslationTextComponent(Util.makeTranslationKey("suits", this.getRegistryName()));
+    public Suit(ResourceLocation location) {
+        this.setRegistryName(location);
+        this.registerItems(ForgeRegistries.ITEMS);
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onRegisterNewRegistries(RegistryEvent.NewRegistry e) {
-        SUITS = new RegistryBuilder<Suit>().setName(new ResourceLocation(HeroesUnited.MODID, "suits")).setType(Suit.class).setIDRange(0, 512).create();
+    public void registerItems(IForgeRegistry<Item> e) {
+        e.register(helmet = createItem(this, EquipmentSlotType.HEAD));
+        e.register(chestplate = createItem(this, EquipmentSlotType.CHEST));
+        e.register(legs = createItem(this, EquipmentSlotType.LEGS));
+        e.register(boots = createItem(this, EquipmentSlotType.FEET));
+    }
+
+    protected SuitItem createItem(Suit suit, EquipmentSlotType slot) {
+        return this.createItem(suit, slot, slot.getName());
+    }
+
+    protected SuitItem createItem(Suit suit, EquipmentSlotType slot, String name) {
+        return (SuitItem) new SuitItem(suit.getSuitMaterial(), slot, new Item.Properties().maxStackSize(1).group(suit.getItemGroup()), suit).setRegistryName(suit.getRegistryName().getNamespace(), suit.getRegistryName().getPath() + "_" + name);
     }
 
     public boolean canEquip(PlayerEntity player) {
         return true;
-    }
-
-    public Item getHelmet() {
-        return null;
-    }
-
-    public Item getChestplate() {
-        return null;
-    }
-
-    public Item getLegs() {
-        return null;
-    }
-
-    public Item getBoots() {
-        return null;
     }
 
     public IArmorMaterial getSuitMaterial() {
@@ -110,10 +105,10 @@ public abstract class Suit extends ForgeRegistryEntry<Suit> {
     public void setRotationAngles(HUSetRotationAnglesEvent event){}
 
     @OnlyIn(Dist.CLIENT)
-    public void renderLayer(@Nullable LivingRenderer<? extends LivingEntity, ? extends EntityModel<?>> entityRenderer, @Nullable LivingEntity entity, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {}
+    public void renderLayer(@Nullable LivingRenderer<? extends LivingEntity, ? extends BipedModel<?>> entityRenderer, @Nullable LivingEntity entity, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {}
 
     @OnlyIn(Dist.CLIENT)
-    public float getScale() {
+    public float getScale(EquipmentSlotType slot) {
         return 0.1F;
     }
 
@@ -126,9 +121,9 @@ public abstract class Suit extends ForgeRegistryEntry<Suit> {
 
     @SuppressWarnings("unchecked")
     @OnlyIn(Dist.CLIENT)
-    public BipedModel<?> getArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlotType armorSlot, BipedModel _default) {
-        ModelSuit suitModel = new ModelSuit(getScale(), isSmallArms(entity));
-        switch (armorSlot) {
+    public BipedModel<?> getArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlotType slot, BipedModel _default) {
+        ModelSuit suitModel = new ModelSuit(getScale(slot), isSmallArms(entity));
+        switch (slot) {
             case HEAD:
                 suitModel.bipedHeadwear.showModel = suitModel.bipedHead.showModel = true;
             case CHEST:
@@ -153,26 +148,24 @@ public abstract class Suit extends ForgeRegistryEntry<Suit> {
 
     @OnlyIn(Dist.CLIENT)
     public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side) {
-        ModelSuit suitModel = new ModelSuit(getScale(), isSmallArms(player));
-        suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.getEntityTranslucent(new ResourceLocation(getSuitTexture(player.getItemStackFromSlot(CHEST), player, CHEST)))), packedLightIn, player);
+        ModelSuit suitModel = new ModelSuit(getScale(EquipmentSlotType.CHEST), isSmallArms(player));
+        suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.getEntityTranslucent(new ResourceLocation(getSuitTexture(player.getItemStackFromSlot(EquipmentSlotType.CHEST), player, EquipmentSlotType.CHEST)))), packedLightIn, player);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public void hidePlayerSecondLayer(PlayerEntity player, PlayerModel model) {
-        if (player.getItemStackFromSlot(HEAD).getItem() instanceof SuitItem) {
-            model.bipedHeadwear.showModel = false;
-        }
-        if (player.getItemStackFromSlot(CHEST).getItem() instanceof SuitItem) {
-            model.bipedBodyWear.showModel = false;
-            model.bipedRightArmwear.showModel = false;
-            model.bipedLeftArmwear.showModel = false;
-        }
+    public Item getHelmet() {
+        return helmet;
+    }
 
-        if (player.getItemStackFromSlot(FEET).getItem() instanceof SuitItem
-                || player.getItemStackFromSlot(LEGS).getItem() instanceof SuitItem) {
-            model.bipedRightLegwear.showModel = false;
-            model.bipedLeftLegwear.showModel = false;
-        }
+    public Item getChestplate() {
+        return chestplate;
+    }
+
+    public Item getLegs() {
+        return legs;
+    }
+
+    public Item getBoots() {
+        return boots;
     }
 
     public boolean hasArmorOn(LivingEntity entity) {
@@ -193,9 +186,14 @@ public abstract class Suit extends ForgeRegistryEntry<Suit> {
         return hasArmorOn;
     }
 
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onRegisterNewRegistries(RegistryEvent.NewRegistry e) {
+        SUITS = new RegistryBuilder<Suit>().setName(new ResourceLocation(HeroesUnited.MODID, "suits")).setType(Suit.class).setIDRange(0, 512).create();
+    }
+
     public static Suit getSuit(LivingEntity entity) {
-        for (EquipmentSlotType slot : values()) {
-            if (slot.getSlotType() == Group.ARMOR) {
+        for (EquipmentSlotType slot : EquipmentSlotType.values()) {
+            if (slot.getSlotType() == EquipmentSlotType.Group.ARMOR) {
                 Item item = entity.getItemStackFromSlot(slot).getItem();
                 if (item instanceof SuitItem) {
                     SuitItem suitItem = (SuitItem) item;

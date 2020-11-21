@@ -12,23 +12,21 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.io.FileUtils;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
+import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 
 import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+
+import static net.minecraft.inventory.EquipmentSlotType.*;
 
 @OnlyIn(Dist.CLIENT)
 public class HUClientUtil {
@@ -73,6 +71,23 @@ public class HUClientUtil {
         HUClientUtil.renderFilledBox(matrixStack, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.grow(0.0625D), -color.getRed(), -color.getGreen(), -color.getBlue(), 0.5F * color.getAlpha(), combinedLightIn);
     }
 
+    public static void hideSuitPlayerWear(PlayerEntity player, PlayerModel model) {
+        if (player.getItemStackFromSlot(HEAD).getItem() instanceof SuitItem) {
+            model.bipedHeadwear.showModel = false;
+        }
+        if (player.getItemStackFromSlot(CHEST).getItem() instanceof SuitItem) {
+            model.bipedBodyWear.showModel = false;
+            model.bipedRightArmwear.showModel = false;
+            model.bipedLeftArmwear.showModel = false;
+        }
+
+        if (player.getItemStackFromSlot(FEET).getItem() instanceof SuitItem
+                || player.getItemStackFromSlot(LEGS).getItem() instanceof SuitItem) {
+            model.bipedRightLegwear.showModel = false;
+            model.bipedLeftLegwear.showModel = false;
+        }
+    }
+
     public static void copyAnglesToWear(PlayerModel model) {
         model.bipedHeadwear.copyModelAngles(model.bipedHead);
         model.bipedBodyWear.copyModelAngles(model.bipedBody);
@@ -110,19 +125,6 @@ public class HUClientUtil {
         }
     }
 
-    public static final File HEROESUNITED_DIR = new File(Minecraft.getInstance().gameDir, "mods/heroesunited");
-    public static final File THEMES_DIR = new File(HEROESUNITED_DIR, "/themes");
-
-    public static List<File> listAllThemes() {
-        List<File> resultList = new ArrayList<>();
-        try {
-            Files.find(Paths.get(THEMES_DIR.toString()), Integer.MAX_VALUE, (filePath, fileAttr) -> fileAttr.isRegularFile()).forEach((file) -> resultList.add(file.toFile()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return resultList;
-    }
-
     public static ResourceLocation fileToTexture(File file) {
         NativeImage nativeImage = null;
         try {
@@ -131,21 +133,5 @@ public class HUClientUtil {
             e.printStackTrace();
         }
         return Minecraft.getInstance().getTextureManager().getDynamicTextureLocation("file_" + System.currentTimeMillis(), new DynamicTexture(nativeImage));
-    }
-
-    public static void createFoldersAndLoadThemes() {
-        try {
-            if (!HEROESUNITED_DIR.exists()) {
-                FileUtils.forceMkdir(HEROESUNITED_DIR);
-            }
-            if (!THEMES_DIR.exists()) {
-                FileUtils.forceMkdir(THEMES_DIR);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        for (File file : HUClientUtil.listAllThemes()) {
-            AbilityHelper.addTheme(HUClientUtil.fileToTexture(file));
-        }
     }
 }

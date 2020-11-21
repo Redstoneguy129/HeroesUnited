@@ -7,6 +7,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ArmorItem;
+import net.minecraft.item.IArmorMaterial;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -23,10 +24,10 @@ import static net.minecraft.inventory.EquipmentSlotType.values;
 
 public class SuitItem extends ArmorItem {
 
-    public Suit suit;
+    private Suit suit;
 
-    public SuitItem(Suit suit, EquipmentSlotType slot) {
-        super(suit.getSuitMaterial(), slot, new Properties().maxStackSize(1).group(suit.getItemGroup()));
+    public SuitItem(IArmorMaterial materialIn, EquipmentSlotType slot, Properties builder, Suit suit) {
+        super(materialIn, slot, builder);
         this.suit = suit;
     }
 
@@ -76,8 +77,8 @@ public class SuitItem extends ArmorItem {
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
         ItemStack stack = playerIn.getHeldItem(handIn);
-        ItemStack itemstack1 = playerIn.getItemStackFromSlot(slot);
-        if (getSuit().canEquip(playerIn) && itemstack1.isEmpty()) {
+        ItemStack armorStack = playerIn.getItemStackFromSlot(slot);
+        if (getSuit().canEquip(playerIn) && armorStack.isEmpty()) {
             playerIn.setItemStackToSlot(slot, stack.copy());
             stack.setCount(0);
             return ActionResult.func_233538_a_(stack, worldIn.isRemote());

@@ -13,6 +13,7 @@ import net.minecraft.command.arguments.ResourceLocationArgument;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Util;
 import net.minecraft.util.text.TranslationTextComponent;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
@@ -118,8 +119,10 @@ public class HUCoreCommand {
             ServerPlayerEntity pl = (ServerPlayerEntity) iterator.next();
             HUPlayerUtil.setSuitForPlayer(pl, suit);
         }
-        if (players.size() == 1) commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.suit.set.single", (players.iterator().next()).getDisplayName(), suit.getDisplayName()), true);
-        else commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.suit.set.multiple", suit.getDisplayName()), true);
+        TranslationTextComponent display = new TranslationTextComponent(Util.makeTranslationKey("suits", suit.getRegistryName()));
+
+        if (players.size() == 1) commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.suit.set.single", (players.iterator().next()).getDisplayName(), display), true);
+        else commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.suit.set.multiple", display), true);
         return players.size();
     }
 
