@@ -46,6 +46,8 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public void setFlying(boolean flying) {
         this.flying = flying;
+        if (!player.world.isRemote)
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncFlight(player.getEntityId(), flying));
     }
 
     @Override
