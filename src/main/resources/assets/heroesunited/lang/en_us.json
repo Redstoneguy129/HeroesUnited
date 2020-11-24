@@ -27,6 +27,7 @@
   "config.heroesunited.renderhead": "Render Patreon Head",
   "gui.heroesunited.changehead": "Toggle Patreon Head",
   "gui.heroesunited.abilities": "Abilities gui,",
+  "gui.heroesunited.accesoire": "Accesoires gui",
 
   "commands.heroesunited.DidntExist": "This didnt exist",
   "commands.heroesunited.suit.set.single": "%s gived %s suit",

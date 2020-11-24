@@ -28,6 +28,7 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.client.render.model.ModelSuit;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
+import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -114,9 +115,7 @@ public abstract class Suit extends ForgeRegistryEntry<Suit> {
 
     @OnlyIn(Dist.CLIENT)
     public boolean isSmallArms(Entity entity) {
-        if (entity instanceof AbstractClientPlayerEntity)
-            return ((AbstractClientPlayerEntity) entity).getSkinType().equalsIgnoreCase("slim");
-        return false;
+        return HUPlayerUtil.haveSmallArms(entity);
     }
 
     @SuppressWarnings("unchecked")

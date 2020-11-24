@@ -23,12 +23,14 @@ public class HUAttributes {
     public static void registerAttributes() {
         for (EntityType<?> value : ForgeRegistries.ENTITIES.getValues()) {
             AttributeModifierMap map = GlobalEntityTypeAttributes.getAttributesForEntity((EntityType<? extends LivingEntity>) value);
-            Map<Attribute, ModifiableAttributeInstance> oldAttributes = map.attributeMap;
-            AttributeModifierMap.MutableAttribute newMap = AttributeModifierMap.createMutableAttribute();
-            newMap.attributeMap.putAll(oldAttributes);
-            newMap.createMutableAttribute(FALL_RESISTANCE);
-            newMap.createMutableAttribute(JUMP_BOOST);
-            GlobalEntityTypeAttributes.put((EntityType<? extends LivingEntity>) value, newMap.create());
+            if (map != null) {
+                Map<Attribute, ModifiableAttributeInstance> oldAttributes = map.attributeMap;
+                AttributeModifierMap.MutableAttribute newMap = AttributeModifierMap.createMutableAttribute();
+                newMap.attributeMap.putAll(oldAttributes);
+                newMap.createMutableAttribute(FALL_RESISTANCE);
+                newMap.createMutableAttribute(JUMP_BOOST);
+                GlobalEntityTypeAttributes.put((EntityType<? extends LivingEntity>) value, newMap.create());
+            }
         }
     }
 }

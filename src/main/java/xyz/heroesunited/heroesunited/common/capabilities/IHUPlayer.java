@@ -4,6 +4,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.INBTSerializable;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
+import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
 
 import java.util.Collection;
 
@@ -45,4 +46,6 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT> {
 
     void copy(IHUPlayer ihuPlayer);
     void sync();
+
+    AccessoireInventory getInventory();
 }

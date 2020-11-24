@@ -16,6 +16,7 @@ import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.*;
+import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
@@ -28,6 +29,7 @@ public class HUPlayer implements IHUPlayer {
     private List<AbilityType> activeAbilities = Lists.newArrayList();
     private Superpower superpower;
     private int theme, type;
+    public final AccessoireInventory inventory = new AccessoireInventory();
 
     public HUPlayer(PlayerEntity player) {
         this.player = player;
@@ -139,6 +141,7 @@ public class HUPlayer implements IHUPlayer {
     public void copy(IHUPlayer ihuPlayer) {
         this.setSuperpower(ihuPlayer.getSuperpower());
         this.setTheme(ihuPlayer.getTheme());
+        this.inventory.copy(ihuPlayer.getInventory());
     }
 
     @Override
@@ -146,6 +149,11 @@ public class HUPlayer implements IHUPlayer {
         if (!player.world.isRemote) {
             HUNetworking.INSTANCE.sendTo(new ClientSyncCap(player.getEntityId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
         }
+    }
+
+    @Override
+    public AccessoireInventory getInventory() {
+        return inventory;
     }
 
     @Override
@@ -162,6 +170,7 @@ public class HUPlayer implements IHUPlayer {
         if (superpower != null) nbt.put("superpower", superpower.serializeNBT(player));
         nbt.putInt("Theme", this.theme);
         nbt.putInt("Type", this.type);
+        inventory.write(nbt);
         return nbt;
     }
 
@@ -182,6 +191,7 @@ public class HUPlayer implements IHUPlayer {
         if (nbt.contains("Type")) {
             this.type = nbt.getInt("Type");
         }
+        inventory.read(nbt);
         this.activeAbilities = Lists.newArrayList();
         ListNBT listNBT = nbt.getList("Abilities", Constants.NBT.TAG_STRING);
         for (int i = 0; i < listNBT.size(); i++) {

@@ -1,5 +1,7 @@
 package xyz.heroesunited.heroesunited.util;
 
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -52,6 +54,12 @@ public class HUPlayerUtil {
         for (PlayerEntity players : world.getEntitiesWithinAABB(PlayerEntity.class, getCollisionBoxWithRange(posVc3d, range))) {
             spawnParticle(players, particleIn, longDistanceIn, posVc3d, offsetVc3d, speedIn, countIn);
         }
+    }
+
+    public static boolean haveSmallArms(Entity entity) {
+        if (entity instanceof AbstractClientPlayerEntity)
+            return ((AbstractClientPlayerEntity) entity).getSkinType().equalsIgnoreCase("slim");
+        return false;
     }
 
     public static AxisAlignedBB getCollisionBoxWithRange(Vector3d posVc3d, double range){

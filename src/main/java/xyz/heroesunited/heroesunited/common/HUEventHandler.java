@@ -94,9 +94,8 @@ public class HUEventHandler {
 
     @SubscribeEvent
     public void LivingJumpEvent(LivingEvent.LivingJumpEvent e) {
-        Vector3d motion = e.getEntity().getMotion();
-        if (!e.getEntityLiving().isCrouching() && e.getEntityLiving().getAttribute(HUAttributes.JUMP_BOOST) != null) {
-            e.getEntityLiving().setMotion(motion.x, motion.y + 0.1F * e.getEntityLiving().getAttribute(HUAttributes.JUMP_BOOST).getValue(), motion.z);
+        if (!e.getEntityLiving().isCrouching()) {
+            e.getEntityLiving().setMotion(e.getEntity().getMotion().x, e.getEntity().getMotion().y + 0.1F * e.getEntityLiving().getAttribute(HUAttributes.JUMP_BOOST).getValue(), e.getEntity().getMotion().z);
         }
     }
 

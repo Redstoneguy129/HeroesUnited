@@ -1,6 +1,7 @@
 package xyz.heroesunited.heroesunited;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.entity.ai.attributes.GlobalEntityTypeAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.RegistryKey;
@@ -35,6 +36,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import xyz.heroesunited.heroesunited.client.HUClientEventHandler;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
+import xyz.heroesunited.heroesunited.client.gui.AccessoireScreen;
 import xyz.heroesunited.heroesunited.client.render.renderer.RendererHoras;
 import xyz.heroesunited.heroesunited.common.HUConfig;
 import xyz.heroesunited.heroesunited.common.HUEventHandler;
@@ -47,6 +49,7 @@ import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
 import xyz.heroesunited.heroesunited.common.objects.HUPaintings;
 import xyz.heroesunited.heroesunited.common.objects.HUSounds;
 import xyz.heroesunited.heroesunited.common.objects.blocks.HUBlocks;
+import xyz.heroesunited.heroesunited.common.objects.container.HUContainers;
 import xyz.heroesunited.heroesunited.common.objects.entities.HUEntities;
 import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
@@ -90,6 +93,7 @@ public class HeroesUnited {
         HUBlocks.BLOCKS.register(eventBus);
         HUItems.ITEMS.register(eventBus);
         HUPaintings.PAINTINGS.register(eventBus);
+        HUContainers.CONTAINERS.register(eventBus);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
@@ -126,6 +130,7 @@ public class HeroesUnited {
         new HorasInfo.DimensionInfo("End", "Default      Dimension", new ResourceLocation("the_end"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/the_end.png"));
         Runtime.getRuntime().addShutdownHook(new HURichPresence.CloseRichPresence());
         HUPacks.HUPackFinder.createFoldersAndLoadThemes();
+        ScreenManager.registerFactory(HUContainers.ACCESSOIRE, AccessoireScreen::new);
         LOGGER.info(MODID+": client is ready!");
     }
 

@@ -3,9 +3,13 @@ package xyz.heroesunited.heroesunited.common.capabilities;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.GameRules;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.network.NetworkDirection;
@@ -14,6 +18,7 @@ import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilities;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncSuperpower;
+import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
 
 public class HUPlayerEvent {
 
@@ -31,6 +36,23 @@ public class HUPlayerEvent {
         newCap.deserializeNBT(oldCap.serializeNBT());
         newCap.copy(oldCap);
         newCap.sync();
+    }
+
+    @SubscribeEvent
+    public void onPlayerDeath(LivingDeathEvent event) {
+        if (event.getEntityLiving() instanceof PlayerEntity && !event.getEntityLiving().world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
+            PlayerEntity player = (PlayerEntity) event.getEntityLiving();
+            player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
+                AccessoireInventory inv = a.getInventory();
+                NonNullList<ItemStack> aitemstack = inv.getStacks();
+                for (int i = 0; i < aitemstack.size(); ++i) {
+                    if (!aitemstack.get(i).isEmpty()) {
+                        player.dropItem(aitemstack.get(i), true, false);
+                    }
+                }
+                inv.clear();
+            });
+        }
     }
 
     @SubscribeEvent
