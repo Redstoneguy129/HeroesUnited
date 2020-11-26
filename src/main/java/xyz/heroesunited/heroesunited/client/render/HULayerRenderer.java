@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import xyz.heroesunited.heroesunited.client.events.HURenderLayerEvent;
@@ -18,6 +19,7 @@ import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessoire;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
@@ -44,27 +46,35 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
                 type.create().render(playerRenderer, matrixStack, buffer, packedLight, player, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
             }
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                ModelSuit suitModel = new ModelSuit(0.08F, HUPlayerUtil.haveSmallArms(player));
                 ItemStack stack = cap.getInventory().getStackFromArmorSlots();
                 if (player.isChild() == false && stack != null && stack.getItem() instanceof IAccessoire) {
-                    IAccessoire accessoire = ((IAccessoire)stack.getItem());
-                    if (accessoire.renderDefaultModel()) {
-                        suitModel.setVisible(false);
-                        suitModel.bipedHeadwear.showModel = suitModel.bipedHead.showModel = cap.getInventory().haveStack(0);
-                        suitModel.bipedBody.showModel = suitModel.bipedBodyWear.showModel =
-                                suitModel.bipedLeftArmwear.showModel = suitModel.bipedLeftArm.showModel =
-                                        suitModel.bipedRightArmwear.showModel = suitModel.bipedRightArm.showModel = cap.getInventory().haveStack(1);
-                        suitModel.bipedLeftLeg.showModel = suitModel.bipedRightLeg.showModel = cap.getInventory().haveStack(2);
-                        suitModel.bipedLeftLegwear.showModel = suitModel.bipedRightLegwear.showModel = cap.getInventory().haveStack(3);
-                        playerRenderer.getEntityModel().setModelAttributes(suitModel);
-
-                        suitModel.render(matrixStack, buffer.getBuffer(RenderType.getEntityTranslucent(accessoire.getTexture(stack, player))), packedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
-                    } else {
-                        accessoire.render(playerRenderer, matrixStack, buffer, packedLight, player, stack, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+                    if (!MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Accesoires(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch))) {
+                        IAccessoire accessoire = ((IAccessoire) stack.getItem());
+                        ModelSuit suitModel = new ModelSuit(0.08F, HUPlayerUtil.haveSmallArms(player));
+                        for (int slot = 0; slot < 8; ++slot) {
+                        if (accessoire.renderDefaultModel()) {
+                            renderAccessoire(suitModel, matrixStack, buffer, packedLight, player, playerRenderer, accessoire, stack, cap, slot);
+                        } else {
+                                accessoire.render(playerRenderer, matrixStack, buffer, packedLight, player, stack, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, slot);
+                            }
+                        }
                     }
                 }
             });
             MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Player(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch));
         }
+    }
+
+    private void renderAccessoire(ModelSuit suitModel, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, PlayerEntity player, PlayerRenderer playerRenderer, IAccessoire accessoire, ItemStack stack, IHUPlayer cap, int slot) {
+        suitModel.setVisible(false);
+        suitModel.bipedHeadwear.showModel = suitModel.bipedHead.showModel = cap.getInventory().haveStack(0) || cap.getInventory().haveStack(1);
+        suitModel.bipedBody.showModel = suitModel.bipedBodyWear.showModel =
+                suitModel.bipedLeftArmwear.showModel = suitModel.bipedLeftArm.showModel =
+                        suitModel.bipedRightArmwear.showModel = suitModel.bipedRightArm.showModel = cap.getInventory().haveStack(1);
+        suitModel.bipedLeftLeg.showModel = suitModel.bipedRightLeg.showModel = cap.getInventory().haveStack(2);
+        suitModel.bipedLeftLegwear.showModel = suitModel.bipedRightLegwear.showModel = cap.getInventory().haveStack(3);
+        playerRenderer.getEntityModel().setModelAttributes(suitModel);
+
+        suitModel.render(matrixStack, buffer.getBuffer(RenderType.getEntityTranslucent(accessoire.getTexture(stack, player, slot))), packedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
     }
 }

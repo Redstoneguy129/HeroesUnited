@@ -25,6 +25,7 @@ public class AccessoireScreen extends ContainerScreen<AccessoireContainer> {
     public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrix);
         super.render(matrix, mouseX, mouseY, partialTicks);
+        this.renderHoveredTooltip(matrix, mouseX, mouseY);
         this.oldMouseX = (float)mouseX;
         this.oldMouseY = (float)mouseY;
     }

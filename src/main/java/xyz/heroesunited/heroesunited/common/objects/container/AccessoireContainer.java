@@ -32,8 +32,8 @@ public class AccessoireContainer extends Container {
         super(HUContainers.ACCESSOIRE, id);
 
         for (int k = 0; k < 4; ++k) {
-            this.addSlot(new ArmorSlot(playerInventory, inventory, k, 110, 8 + k * 18));
-            this.addSlot(new ArmorSlot(playerInventory, inventory, 4 + k, 141, 8 + k * 18));
+            this.addSlot(new AccessoireSlot(inventory, k, 110, 8 + k * 18));
+            this.addSlot(new AccessoireSlot(inventory, 4 + k, 141, 8 + k * 18));
         }
 
         for (int k = 0; k < 4; ++k) {
@@ -124,27 +124,26 @@ public class AccessoireContainer extends Container {
         return true;
     }
 
-    public class ArmorSlot extends Slot {
+    public class AccessoireSlot extends Slot {
 
-        private final PlayerInventory playerInventory;
+        private final EquipmentAccessoireSlot equipmentSlot;
 
-        public ArmorSlot(PlayerInventory playerInventory, IInventory inventoryIn, int index, int xPosition, int yPosition) {
+        public AccessoireSlot(IInventory inventoryIn, int index, int xPosition, int yPosition) {
             super(inventoryIn, index, xPosition, yPosition);
-            this.playerInventory = playerInventory;
+            this.equipmentSlot = EquipmentAccessoireSlot.getFromSlotIndex(index);
         }
 
         public int getSlotStackLimit() {
-            return getSlotIndex() < 4 ? 1 : super.getSlotStackLimit();
+            return 1;
         }
 
         public boolean canTakeStack(PlayerEntity playerIn) {
-            ItemStack itemstack = this.getStack();
-            boolean stack = (itemstack.isEmpty() || playerIn.isCreative() || !EnchantmentHelper.hasBindingCurse(itemstack)) && super.canTakeStack(playerIn);
-            return getSlotIndex() < 4 && itemstack.getItem() instanceof IAccessoire ? stack : super.canTakeStack(playerIn);
+            ItemStack stack = this.getStack();
+            return stack.getItem() instanceof IAccessoire && ((IAccessoire)stack.getItem()).canTakeStack(playerIn, stack) && super.canTakeStack(playerIn);
         }
 
         public boolean isItemValid(ItemStack stack) {
-            return getSlotIndex() < 4 && stack.getItem() instanceof IAccessoire ? getSlotIndex() == ((IAccessoire)stack.getItem()).getSlot() : super.isItemValid(stack);
+            return stack.getItem() instanceof IAccessoire && equipmentSlot == ((IAccessoire)stack.getItem()).getSlot();
         }
     }
 }

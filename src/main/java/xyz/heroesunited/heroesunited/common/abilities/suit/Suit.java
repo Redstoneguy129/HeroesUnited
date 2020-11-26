@@ -28,6 +28,7 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.client.render.model.ModelSuit;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
+import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 import javax.annotation.Nullable;
@@ -47,11 +48,6 @@ public abstract class Suit extends ForgeRegistryEntry<Suit> {
 
     public Suit(String modid, String name) {
         this.setRegistryName(modid, name);
-        this.registerItems(ForgeRegistries.ITEMS);
-    }
-
-    public Suit(ResourceLocation location) {
-        this.setRegistryName(location);
         this.registerItems(ForgeRegistries.ITEMS);
     }
 
@@ -140,9 +136,16 @@ public abstract class Suit extends ForgeRegistryEntry<Suit> {
     @OnlyIn(Dist.CLIENT)
     @Nullable
     public String getSuitTexture(ItemStack stack, Entity entity, EquipmentSlotType slot) {
-        String tex = slot != EquipmentSlotType.LEGS ? "layer_0" : "layer_1";
-        if (slot == EquipmentSlotType.CHEST && isSmallArms(entity)) tex = "smallarms";
-        return this.getRegistryName().getNamespace() + ":textures/suits/" + this.getRegistryName().getPath() + "/" + tex + ".png";
+        HUPackLayers.Layer layer = HUPackLayers.getInstance().getLayer(this.getRegistryName());
+        if (layer != null) {
+            String tex = slot != EquipmentSlotType.LEGS ? layer.getLayer0().toString() : layer.getLayer1().toString();
+            if (slot.equals(EquipmentSlotType.CHEST) && isSmallArms(entity)) tex = layer.getSmallArms().toString();
+            return tex + ".png";
+        } else {
+            String tex = slot != EquipmentSlotType.LEGS ? "layer_0" : "layer_1";
+            if (slot == EquipmentSlotType.CHEST && isSmallArms(entity)) tex = "smallarms";
+            return this.getRegistryName().getNamespace() + ":textures/suits/" + this.getRegistryName().getPath() + "/" + tex + ".png";
+        }
     }
 
     @OnlyIn(Dist.CLIENT)

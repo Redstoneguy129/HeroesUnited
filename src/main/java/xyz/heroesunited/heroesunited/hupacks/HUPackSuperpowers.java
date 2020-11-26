@@ -53,14 +53,9 @@ public class HUPackSuperpowers extends JsonReloadListener {
                 if (e.getValue() instanceof JsonObject) {
                     JsonObject o = (JsonObject) e.getValue();
                     AbilityType type = AbilityType.ABILITIES.getValue(new ResourceLocation(JSONUtils.getString(o, "ability")));
-                    try {
-                        if (type != null) {
-                            types.add(type);
-                        }
-                    } catch (Throwable throwable) {
-                        HeroesUnited.getLogger().error("Couldn't read ability {} in superpower {}", type, resourceLocation);
-                    }
-
+                    if (type != null) {
+                        types.add(type);
+                    } else HeroesUnited.getLogger().error("Couldn't read ability {} in superpower {}", JSONUtils.getString(o, "ability"), resourceLocation);
                 }
             });
 
