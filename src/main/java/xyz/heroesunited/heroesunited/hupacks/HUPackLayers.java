@@ -42,8 +42,9 @@ public class HUPackLayers extends JsonReloadListener {
         JsonObject resources = JSONUtils.getJsonObject(json, "resources");
         ResourceLocation layer1 = new ResourceLocation(JSONUtils.getString(resources, "layer_0"));
         ResourceLocation layer2 = new ResourceLocation(JSONUtils.getString(resources, "layer_1"));
-        ResourceLocation smallArms = new ResourceLocation(JSONUtils.getString(resources, "smallArms"));
-        return new Layer(name, layer1, layer2, smallArms);
+        ResourceLocation cape = JSONUtils.hasField(resources, "cape") ? new ResourceLocation(JSONUtils.getString(resources, "cape")) : null;
+        ResourceLocation smallArms = JSONUtils.hasField(resources, "smallArms") ? new ResourceLocation(JSONUtils.getString(resources, "smallArms")) : null;
+        return new Layer(name, layer1, layer2, smallArms, cape);
     }
 
     public Map<ResourceLocation, Layer> getLayers() {
@@ -60,15 +61,14 @@ public class HUPackLayers extends JsonReloadListener {
 
     public static class Layer {
 
-        private final ResourceLocation name;
-        private final ResourceLocation layer0;
-        private final ResourceLocation layer1;
+        private final ResourceLocation name, layer0, layer1, cape;
         private final ResourceLocation smallArms;
 
-        public Layer(ResourceLocation name, ResourceLocation layer0, ResourceLocation layer1, ResourceLocation smallArms) {
+        public Layer(ResourceLocation name, ResourceLocation layer0, ResourceLocation layer1, ResourceLocation smallArms, ResourceLocation cape) {
             this.name = name;
             this.layer0 = layer0;
             this.layer1 = layer1;
+            this.cape = cape;
             this.smallArms = smallArms;
         }
 
@@ -86,6 +86,10 @@ public class HUPackLayers extends JsonReloadListener {
 
         public ResourceLocation getLayer1() {
             return layer1;
+        }
+
+        public ResourceLocation getCape() {
+            return cape;
         }
     }
 }

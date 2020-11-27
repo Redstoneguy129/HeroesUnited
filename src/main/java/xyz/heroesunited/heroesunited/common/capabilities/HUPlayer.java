@@ -1,6 +1,7 @@
 package xyz.heroesunited.heroesunited.common.capabilities;
 
 import com.google.common.collect.Lists;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -36,8 +37,8 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Nonnull
-    public static IHUPlayer getCap(PlayerEntity player) {
-        return player.getCapability(HUPlayerProvider.CAPABILITY).orElse(null);
+    public static IHUPlayer getCap(Entity entity) {
+        return entity.getCapability(HUPlayerProvider.CAPABILITY).orElse(null);
     }
 
     @Override

@@ -21,8 +21,8 @@ public class AccessoireInventory implements IInventory {
       return index >= 0 && index < this.inventory.size() ? this.inventory.get(index) : ItemStack.EMPTY;
    }
 
-   public boolean haveStack(int index) {
-      return getStackInSlot(index) != null && !getStackInSlot(index).isEmpty();
+   public boolean haveStack(EquipmentAccessoireSlot slot) {
+      return getStackInSlot(slot.getSlot()) != null && !getStackInSlot(slot.getSlot()).isEmpty();
    }
 
    public NonNullList<ItemStack> getStacks(){
@@ -111,8 +111,8 @@ public class AccessoireInventory implements IInventory {
 
    public ItemStack getStackFromArmorSlots() {
       ItemStack stack = null;
-      for (int k = 0; k < 4; ++k) {
-         if (this.haveStack(k)) {
+      for (int k = 0; k < 8; ++k) {
+         if (getStackInSlot(k) != null && !getStackInSlot(k).isEmpty()) {
             stack = this.getStackInSlot(k);
          }
       }

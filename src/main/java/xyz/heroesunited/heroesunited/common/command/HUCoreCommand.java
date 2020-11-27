@@ -26,6 +26,10 @@ import java.util.Collection;
 import java.util.Iterator;
 
 public class HUCoreCommand {
+    private static final SuggestionProvider<CommandSource> SUGGEST_SUPERPOWERS = (context, builder) -> ISuggestionProvider.func_212476_a(HUPackSuperpowers.getInstance().getSuperpowers().values().stream().map(Superpower::getRegistryName), builder);
+    private static final SuggestionProvider<CommandSource> SUGGEST_SUITS = (context, builder) -> ISuggestionProvider.func_212476_a(Suit.SUITS.values().stream().map(Suit::getRegistryName), builder);
+    public static final DynamicCommandExceptionType DIDNT_EXIST = new DynamicCommandExceptionType((object) -> new TranslationTextComponent("commands.heroesunited.DidntExist", object));
+
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
         dispatcher.register(Commands.literal("heroesunited").requires((player) -> player.hasPermissionLevel(2))
                 .then(Commands.literal("suit")
@@ -105,7 +109,7 @@ public class HUCoreCommand {
 
     public static Suit getSuit(CommandContext<CommandSource> context, String key) throws CommandSyntaxException {
         ResourceLocation resourceLocation = context.getArgument(key, ResourceLocation.class);
-        Suit suit = Suit.SUITS.getValue(resourceLocation);
+        Suit suit = Suit.SUITS.get(resourceLocation);
         if (suit == null) {
             throw DIDNT_EXIST.create(resourceLocation);
         } else {
@@ -125,18 +129,4 @@ public class HUCoreCommand {
         else commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.suit.set.multiple", display), true);
         return players.size();
     }
-
-    private static final SuggestionProvider<CommandSource> SUGGEST_SUPERPOWERS = (context, builder) -> {
-        Collection<Superpower> superpowers = HUPackSuperpowers.getInstance().getSuperpowers().values();
-        return ISuggestionProvider.func_212476_a(superpowers.stream().map(Superpower::getRegistryName), builder);
-    };
-
-    private static final SuggestionProvider<CommandSource> SUGGEST_SUITS = (context, builder) -> {
-        Collection<Suit> suits = Suit.SUITS.getValues();
-        return ISuggestionProvider.func_212476_a(suits.stream().map(Suit::getRegistryName), builder);
-    };
-
-    public static final DynamicCommandExceptionType DIDNT_EXIST = new DynamicCommandExceptionType((object) ->
-            new TranslationTextComponent("commands.heroesunited.DidntExist", object)
-    );
 }

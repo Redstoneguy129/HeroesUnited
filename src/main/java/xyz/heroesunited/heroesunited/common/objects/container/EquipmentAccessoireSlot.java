@@ -2,10 +2,10 @@ package xyz.heroesunited.heroesunited.common.objects.container;
 
 public enum EquipmentAccessoireSlot {
     HELMET(0),
-    JACKET(1),
+    TSHIRT(1),
     PANTS(2),
     SHOES(3),
-    TSHIRT(4),
+    JACKET(4),
     RIGHT_WRIST(5),
     LEFT_WRIST(6),
     GLOVES(7);

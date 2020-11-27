@@ -81,7 +81,6 @@ public class HeroesUnited {
         MinecraftForge.EVENT_BUS.register(new HUEventHandler());
         MinecraftForge.EVENT_BUS.register(new HUPlayerEvent());
         MinecraftForge.EVENT_BUS.register(this);
-
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, HUConfig.CLIENT_SPEC);
     }
 

@@ -40,7 +40,7 @@ public class HUPacks {
         hupackFinder.reloadPacksFromFinders();
         this.hupackFinder.getAllPacks().stream().map(ResourcePackInfo::getResourcePack).collect(Collectors.toList()).forEach(pack -> resourceManager.addResourcePack(pack));
         modResourcePacks.forEach((file, pack) -> resourceManager.addResourcePack(pack));
-        new HUPackSuit();
+        HUPackSuit.init();
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             ((IReloadableResourceManager) Minecraft.getInstance().getResourceManager()).addReloadListener(new HUPackLayers());
             Minecraft.getInstance().getResourcePackList().addPackFinder(new HUPackFinder());

@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.common.abilities.suit;
 
+import com.google.common.collect.Maps;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -17,26 +18,24 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ForgeRegistryEntry;
+import net.minecraftforge.registries.GameData;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryBuilder;
-import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.client.render.model.ModelSuit;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
+import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 
-public abstract class Suit extends ForgeRegistryEntry<Suit> {
+public abstract class Suit {
 
-    public static IForgeRegistry<Suit> SUITS;
+    public static final Map<ResourceLocation, Suit> SUITS = Maps.newHashMap();
+    private ResourceLocation registryName = null;
     protected Item helmet;
     protected Item chestplate;
     protected Item legs;
@@ -46,9 +45,13 @@ public abstract class Suit extends ForgeRegistryEntry<Suit> {
         this.registerItems(ForgeRegistries.ITEMS);
     }
 
-    public Suit(String modid, String name) {
-        this.setRegistryName(modid, name);
+    public Suit(ResourceLocation name) {
+        this.setRegistryName(name);
         this.registerItems(ForgeRegistries.ITEMS);
+    }
+
+    public Suit(String modid, String name) {
+        this(new ResourceLocation(modid, name));
     }
 
     public void registerItems(IForgeRegistry<Item> e) {
@@ -102,7 +105,12 @@ public abstract class Suit extends ForgeRegistryEntry<Suit> {
     public void setRotationAngles(HUSetRotationAnglesEvent event){}
 
     @OnlyIn(Dist.CLIENT)
-    public void renderLayer(@Nullable LivingRenderer<? extends LivingEntity, ? extends BipedModel<?>> entityRenderer, @Nullable LivingEntity entity, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {}
+    public void renderLayer(@Nullable LivingRenderer<? extends LivingEntity, ? extends BipedModel<?>> entityRenderer, @Nullable LivingEntity entity, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+        HUPackLayers.Layer layer = HUPackLayers.getInstance().getLayer(this.getRegistryName());
+        if (layer != null && layer.getCape() != null) {
+            HUClientUtil.renderCape(entityRenderer, entity, matrix, bufferIn, packedLightIn, partialTicks, layer.getCape());
+        }
+    }
 
     @OnlyIn(Dist.CLIENT)
     public float getScale(EquipmentSlotType slot) {
@@ -139,8 +147,8 @@ public abstract class Suit extends ForgeRegistryEntry<Suit> {
         HUPackLayers.Layer layer = HUPackLayers.getInstance().getLayer(this.getRegistryName());
         if (layer != null) {
             String tex = slot != EquipmentSlotType.LEGS ? layer.getLayer0().toString() : layer.getLayer1().toString();
-            if (slot.equals(EquipmentSlotType.CHEST) && isSmallArms(entity)) tex = layer.getSmallArms().toString();
-            return tex + ".png";
+            if (slot.equals(EquipmentSlotType.CHEST) && isSmallArms(entity) && layer.getSmallArms() != null) tex = layer.getSmallArms().toString();
+            return tex;
         } else {
             String tex = slot != EquipmentSlotType.LEGS ? "layer_0" : "layer_1";
             if (slot == EquipmentSlotType.CHEST && isSmallArms(entity)) tex = "smallarms";
@@ -152,6 +160,19 @@ public abstract class Suit extends ForgeRegistryEntry<Suit> {
     public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side) {
         ModelSuit suitModel = new ModelSuit(getScale(EquipmentSlotType.CHEST), isSmallArms(player));
         suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.getEntityTranslucent(new ResourceLocation(getSuitTexture(player.getItemStackFromSlot(EquipmentSlotType.CHEST), player, EquipmentSlotType.CHEST)))), packedLightIn, player);
+    }
+
+    public final Suit setRegistryName(ResourceLocation name) {
+        if (getRegistryName() != null)
+            throw new IllegalStateException("Attempted to set registry name with existing registry name! New: " + name.toString() + " Old: " + getRegistryName());
+
+        this.registryName = GameData.checkPrefix(name.toString(), true);
+        return this;
+    }
+
+    @Nullable
+    public final ResourceLocation getRegistryName() {
+        return registryName != null ? registryName : null;
     }
 
     public Item getHelmet() {
@@ -188,9 +209,12 @@ public abstract class Suit extends ForgeRegistryEntry<Suit> {
         return hasArmorOn;
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onRegisterNewRegistries(RegistryEvent.NewRegistry e) {
-        SUITS = new RegistryBuilder<Suit>().setName(new ResourceLocation(HeroesUnited.MODID, "suits")).setType(Suit.class).setIDRange(0, 512).create();
+    public static void registerSuit(Suit suit) {
+        Suit.SUITS.put(suit.getRegistryName(), suit);
+    }
+
+    public static void registerSuits(Map<ResourceLocation, Suit> map) {
+        Suit.SUITS.putAll(map);
     }
 
     public static Suit getSuit(LivingEntity entity) {

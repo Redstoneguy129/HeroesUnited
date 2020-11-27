@@ -18,6 +18,12 @@ public class HURegisterSuperpower extends Event {
         map.put(superpower.getRegistryName(), superpower);
     }
 
+    public void registerAll(Superpower... superpowers) {
+        for (Superpower superpower : superpowers) {
+            map.put(superpower.getRegistryName(), superpower);
+        }
+    }
+
     @Override
     public boolean isCancelable() {
         return false;

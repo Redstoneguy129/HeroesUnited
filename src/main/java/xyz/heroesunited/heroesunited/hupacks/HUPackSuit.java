@@ -1,7 +1,6 @@
 package xyz.heroesunited.heroesunited.hupacks;
 
 import com.google.common.collect.Maps;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -29,7 +28,7 @@ import java.util.Map;
 
 public class HUPackSuit {
 
-    static {
+    public static void init() {
         IResourceManager resourceManager = HUPacks.getInstance().getResourceManager();
         LinkedHashMap<ResourceLocation, JsonObject> suits = Maps.newLinkedHashMap();
 
@@ -46,9 +45,63 @@ public class HUPackSuit {
 
         for (Map.Entry<ResourceLocation, JsonObject> entry : suits.entrySet()) {
             try {
-                JsonSuit suit = new JsonSuit(entry.getValue(), entry.getKey());
+                Suit suit = new Suit(entry.getKey()) {
+                    @Override
+                    public void registerItems(IForgeRegistry<Item> e) {
+                        if (JSONUtils.hasField(entry.getValue(), "slots")) {
+                            JsonObject slots = JSONUtils.getJsonObject(entry.getValue(), "slots");
+                            if (JSONUtils.hasField(slots, "head")) {
+                                e.register(helmet = createItem(this, EquipmentSlotType.HEAD, JSONUtils.getString(slots, "head")));
+                            }
+                            if (JSONUtils.hasField(slots, "chest")) {
+                                e.register(chestplate = createItem(this, EquipmentSlotType.CHEST, JSONUtils.getString(slots, "chest")));
+                            }
+                            if (JSONUtils.hasField(slots, "legs")) {
+                                e.register(legs = createItem(this, EquipmentSlotType.LEGS, JSONUtils.getString(slots, "legs")));
+                            }
+                            if (JSONUtils.hasField(slots, "feet")) {
+                                e.register(boots = createItem(this, EquipmentSlotType.FEET, JSONUtils.getString(slots, "feet")));
+                            }
+                        } else {
+                            e.register(helmet = createItem(this, EquipmentSlotType.HEAD));
+                            e.register(chestplate = createItem(this, EquipmentSlotType.CHEST));
+                            e.register(legs = createItem(this, EquipmentSlotType.LEGS));
+                            e.register(boots = createItem(this, EquipmentSlotType.FEET));
+                        }
+                    }
+
+                    @Override
+                    public boolean canEquip(PlayerEntity player) {
+                        return JSONUtils.hasField(entry.getValue(), "equip") ? JSONUtils.getBoolean(entry.getValue(), "equip") : super.canEquip(player);
+                    }
+
+                    @Override
+                    public IArmorMaterial getSuitMaterial() {
+                        return JSONUtils.hasField(entry.getValue(), "armor_material") && entry.getValue().get("armor_material").isJsonPrimitive() ? HUJsonUtils.ArmorMaterials.getArmorMaterial(entry.getValue().get("armor_material").getAsString()) : super.getSuitMaterial();
+                    }
+
+                    @Override
+                    public ItemGroup getItemGroup() {
+                        return JSONUtils.hasField(entry.getValue(), "itemGroup") ? HUJsonUtils.getItemGroup(entry.getValue(), "itemGroup") : super.getItemGroup();
+                    }
+
+                    @Override
+                    public List<ITextComponent> getDescription(ItemStack stack) {
+                        return JSONUtils.hasField(entry.getValue(), "description") ? HUJsonUtils.parseDescriptionLines(entry.getValue().get("description")) : super.getDescription(stack);
+                    }
+
+                    @Override
+                    public boolean canCombineWithAbility(AbilityType type, PlayerEntity player) {
+                        return JSONUtils.hasField(entry.getValue(), "combine") ? JSONUtils.getBoolean(entry.getValue(), "combine") : super.canCombineWithAbility(type, player);
+                    }
+
+                    @Override
+                    public float getScale(EquipmentSlotType slot) {
+                        return JSONUtils.hasField(entry.getValue(), "scale") ? JSONUtils.getFloat(entry.getValue(), "scale") : super.getScale(slot);
+                    }
+                };
                 if (suit != null) {
-                    Suit.SUITS.register(suit);
+                    Suit.SUITS.put(suit.getRegistryName(), suit);
                     HeroesUnited.getLogger().info("Registered hupack suit {}!", entry.getKey());
                 }
             } catch (Throwable throwable) {
@@ -56,71 +109,4 @@ public class HUPackSuit {
             }
         }
     }
-
-
-    public static class JsonSuit extends Suit {
-
-        protected final JsonObject json;
-
-        public JsonSuit(JsonObject json, ResourceLocation location) {
-            super(location.getNamespace(), location.getPath());
-            this.json = json;
-        }
-
-        @Override
-        public void registerItems(IForgeRegistry<Item> e) {
-            if (JSONUtils.hasField(json, "slots")) {
-                JsonObject slots = JSONUtils.getJsonObject(json, "slots");
-                if (JSONUtils.hasField(slots, "head")) {
-                    e.register(helmet = createItem(this, EquipmentSlotType.HEAD, JSONUtils.getString(slots, "head")));
-                }
-                if (JSONUtils.hasField(slots, "chest")) {
-                    e.register(chestplate = createItem(this, EquipmentSlotType.CHEST, JSONUtils.getString(slots, "chest")));
-                }
-                if (JSONUtils.hasField(slots, "legs")) {
-                    e.register(legs = createItem(this, EquipmentSlotType.LEGS, JSONUtils.getString(slots, "legs")));
-                }
-                if (JSONUtils.hasField(slots, "feet")) {
-                    e.register(boots = createItem(this, EquipmentSlotType.FEET, JSONUtils.getString(slots, "feet")));
-                }
-            } else {
-                e.register(helmet = createItem(this, EquipmentSlotType.HEAD));
-                e.register(chestplate = createItem(this, EquipmentSlotType.CHEST));
-                e.register(legs = createItem(this, EquipmentSlotType.LEGS));
-                e.register(boots = createItem(this, EquipmentSlotType.FEET));
-            }
-        }
-
-        @Override
-        public boolean canEquip(PlayerEntity player) {
-            return JSONUtils.hasField(json, "equip") ? JSONUtils.getBoolean(json, "equip") : super.canEquip(player);
-        }
-
-        @Override
-        public IArmorMaterial getSuitMaterial() {
-            JsonElement materialJson = json.get("armor_material");
-            return JSONUtils.hasField(json, "armor_material") && materialJson.isJsonPrimitive() ? HUJsonUtils.ArmorMaterials.getArmorMaterial(materialJson.getAsString()) : super.getSuitMaterial();
-        }
-
-        @Override
-        public ItemGroup getItemGroup() {
-            return JSONUtils.hasField(json, "itemGroup") ? HUJsonUtils.getItemGroup(json, "itemGroup") : super.getItemGroup();
-        }
-
-        @Override
-        public List<ITextComponent> getDescription(ItemStack stack) {
-            return JSONUtils.hasField(json, "description") ? HUJsonUtils.parseDescriptionLines(json.get("description")) : super.getDescription(stack);
-        }
-
-        @Override
-        public boolean canCombineWithAbility(AbilityType type, PlayerEntity player) {
-            return JSONUtils.hasField(json, "combine") ? JSONUtils.getBoolean(json, "combine") : super.canCombineWithAbility(type, player);
-        }
-
-        @Override
-        public float getScale(EquipmentSlotType slot) {
-            return JSONUtils.hasField(json, "scale") ? JSONUtils.getFloat(json, "scale") : super.getScale(slot);
-        }
-    }
-
 }

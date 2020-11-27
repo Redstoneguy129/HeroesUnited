@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.util;
 
+import net.minecraft.block.AbstractGlassBlock;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -13,8 +14,7 @@ import net.minecraft.particles.IParticleData;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
@@ -70,6 +70,27 @@ public class HUPlayerUtil {
     public static Vector3d getPlayerPos(PlayerEntity player){
         Vector3d vec = new Vector3d(player.getPosX(), player.getPosY(), player.getPosZ());
         return vec;
+    }
+
+    public static RayTraceResult getPosLookingAt(PlayerEntity player) {
+        double distance = 40D;
+        Vector3d startPos = player.getPositionVec().add(0, player.getEyeHeight(), 0);
+        Vector3d endPos = player.getPositionVec().add(0, player.getEyeHeight(), 0).add(player.getLookVec().scale(distance));
+
+        for (int i = 0; i < distance * 2; i++) {
+            float scale = i / 2F;
+            Vector3d pos = startPos.add(endPos.subtract(startPos).scale(scale / distance));
+            BlockPos bpos = new BlockPos(pos);
+            boolean block = !player.world.getBlockState(bpos).isSolid() && player.world.getBlockState(bpos).getBlock() instanceof AbstractGlassBlock;
+            if ((player.world.getBlockState(bpos).isSolid() && !player.world.isAirBlock(bpos)) || block) {
+                return new BlockRayTraceResult(pos, null, bpos, false);
+            } else {
+                for (Entity entity : player.world.getEntitiesWithinAABBExcludingEntity(player, new AxisAlignedBB(0.25F, 0.25F, 0.25F, -0.25F, -0.25F, -0.25F))) {
+                    return new EntityRayTraceResult(entity);
+                }
+            }
+        }
+        return null;
     }
 
     public static void setSuitForPlayer(PlayerEntity player, Suit suit) {
