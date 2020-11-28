@@ -28,4 +28,8 @@ public interface IAccessoire {
     default boolean canTakeStack(PlayerEntity player, ItemStack stack) {
         return stack.isEmpty() || player.isCreative() || !EnchantmentHelper.hasBindingCurse(stack);
     }
+
+    default float getScale(ItemStack stack){
+        return 0.08F;
+    }
 }
