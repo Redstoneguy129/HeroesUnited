@@ -202,35 +202,42 @@ public class HUPlayer implements IHUPlayer {
         for (AbilityType type : this.activeAbilities) {
             listNBT.add(StringNBT.valueOf(AbilityType.ABILITIES.getKey(type).toString()));
         }
-
         nbt.put("Abilities", listNBT);
         nbt.putBoolean("Flying", this.flying);
         nbt.putBoolean("Intangible", this.intangible);
-        if (superpower != null) nbt.put("superpower", superpower.serializeNBT(player));
         nbt.putInt("Theme", this.theme);
         nbt.putInt("Type", this.type);
+        nbt.putInt("Cooldown", this.cooldown);
+        nbt.putInt("Timer", this.timer);
+        nbt.putBoolean("isInTimer", this.isInTimer);
+
+        if (superpower != null) {
+            nbt.put("superpower", superpower.serializeNBT(player));
+        }
         inventory.write(nbt);
         return nbt;
     }
 
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
-        if (nbt.contains("superpower")) {
-            superpower = Superpower.deserializeNBT(nbt.getCompound("superpower"));
-        }
         if (nbt.contains("Flying")) {
             this.flying = nbt.getBoolean("Flying");
-        }
-        if (nbt.contains("Intangible")) {
+        } if (nbt.contains("Intangible")) {
             this.intangible = nbt.getBoolean("Intangible");
-        }
-        if (nbt.contains("Theme")) {
+        } if (nbt.contains("Theme")) {
             this.theme = nbt.getInt("Theme");
-        }
-        if (nbt.contains("Type")) {
+        } if (nbt.contains("Type")) {
             this.type = nbt.getInt("Type");
+        } if (nbt.contains("Cooldown")) {
+            this.cooldown = nbt.getInt("Cooldown");
+        } if (nbt.contains("Timer")) {
+            this.timer = nbt.getInt("Timer");
+        } if (nbt.contains("isInTimer")) {
+            this.isInTimer = nbt.getBoolean("isInTimer");
+        } if (nbt.contains("superpower")) {
+            superpower = Superpower.deserializeNBT(nbt.getCompound("superpower"));
         }
-        inventory.read(nbt);
+
         this.activeAbilities = Lists.newArrayList();
         ListNBT listNBT = nbt.getList("Abilities", Constants.NBT.TAG_STRING);
         for (int i = 0; i < listNBT.size(); i++) {
@@ -239,5 +246,7 @@ public class HUPlayer implements IHUPlayer {
                 this.activeAbilities.add(type);
             }
         }
+
+        inventory.read(nbt);
     }
 }
