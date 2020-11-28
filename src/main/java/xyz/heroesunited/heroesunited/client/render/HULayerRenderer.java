@@ -54,7 +54,7 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
                     ItemStack stack = cap.getInventory().getStackInSlot(slot);
                     if (stack != null && stack.getItem() instanceof IAccessoire && !MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Accesoires(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch))) {
                         IAccessoire accessoire = ((IAccessoire) stack.getItem());
-                        ModelSuit suitModel = new ModelSuit(0.08F, HUPlayerUtil.haveSmallArms(player));
+                        ModelSuit suitModel = new ModelSuit(slot < 4? 0.08F : 0.12F, HUPlayerUtil.haveSmallArms(player));
                         if (accessoire.renderDefaultModel()) {
                             renderAccessoire(suitModel, matrixStack, buffer, packedLight, player, playerRenderer, accessoire, stack, cap, EquipmentAccessoireSlot.getFromSlotIndex(slot));
                         } else {
