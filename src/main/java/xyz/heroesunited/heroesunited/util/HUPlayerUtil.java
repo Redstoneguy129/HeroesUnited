@@ -1,6 +1,7 @@
 package xyz.heroesunited.heroesunited.util;
 
 import net.minecraft.block.AbstractGlassBlock;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -11,9 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPlaySoundPacket;
 import net.minecraft.network.play.server.SSpawnParticlePacket;
 import net.minecraft.particles.IParticleData;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.StringTextComponent;
@@ -70,6 +69,29 @@ public class HUPlayerUtil {
     public static Vector3d getPlayerPos(PlayerEntity player){
         Vector3d vec = new Vector3d(player.getPosX(), player.getPosY(), player.getPosZ());
         return vec;
+    }
+
+    public static void makeLaserLooking(PlayerEntity player) {
+        RayTraceResult rtr = getPosLookingAt(player);
+        if (rtr != null && !player.world.isRemote) {
+            if (rtr.getType() == RayTraceResult.Type.ENTITY) {
+                EntityRayTraceResult ertr = (EntityRayTraceResult) rtr;
+                if (ertr.getEntity() != null && ertr.getEntity() != player) {
+                    ertr.getEntity().setFire(5);
+                    if (ertr.getEntity() instanceof PlayerEntity)
+                        ertr.getEntity().attackEntityFrom(DamageSource.causePlayerDamage(player), 2);
+                    else ertr.getEntity().attackEntityFrom(DamageSource.causeMobDamage(player), 2);
+                }
+            } else if (rtr.getType() == RayTraceResult.Type.BLOCK) {
+                BlockPos pos = new BlockPos(rtr.getHitVec());
+                for (Direction dir : Direction.values()) {
+                    BlockPos blockPos = new BlockPos(pos.add(dir.getDirectionVec()));
+                    if (player.world.isAirBlock(blockPos)) {
+                        player.world.setBlockState(blockPos, Blocks.FIRE.getDefaultState());
+                    }
+                }
+            }
+        }
     }
 
     public static RayTraceResult getPosLookingAt(PlayerEntity player) {

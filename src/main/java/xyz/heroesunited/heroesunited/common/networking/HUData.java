@@ -15,18 +15,24 @@ public enum HUData {
         entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((a) -> {
             boolean booleans = value == 1 ? true : false;
             switch (data) {
-                case COOLDOWN:
+                case COOLDOWN: {
                     a.setCooldown(value);
-                case TYPE:
+                }
+                case TYPE: {
                     a.setType(value);
-                case TIMER:
+                }
+                case TIMER: {
                     a.setTimer(value);
-                case FLYING:
+                }
+                case FLYING: {
                     a.setFlying(booleans);
-                case INTAGIBLE:
+                }
+                case INTAGIBLE: {
                     a.setIntangible(booleans);
-                case IN_TIMER:
+                }
+                case IN_TIMER: {
                     a.setInTimer(booleans);
+                }
             }
         });
     }

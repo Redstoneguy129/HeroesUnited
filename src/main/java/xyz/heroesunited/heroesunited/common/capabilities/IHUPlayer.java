@@ -47,9 +47,6 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT> {
     int getTimer();
     void setTimer(int timer);
 
-    int getMaxTimer();
-    void setMaxTimer(int maxTimer);
-
     AccessoireInventory getInventory();
 
     void copy(IHUPlayer ihuPlayer);

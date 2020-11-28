@@ -25,6 +25,7 @@ public class AbilityHelper {
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
             for (AbilityType type : ImmutableList.copyOf(a.getActiveAbilities())) {
                 a.disable(type);
+                type.create().onDeactivated(player);
             }
         });
     }
