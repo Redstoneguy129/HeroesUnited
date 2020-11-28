@@ -4,26 +4,27 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.networking.HUData;
 
 import java.util.function.Supplier;
 
 public class ServerSetHUData {
 
-    private final String type;
+    private final HUData data;
     private final int value;
 
-    public ServerSetHUData(String type, int value) {
-        this.type = type;
+    public ServerSetHUData(HUData data, int value) {
+        this.data = data;
         this.value = value;
     }
 
     public ServerSetHUData(PacketBuffer buffer) {
-        this.type = buffer.readString();
+        this.data = buffer.readEnumValue(HUData.class);
         this.value = buffer.readInt();
     }
 
     public void toBytes(PacketBuffer buffer) {
-        buffer.writeString(this.type);
+        buffer.writeEnumValue(this.data);
         buffer.writeInt(this.value);
     }
 
@@ -32,20 +33,7 @@ public class ServerSetHUData {
             PlayerEntity player = ctx.get().getSender();
 
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((a) -> {
-                boolean booleans = this.value == 1 ? true : false;
-                if (this.type == "cooldown") {
-                    a.setCooldown(this.value);
-                } else if (this.type == "type") {
-                    a.setType(this.value);
-                } else if (this.type == "timer") {
-                    a.setTimer(this.value);
-                } else if (this.type == "flying") {
-                    a.setFlying(booleans);
-                } else if (this.type == "intagible") {
-                    a.setIntangible(booleans);
-                } else if (this.type == "inTimer") {
-                    a.setInTimer(booleans);
-                }
+                HUData.set(player, this.data, this.value);
             });
         });
         ctx.get().setPacketHandled(true);
