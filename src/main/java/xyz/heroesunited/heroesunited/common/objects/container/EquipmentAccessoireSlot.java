@@ -8,7 +8,8 @@ public enum EquipmentAccessoireSlot {
     JACKET(4),
     RIGHT_WRIST(5),
     LEFT_WRIST(6),
-    GLOVES(7);
+    GLOVES(7),
+    WRIST(8);
 
     private final int slot;
 

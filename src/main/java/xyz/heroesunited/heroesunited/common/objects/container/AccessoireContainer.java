@@ -33,7 +33,11 @@ public class AccessoireContainer extends Container {
 
         for (int k = 0; k < 4; ++k) {
             this.addSlot(new AccessoireSlot(inventory, k, 110, 8 + k * 18));
-            this.addSlot(new AccessoireSlot(inventory, 4 + k, 141, 8 + k * 18));
+            if(4 + k == EquipmentAccessoireSlot.RIGHT_WRIST.getSlot() || 4 + k == EquipmentAccessoireSlot.LEFT_WRIST.getSlot()){
+                this.addSlot(new WristSlot(inventory, 4 + k, 141, 8 + k * 18));
+            } else {
+                this.addSlot(new AccessoireSlot(inventory, 4 + k, 141, 8 + k * 18));
+            }
         }
 
         for (int k = 0; k < 4; ++k) {
@@ -144,6 +148,18 @@ public class AccessoireContainer extends Container {
 
         public boolean isItemValid(ItemStack stack) {
             return stack.getItem() instanceof IAccessoire && equipmentSlot == ((IAccessoire)stack.getItem()).getSlot();
+        }
+    }
+
+    public class WristSlot extends AccessoireSlot{
+
+        public WristSlot(IInventory inventoryIn, int index, int xPosition, int yPosition) {
+            super(inventoryIn, index, xPosition, yPosition);
+        }
+
+        @Override
+        public boolean isItemValid(ItemStack stack) {
+            return super.isItemValid(stack) || ((IAccessoire)stack.getItem()).getSlot() == EquipmentAccessoireSlot.WRIST;
         }
     }
 }
