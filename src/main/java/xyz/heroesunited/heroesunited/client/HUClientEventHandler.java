@@ -47,13 +47,13 @@ import java.util.List;
 public class HUClientEventHandler {
 
     public static final KeyBinding ABILITIES_SCREEN = new KeyBinding(HeroesUnited.MODID+".key.abilities_screen", GLFW.GLFW_KEY_H, "key.categories."+ HeroesUnited.MODID);
-    public static final KeyBinding ACCESOIRES_SCREEN = new KeyBinding(HeroesUnited.MODID+".key.accesoires_screen", GLFW.GLFW_KEY_J, "key.categories."+ HeroesUnited.MODID);
+    public static final KeyBinding ACCESSOIRES_SCREEN = new KeyBinding(HeroesUnited.MODID+".key.accessoires_screen", GLFW.GLFW_KEY_J, "key.categories."+ HeroesUnited.MODID);
     public static List<AbilityKeyBinding> ABILITY_KEYS = Lists.newArrayList();
 
     public HUClientEventHandler() {
         if (Minecraft.getInstance() != null) {
             ClientRegistry.registerKeyBinding(ABILITIES_SCREEN);
-            ClientRegistry.registerKeyBinding(ACCESOIRES_SCREEN);
+            ClientRegistry.registerKeyBinding(ACCESSOIRES_SCREEN);
 
             for (int i = 1; i <= 5; i++) {
                 int key = i == 1 ? GLFW.GLFW_KEY_Z : i == 2 ? GLFW.GLFW_KEY_R : i == 3 ? GLFW.GLFW_KEY_G : i == 4 ? GLFW.GLFW_KEY_V : i == 5 ? GLFW.GLFW_KEY_B : -1;
@@ -76,7 +76,7 @@ public class HUClientEventHandler {
         if (ABILITIES_SCREEN.isPressed()) {
             player.world.playSound(player, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.BLOCK_STONE_BUTTON_CLICK_ON, SoundCategory.NEUTRAL, 1, 0);
             Minecraft.getInstance().displayGuiScreen(new AbilitiesScreen());
-        } else if (ACCESOIRES_SCREEN.isPressed()) {
+        } else if (ACCESSOIRES_SCREEN.isPressed()) {
             HUNetworking.INSTANCE.sendToServer(new ServerOpenAccesoireInv());
         }
     }

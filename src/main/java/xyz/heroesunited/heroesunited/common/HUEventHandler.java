@@ -42,8 +42,20 @@ public class HUEventHandler {
         PlayerEntity pl = event.player;
         if (event.phase == TickEvent.Phase.START) {
             pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
-                for (AbilityType type : AbilityHelper.getAbilities(pl)) type.create().onUpdate(pl);
-                if (Suit.getSuit(pl) != null) Suit.getSuit(pl).onUpdate(pl);
+                AbilityHelper.getAbilities(pl).forEach(type -> type.create().onUpdate(pl));
+
+                if (Suit.getSuit(pl) != null) {
+                    Suit.getSuit(pl).onUpdate(pl);
+                }
+
+                if (a.getCooldown() > 0) {
+                    a.setCooldown(a.getCooldown()-1);
+                }
+
+                if (!a.isInTimer() && a.getTimer() > 0) {
+                    a.setTimer(a.getTimer()-1);
+                }
+
                 if (a.isFlying() && !pl.isOnGround()) {
                     HUPlayerUtil.playSoundToAll(pl.world, HUPlayerUtil.getPlayerPos(pl), 10, IFlyingAbility.getFlyingAbility(pl) != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() : HUSounds.FLYING : HUSounds.FLYING, SoundCategory.PLAYERS, 0.05F, 0.5F);
                     if (pl.moveForward > 0F) {

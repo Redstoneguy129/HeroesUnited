@@ -26,10 +26,10 @@ import java.util.List;
 public class HUPlayer implements IHUPlayer {
 
     private final PlayerEntity player;
-    private boolean flying, intangible;
+    private boolean flying, intangible, isInTimer;
+    private int theme, type, cooldown, timer;
     private List<AbilityType> activeAbilities = Lists.newArrayList();
     private Superpower superpower;
-    private int theme, type;
     public final AccessoireInventory inventory = new AccessoireInventory();
 
     public HUPlayer(PlayerEntity player) {
@@ -50,7 +50,7 @@ public class HUPlayer implements IHUPlayer {
     public void setFlying(boolean flying) {
         this.flying = flying;
         if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncFlight(player.getEntityId(), flying));
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), "flying", flying ? 1 : 0));
     }
 
     @Override
@@ -61,6 +61,8 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public void setIntangible(boolean intangible) {
         this.intangible = intangible;
+        if (!player.world.isRemote)
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), "intangible", intangible ? 1 : 0));
     }
 
     @Override
@@ -72,7 +74,43 @@ public class HUPlayer implements IHUPlayer {
     public void setType(int type) {
         this.type = type;
         if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncType(player.getEntityId(), type));
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), "type", type));
+    }
+
+    @Override
+    public int getCooldown() {
+        return cooldown;
+    }
+
+    @Override
+    public void setCooldown(int cooldown) {
+        this.cooldown = cooldown;
+        if (!player.world.isRemote)
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), "cooldown", cooldown));
+    }
+
+    @Override
+    public boolean isInTimer() {
+        return isInTimer;
+    }
+
+    @Override
+    public int getTimer() {
+        return timer;
+    }
+
+    @Override
+    public void setInTimer(boolean isInTimer) {
+        this.isInTimer = isInTimer;
+        if (!player.world.isRemote)
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), "inTimer", isInTimer ? 1 : 0));
+    }
+
+    @Override
+    public void setTimer(int timer) {
+        this.timer = timer;
+        if (!player.world.isRemote)
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), "timer", timer));
     }
 
     @Override
@@ -140,8 +178,8 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public void copy(IHUPlayer ihuPlayer) {
-        this.setSuperpower(ihuPlayer.getSuperpower());
-        this.setTheme(ihuPlayer.getTheme());
+        this.superpower = ihuPlayer.getSuperpower();
+        this.theme = ihuPlayer.getTheme();
         this.inventory.copy(ihuPlayer.getInventory());
     }
 
