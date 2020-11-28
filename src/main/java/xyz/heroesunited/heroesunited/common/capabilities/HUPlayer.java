@@ -27,7 +27,7 @@ public class HUPlayer implements IHUPlayer {
 
     private final PlayerEntity player;
     private boolean flying, intangible, isInTimer;
-    private int theme, type, cooldown, timer;
+    private int theme, type, cooldown, timer, maxTimer;
     private List<AbilityType> activeAbilities = Lists.newArrayList();
     private Superpower superpower;
     public final AccessoireInventory inventory = new AccessoireInventory();
@@ -111,6 +111,16 @@ public class HUPlayer implements IHUPlayer {
         this.timer = timer;
         if (!player.world.isRemote)
             HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), "timer", timer));
+    }
+
+    @Override
+    public int getMaxTimer() {
+        return maxTimer;
+    }
+
+    @Override
+    public void setMaxTimer(int maxTimer) {
+        this.maxTimer = maxTimer;
     }
 
     @Override

@@ -52,6 +52,12 @@ public class HUEventHandler {
                     a.setCooldown(a.getCooldown()-1);
                 }
 
+                if (a.isInTimer() && a.getTimer() < a.getMaxTimer()) {
+                    a.setTimer(a.getTimer()+1);
+                } else if (!a.isInTimer() && a.getTimer() > 0) {
+                    a.setTimer(a.getTimer()-1);
+                }
+
                 if (!a.isInTimer() && a.getTimer() > 0) {
                     a.setTimer(a.getTimer()-1);
                 }
