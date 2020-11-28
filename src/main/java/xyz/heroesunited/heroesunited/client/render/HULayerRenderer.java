@@ -50,11 +50,11 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
                 type.create().render(playerRenderer, matrixStack, buffer, packedLight, player, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
             }
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                ItemStack stack = cap.getInventory().getStackFromArmorSlots();
-                if (stack != null && stack.getItem() instanceof IAccessoire && !MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Accesoires(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch))) {
-                    IAccessoire accessoire = ((IAccessoire) stack.getItem());
-                    ModelSuit suitModel = new ModelSuit(0.08F, HUPlayerUtil.haveSmallArms(player));
-                    for (int slot = 0; slot < 8; ++slot) {
+                for (int slot = 0; slot < 8; ++slot) {
+                    ItemStack stack = cap.getInventory().getStackInSlot(slot);
+                    if (stack != null && stack.getItem() instanceof IAccessoire && !MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Accesoires(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch))) {
+                        IAccessoire accessoire = ((IAccessoire) stack.getItem());
+                        ModelSuit suitModel = new ModelSuit(0.08F, HUPlayerUtil.haveSmallArms(player));
                         if (accessoire.renderDefaultModel()) {
                             renderAccessoire(suitModel, matrixStack, buffer, packedLight, player, playerRenderer, accessoire, stack, cap, EquipmentAccessoireSlot.getFromSlotIndex(slot));
                         } else {
@@ -75,7 +75,7 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
             suitModel.bipedHeadwear.showModel = suitModel.bipedHead.showModel =
                     suitModel.bipedBody.showModel = suitModel.bipedBodyWear.showModel =
                             suitModel.bipedLeftArmwear.showModel = suitModel.bipedLeftArm.showModel =
-                                    suitModel.bipedRightArmwear.showModel = suitModel.bipedRightArm.showModel =cap.getInventory().haveStack(slot);
+                                    suitModel.bipedRightArmwear.showModel = suitModel.bipedRightArm.showModel = cap.getInventory().haveStack(slot);
         } else if (slot == EquipmentAccessoireSlot.TSHIRT || slot == EquipmentAccessoireSlot.RIGHT_WRIST ||
                 slot == EquipmentAccessoireSlot.LEFT_WRIST || slot == EquipmentAccessoireSlot.GLOVES) {
             suitModel.bipedBody.showModel = suitModel.bipedBodyWear.showModel =

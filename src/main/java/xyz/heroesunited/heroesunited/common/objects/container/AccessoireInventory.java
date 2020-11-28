@@ -108,15 +108,4 @@ public class AccessoireInventory implements IInventory {
          inventory.set(i, (stack.isEmpty() ? ItemStack.EMPTY : stack.copy()));
       }
    }
-
-   public ItemStack getStackFromArmorSlots() {
-      ItemStack stack = null;
-      for (int k = 0; k < 8; ++k) {
-         if (getStackInSlot(k) != null && !getStackInSlot(k).isEmpty()) {
-            stack = this.getStackInSlot(k);
-         }
-      }
-
-      return stack;
-   }
 }
