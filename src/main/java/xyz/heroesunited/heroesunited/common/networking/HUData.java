@@ -7,6 +7,7 @@ public enum HUData {
     COOLDOWN,
     TYPE,
     TIMER,
+    ANIMATION_TIMER,
     FLYING,
     INTAGIBLE,
     IN_TIMER;
@@ -23,6 +24,9 @@ public enum HUData {
                 }
                 case TIMER: {
                     a.setTimer(value);
+                }
+                case ANIMATION_TIMER: {
+                    a.setAnimationTimer(value);
                 }
                 case FLYING: {
                     a.setFlying(booleans);

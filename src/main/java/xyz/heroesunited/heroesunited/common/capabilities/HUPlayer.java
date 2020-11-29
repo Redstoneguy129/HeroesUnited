@@ -28,7 +28,7 @@ public class HUPlayer implements IHUPlayer {
 
     private final PlayerEntity player;
     private boolean flying, intangible, isInTimer;
-    private int theme, type, cooldown, timer;
+    private int theme, type, cooldown, timer, animationTimer;
     private List<AbilityType> activeAbilities = Lists.newArrayList();
     private Superpower superpower;
     public final AccessoireInventory inventory = new AccessoireInventory();
@@ -112,6 +112,18 @@ public class HUPlayer implements IHUPlayer {
         this.timer = timer;
         if (!player.world.isRemote)
             HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUData.TIMER, timer));
+    }
+
+    @Override
+    public int getAnimationTimer() {
+        return animationTimer;
+    }
+
+    @Override
+    public void setAnimationTimer(int animationTimer) {
+        this.animationTimer = animationTimer;
+        if (!player.world.isRemote)
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUData.ANIMATION_TIMER, animationTimer));
     }
 
     @Override
@@ -209,6 +221,7 @@ public class HUPlayer implements IHUPlayer {
         nbt.putInt("Theme", this.theme);
         nbt.putInt("Type", this.type);
         nbt.putInt("Cooldown", this.cooldown);
+        nbt.putInt("AnimationTimer", this.animationTimer);
         nbt.putInt("Timer", this.timer);
         nbt.putBoolean("isInTimer", this.isInTimer);
 
@@ -231,6 +244,8 @@ public class HUPlayer implements IHUPlayer {
             this.type = nbt.getInt("Type");
         } if (nbt.contains("Cooldown")) {
             this.cooldown = nbt.getInt("Cooldown");
+        } if (nbt.contains("AnimationTimer")) {
+            this.animationTimer = nbt.getInt("AnimationTimer");
         } if (nbt.contains("Timer")) {
             this.timer = nbt.getInt("Timer");
         } if (nbt.contains("isInTimer")) {

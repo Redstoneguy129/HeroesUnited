@@ -18,6 +18,7 @@ import xyz.heroesunited.heroesunited.client.events.HUEyeHeightEvent;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
+import xyz.heroesunited.heroesunited.common.abilities.ITimerAbility;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
@@ -42,7 +43,17 @@ public class HUEventHandler {
         PlayerEntity pl = event.player;
         if (event.phase == TickEvent.Phase.START) {
             pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
-                AbilityHelper.getAbilities(pl).forEach(type -> type.create().onUpdate(pl));
+                AbilityHelper.getAbilities(pl).forEach(type -> {
+                    type.create().onUpdate(pl);
+                    if (type.create() instanceof ITimerAbility) {
+                        ITimerAbility timer = (ITimerAbility) type.create();
+                        if (!a.isInTimer() && a.getTimer() < timer.maxTimer()) {
+                            a.setTimer(a.getTimer() + 1);
+                        } else if (a.isInTimer() & a.getTimer() > 0) {
+                            a.setTimer(a.getTimer() - 1);
+                        }
+                    }
+                });
 
                 if (Suit.getSuit(pl) != null) {
                     Suit.getSuit(pl).onUpdate(pl);
@@ -52,14 +63,8 @@ public class HUEventHandler {
                     a.setCooldown(a.getCooldown()-1);
                 }
 
-                /**Paste this to your code
-                  if (a.isInTimer() && a.getTimer() < *getMaxTimer*) {
-                     a.setTimer(a.getTimer()+1);
-                  }
-                 **/
-                if (!a.isInTimer() && a.getTimer() > 0) {
-                    a.setTimer(a.getTimer()-1);
-                }
+                if (a.getAnimationTimer() > 0) a.setAnimationTimer(a.getAnimationTimer() + 1);
+                if (a.getAnimationTimer() >= 3600) a.setAnimationTimer(3600);
 
                 if (a.isFlying() && !pl.isOnGround()) {
                     HUPlayerUtil.playSoundToAll(pl.world, HUPlayerUtil.getPlayerPos(pl), 10, IFlyingAbility.getFlyingAbility(pl) != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() : HUSounds.FLYING : HUSounds.FLYING, SoundCategory.PLAYERS, 0.05F, 0.5F);
