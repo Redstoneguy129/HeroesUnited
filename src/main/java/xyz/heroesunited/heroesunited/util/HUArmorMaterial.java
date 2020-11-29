@@ -28,7 +28,6 @@ public class HUArmorMaterial implements IArmorMaterial {
         this.toughness = toughness;
         this.knockBackResistance = knockBackResistance;
         this.repairMaterial = repairMaterialSupplier;
-        HUJsonUtils.addArmorMaterial(nameIn.toLowerCase(), this);
     }
 
     @Override

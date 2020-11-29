@@ -3,6 +3,7 @@ package xyz.heroesunited.heroesunited.hupacks;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -82,7 +83,14 @@ public class HUPackSuit {
 
                     @Override
                     public IArmorMaterial getSuitMaterial() {
-                        return JSONUtils.hasField(map.getValue(), "armor_material") && map.getValue().get("armor_material").isJsonPrimitive() ? HUJsonUtils.getArmorMaterial(map.getValue().get("armor_material").getAsString()) : super.getSuitMaterial();
+                        if (JSONUtils.hasField(map.getValue(), "armor_material")) {
+                            JsonElement materialJson = map.getValue().get("armor_material");
+                            IArmorMaterial material = materialJson.isJsonPrimitive() ? HUJsonUtils.getArmorMaterial(materialJson.getAsString()) : HUJsonUtils.parseArmorMaterial(materialJson.getAsJsonObject(), false);
+                            if (material == null)
+                                throw new JsonParseException("Armor material with name '" + materialJson.getAsString() + "' cannot be found!");
+                            return material;
+                        }
+                        return super.getSuitMaterial();
                     }
 
                     @Override

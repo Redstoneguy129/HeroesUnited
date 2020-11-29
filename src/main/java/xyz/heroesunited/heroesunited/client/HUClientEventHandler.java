@@ -69,7 +69,7 @@ public class HUClientEventHandler {
         if (Minecraft.getInstance().player == null || Minecraft.getInstance().currentScreen != null) return;
         PlayerEntity player = Minecraft.getInstance().player;
         ABILITY_KEYS.forEach(key -> {
-            if (event.getKey() == key.getKey().getKeyCode() && key.isPressed()) {
+            if (event.getKey() == key.getKey().getKeyCode() && key.isKeyDown()) {
                 HUNetworking.INSTANCE.sendToServer(new ServerToggleKey(key.index, event.getAction()));
             }
         });

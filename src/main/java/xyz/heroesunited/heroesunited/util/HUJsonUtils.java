@@ -1,19 +1,19 @@
 package xyz.heroesunited.heroesunited.util;
 
 import com.google.common.collect.Lists;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.IArmorMaterial;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.registries.ForgeRegistries;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
@@ -21,6 +21,7 @@ import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 public class HUJsonUtils {
     private static Map<String, IArmorMaterial> ARMOR_MATERIALS = new HashMap<>();
@@ -77,6 +78,18 @@ public class HUJsonUtils {
     public static IArmorMaterial addArmorMaterial(String name, IArmorMaterial armorMaterial) {
         ARMOR_MATERIALS.put(name.toLowerCase(), armorMaterial);
         return armorMaterial;
+    }
+
+    public static IArmorMaterial parseArmorMaterial(JsonObject json, boolean requireName) {
+        String name = requireName ? JSONUtils.getString(json, "name") : "";
+        int[] damageReductionAmountArray = new int[4];
+        JsonArray dmgReduction = JSONUtils.getJsonArray(json, "damage_reduction");
+        if (dmgReduction.size() != 4) throw new JsonParseException("The damage_reduction must contain 4 entries, one for each armor part!");
+        IntStream.range(0, dmgReduction.size()).forEach(i -> damageReductionAmountArray[i] = dmgReduction.get(i).getAsInt());
+        SoundEvent soundEvent = ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(JSONUtils.getString(json, "equip_sound", "")));
+        Ingredient repairMaterial = JSONUtils.hasField(json, "repair_material") ? Ingredient.deserialize(json.get("repair_material")) : Ingredient.EMPTY;
+
+        return new HUArmorMaterial(name, JSONUtils.getInt(json, "max_damage_factor", 0), damageReductionAmountArray, JSONUtils.getInt(json, "enchantibility", 0), soundEvent, JSONUtils.getFloat(json, "toughness", 0), JSONUtils.getFloat(json, "knockback_resistance", 0), repairMaterial);
     }
 
     public static Superpower getSuperpower(String modid, String name) {
