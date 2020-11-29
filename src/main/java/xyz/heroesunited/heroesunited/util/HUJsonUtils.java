@@ -5,19 +5,31 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import net.minecraft.client.renderer.entity.model.PlayerModel;
+import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.IArmorMaterial;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.util.JSONUtils;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import xyz.heroesunited.heroesunited.common.abilities.Superpower;
+import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
+import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class HUJsonUtils {
+    private static Map<String, IArmorMaterial> ARMOR_MATERIALS = new HashMap<>();
 
+    static {
+        for (ArmorMaterial armorMaterial : ArmorMaterial.values()) {
+            addArmorMaterial(armorMaterial.name(), armorMaterial);
+        }
+    }
 
     public static List<ITextComponent> parseDescriptionLines(JsonElement jsonElement) {
         List<ITextComponent> lines = Lists.newArrayList();
@@ -47,40 +59,62 @@ public class HUJsonUtils {
     private static ItemGroup getItemGroup(JsonElement json, String memberName) {
         if (json.isJsonPrimitive()) {
             String name = json.getAsString();
-            if (name.equalsIgnoreCase("blocks")) return ItemGroup.BUILDING_BLOCKS;
-            if (name.equalsIgnoreCase("decoration")) return ItemGroup.DECORATIONS;
-            if (name.equalsIgnoreCase("redstone")) return ItemGroup.REDSTONE;
-            if (name.equalsIgnoreCase("transportation")) return ItemGroup.TRANSPORTATION;
-            if (name.equalsIgnoreCase("misc")) return ItemGroup.MISC;
-            if (name.equalsIgnoreCase("food")) return ItemGroup.FOOD;
-            if (name.equalsIgnoreCase("tools")) return ItemGroup.TOOLS;
-            if (name.equalsIgnoreCase("combat")) return ItemGroup.COMBAT;
-            if (name.equalsIgnoreCase("brewing")) return ItemGroup.BREWING;
+            for (ItemGroup itemGroup : ItemGroup.GROUPS) {
+                if (name.equalsIgnoreCase(itemGroup.getPath().toLowerCase())) {
+                    return itemGroup;
+                }
+            }
             return null;
         } else {
             throw new JsonSyntaxException("Expected " + memberName + " to be an item, was " + JSONUtils.toString(json));
         }
     }
 
-    public static class ArmorMaterials {
-        private static Map<String, IArmorMaterial> ARMOR_MATERIALS = new HashMap<>();
+    public static IArmorMaterial getArmorMaterial(String name) {
+        return ARMOR_MATERIALS.get(name.toLowerCase());
+    }
 
-        static {
-            addArmorMaterial("leather", ArmorMaterial.LEATHER);
-            addArmorMaterial("chain", ArmorMaterial.CHAIN);
-            addArmorMaterial("iron", ArmorMaterial.IRON);
-            addArmorMaterial("gold", ArmorMaterial.GOLD);
-            addArmorMaterial("diamond", ArmorMaterial.DIAMOND);
-            addArmorMaterial("turtle", ArmorMaterial.TURTLE);
-        }
+    public static IArmorMaterial addArmorMaterial(String name, IArmorMaterial armorMaterial) {
+        ARMOR_MATERIALS.put(name.toLowerCase(), armorMaterial);
+        return armorMaterial;
+    }
 
-        public static IArmorMaterial getArmorMaterial(String name) {
-            return ARMOR_MATERIALS.get(name.toLowerCase());
-        }
+    public static Superpower getSuperpower(String modid, String name) {
+        return HUPackSuperpowers.getInstance().getSuperpowers().get(new ResourceLocation(modid, name));
+    }
 
-        public static IArmorMaterial addArmorMaterial(String name, IArmorMaterial armorMaterial) {
-            ARMOR_MATERIALS.put(name.toLowerCase(), armorMaterial);
-            return armorMaterial;
+    public static Suit getSuit(String modid, String name) {
+        return Suit.SUITS.get(new ResourceLocation(modid, name));
+    }
+
+    public static ModelRenderer getPart(String name, PlayerModel model) {
+        switch (name) {
+            case "head":
+                return model.bipedHead;
+            case "head_wear":
+                return model.bipedHeadwear;
+            case "body":
+                return model.bipedBody;
+            case "body_wear":
+                return model.bipedBodyWear;
+            case "right_arm":
+                return model.bipedRightArm;
+            case "right_arm_wear":
+                return model.bipedRightArmwear;
+            case "left_arm":
+                return model.bipedLeftArm;
+            case "left_arm_wear":
+                return model.bipedLeftArmwear;
+            case "right_leg":
+                return model.bipedRightLeg;
+            case "right_leg_wear":
+                return model.bipedRightLegwear;
+            case "left_leg":
+                return model.bipedLeftLeg;
+            case "left_leg_wear":
+                return model.bipedLeftLegwear;
+            default:
+                return null;
         }
     }
 }

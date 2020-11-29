@@ -1,7 +1,9 @@
 package xyz.heroesunited.heroesunited.hupacks;
 
 import com.google.common.collect.Maps;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.IArmorMaterial;
@@ -13,8 +15,11 @@ import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.IForgeRegistry;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
@@ -43,13 +48,13 @@ public class HUPackSuit {
             }
         }
 
-        for (Map.Entry<ResourceLocation, JsonObject> entry : suits.entrySet()) {
+        for (Map.Entry<ResourceLocation, JsonObject> map : suits.entrySet()) {
             try {
-                Suit suit = new Suit(entry.getKey()) {
+                Suit suit = new Suit(map.getKey()) {
                     @Override
                     public void registerItems(IForgeRegistry<Item> e) {
-                        if (JSONUtils.hasField(entry.getValue(), "slots")) {
-                            JsonObject slots = JSONUtils.getJsonObject(entry.getValue(), "slots");
+                        if (JSONUtils.hasField(map.getValue(), "slots")) {
+                            JsonObject slots = JSONUtils.getJsonObject(map.getValue(), "slots");
                             if (JSONUtils.hasField(slots, "head")) {
                                 e.register(helmet = createItem(this, EquipmentSlotType.HEAD, JSONUtils.getString(slots, "head")));
                             }
@@ -72,40 +77,55 @@ public class HUPackSuit {
 
                     @Override
                     public boolean canEquip(PlayerEntity player) {
-                        return JSONUtils.hasField(entry.getValue(), "equip") ? JSONUtils.getBoolean(entry.getValue(), "equip") : super.canEquip(player);
+                        return JSONUtils.hasField(map.getValue(), "equip") ? JSONUtils.getBoolean(map.getValue(), "equip") : super.canEquip(player);
                     }
 
                     @Override
                     public IArmorMaterial getSuitMaterial() {
-                        return JSONUtils.hasField(entry.getValue(), "armor_material") && entry.getValue().get("armor_material").isJsonPrimitive() ? HUJsonUtils.ArmorMaterials.getArmorMaterial(entry.getValue().get("armor_material").getAsString()) : super.getSuitMaterial();
+                        return JSONUtils.hasField(map.getValue(), "armor_material") && map.getValue().get("armor_material").isJsonPrimitive() ? HUJsonUtils.getArmorMaterial(map.getValue().get("armor_material").getAsString()) : super.getSuitMaterial();
                     }
 
                     @Override
                     public ItemGroup getItemGroup() {
-                        return JSONUtils.hasField(entry.getValue(), "itemGroup") ? HUJsonUtils.getItemGroup(entry.getValue(), "itemGroup") : super.getItemGroup();
+                        return JSONUtils.hasField(map.getValue(), "itemGroup") ? HUJsonUtils.getItemGroup(map.getValue(), "itemGroup") : super.getItemGroup();
                     }
 
                     @Override
                     public List<ITextComponent> getDescription(ItemStack stack) {
-                        return JSONUtils.hasField(entry.getValue(), "description") ? HUJsonUtils.parseDescriptionLines(entry.getValue().get("description")) : super.getDescription(stack);
+                        return JSONUtils.hasField(map.getValue(), "description") ? HUJsonUtils.parseDescriptionLines(map.getValue().get("description")) : super.getDescription(stack);
                     }
 
                     @Override
                     public boolean canCombineWithAbility(AbilityType type, PlayerEntity player) {
-                        return JSONUtils.hasField(entry.getValue(), "combine") ? JSONUtils.getBoolean(entry.getValue(), "combine") : super.canCombineWithAbility(type, player);
+                        return JSONUtils.hasField(map.getValue(), "combine") ? JSONUtils.getBoolean(map.getValue(), "combine") : super.canCombineWithAbility(type, player);
                     }
 
                     @Override
                     public float getScale(EquipmentSlotType slot) {
-                        return JSONUtils.hasField(entry.getValue(), "scale") ? JSONUtils.getFloat(entry.getValue(), "scale") : super.getScale(slot);
+                        return JSONUtils.hasField(map.getValue(), "scale") ? JSONUtils.getFloat(map.getValue(), "scale") : super.getScale(slot);
+                    }
+
+                    @OnlyIn(Dist.CLIENT)
+                    @Override
+                    public void setRotationAngles(HUSetRotationAnglesEvent event) {
+                        if (JSONUtils.hasField(map.getValue(), "visibility_parts")) {
+                            JsonObject overrides = JSONUtils.getJsonObject(map.getValue(), "visibility_parts");
+
+                            for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
+                                ModelRenderer part = HUJsonUtils.getPart(entry.getKey(), event.getPlayerModel());
+                                if (part != null) {
+                                    part.showModel = JSONUtils.getBoolean(overrides, entry.getKey());
+                                }
+                            }
+                        }
                     }
                 };
                 if (suit != null) {
                     Suit.SUITS.put(suit.getRegistryName(), suit);
-                    HeroesUnited.getLogger().info("Registered hupack suit {}!", entry.getKey());
+                    HeroesUnited.getLogger().info("Registered hupack suit {}!", map.getKey());
                 }
             } catch (Throwable throwable) {
-                HeroesUnited.getLogger().error("Couldn't read hupack suit {}", entry.getKey(), throwable);
+                HeroesUnited.getLogger().error("Couldn't read hupack suit {}", map.getKey(), throwable);
             }
         }
     }

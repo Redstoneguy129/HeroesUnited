@@ -3,12 +3,9 @@ package xyz.heroesunited.heroesunited.util;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.IArmorMaterial;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.LazyValue;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-
-import java.util.function.Supplier;
 
 public class HUArmorMaterial implements IArmorMaterial {
 
@@ -17,12 +14,12 @@ public class HUArmorMaterial implements IArmorMaterial {
     private final int maxDamageFactor;
     private final int[] damageReductionAmountArray;
     private final int enchantability;
-    private final LazyValue<SoundEvent> soundEvent;
+    private final SoundEvent soundEvent;
     private final float toughness;
     private final float knockBackResistance;
-    private final LazyValue<Ingredient> repairMaterial;
+    private final Ingredient repairMaterial;
 
-    public HUArmorMaterial(String nameIn, int maxDamageFactorIn, int[] damageReductionAmountsIn, int enchantabilityIn, LazyValue<SoundEvent> equipSoundIn, float toughness, float knockBackResistance, Supplier<Ingredient> repairMaterialSupplier) {
+    public HUArmorMaterial(String nameIn, int maxDamageFactorIn, int[] damageReductionAmountsIn, int enchantabilityIn, SoundEvent equipSoundIn, float toughness, float knockBackResistance, Ingredient repairMaterialSupplier) {
         this.name = nameIn;
         this.maxDamageFactor = maxDamageFactorIn;
         this.damageReductionAmountArray = damageReductionAmountsIn;
@@ -30,7 +27,8 @@ public class HUArmorMaterial implements IArmorMaterial {
         this.soundEvent = equipSoundIn;
         this.toughness = toughness;
         this.knockBackResistance = knockBackResistance;
-        this.repairMaterial = new LazyValue<>(repairMaterialSupplier);
+        this.repairMaterial = repairMaterialSupplier;
+        HUJsonUtils.addArmorMaterial(nameIn.toLowerCase(), this);
     }
 
     @Override
@@ -50,12 +48,12 @@ public class HUArmorMaterial implements IArmorMaterial {
 
     @Override
     public SoundEvent getSoundEvent() {
-        return this.soundEvent.getValue();
+        return this.soundEvent;
     }
 
     @Override
     public Ingredient getRepairMaterial() {
-        return this.repairMaterial.getValue();
+        return this.repairMaterial;
     }
 
     @OnlyIn(Dist.CLIENT)
