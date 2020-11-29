@@ -18,24 +18,31 @@ public enum HUData {
             switch (data) {
                 case COOLDOWN: {
                     a.setCooldown(value);
+                    break;
                 }
                 case TYPE: {
                     a.setType(value);
+                    break;
                 }
                 case TIMER: {
                     a.setTimer(value);
+                    break;
                 }
                 case ANIMATION_TIMER: {
                     a.setAnimationTimer(value);
+                    break;
                 }
                 case FLYING: {
                     a.setFlying(booleans);
+                    break;
                 }
                 case INTAGIBLE: {
                     a.setIntangible(booleans);
+                    break;
                 }
                 case IN_TIMER: {
                     a.setInTimer(booleans);
+                    break;
                 }
             }
         });

@@ -47,9 +47,9 @@ public class HUEventHandler {
                     type.create().onUpdate(pl);
                     if (type.create() instanceof ITimerAbility) {
                         ITimerAbility timer = (ITimerAbility) type.create();
-                        if (!a.isInTimer() && a.getTimer() < timer.maxTimer()) {
+                        if (a.isInTimer() && a.getTimer() < timer.maxTimer()) {
                             a.setTimer(a.getTimer() + 1);
-                        } else if (a.isInTimer() & a.getTimer() > 0) {
+                        } else if (!a.isInTimer() & a.getTimer() > 0) {
                             a.setTimer(a.getTimer() - 1);
                         }
                     }
