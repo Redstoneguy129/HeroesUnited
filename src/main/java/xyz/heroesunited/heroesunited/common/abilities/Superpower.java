@@ -39,6 +39,17 @@ public class Superpower {
         return HUPlayer.getCap(player).getSuperpower();
     }
 
+    @Nonnull
+    public static AbilityType getTypeFromSuperpower(PlayerEntity player) {
+        for (AbilityType type : AbilityType.ABILITIES) {
+            Superpower power = Superpower.getSuperpower(player);
+            if (power != null && power.getContainedAbilities(player).contains(type)) {
+                return type;
+            }
+        }
+        return null;
+    }
+
     public ITextComponent getDisplayName() {
         return new TranslationTextComponent(Util.makeTranslationKey("superpowers", name));
     }

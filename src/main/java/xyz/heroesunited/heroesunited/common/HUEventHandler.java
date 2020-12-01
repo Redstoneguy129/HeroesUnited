@@ -15,10 +15,7 @@ import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import xyz.heroesunited.heroesunited.client.events.HUBoundingBoxEvent;
 import xyz.heroesunited.heroesunited.client.events.HUEyeHeightEvent;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
-import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
-import xyz.heroesunited.heroesunited.common.abilities.ITimerAbility;
+import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
@@ -54,6 +51,10 @@ public class HUEventHandler {
                         }
                     }
                 });
+
+                if (Superpower.getTypeFromSuperpower(pl) != null && Superpower.getTypeFromSuperpower(pl).alwaysActive()) {
+                    a.enable(Superpower.getTypeFromSuperpower(pl));
+                }
 
                 if (Suit.getSuit(pl) != null) {
                     Suit.getSuit(pl).onUpdate(pl);

@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -29,8 +30,7 @@ public abstract class Ability {
     public void toggle(PlayerEntity player, int id, int action) {
     }
 
-    public boolean visibleInGui() {
-        return true;
+    public void parse(JsonObject json) {
     }
 
     //Client Stuff

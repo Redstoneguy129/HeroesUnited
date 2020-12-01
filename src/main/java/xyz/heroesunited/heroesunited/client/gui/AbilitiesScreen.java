@@ -141,8 +141,10 @@ public class AbilitiesScreen extends Screen {
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int type) {
-            HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerToggleAbility(this.type));
-            this.parent.minecraft.getSoundHandler().play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            if (!this.type.alwaysActive()) {
+                HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerToggleAbility(this.type));
+                this.parent.minecraft.getSoundHandler().play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            }
             return false;
         }
     }
@@ -162,10 +164,9 @@ public class AbilitiesScreen extends Screen {
         public void refreshList() {
             this.clearEntries();
             Collection<AbilityType> abilities = new ArrayList<>(AbilityHelper.getAbilities(this.minecraft.player));
-            Superpower power = Superpower.getSuperpower(minecraft.player);
-            for (AbilityType type : AbilityType.ABILITIES.getValues()) {
-                if (power != null && power.getContainedAbilities(minecraft.player).contains(type) && type.create().visibleInGui())
-                    this.addEntry(new AbilityListEntry(type, this.parent, abilities.contains(type)));
+            AbilityType type = Superpower.getTypeFromSuperpower(minecraft.player);
+            if (type != null && !type.isHidden()) {
+                this.addEntry(new AbilityListEntry(type, this.parent, abilities.contains(type)));
             }
         }
 

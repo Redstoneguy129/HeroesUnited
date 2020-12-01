@@ -19,12 +19,9 @@ import java.util.function.Supplier;
 public class AbilityType extends ForgeRegistryEntry<AbilityType> {
 
     public static IForgeRegistry<AbilityType> ABILITIES;
-
-    public ITextComponent getDisplayName() {
-        return new TranslationTextComponent(Util.makeTranslationKey("ability", this.getRegistryName()));
-    }
-
     private Supplier<Ability> supplier;
+    private boolean hidden;
+    private boolean active;
 
     public AbilityType(Supplier<Ability> supplier) {
         this.supplier = supplier;
@@ -35,8 +32,28 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
         this.setRegistryName(modid, name);
     }
 
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
+    }
+
+    public boolean alwaysActive() {
+        return active;
+    }
+
+    public void setAlwaysActive(boolean active) {
+        this.active = active;
+    }
+
     public Ability create() {
         return this.supplier.get();
+    }
+
+    public ITextComponent getDisplayName() {
+        return new TranslationTextComponent(Util.makeTranslationKey("ability", this.getRegistryName()));
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
