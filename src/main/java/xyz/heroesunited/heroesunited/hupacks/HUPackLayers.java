@@ -30,7 +30,9 @@ public class HUPackLayers extends JsonReloadListener {
             ResourceLocation resourcelocation = entry.getKey();
             try {
                 Layer layer = parseLayer(resourcelocation, (JsonObject) entry.getValue());
-                if (layer != null) this.registeredLayers.put(resourcelocation, layer);
+                if (layer != null) {
+                    this.registeredLayers.put(resourcelocation, layer);
+                }
             } catch (Exception e) {
                 HeroesUnited.getLogger().error("Parsing error loading layer {}", resourcelocation, e);
             }
@@ -40,11 +42,9 @@ public class HUPackLayers extends JsonReloadListener {
 
     public Layer parseLayer(ResourceLocation name, JsonObject json) {
         JsonObject resources = JSONUtils.getJsonObject(json, "resources");
-        ResourceLocation layer1 = new ResourceLocation(JSONUtils.getString(resources, "layer_0"));
-        ResourceLocation layer2 = new ResourceLocation(JSONUtils.getString(resources, "layer_1"));
-        ResourceLocation cape = JSONUtils.hasField(resources, "cape") ? new ResourceLocation(JSONUtils.getString(resources, "cape")) : null;
-        ResourceLocation smallArms = JSONUtils.hasField(resources, "smallArms") ? new ResourceLocation(JSONUtils.getString(resources, "smallArms")) : null;
-        return new Layer(name, layer1, layer2, smallArms, cape);
+        Map<String, ResourceLocation> list = Maps.newHashMap();
+        resources.entrySet().forEach((e) -> list.put(e.getKey(), new ResourceLocation(JSONUtils.getString(e.getValue(), e.getKey()))));
+        return new Layer(name, list);
     }
 
     public Map<ResourceLocation, Layer> getLayers() {
@@ -61,35 +61,20 @@ public class HUPackLayers extends JsonReloadListener {
 
     public static class Layer {
 
-        private final ResourceLocation name, layer0, layer1, cape;
-        private final ResourceLocation smallArms;
+        private final ResourceLocation name;
+        private final Map<String, ResourceLocation> list;
 
-        public Layer(ResourceLocation name, ResourceLocation layer0, ResourceLocation layer1, ResourceLocation smallArms, ResourceLocation cape) {
+        public Layer(ResourceLocation name, Map<String, ResourceLocation> list) {
             this.name = name;
-            this.layer0 = layer0;
-            this.layer1 = layer1;
-            this.cape = cape;
-            this.smallArms = smallArms;
+            this.list = list;
         }
 
         public ResourceLocation getRegistryName() {
             return name;
         }
 
-        public ResourceLocation getLayer0() {
-            return layer0;
-        }
-
-        public ResourceLocation getSmallArms() {
-            return smallArms;
-        }
-
-        public ResourceLocation getLayer1() {
-            return layer1;
-        }
-
-        public ResourceLocation getCape() {
-            return cape;
+        public ResourceLocation getTexture(String name) {
+            return list.get(name);
         }
     }
 }

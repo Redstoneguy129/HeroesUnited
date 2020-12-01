@@ -107,8 +107,8 @@ public abstract class Suit {
     @OnlyIn(Dist.CLIENT)
     public void renderLayer(@Nullable LivingRenderer<? extends LivingEntity, ? extends BipedModel<?>> entityRenderer, @Nullable LivingEntity entity, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         HUPackLayers.Layer layer = HUPackLayers.getInstance().getLayer(this.getRegistryName());
-        if (layer != null && layer.getCape() != null) {
-            HUClientUtil.renderCape(entityRenderer, entity, matrix, bufferIn, packedLightIn, partialTicks, layer.getCape());
+        if (layer != null && layer.getTexture("cape") != null) {
+            HUClientUtil.renderCape(entityRenderer, entity, matrix, bufferIn, packedLightIn, partialTicks, layer.getTexture("cape"));
         }
     }
 
@@ -146,8 +146,8 @@ public abstract class Suit {
     public String getSuitTexture(ItemStack stack, Entity entity, EquipmentSlotType slot) {
         HUPackLayers.Layer layer = HUPackLayers.getInstance().getLayer(this.getRegistryName());
         if (layer != null) {
-            String tex = slot != EquipmentSlotType.LEGS ? layer.getLayer0().toString() : layer.getLayer1().toString();
-            if (slot.equals(EquipmentSlotType.CHEST) && isSmallArms(entity) && layer.getSmallArms() != null) tex = layer.getSmallArms().toString();
+            String tex = slot != EquipmentSlotType.LEGS ? layer.getTexture("layer_0").toString() : layer.getTexture("layer_1").toString();
+            if (slot.equals(EquipmentSlotType.CHEST) && isSmallArms(entity) && layer.getTexture("smallArms") != null) tex = layer.getTexture("smallArms").toString();
             return tex;
         } else {
             String tex = slot != EquipmentSlotType.LEGS ? "layer_0" : "layer_1";
