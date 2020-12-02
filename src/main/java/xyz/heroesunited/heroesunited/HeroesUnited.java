@@ -1,9 +1,7 @@
 package xyz.heroesunited.heroesunited;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.entity.ai.attributes.GlobalEntityTypeAttributes;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
@@ -18,11 +16,9 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
@@ -31,7 +27,6 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import xyz.heroesunited.heroesunited.client.HUClientEventHandler;
@@ -54,7 +49,6 @@ import xyz.heroesunited.heroesunited.common.objects.entities.HUEntities;
 import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
-import xyz.heroesunited.heroesunited.security.SecurityHelper;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
 
 import java.util.Objects;
@@ -63,12 +57,7 @@ import java.util.Objects;
 public class HeroesUnited {
 
     public static final String MODID = "heroesunited";
-    private static final Logger LOGGER = LogManager.getLogger();
-    private static boolean hasALPHA = false;
-    public static boolean getHasAlpha() {
-        return hasALPHA;
-    }
-    public static Logger getLogger() { return LOGGER; }
+    public static final Logger LOGGER = LogManager.getLogger();
 
     public HeroesUnited() {
         this.registerObjects(FMLJavaModLoadingContext.get().getModEventBus());
@@ -106,22 +95,6 @@ public class HeroesUnited {
     @OnlyIn(Dist.CLIENT)
     private void clientSetup(final FMLClientSetupEvent event) {
         HURichPresence.getPresence().setDiscordRichPresence("In the Menus", null, HURichPresence.MiniLogos.NONE, null);
-        if(FMLEnvironment.production) {
-            ModList.get().getMods().forEach(modInfo -> {
-                if(!hasALPHA) {
-                    if(modInfo.getModId().equals("huben10") || modInfo.getModId().equals("hugeneratorrex") || modInfo.getModId().equals("hudannyphantom")) {
-                        if(modInfo.getVersion().toString().split("\\.").length >= 3) {
-                            if(Integer.parseInt(modInfo.getVersion().toString().split("\\.")[2]) > 0) {
-                                LOGGER.warn("Found an Alpha!");
-                                hasALPHA = true;
-                            }
-                        }
-                    }
-                }
-            });
-        } else {
-            LOGGER.error("Development Environment");
-        }
         RenderingRegistry.registerEntityRenderingHandler(HUEntities.HORAS, RendererHoras::new);
         ClientRegistry.registerEntityShader(Horas.class, new ResourceLocation(MODID, "shaders/post/horas.json"));
         new HorasInfo.DimensionInfo("Overworld", "Default      Dimension", new ResourceLocation("overworld"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/overworld.png"));
@@ -143,21 +116,9 @@ public class HeroesUnited {
         }
     }
 
-    /*
-    This Basically adds a Donation check to see if player is a donor or not.
-    This only runs if an Alpha dependant is being used.
-     */
     @OnlyIn(Dist.CLIENT)
-    @SubscribeEvent(priority = EventPriority.HIGH)
+    @SubscribeEvent
     public void runSecurity(EntityJoinWorldEvent event) {
-        if(!event.getEntity().world.isRemote || !(event.getEntity() instanceof PlayerEntity)) return;
-        assert Minecraft.getInstance().player != null;
-        if(Minecraft.getInstance().player.getUniqueID() != event.getEntity().getUniqueID()) return;
         HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United", null, HURichPresence.MiniLogos.NONE, null);
-        if(!HeroesUnited.getHasAlpha()) return;
-        String UUID = Minecraft.getInstance().player.getUniqueID().toString().replace("-", "");
-        SecurityHelper securityHelper = new SecurityHelper();
-        if(securityHelper.shouldContinue(UUID)) return;
-        Minecraft.getInstance().shutdown();
     }
 }

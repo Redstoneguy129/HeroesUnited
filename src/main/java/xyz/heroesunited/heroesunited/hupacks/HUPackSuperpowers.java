@@ -39,10 +39,10 @@ public class HUPackSuperpowers extends JsonReloadListener {
                 this.registeredSuperpowers.put(resourcelocation, superpower);
                 MinecraftForge.EVENT_BUS.post(new HURegisterSuperpower(this.registeredSuperpowers));
             } catch (Exception e) {
-                HeroesUnited.getLogger().error("Parsing error loading superpower {}", resourcelocation, e);
+                HeroesUnited.LOGGER.error("Parsing error loading superpower {}", resourcelocation, e);
             }
         }
-        HeroesUnited.getLogger().info("Loaded {} superpowers", this.registeredSuperpowers.size());
+        HeroesUnited.LOGGER.info("Loaded {} superpowers", this.registeredSuperpowers.size());
     }
 
     public Superpower parseSuperpower(ResourceLocation resourceLocation, JsonObject json) {
@@ -58,7 +58,7 @@ public class HUPackSuperpowers extends JsonReloadListener {
                         type.setAlwaysActive(JSONUtils.hasField(o, "active") ? JSONUtils.getBoolean(o, "active") : false);
                         type.create().parse(o);
                         types.add(type);
-                    } else HeroesUnited.getLogger().error("Couldn't read ability {} in superpower {}", JSONUtils.getString(o, "ability"), resourceLocation);
+                    } else HeroesUnited.LOGGER.error("Couldn't read ability {} in superpower {}", JSONUtils.getString(o, "ability"), resourceLocation);
                 }
             });
 

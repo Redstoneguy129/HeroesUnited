@@ -40,5 +40,6 @@
   "commands.heroesunited.superpower.set.multiple": "%s entities Superpower has been set to %s",
 
   "heroesunited.jumpBoost": "JumpBoost",
-  "heroesunited.fallResistance": "FallResistance"
+  "heroesunited.fallResistance": "FallResistance",
+  "heroesunited.no_patreon.message": "Sorry, alphas are only for Patrons,\nplease wait until the mod is in beta stage,\nor join the patreon"
 }

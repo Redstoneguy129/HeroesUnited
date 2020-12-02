@@ -164,9 +164,10 @@ public class AbilitiesScreen extends Screen {
         public void refreshList() {
             this.clearEntries();
             Collection<AbilityType> abilities = new ArrayList<>(AbilityHelper.getAbilities(this.minecraft.player));
-            AbilityType type = Superpower.getTypeFromSuperpower(minecraft.player);
-            if (type != null && !type.isHidden()) {
-                this.addEntry(new AbilityListEntry(type, this.parent, abilities.contains(type)));
+            for (AbilityType type : Superpower.getTypesFromSuperpower(this.minecraft.player)) {
+                if (type != null && !type.isHidden()) {
+                    this.addEntry(new AbilityListEntry(type, this.parent, abilities.contains(type)));
+                }
             }
         }
 

@@ -34,10 +34,10 @@ public class HUPackLayers extends JsonReloadListener {
                     this.registeredLayers.put(resourcelocation, layer);
                 }
             } catch (Exception e) {
-                HeroesUnited.getLogger().error("Parsing error loading layer {}", resourcelocation, e);
+                HeroesUnited.LOGGER.error("Parsing error loading layer {}", resourcelocation, e);
             }
         }
-        HeroesUnited.getLogger().info("Loaded {} layer", this.registeredLayers.size());
+        HeroesUnited.LOGGER.info("Loaded {} layer", this.registeredLayers.size());
     }
 
     public Layer parseLayer(ResourceLocation name, JsonObject json) {

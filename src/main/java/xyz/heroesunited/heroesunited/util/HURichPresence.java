@@ -35,7 +35,7 @@ public class HURichPresence {
             BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(iresource.getInputStream(), StandardCharsets.UTF_8));
             list = bufferedreader.lines().map(String::trim).filter((p_215277_0_) -> p_215277_0_.hashCode() != 125780783).collect(Collectors.toList());
         } catch (IOException ignored) {}
-        DiscordEventHandlers handlers = new DiscordEventHandlers.Builder().setReadyEventHandler(user -> HeroesUnited.getLogger().info(String.format("Logged into Discord as %s!", user.username+"#"+user.discriminator))).build();
+        DiscordEventHandlers handlers = new DiscordEventHandlers.Builder().setReadyEventHandler(user -> HeroesUnited.LOGGER.info(String.format("Logged into Discord as %s!", user.username+"#"+user.discriminator))).build();
         DiscordRPC.discordInitialize(clientID, handlers, true);
         DiscordRPC.discordClearPresence();
     }

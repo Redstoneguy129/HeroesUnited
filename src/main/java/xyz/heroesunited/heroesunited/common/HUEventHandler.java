@@ -52,8 +52,10 @@ public class HUEventHandler {
                     }
                 });
 
-                if (Superpower.getTypeFromSuperpower(pl) != null && Superpower.getTypeFromSuperpower(pl).alwaysActive()) {
-                    a.enable(Superpower.getTypeFromSuperpower(pl));
+                for (AbilityType type : Superpower.getTypesFromSuperpower(pl)) {
+                    if (type != null && type.alwaysActive()) {
+                        a.enable(type);
+                    }
                 }
 
                 if (Suit.getSuit(pl) != null) {

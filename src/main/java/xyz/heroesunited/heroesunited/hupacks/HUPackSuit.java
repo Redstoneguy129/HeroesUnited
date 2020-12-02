@@ -45,7 +45,7 @@ public class HUPackSuit {
             try (IResource iresource = resourceManager.getResource(resourcelocation)) {
                 suits.put(id, JSONUtils.fromJson(HUPacks.GSON, new BufferedReader(new InputStreamReader(iresource.getInputStream(), StandardCharsets.UTF_8)), JsonObject.class));
             } catch (Throwable throwable) {
-                HeroesUnited.getLogger().error("Couldn't read hupack suit {} from {}", id, resourcelocation, throwable);
+                HeroesUnited.LOGGER.error("Couldn't read hupack suit {} from {}", id, resourcelocation, throwable);
             }
         }
 
@@ -130,10 +130,10 @@ public class HUPackSuit {
                 };
                 if (suit != null) {
                     Suit.SUITS.put(suit.getRegistryName(), suit);
-                    HeroesUnited.getLogger().info("Registered hupack suit {}!", map.getKey());
+                    HeroesUnited.LOGGER.info("Registered hupack suit {}!", map.getKey());
                 }
             } catch (Throwable throwable) {
-                HeroesUnited.getLogger().error("Couldn't read hupack suit {}", map.getKey(), throwable);
+                HeroesUnited.LOGGER.error("Couldn't read hupack suit {}", map.getKey(), throwable);
             }
         }
     }

@@ -40,14 +40,15 @@ public class Superpower {
     }
 
     @Nonnull
-    public static AbilityType getTypeFromSuperpower(PlayerEntity player) {
+    public static List<AbilityType> getTypesFromSuperpower(PlayerEntity player) {
+        List<AbilityType> list = Lists.newArrayList();
         for (AbilityType type : AbilityType.ABILITIES) {
             Superpower power = Superpower.getSuperpower(player);
             if (power != null && power.getContainedAbilities(player).contains(type)) {
-                return type;
+                list.add(type);
             }
         }
-        return null;
+        return list;
     }
 
     public ITextComponent getDisplayName() {
