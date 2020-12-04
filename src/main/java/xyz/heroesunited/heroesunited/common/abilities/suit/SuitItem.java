@@ -24,7 +24,7 @@ import static net.minecraft.inventory.EquipmentSlotType.values;
 
 public class SuitItem extends ArmorItem {
 
-    private Suit suit;
+    protected final Suit suit;
 
     public SuitItem(IArmorMaterial materialIn, EquipmentSlotType slot, Properties builder, Suit suit) {
         super(materialIn, slot, builder);

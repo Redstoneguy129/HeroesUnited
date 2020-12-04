@@ -1,4 +1,4 @@
-package xyz.heroesunited.heroesunited.util.data;
+package xyz.heroesunited.heroesunited.common.capabilities;
 
 import net.minecraft.nbt.CompoundNBT;
 

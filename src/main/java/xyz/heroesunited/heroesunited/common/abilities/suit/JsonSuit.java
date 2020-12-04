@@ -28,7 +28,7 @@ public class JsonSuit extends Suit {
     protected final JsonObject jsonObject;
 
     public JsonSuit(Map.Entry<ResourceLocation, JsonObject> map) {
-        this.setRegistryName(map.getKey());
+        super(map.getKey());
         this.jsonObject = map.getValue();
     }
 

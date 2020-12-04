@@ -5,7 +5,6 @@ import net.minecraftforge.common.util.INBTSerializable;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
-import xyz.heroesunited.heroesunited.util.data.HUData;
 
 import java.util.Collection;
 

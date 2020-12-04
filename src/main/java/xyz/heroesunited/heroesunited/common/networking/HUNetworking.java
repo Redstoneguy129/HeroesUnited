@@ -21,14 +21,14 @@ public class HUNetworking {
         //Client
         INSTANCE.registerMessage(NextID(), ClientRemoveSuperpower.class, ClientRemoveSuperpower::toBytes, ClientRemoveSuperpower::new, ClientRemoveSuperpower::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncSuperpower.class, ClientSyncSuperpower::toBytes, ClientSyncSuperpower::new, ClientSyncSuperpower::handle);
-        INSTANCE.registerMessage(NextID(), ClientSyncHUData.class, ClientSyncHUData::toBytes, ClientSyncHUData::new, ClientSyncHUData::handle);
+        INSTANCE.registerMessage(NextID(), ClientSyncHUType.class, ClientSyncHUType::toBytes, ClientSyncHUType::new, ClientSyncHUType::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncAbilities.class, ClientSyncAbilities::toBytes, ClientSyncAbilities::new, ClientSyncAbilities::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncCap.class, ClientSyncCap::toBytes, ClientSyncCap::new, ClientSyncCap::handle);
-        INSTANCE.registerMessage(NextID(), ClientSyncHUDatas.class, ClientSyncHUDatas::toBytes, ClientSyncHUDatas::new, ClientSyncHUDatas::handle);
+        INSTANCE.registerMessage(NextID(), ClientSyncHUData.class, ClientSyncHUData::toBytes, ClientSyncHUData::new, ClientSyncHUData::handle);
         //Server
-        INSTANCE.registerMessage(NextID(), ServerSetHUDatas.class, ServerSetHUDatas::toBytes, ServerSetHUDatas::new, ServerSetHUDatas::handle);
-        INSTANCE.registerMessage(NextID(), ServerSetTheme.class, ServerSetTheme::toBytes, ServerSetTheme::new, ServerSetTheme::handle);
         INSTANCE.registerMessage(NextID(), ServerSetHUData.class, ServerSetHUData::toBytes, ServerSetHUData::new, ServerSetHUData::handle);
+        INSTANCE.registerMessage(NextID(), ServerSetTheme.class, ServerSetTheme::toBytes, ServerSetTheme::new, ServerSetTheme::handle);
+        INSTANCE.registerMessage(NextID(), ServerSetHUType.class, ServerSetHUType::toBytes, ServerSetHUType::new, ServerSetHUType::handle);
         INSTANCE.registerMessage(NextID(), ServerHorasPlayerSetDimension.class, ServerHorasPlayerSetDimension::toBytes, ServerHorasPlayerSetDimension::new, ServerHorasPlayerSetDimension::handle);
         INSTANCE.registerMessage(NextID(), ServerToggleKey.class, ServerToggleKey::toBytes, ServerToggleKey::new, ServerToggleKey::handle);
         INSTANCE.registerMessage(NextID(), ServerToggleAbility.class, ServerToggleAbility::toBytes, ServerToggleAbility::new, ServerToggleAbility::handle);

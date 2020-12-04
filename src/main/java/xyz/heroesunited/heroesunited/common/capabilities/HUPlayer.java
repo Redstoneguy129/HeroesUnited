@@ -21,7 +21,6 @@ import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.HUTypes;
 import xyz.heroesunited.heroesunited.common.networking.client.*;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
-import xyz.heroesunited.heroesunited.util.data.HUData;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
@@ -56,7 +55,7 @@ public class HUPlayer implements IHUPlayer {
     public void setFlying(boolean flying) {
         this.flying = flying;
         if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUTypes.FLYING, flying ? 1 : 0));
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getEntityId(), HUTypes.FLYING, flying ? 1 : 0));
     }
 
     @Override
@@ -68,7 +67,7 @@ public class HUPlayer implements IHUPlayer {
     public void setIntangible(boolean intangible) {
         this.intangible = intangible;
         if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUTypes.INTAGIBLE, intangible ? 1 : 0));
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getEntityId(), HUTypes.INTAGIBLE, intangible ? 1 : 0));
     }
 
     @Override
@@ -80,7 +79,7 @@ public class HUPlayer implements IHUPlayer {
     public void setType(int type) {
         this.type = type;
         if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUTypes.TYPE, type));
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getEntityId(), HUTypes.TYPE, type));
     }
 
     @Override
@@ -92,7 +91,7 @@ public class HUPlayer implements IHUPlayer {
     public void setCooldown(int cooldown) {
         this.cooldown = cooldown;
         if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUTypes.COOLDOWN, cooldown));
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getEntityId(), HUTypes.COOLDOWN, cooldown));
     }
 
     @Override
@@ -109,14 +108,14 @@ public class HUPlayer implements IHUPlayer {
     public void setInTimer(boolean isInTimer) {
         this.isInTimer = isInTimer;
         if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUTypes.IN_TIMER, isInTimer ? 1 : 0));
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getEntityId(), HUTypes.IN_TIMER, isInTimer ? 1 : 0));
     }
 
     @Override
     public void setTimer(int timer) {
         this.timer = timer;
         if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUTypes.TIMER, timer));
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getEntityId(), HUTypes.TIMER, timer));
     }
 
     @Override
@@ -128,7 +127,7 @@ public class HUPlayer implements IHUPlayer {
     public void setAnimationTimer(int animationTimer) {
         this.animationTimer = animationTimer;
         if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUTypes.ANIMATION_TIMER, animationTimer));
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getEntityId(), HUTypes.ANIMATION_TIMER, animationTimer));
     }
 
     @Override
@@ -232,7 +231,7 @@ public class HUPlayer implements IHUPlayer {
         if (data != null && !data.getValue().equals(value)) {
             data.setValue(value);
             if (!player.world.isRemote && data.canBeSaved())
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUDatas(player.getEntityId(), key, this.serializeNBT()));
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), key, this.serializeNBT()));
         }
         return this;
     }

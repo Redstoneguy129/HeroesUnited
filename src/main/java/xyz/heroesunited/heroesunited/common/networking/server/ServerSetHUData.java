@@ -1,41 +1,48 @@
 package xyz.heroesunited.heroesunited.common.networking.server;
 
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
+import xyz.heroesunited.heroesunited.common.capabilities.HUData;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
-import xyz.heroesunited.heroesunited.common.networking.HUTypes;
 
 import java.util.function.Supplier;
 
 public class ServerSetHUData {
 
-    private final HUTypes data;
-    private final int value;
+    private final String key;
+    private final CompoundNBT nbt;
 
-    public ServerSetHUData(HUTypes data, int value) {
-        this.data = data;
-        this.value = value;
+    public ServerSetHUData(String key, CompoundNBT nbt) {
+        this.key = key;
+        this.nbt = nbt;
     }
 
-    public ServerSetHUData(PacketBuffer buffer) {
-        this.data = buffer.readEnumValue(HUTypes.class);
-        this.value = buffer.readInt();
+    public ServerSetHUData(PacketBuffer buf) {
+        this.key = buf.readString(32767);
+        this.nbt = buf.readCompoundTag();
     }
 
-    public void toBytes(PacketBuffer buffer) {
-        buffer.writeEnumValue(this.data);
-        buffer.writeInt(this.value);
+    public void toBytes(PacketBuffer buf) {
+        buf.writeString(this.key);
+        buf.writeCompoundTag(this.nbt);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             PlayerEntity player = ctx.get().getSender();
-
-            player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((a) -> {
-                HUTypes.set(player, this.data, this.value);
-            });
+            if (player != null) {
+                player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+                    HUData<?> data = cap.getFromName(this.key);
+                    if (data != null) {
+                        HUData.readValue(data, this.nbt, data.getValue());
+                    }
+                });
+            }
         });
         ctx.get().setPacketHandled(true);
     }
+
+
 }
