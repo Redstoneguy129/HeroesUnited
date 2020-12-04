@@ -8,6 +8,7 @@ import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.common.abilities.suit.JsonSuit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 
 import java.io.BufferedReader;
@@ -23,7 +24,7 @@ public class HUPackSuit {
     private static Map<ResourceLocation, Function<Map.Entry<ResourceLocation, JsonObject>, Suit>> suitTypes = Maps.newHashMap();
 
     public static void init() {
-        registerSuit(new ResourceLocation(HeroesUnited.MODID, "default"), JsonSuit::new);
+        registerSuitType(new ResourceLocation(HeroesUnited.MODID, "default"), JsonSuit::new);
 
         IResourceManager resourceManager = HUPacks.getInstance().getResourceManager();
         LinkedHashMap<ResourceLocation, JsonObject> suits = Maps.newLinkedHashMap();
@@ -52,7 +53,7 @@ public class HUPackSuit {
         }
     }
 
-    public static void registerSuit(ResourceLocation resourceLocation, Function<Map.Entry<ResourceLocation, JsonObject>, Suit> function) {
+    public static void registerSuitType(ResourceLocation resourceLocation, Function<Map.Entry<ResourceLocation, JsonObject>, Suit> function) {
         Objects.requireNonNull(resourceLocation);
         Objects.requireNonNull(function);
         suitTypes.put(resourceLocation, function);

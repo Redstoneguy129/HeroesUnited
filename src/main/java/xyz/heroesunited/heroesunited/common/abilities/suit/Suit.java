@@ -38,8 +38,6 @@ public abstract class Suit {
     private ResourceLocation registryName = null;
     protected Item helmet, chestplate, legs, boots;
 
-    public Suit() {}
-
     public Suit(ResourceLocation name) {
         this.setRegistryName(name);
     }

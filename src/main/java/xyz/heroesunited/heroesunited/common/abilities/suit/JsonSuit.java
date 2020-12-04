@@ -1,4 +1,4 @@
-package xyz.heroesunited.heroesunited.hupacks;
+package xyz.heroesunited.heroesunited.common.abilities.suit;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -18,7 +18,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.IForgeRegistry;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
-import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 
 import java.util.List;
@@ -26,7 +25,7 @@ import java.util.Map;
 
 public class JsonSuit extends Suit {
 
-    private final JsonObject jsonObject;
+    protected final JsonObject jsonObject;
 
     public JsonSuit(Map.Entry<ResourceLocation, JsonObject> map) {
         this.setRegistryName(map.getKey());
