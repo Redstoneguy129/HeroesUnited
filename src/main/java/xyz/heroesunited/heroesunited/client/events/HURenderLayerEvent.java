@@ -91,7 +91,7 @@ public class HURenderLayerEvent<T extends LivingEntity, M extends EntityModel<T>
         }
     }
 
-        @Cancelable
+    @Cancelable
     public static class Accesoires extends Player {
         public Accesoires(PlayerRenderer renderer, AbstractClientPlayerEntity player, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
             super(renderer, player, matrixStack, bufferIn, packedLightIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);

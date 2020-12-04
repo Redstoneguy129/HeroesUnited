@@ -17,8 +17,10 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilities;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUDatas;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncSuperpower;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
+import xyz.heroesunited.heroesunited.util.data.HUData;
 
 public class HUPlayerEvent {
 
@@ -77,5 +79,9 @@ public class HUPlayerEvent {
         a.sync();
         if (a.getSuperpower() != null) HUNetworking.INSTANCE.sendTo(new ClientSyncSuperpower(entity.getEntityId(), a.getSuperpower().getRegistryName()), ((ServerPlayerEntity) entity).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
         HUNetworking.INSTANCE.sendTo(new ClientSyncAbilities(entity.getEntityId(), AbilityHelper.getAbilities((PlayerEntity) entity)), ((ServerPlayerEntity) entity).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
+        for (HUData<?> data : a.getDatas()) {
+            if (data.canBeSaved())
+                HUNetworking.INSTANCE.sendTo(new ClientSyncHUDatas(entity.getEntityId(), data.getKey(), a.serializeNBT()), ((ServerPlayerEntity) entity).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
+        }
     }
 }

@@ -24,7 +24,9 @@ public class HUNetworking {
         INSTANCE.registerMessage(NextID(), ClientSyncHUData.class, ClientSyncHUData::toBytes, ClientSyncHUData::new, ClientSyncHUData::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncAbilities.class, ClientSyncAbilities::toBytes, ClientSyncAbilities::new, ClientSyncAbilities::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncCap.class, ClientSyncCap::toBytes, ClientSyncCap::new, ClientSyncCap::handle);
+        INSTANCE.registerMessage(NextID(), ClientSyncHUDatas.class, ClientSyncHUDatas::toBytes, ClientSyncHUDatas::new, ClientSyncHUDatas::handle);
         //Server
+        INSTANCE.registerMessage(NextID(), ServerSetHUDatas.class, ServerSetHUDatas::toBytes, ServerSetHUDatas::new, ServerSetHUDatas::handle);
         INSTANCE.registerMessage(NextID(), ServerSetTheme.class, ServerSetTheme::toBytes, ServerSetTheme::new, ServerSetTheme::handle);
         INSTANCE.registerMessage(NextID(), ServerSetHUData.class, ServerSetHUData::toBytes, ServerSetHUData::new, ServerSetHUData::handle);
         INSTANCE.registerMessage(NextID(), ServerHorasPlayerSetDimension.class, ServerHorasPlayerSetDimension::toBytes, ServerHorasPlayerSetDimension::new, ServerHorasPlayerSetDimension::handle);

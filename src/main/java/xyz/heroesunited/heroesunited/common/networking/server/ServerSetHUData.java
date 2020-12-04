@@ -4,22 +4,22 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
-import xyz.heroesunited.heroesunited.common.networking.HUData;
+import xyz.heroesunited.heroesunited.common.networking.HUTypes;
 
 import java.util.function.Supplier;
 
 public class ServerSetHUData {
 
-    private final HUData data;
+    private final HUTypes data;
     private final int value;
 
-    public ServerSetHUData(HUData data, int value) {
+    public ServerSetHUData(HUTypes data, int value) {
         this.data = data;
         this.value = value;
     }
 
     public ServerSetHUData(PacketBuffer buffer) {
-        this.data = buffer.readEnumValue(HUData.class);
+        this.data = buffer.readEnumValue(HUTypes.class);
         this.value = buffer.readInt();
     }
 
@@ -33,7 +33,7 @@ public class ServerSetHUData {
             PlayerEntity player = ctx.get().getSender();
 
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((a) -> {
-                HUData.set(player, this.data, this.value);
+                HUTypes.set(player, this.data, this.value);
             });
         });
         ctx.get().setPacketHandled(true);

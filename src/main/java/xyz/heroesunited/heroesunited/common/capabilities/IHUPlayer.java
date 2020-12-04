@@ -5,6 +5,7 @@ import net.minecraftforge.common.util.INBTSerializable;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
+import xyz.heroesunited.heroesunited.util.data.HUData;
 
 import java.util.Collection;
 
@@ -51,7 +52,17 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT> {
     int getAnimationTimer();
     void setAnimationTimer(int animationTimer);
 
+    /**Accessories inventory**/
     AccessoireInventory getInventory();
+
+    <T> IHUPlayer register(String key, T defaultValue, boolean saving);
+    <T> IHUPlayer set(String key, T value);
+    <T> HUData<T> getFromName(String key);
+    default IHUPlayer reset(String key) {
+        this.set(key, getFromName(key).getDefaultValue());
+        return this;
+    }
+    Collection<HUData<?>> getDatas();
 
     void copy(IHUPlayer ihuPlayer);
     void sync();

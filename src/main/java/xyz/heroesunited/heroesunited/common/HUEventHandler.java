@@ -5,7 +5,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
@@ -13,8 +12,6 @@ import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import xyz.heroesunited.heroesunited.client.events.HUBoundingBoxEvent;
-import xyz.heroesunited.heroesunited.client.events.HUEyeHeightEvent;
 import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
@@ -27,13 +24,6 @@ import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 public class HUEventHandler {
 
-    @SubscribeEvent
-    public void livingUpdate(LivingEvent.LivingUpdateEvent event) {
-        if (event.getEntity().world.isRemote) {
-            MinecraftForge.EVENT_BUS.post(new HUEyeHeightEvent(event.getEntityLiving(), event.getEntityLiving().getEyeHeight()));
-        }
-        MinecraftForge.EVENT_BUS.post(new HUBoundingBoxEvent(event.getEntityLiving(), event.getEntityLiving().getBoundingBox()));
-    }
 
     @SubscribeEvent
     public void playerTick(TickEvent.PlayerTickEvent event) {

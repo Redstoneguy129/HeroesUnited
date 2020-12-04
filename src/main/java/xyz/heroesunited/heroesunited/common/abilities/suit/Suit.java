@@ -36,18 +36,12 @@ public abstract class Suit {
 
     public static final Map<ResourceLocation, Suit> SUITS = Maps.newHashMap();
     private ResourceLocation registryName = null;
-    protected Item helmet;
-    protected Item chestplate;
-    protected Item legs;
-    protected Item boots;
+    protected Item helmet, chestplate, legs, boots;
 
-    public Suit() {
-        this.registerItems(ForgeRegistries.ITEMS);
-    }
+    public Suit() {}
 
     public Suit(ResourceLocation name) {
         this.setRegistryName(name);
-        this.registerItems(ForgeRegistries.ITEMS);
     }
 
     public Suit(String modid, String name) {
@@ -211,10 +205,7 @@ public abstract class Suit {
 
     public static void registerSuit(Suit suit) {
         Suit.SUITS.put(suit.getRegistryName(), suit);
-    }
-
-    public static void registerSuits(Map<ResourceLocation, Suit> map) {
-        Suit.SUITS.putAll(map);
+        suit.registerItems(ForgeRegistries.ITEMS);
     }
 
     public static Suit getSuit(LivingEntity entity) {

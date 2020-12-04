@@ -3,7 +3,7 @@ package xyz.heroesunited.heroesunited.common.networking;
 import net.minecraft.entity.Entity;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
-public enum HUData {
+public enum HUTypes {
     COOLDOWN,
     TYPE,
     TIMER,
@@ -12,7 +12,7 @@ public enum HUData {
     INTAGIBLE,
     IN_TIMER;
 
-    public static void set(Entity entity, HUData data, int value) {
+    public static void set(Entity entity, HUTypes data, int value) {
         entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((a) -> {
             boolean booleans = value == 1 ? true : false;
             switch (data) {

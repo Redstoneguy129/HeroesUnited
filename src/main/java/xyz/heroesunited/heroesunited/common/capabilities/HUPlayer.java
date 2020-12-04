@@ -8,6 +8,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.StringNBT;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.PacketDistributor;
@@ -15,10 +16,12 @@ import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
-import xyz.heroesunited.heroesunited.common.networking.HUData;
+import xyz.heroesunited.heroesunited.common.events.HURegisterDataEvent;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
+import xyz.heroesunited.heroesunited.common.networking.HUTypes;
 import xyz.heroesunited.heroesunited.common.networking.client.*;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
+import xyz.heroesunited.heroesunited.util.data.HUData;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
@@ -26,15 +29,17 @@ import java.util.List;
 
 public class HUPlayer implements IHUPlayer {
 
+    private Superpower superpower;
     private final PlayerEntity player;
     private boolean flying, intangible, isInTimer;
     private int theme, type, cooldown, timer, animationTimer;
-    private List<AbilityType> activeAbilities = Lists.newArrayList();
-    private Superpower superpower;
     public final AccessoireInventory inventory = new AccessoireInventory();
+    protected List<AbilityType> activeAbilities = Lists.newArrayList();
+    protected List<HUData<?>> dataList = Lists.newArrayList();
 
     public HUPlayer(PlayerEntity player) {
         this.player = player;
+        MinecraftForge.EVENT_BUS.post(new HURegisterDataEvent(player, this));
     }
 
     @Nonnull
@@ -51,7 +56,7 @@ public class HUPlayer implements IHUPlayer {
     public void setFlying(boolean flying) {
         this.flying = flying;
         if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUData.FLYING, flying ? 1 : 0));
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUTypes.FLYING, flying ? 1 : 0));
     }
 
     @Override
@@ -63,7 +68,7 @@ public class HUPlayer implements IHUPlayer {
     public void setIntangible(boolean intangible) {
         this.intangible = intangible;
         if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUData.INTAGIBLE, intangible ? 1 : 0));
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUTypes.INTAGIBLE, intangible ? 1 : 0));
     }
 
     @Override
@@ -75,7 +80,7 @@ public class HUPlayer implements IHUPlayer {
     public void setType(int type) {
         this.type = type;
         if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUData.TYPE, type));
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUTypes.TYPE, type));
     }
 
     @Override
@@ -87,7 +92,7 @@ public class HUPlayer implements IHUPlayer {
     public void setCooldown(int cooldown) {
         this.cooldown = cooldown;
         if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUData.COOLDOWN, cooldown));
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUTypes.COOLDOWN, cooldown));
     }
 
     @Override
@@ -104,14 +109,14 @@ public class HUPlayer implements IHUPlayer {
     public void setInTimer(boolean isInTimer) {
         this.isInTimer = isInTimer;
         if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUData.IN_TIMER, isInTimer ? 1 : 0));
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUTypes.IN_TIMER, isInTimer ? 1 : 0));
     }
 
     @Override
     public void setTimer(int timer) {
         this.timer = timer;
         if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUData.TIMER, timer));
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUTypes.TIMER, timer));
     }
 
     @Override
@@ -123,7 +128,7 @@ public class HUPlayer implements IHUPlayer {
     public void setAnimationTimer(int animationTimer) {
         this.animationTimer = animationTimer;
         if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUData.ANIMATION_TIMER, animationTimer));
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), HUTypes.ANIMATION_TIMER, animationTimer));
     }
 
     @Override
@@ -194,6 +199,13 @@ public class HUPlayer implements IHUPlayer {
         this.superpower = ihuPlayer.getSuperpower();
         this.theme = ihuPlayer.getTheme();
         this.inventory.copy(ihuPlayer.getInventory());
+        for (HUData data : this.dataList) {
+            for (HUData oldData : ihuPlayer.getDatas()) {
+                if (data.canBeSaved() && oldData.canBeSaved() && data.getKey().equals(oldData.getKey())) {
+                    data.setValue(oldData.getValue());
+                }
+            }
+        }
     }
 
     @Override
@@ -209,8 +221,57 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
+    public <T> IHUPlayer register(String key, T defaultValue, boolean saving) {
+        dataList.add(new HUData<>(key, defaultValue, defaultValue, saving));
+        return this;
+    }
+
+    @Override
+    public <T> IHUPlayer set(String key, T value) {
+        HUData<T> data = getFromName(key);
+        if (data != null && !data.getValue().equals(value)) {
+            data.setValue(value);
+            if (!player.world.isRemote && data.canBeSaved())
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUDatas(player.getEntityId(), key, this.serializeNBT()));
+        }
+        return this;
+    }
+
+    @Override
+    public <T> HUData<T> getFromName(String key) {
+        for (HUData data : dataList) {
+            if (data.getKey().equals(key)) {
+                return data;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Collection<HUData<?>> getDatas() {
+        return this.dataList;
+    }
+
+    @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT nbt = new CompoundNBT();
+        for (HUData data : dataList) {
+            if (data.getValue() instanceof Boolean) {
+                nbt.putBoolean(data.getKey(), (Boolean) data.getValue());
+            } else if (data.getValue() instanceof Integer) {
+                nbt.putInt(data.getKey(), (Integer) data.getValue());
+            } else if (data.getValue() instanceof String) {
+                nbt.putString(data.getKey(), (String) data.getValue());
+            } else if (data.getValue() instanceof Float) {
+                nbt.putFloat(data.getKey(), (Float) data.getValue());
+            } else if (data.getValue() instanceof Double) {
+                nbt.putDouble(data.getKey(), (Double) data.getValue());
+            } else if (data.getValue() instanceof Long) {
+                nbt.putLong(data.getKey(), (Long) data.getValue());
+            }
+
+        }
+
         ListNBT listNBT = new ListNBT();
         for (AbilityType type : this.activeAbilities) {
             listNBT.add(StringNBT.valueOf(AbilityType.ABILITIES.getKey(type).toString()));
@@ -234,6 +295,24 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
+        for (HUData data : dataList) {
+            if (nbt.contains(data.getKey())) {
+                if (data.getDefaultValue() instanceof Boolean) {
+                    data.setValue(nbt.getBoolean(data.getKey()));
+                } else if (data.getDefaultValue() instanceof Integer) {
+                    data.setValue(nbt.getInt(data.getKey()));
+                } else if (data.getDefaultValue() instanceof String) {
+                    data.setValue(nbt.getString(data.getKey()));
+                } else if (data.getDefaultValue() instanceof Float) {
+                    data.setValue(nbt.getFloat(data.getKey()));
+                } else if (data.getDefaultValue() instanceof Double) {
+                    data.setValue(nbt.getDouble(data.getKey()));
+                } else if (data.getDefaultValue() instanceof Long) {
+                    data.setValue(nbt.getLong(data.getKey()));
+                }
+            }
+        }
+
         if (nbt.contains("Flying")) {
             this.flying = nbt.getBoolean("Flying");
         } if (nbt.contains("Intangible")) {
