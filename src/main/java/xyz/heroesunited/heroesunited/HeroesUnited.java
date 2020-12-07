@@ -29,6 +29,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import software.bernie.geckolib3.GeckoLib;
 import xyz.heroesunited.heroesunited.client.HUClientEventHandler;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
 import xyz.heroesunited.heroesunited.client.gui.AccessoireScreen;
@@ -63,6 +64,7 @@ public class HeroesUnited {
         this.registerObjects(FMLJavaModLoadingContext.get().getModEventBus());
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            GeckoLib.initialize();
             FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
             MinecraftForge.EVENT_BUS.register(new HUClientEventHandler());
         });

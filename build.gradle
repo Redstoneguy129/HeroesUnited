@@ -66,12 +66,11 @@ minecraft {
     }
 }
 
-allprojects {
-    repositories {
-        maven { url 'https://jitpack.io' }
-        flatDir {
-            dirs 'lib'
-        }
+repositories {
+    maven { url 'https://repo.repsy.io/mvn/grillo78/default' }
+    maven { url 'https://jitpack.io' }
+    flatDir {
+        dirs 'lib'
     }
 }
 
@@ -83,13 +82,19 @@ configurations {
 shadowJar {
     configurations = [project.configurations.shade]
     exclude 'com/sun/jna/**'
+    exclude 'software/bernie/example/**'
+    exclude 'assets/geckolib3/**'
+    relocate 'software.bernie.geckolib', 'software.bernie.HU.geckolib'
+
+    classifier ''
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:$project.minecraft_version-$project.forge_version"
     compile 'org.spongepowered:mixin:0.8'
     shade 'com.github.Vatuu:discord-rpc:1.6.2'
-	shade 'com.github.Vatuu:discord-rpc-binaries:3.4.0'
+    shade 'com.github.Vatuu:discord-rpc-binaries:3.4.0'
+    shade fg.deobf('software.bernie.geckolib:forge-1.16.4-geckolib:3.0.0-beta.11')
 }
 
 task deobfJar(type: Jar) {
@@ -103,7 +108,7 @@ artifacts {
 }
 
 reobf {
-    shadowJar  {
+    shadowJar {
         dependsOn tasks.createMcpToSrg
         mappings = tasks.createMcpToSrg.outputs.files.singleFile
     }
@@ -112,15 +117,15 @@ reobf {
 jar {
     manifest {
         attributes([
-                "Specification-Title": "${archivesBaseName}",
-                "Specification-Vendor": "${archivesBaseName}sareus",
-                "Specification-Version": "1",
-                "Implementation-Title": project.name,
-                "Implementation-Version": "${version}",
-                "Implementation-Vendor" :"${archivesBaseName}sareus",
+                "Specification-Title"     : "${archivesBaseName}",
+                "Specification-Vendor"    : "${archivesBaseName}sareus",
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : "${version}",
+                "Implementation-Vendor"   : "${archivesBaseName}sareus",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "MixinConnector": "xyz.heroesunited.heroesunited.mixin.MixinConnector",
-                "MixinConfigs": "heroesunited.mixins.json"
+                "MixinConnector"          : "xyz.heroesunited.heroesunited.mixin.MixinConnector",
+                "MixinConfigs"            : "heroesunited.mixins.json"
         ])
     }
 }
