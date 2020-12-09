@@ -5,16 +5,15 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SimpleSound;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.gui.widget.list.ExtendedList;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fml.network.PacketDistributor;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -28,8 +27,6 @@ import xyz.heroesunited.heroesunited.common.networking.server.ServerSetTheme;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerToggleAbility;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -37,11 +34,11 @@ import java.util.List;
  */
 public class AbilitiesScreen extends Screen {
 
-    private final ResourceLocation ABILITY_GUI = new ResourceLocation(HeroesUnited.MODID, "textures/gui/ability_gui.png");
-    private final int xSize = 200, ySize = 170;
-    public AbilityList abilityList;
-    private int left, top, maxTextureX = 190, maxTextureY = 50;
+    private final ResourceLocation HEAD = new ResourceLocation(HeroesUnited.MODID, "textures/gui/head.png");
+    private final ResourceLocation BUTTON = new ResourceLocation(HeroesUnited.MODID, "textures/gui/ability_button.png");
     public static List<ResourceLocation> themes = Lists.newArrayList(getTheme("default"), getTheme("black"), getTheme("rainbow"));
+    private int left, top, scrollOffset;
+    private List<AbilityType> types;
 
     public AbilitiesScreen() {
         super(new TranslationTextComponent("gui.heroesunited.abilities"));
@@ -55,18 +52,26 @@ public class AbilitiesScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        left = (width - xSize) / 2;
-        top = (height - ySize) / 2;
-        this.abilityList = new AbilityList(this.minecraft, this, 200, height, top + 50, top + 130, this.font.FONT_HEIGHT + 12);
-        this.abilityList.setLeftPos(left + 20);
+        left = (width - 200) / 2;
+        top = (height - 170) / 2;
+        types = Lists.newArrayList(Superpower.getTypesFromSuperpower(this.minecraft.player));
         IHUPlayer cap = HUPlayer.getCap(minecraft.player);
+
         this.addButton(new Button(left + 110, top + 5, 80, 20, new TranslationTextComponent("Change Theme"), (b) -> {
             if (cap.getTheme() >= themes.size())
                 cap.setTheme(0);
             HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerSetTheme(cap.getTheme() + 1, themes.size()));
             minecraft.getSoundHandler().play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }));
-        this.children.add(abilityList);
+
+        for (int i = scrollOffset; i < scrollOffset + 4; i++) {
+            if (i >= types.size()) break;
+            int n = i - scrollOffset;
+            AbilityType type = types.get(i);
+            if (type != null && !type.isHidden()) {
+                this.addButton(new AbilityButton(left + 25, top + 50 + 25 * n, 150, 20, this, type));
+            }
+        }
     }
 
     @Override
@@ -80,154 +85,191 @@ public class AbilitiesScreen extends Screen {
         }
         //Background
         minecraft.getTextureManager().bindTexture(theme);
-        blit(matrixStack, left, top, 0, 0, xSize, ySize, xSize, ySize);
-
-        //List abilities
-        if (this.abilityList != null) {
-            this.abilityList.render(matrixStack, mouseX, mouseY, partialTicks);
+        blit(matrixStack, left, top, 0, 0, 200, 170, 200, 170);
+        renderScrollbar(left + 187.5F, 6);
+        if (types.size() == 0) {
+            this.drawCenteredString(matrixStack, this.font, "You don't have any ability yet", left + 95, top + 95, 16777215);
         }
-
-        minecraft.getTextureManager().bindTexture(theme);
-        blit(matrixStack, left, top, 0, 0, 200, 45, xSize, ySize);
-
         //Player Head and nick
-        minecraft.getTextureManager().bindTexture(ABILITY_GUI);
-        blit(matrixStack, left + 1, top + 1, 0, 0, 40, 40, maxTextureX, maxTextureY);
+        minecraft.getTextureManager().bindTexture(HEAD);
+        blit(matrixStack, left + 1, top + 1, 0, 0, 40, 40, 40, 40);
 
         minecraft.getTextureManager().bindTexture(minecraft.player.getLocationSkin());
         blit(matrixStack, left + 5, top + 5, 32, 32, 32, 32, 256, 256);
-        font.func_238406_a_(matrixStack, "" + minecraft.player.getName().getString(), left + 42, top + 7, 16777215, false);
+        font.func_238406_a_(matrixStack, minecraft.player.getName().getString(), left + 42, top + 7, 16777215, false);
         matrixStack.pop();
+
         super.render(matrixStack, mouseX, mouseY, partialTicks);
+        buttons.forEach(button -> {
+            if (button instanceof AbilityButton) {
+                this.renderAbilityDescription(matrixStack, mouseX, mouseY, (AbilityButton) button);
+            }
+        });
+    }
+
+    public void renderAbilityDescription(MatrixStack matrix, int mx, int my, AbilityButton button) {
+        if (!(mx >= button.x && mx <= button.x + button.getWidth() && my >= button.y && my <= button.y + button.getHeightRealms())) return;
+        if (button.type.create().getHoveredDescription() == null) return;
+        int bgX = mx + button.descWidth > this.width ? mx - button.descWidth : mx + 15;
+        int bgY = my + button.descHeight + 10 > this.height ? my - 5 - button.descHeight : my;
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder builder = tessellator.getBuffer();
+        RenderSystem.color3f(1.0F, 1.0F, 1.0F);
+        RenderSystem.disableTexture();
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        builder.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        float color = 0.2F;
+
+        builder.pos(bgX, bgY + button.descHeight, 0).color(color, color, color, 0.8F).endVertex();
+        builder.pos(bgX + button.descWidth, bgY + button.descHeight, 0).color(color, color, color, 0.8F).endVertex();
+        builder.pos(bgX + button.descWidth, bgY, 0).color(color, color, color, 0.8F).endVertex();
+        builder.pos(bgX, bgY, 0).color(color, color, color, 0.8F).endVertex();
+        tessellator.draw();
+        RenderSystem.disableBlend();
+        RenderSystem.enableTexture();
+
+        for (int i = 0; i < button.abilityDescription.size(); i++) {
+            String line = button.abilityDescription.get(i);
+            this.font.drawStringWithShadow(matrix, line, bgX + 10, bgY + 10 + i * 13, 0xFFFFFF);
+        }
+        boolean activate = AbilityHelper.canActiveAbility(button.type, this.minecraft.player);
+        this.font.drawStringWithShadow(matrix, activate ? "Ability can be activated" : "Ability cannot be activated", bgX + 10, bgY + 10 + (button.abilityDescription.size() + 1) * 13, activate ? 0x00FF00 : 0xFF0000);
+    }
+
+    public static class AbilityButton extends Button {
+
+        private final AbilitiesScreen parent;
+        private final AbilityType type;
+        private List<String> abilityDescription = Lists.newArrayList();
+        private int descWidth, descHeight;
+
+        public AbilityButton(int x, int y, int w, int h, AbilitiesScreen screen, AbilityType type) {
+            super(x, y, w, h, StringTextComponent.EMPTY, AbilityButton::onPressed);
+            this.parent = screen;
+            this.type = type;
+            this.prepareDescriptionRender();
+        }
+
+        @Override
+        public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
+            boolean hovered = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
+            Color color = AbilityHelper.getEnabled(this.type, this.parent.minecraft.player) ? hovered ? Color.ORANGE : Color.YELLOW :
+                    hovered ? AbilityHelper.canActiveAbility(this.type, this.parent.minecraft.player) ? Color.GREEN : Color.RED : Color.WHITE;
+            Tessellator tessellator = Tessellator.getInstance();
+            BufferBuilder builder = tessellator.getBuffer();
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            this.parent.minecraft.getTextureManager().bindTexture(this.parent.BUTTON);
+            builder.begin(7, DefaultVertexFormats.POSITION_COLOR_TEX);
+            builder.pos(x, y + height, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).tex(0, 1).endVertex();
+            builder.pos(x + width, y + height, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).tex(1, 1).endVertex();
+            builder.pos(x + width, y, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).tex(1, 0).endVertex();
+            builder.pos(x, y, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).tex(0, 0).endVertex();
+            tessellator.draw();
+            RenderSystem.disableBlend();
+            RenderSystem.color3f(1f, 1f, 1f);
+
+            this.type.create().drawIcon(stack, x + 2, y + 2);
+            this.parent.font.drawStringWithShadow(stack, this.type.getDisplayName().getString(), x + 20, y + 6, 0xFFFFFFFF);
+        }
+
+        private static void onPressed(Button button) {
+            AbilityButton btn = (AbilityButton) button;
+            if (!btn.type.alwaysActive()) {
+                HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerToggleAbility(btn.type));
+                btn.parent.minecraft.getSoundHandler().play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            }
+        }
+
+        private void prepareDescriptionRender() {
+            abilityDescription.clear();
+            if (this.type.create().getHoveredDescription() == null) return;
+            int maxWidth = 0;
+            for (int i = 0; i < this.type.create().getHoveredDescription().size(); i++) {
+                String text = this.type.create().getHoveredDescription().get(i);
+                int j = 0, width = text.length();
+                while (width > 0) {
+                    width -= 40;
+                    if (width < 0) {
+                        abilityDescription.add(text.substring(j, j + 40 + width));
+                        j += 40;
+                        continue;
+                    }
+                    abilityDescription.add(text.substring(j, j + 40));
+                    j += 40;
+                }
+            }
+            for (String s : abilityDescription) {
+                int width = Minecraft.getInstance().fontRenderer.getStringWidth(s);
+                if (width > maxWidth) {
+                    maxWidth = width;
+                }
+            }
+            descWidth = maxWidth + 20;
+            descHeight = abilityDescription.size() * 13 + 40;
+        }
     }
 
     public static ResourceLocation getTheme(String name) {
-        final ResourceLocation THEME = new ResourceLocation(HeroesUnited.MODID, "textures/gui/themes/"+ name + ".png");
+        final ResourceLocation THEME = new ResourceLocation(HeroesUnited.MODID, "textures/gui/themes/" + name + ".png");
         return THEME;
     }
 
-    public static class AbilityListEntry extends ExtendedList.AbstractListEntry<AbilityListEntry> {
-
-        private final AbilityType type;
-        private final AbilitiesScreen parent;
-        private final boolean active;
-
-        public AbilityListEntry(AbilityType type, AbilitiesScreen parent, boolean active) {
-            this.type = type;
-            this.parent = parent;
-            this.active = active;
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double value) {
+        int next = scrollOffset - (int) value;
+        if (next >= 0 && next <= types.size() - 4) {
+            scrollOffset = next;
+            init();
+            return true;
         }
-
-        @Override
-        public void render(MatrixStack matrixStack, int entryIdx, int top, int left, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isMouseOver, float partialTicks) {
-            RenderSystem.pushMatrix();
-            FontRenderer fontRenderer = this.parent.font;
-            Color color = isMouseOver ? AbilityHelper.canActiveAbility(this.type, this.parent.minecraft.player) ? Color.GREEN : Color.RED : Color.WHITE;
-
-            RenderSystem.color3f(color.getRed(), color.getGreen(), color.getBlue());
-            this.parent.minecraft.textureManager.bindTexture(parent.ABILITY_GUI);
-            blit(matrixStack, left, top + 2, 40, 30, 150, 20, parent.maxTextureX, parent.maxTextureY);
-            RenderSystem.color4f(255F, 255f, 255f, 1f);
-
-            fontRenderer.func_238406_a_(matrixStack, fontRenderer.func_238412_a_(this.type.getDisplayName().getString(), entryWidth - 25), left + 5, top + 8, 0xfefefe, false);
-
-            if (this.active) {
-                this.parent.minecraft.textureManager.bindTexture(parent.ABILITY_GUI);
-                blit(matrixStack, left + entryWidth - 70, top + 4, 40, 0, 16, 16, parent.maxTextureX, parent.maxTextureY);
-            }
-
-            RenderSystem.popMatrix();
-        }
-
-        @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int type) {
-            if (!this.type.alwaysActive()) {
-                HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerToggleAbility(this.type));
-                this.parent.minecraft.getSoundHandler().play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            }
-            return false;
-        }
+        return false;
     }
 
-    public class AbilityList extends ExtendedList<AbilityListEntry> {
-
-        private AbilitiesScreen parent;
-        private int listWidth;
-
-        public AbilityList(Minecraft mcIn, AbilitiesScreen parent, int widthIn, int heightIn, int topIn, int bottomIn, int slotHeightIn) {
-            super(mcIn, widthIn, heightIn, topIn, bottomIn, slotHeightIn);
-            this.parent = parent;
-            this.listWidth = widthIn;
-            this.refreshList();
-        }
-
-        public void refreshList() {
-            this.clearEntries();
-            Collection<AbilityType> abilities = new ArrayList<>(AbilityHelper.getAbilities(this.minecraft.player));
-            for (AbilityType type : Superpower.getTypesFromSuperpower(this.minecraft.player)) {
-                if (type != null && !type.isHidden()) {
-                    this.addEntry(new AbilityListEntry(type, this.parent, abilities.contains(type)));
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
+        if (mouseButton == 0) {
+            for (Widget widget : buttons) {
+                if (widget.mouseClicked(mouseX, mouseY, mouseButton)) {
+                    return true;
                 }
             }
         }
-
-        @Override
-        public int getRowWidth() {
-            return this.listWidth;
-        }
-
-        @Override
-        protected int getScrollbarPosition() {
-            return this.getLeft() + this.width - 30;
-        }
-
-        public int getMaxScroll() {
-            return Math.max(0, this.getMaxPosition() - (this.y1 - this.y0 - 4));
-        }
-
-        @Override
-        public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-            int k = this.getRowLeft();
-            int l = this.y0 + 4 - (int) this.getScrollAmount();
-            this.renderList(matrixStack, k, l, mouseX, mouseY, partialTicks);
-
-            if (getEventListeners().size() == 0) {
-                this.drawCenteredString(matrixStack, parent.font, "You don't have any ability yet", left + 95, top + 95, 16777215);
-            }
-
-            //Scrollbar
-            int i = this.getScrollbarPosition();
-            int j = i + 6;
-            Tessellator tessellator = Tessellator.getInstance();
-            BufferBuilder bufferbuilder = tessellator.getBuffer();
-            RenderSystem.disableTexture();
-            int k1 = this.getMaxScroll();
-            if (k1 > 0) {
-                int l1 = (int) ((float) ((this.y1 - this.y0) * (this.y1 - this.y0)) / (float) this.getMaxPosition());
-                l1 = MathHelper.clamp(l1, 32, this.y1 - this.y0 - 8);
-                int i2 = (int) this.getScrollAmount() * (this.y1 - this.y0 - l1) / k1 + this.y0;
-                if (i2 < this.y0) {
-                    i2 = this.y0;
-                }
-
-                bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-                bufferbuilder.pos(i, this.y1, 0.0D).tex(0.0F, 1.0F).color(0, 0, 0, 255).endVertex();
-                bufferbuilder.pos(j, this.y1, 0.0D).tex(1.0F, 1.0F).color(0, 0, 0, 255).endVertex();
-                bufferbuilder.pos(j, this.y0, 0.0D).tex(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
-                bufferbuilder.pos(i, this.y0, 0.0D).tex(0.0F, 0.0F).color(0, 0, 0, 255).endVertex();
-                bufferbuilder.pos(i, (i2 + l1), 0.0D).tex(0.0F, 1.0F).color(128, 128, 128, 255).endVertex();
-                bufferbuilder.pos(j, (i2 + l1), 0.0D).tex(1.0F, 1.0F).color(128, 128, 128, 255).endVertex();
-                bufferbuilder.pos(j, i2, 0.0D).tex(1.0F, 0.0F).color(128, 128, 128, 255).endVertex();
-                bufferbuilder.pos(i, i2, 0.0D).tex(0.0F, 0.0F).color(128, 128, 128, 255).endVertex();
-                bufferbuilder.pos(i, (i2 + l1 - 1), 0.0D).tex(0.0F, 1.0F).color(192, 192, 192, 255).endVertex();
-                bufferbuilder.pos((j - 1), (i2 + l1 - 1), 0.0D).tex(1.0F, 1.0F).color(192, 192, 192, 255).endVertex();
-                bufferbuilder.pos((j - 1), i2, 0.0D).tex(1.0F, 0.0F).color(192, 192, 192, 255).endVertex();
-                bufferbuilder.pos(i, i2, 0.0D).tex(0.0F, 0.0F).color(192, 192, 192, 255).endVertex();
-                tessellator.draw();
-            }
-            RenderSystem.enableTexture();
-
-        }
+        return false;
     }
 
+    public void renderScrollbar(float x, int width) {
+        int barHeight = 4 * 25 + 20;
+        double step = barHeight / (types.size() != 0 ? types.size() : 1);
+        double start = scrollOffset * step;
+        double end = Math.min(barHeight, (scrollOffset + 4) * step);
+        int y = top + 36;
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder builder = tessellator.getBuffer();
+        RenderSystem.color3f(1f, 1f, 1f);
+        RenderSystem.disableTexture();
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        builder.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        builder.pos(x - 1.5, y + 2 + barHeight, 0).color(0, 0, 0, 255).endVertex();
+        builder.pos(x + width + 1.5, y + 2 + barHeight, 0).color(0, 0, 0, 255).endVertex();
+        builder.pos(x + width + 1.5, y + 7, 0).color(0, 0, 0, 255).endVertex();
+        builder.pos(x - 1.5, y + 7, 0).color(0, 0, 0, 255).endVertex();
+
+        builder.pos(x, y + end, 0).color(128, 128, 128, 255).endVertex();
+        builder.pos(x + width, y + end, 0).color(128, 128, 128, 255).endVertex();
+        builder.pos(x + width, y + 9 + start, 0).color(128, 128, 128, 255).endVertex();
+        builder.pos(x, y + 9 + start, 0).color(128, 128, 128, 255).endVertex();
+
+        builder.pos(x + 1, y - 1 + end, 0).color(192, 192, 192, 255).endVertex();
+        builder.pos(x + width - 1, y - 1 + end, 0).color(192, 192, 192, 255).endVertex();
+        builder.pos(x + width - 1, y + 10 + start, 0).color(192, 192, 192, 255).endVertex();
+        builder.pos(x + 1, y + 10 + start, 0).color(192, 192, 192, 255).endVertex();
+
+        tessellator.draw();
+        RenderSystem.disableBlend();
+        RenderSystem.enableTexture();
+    }
 }

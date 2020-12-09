@@ -34,11 +34,12 @@ public class ClientSyncCap {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            Entity entity = Minecraft.getInstance().world.getEntityByID(this.entityId);
+            Minecraft mc = Minecraft.getInstance();
+            Entity entity = mc.world.getEntityByID(this.entityId);
             if (entity instanceof AbstractClientPlayerEntity) {
                 entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(data -> data.deserializeNBT(this.data));
-                if (Minecraft.getInstance().currentScreen instanceof AbilitiesScreen) {
-                    ((AbilitiesScreen) Minecraft.getInstance().currentScreen).abilityList.refreshList();
+                if (mc.currentScreen instanceof AbilitiesScreen) {
+                    mc.currentScreen.init(mc, mc.getMainWindow().getScaledWidth(), mc.getMainWindow().getScaledHeight());
                 }
             }
         });

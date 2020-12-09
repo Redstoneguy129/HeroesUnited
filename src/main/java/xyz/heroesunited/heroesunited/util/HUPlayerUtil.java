@@ -71,16 +71,14 @@ public class HUPlayerUtil {
         return vec;
     }
 
-    public static void makeLaserLooking(PlayerEntity player) {
-        RayTraceResult rtr = getPosLookingAt(player);
+    public static void makeLaserLooking(PlayerEntity player, double distance) {
+        RayTraceResult rtr = getPosLookingAt(player, distance);
         if (rtr != null && !player.world.isRemote) {
             if (rtr.getType() == RayTraceResult.Type.ENTITY) {
                 EntityRayTraceResult ertr = (EntityRayTraceResult) rtr;
                 if (ertr.getEntity() != null && ertr.getEntity() != player) {
                     ertr.getEntity().setFire(5);
-                    if (ertr.getEntity() instanceof PlayerEntity)
-                        ertr.getEntity().attackEntityFrom(DamageSource.causePlayerDamage(player), 2);
-                    else ertr.getEntity().attackEntityFrom(DamageSource.causeMobDamage(player), 2);
+                    ertr.getEntity().attackEntityFrom(DamageSource.causeMobDamage(player), 2);
                 }
             } else if (rtr.getType() == RayTraceResult.Type.BLOCK) {
                 BlockPos pos = new BlockPos(rtr.getHitVec());
@@ -94,8 +92,7 @@ public class HUPlayerUtil {
         }
     }
 
-    public static RayTraceResult getPosLookingAt(PlayerEntity player) {
-        double distance = 40D;
+    public static RayTraceResult getPosLookingAt(PlayerEntity player, double distance) {
         Vector3d startPos = player.getPositionVec().add(0, player.getEyeHeight(), 0);
         Vector3d endPos = player.getPositionVec().add(0, player.getEyeHeight(), 0).add(player.getLookVec().scale(distance));
 

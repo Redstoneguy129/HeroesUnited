@@ -31,9 +31,7 @@ public class AccessoireScreen extends ContainerScreen<AccessoireContainer> {
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) {
-
-    }
+    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) {}
 
     @Override
     protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int x, int y) {

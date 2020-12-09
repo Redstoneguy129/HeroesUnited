@@ -54,8 +54,8 @@ public class AbilityHelper {
         }
     }
 
-    public static void setAttribute(LivingEntity entity, Attribute attribute, double value, AttributeModifier.Operation operation, UUID uuid) {
-        setAttribute(entity, "hudefault", attribute, uuid, value, operation);
+    public static void setAttribute(LivingEntity entity, Attribute attribute, UUID uuid, double amount, AttributeModifier.Operation operation) {
+        setAttribute(entity, "hudefault", attribute, uuid, amount, operation);
     }
 
     //For remove modifier set amount to 0

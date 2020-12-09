@@ -18,8 +18,8 @@ public class AccessoireItem extends Item implements IAccessoire {
 
     @Override
     public ResourceLocation getTexture(ItemStack stack, PlayerEntity entity, EquipmentAccessoireSlot slot) {
-        String name = slot == EquipmentAccessoireSlot.TSHIRT ? "chest" : slot == EquipmentAccessoireSlot.PANTS ? "legs" : slot == EquipmentAccessoireSlot.SHOES ? "boots" : "wow";
-        return new ResourceLocation(this.getRegistryName().getNamespace(), "textures/item/test/os_"+name+".png");
+        String name = slot == EquipmentAccessoireSlot.TSHIRT ? "chest" : slot == EquipmentAccessoireSlot.PANTS ? "legs" : slot == EquipmentAccessoireSlot.SHOES ? "boots" : "dumb";
+        return new ResourceLocation(this.getRegistryName().getNamespace(), "textures/item/" + this.getRegistryName().getPath() + "/"+name+".png");
     }
 
     @Override
