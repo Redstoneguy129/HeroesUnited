@@ -20,6 +20,7 @@ import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilitie
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUData;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncSuperpower;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
+import xyz.heroesunited.heroesunited.common.objects.items.IAccessoire;
 
 public class HUPlayerEvent {
 
@@ -45,10 +46,10 @@ public class HUPlayerEvent {
             PlayerEntity player = (PlayerEntity) event.getEntityLiving();
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
                 AccessoireInventory inv = a.getInventory();
-                NonNullList<ItemStack> aitemstack = inv.getStacks();
-                for (int i = 0; i < aitemstack.size(); ++i) {
-                    if (!aitemstack.get(i).isEmpty()) {
-                        player.dropItem(aitemstack.get(i), true, false);
+                NonNullList<ItemStack> stack = inv.getStacks();
+                for (int i = 0; i < stack.size(); ++i) {
+                    if (!stack.get(i).isEmpty() && !(stack.get(i).getItem() instanceof IAccessoire && ((IAccessoire)stack.get(i).getItem()).dropAfterDeath(player, stack.get(i)))) {
+                        player.dropItem(stack.get(i), true, false);
                     }
                 }
                 inv.clear();

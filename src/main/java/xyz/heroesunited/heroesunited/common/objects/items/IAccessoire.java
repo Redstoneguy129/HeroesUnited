@@ -29,6 +29,10 @@ public interface IAccessoire {
         return stack.isEmpty() || player.isCreative() || !EnchantmentHelper.hasBindingCurse(stack);
     }
 
+    default boolean dropAfterDeath(PlayerEntity player, ItemStack stack) {
+        return true;
+    }
+
     default float getScale(ItemStack stack){
         return 0.08F;
     }
