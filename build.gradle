@@ -67,7 +67,7 @@ minecraft {
 }
 
 repositories {
-    maven { url 'https://repo.repsy.io/mvn/grillo78/default' }
+    maven { url 'https://repo.repsy.io/mvn/gandiber/geckolib' }
     maven { url 'https://jitpack.io' }
     flatDir {
         dirs 'lib'
@@ -94,7 +94,7 @@ dependencies {
     compile 'org.spongepowered:mixin:0.8'
     shade 'com.github.Vatuu:discord-rpc:1.6.2'
     shade 'com.github.Vatuu:discord-rpc-binaries:3.4.0'
-    shade fg.deobf('software.bernie.geckolib:forge-1.16.4-geckolib:3.0.0-beta.11')
+    shade fg.deobf('software.bernie.geckolib:forge-1.16.4-geckolib:3.0.0')
 }
 
 task deobfJar(type: Jar) {
