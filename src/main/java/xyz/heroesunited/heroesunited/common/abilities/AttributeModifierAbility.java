@@ -16,14 +16,14 @@ public class AttributeModifierAbility extends Ability {
 
     @Override
     public void onUpdate(PlayerEntity player) {
-        if (!JSONUtils.hasField(this.type.getJsonObject(), "key")) {
+        if (!JSONUtils.hasField(this.getJsonObject(), "key")) {
             setAttribute(player, false);
         }
     }
 
     @Override
     public void toggle(PlayerEntity player, int id, int action) {
-        if (JSONUtils.hasField(this.type.getJsonObject(), "key") && id == JSONUtils.getInt(this.type.getJsonObject(), "key")) {
+        if (JSONUtils.hasField(this.getJsonObject(), "key") && id == JSONUtils.getInt(this.getJsonObject(), "key")) {
             setAttribute(player, false);
         }
     }
@@ -34,9 +34,9 @@ public class AttributeModifierAbility extends Ability {
     }
 
     public void setAttribute(PlayerEntity player, boolean disable) {
-        if (JSONUtils.hasField(this.type.getJsonObject(), "attribute")) {
-            JsonObject attribute = JSONUtils.getJsonObject(this.type.getJsonObject(), "attribute");
-            AbilityHelper.setAttribute(player, this.type.getDisplayName().toString().toLowerCase(),
+        if (JSONUtils.hasField(this.getJsonObject(), "attribute")) {
+            JsonObject attribute = JSONUtils.getJsonObject(this.getJsonObject(), "attribute");
+            AbilityHelper.setAttribute(player, this.name,
                     ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(JSONUtils.getString(attribute, "name"))),
                     UUID.fromString(JSONUtils.getString(attribute, "uuid", "16c0c8f6-565e-4175-94f5-029986f3cc2c")),
                     disable ? 0D : JSONUtils.getFloat(attribute, "amount", 1f),

@@ -23,7 +23,7 @@ import net.minecraftforge.registries.GameData;
 import net.minecraftforge.registries.IForgeRegistry;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.client.render.model.ModelSuit;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
+import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
@@ -89,7 +89,7 @@ public abstract class Suit {
     public void toggle(PlayerEntity player, int id, int action) {
     }
 
-    public boolean canCombineWithAbility(AbilityType type, PlayerEntity player) {
+    public boolean canCombineWithAbility(Ability type, PlayerEntity player) {
         return true;
     }
 

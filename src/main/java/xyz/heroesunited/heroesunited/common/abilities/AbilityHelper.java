@@ -1,6 +1,6 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -9,6 +9,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
+import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
 import java.util.ArrayList;
@@ -17,28 +18,28 @@ import java.util.UUID;
 
 public class AbilityHelper {
 
-    public static boolean getEnabled(AbilityType type, PlayerEntity player) {
-        return getAbilities(player).contains(type);
+    public static boolean getEnabled(Ability ability, PlayerEntity player) {
+        return HUPlayer.getCap(player).getAbilityMap().containsKey(ability.name);
     }
 
     public static void disable(PlayerEntity player) {
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
-            for (AbilityType type : ImmutableList.copyOf(a.getActiveAbilities())) {
-                a.disable(type);
-                type.create().onDeactivated(player);
-            }
+            ImmutableMap.copyOf(a.getAbilityMap()).forEach((id, ability) -> {
+                a.disable(id);
+                ability.onDeactivated(player);
+            });
         });
     }
 
-    public static boolean canActiveAbility(AbilityType type, PlayerEntity player) {
-        boolean a = type.create().canActivate(player);
-        boolean b = Suit.getSuit(player) == null || Suit.getSuit(player) != null && Suit.getSuit(player).canCombineWithAbility(type, player);
+    public static boolean canActiveAbility(Ability ability, PlayerEntity player) {
+        boolean a = ability.canActivate(player);
+        boolean b = Suit.getSuit(player) == null || Suit.getSuit(player) != null && Suit.getSuit(player).canCombineWithAbility(ability, player);
         return a && b;
     }
 
-    public static List<AbilityType> getAbilities(PlayerEntity player) {
-        List<AbilityType> list = new ArrayList<>();
-        player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((f) -> list.addAll(f.getActiveAbilities()));
+    public static List<Ability> getAbilities(PlayerEntity player) {
+        List<Ability> list = new ArrayList<>();
+        player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((f) -> list.addAll(f.getAbilityMap().values()));
         return list;
     }
 

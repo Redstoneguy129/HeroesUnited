@@ -1,17 +1,16 @@
 package xyz.heroesunited.heroesunited.common.capabilities;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.StringNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.PacketDistributor;
+import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
@@ -25,6 +24,7 @@ import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventor
 import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class HUPlayer implements IHUPlayer {
 
@@ -33,7 +33,7 @@ public class HUPlayer implements IHUPlayer {
     private boolean flying, intangible, isInTimer;
     private int theme, type, cooldown, timer, animationTimer;
     public final AccessoireInventory inventory = new AccessoireInventory();
-    protected List<AbilityType> activeAbilities = Lists.newArrayList();
+    protected Map<String, Ability> activeAbilities = Maps.newHashMap();
     protected List<HUData<?>> dataList = Lists.newArrayList();
 
     public HUPlayer(PlayerEntity player) {
@@ -131,27 +131,28 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
-    public void enable(AbilityType type) {
-        if (type != null && !activeAbilities.contains(type)) {
-            activeAbilities.add(type);
-            type.create().onActivated(player);
+    public void enable(String id, Ability ability) {
+        if (!activeAbilities.containsKey(id)) {
+            activeAbilities.put(id, ability);
+            ability.name = id;
+            ability.onActivated(player);
             if (!player.world.isRemote)
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getEntityId(), this.getActiveAbilities()));
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientEnableAbility(player.getEntityId(), id, ability.serializeNBT()));
         }
     }
 
     @Override
-    public void disable(AbilityType type) {
-        if (type != null) {
-            activeAbilities.remove(type);
-            type.create().onDeactivated(player);
+    public void disable(String id) {
+        if (activeAbilities.containsKey(id)) {
+            activeAbilities.get(id).onDeactivated(player);
+            activeAbilities.remove(id);
             if (!player.world.isRemote)
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getEntityId(), this.getActiveAbilities()));
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientDisableAbility(player.getEntityId(), id));
         }
     }
 
     @Override
-    public Collection<AbilityType> getActiveAbilities() {
+    public Map<String, Ability> getAbilityMap() {
         return activeAbilities;
     }
 
@@ -175,9 +176,11 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public void toggle(int id, int action) {
-        for (AbilityType type : activeAbilities) {
-            if (type != null) type.create().toggle(player, id, action);
-        }
+        activeAbilities.forEach((name, ability) -> {
+            if (ability != null) {
+                ability.toggle(player, id, action);
+            }
+        });
         if (Suit.getSuit(player) != null) {
             Suit.getSuit(player).toggle(player, id, action);
         }
@@ -271,11 +274,9 @@ public class HUPlayer implements IHUPlayer {
 
         }
 
-        ListNBT listNBT = new ListNBT();
-        for (AbilityType type : this.activeAbilities) {
-            listNBT.add(StringNBT.valueOf(AbilityType.ABILITIES.getKey(type).toString()));
-        }
-        nbt.put("Abilities", listNBT);
+        CompoundNBT abilities = new CompoundNBT();
+        this.activeAbilities.forEach((id, ability) -> abilities.put(id, ability.serializeNBT()));
+        nbt.put("Abilities", abilities);
         nbt.putBoolean("Flying", this.flying);
         nbt.putBoolean("Intangible", this.intangible);
         nbt.putInt("Theme", this.theme);
@@ -294,6 +295,8 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
+        CompoundNBT abilities = nbt.getCompound("Abilities");
+
         for (HUData data : dataList) {
             if (nbt.contains(data.getKey())) {
                 if (data.getDefaultValue() instanceof Boolean) {
@@ -310,9 +313,7 @@ public class HUPlayer implements IHUPlayer {
                     data.setValue(nbt.getLong(data.getKey()));
                 }
             }
-        }
-
-        if (nbt.contains("Flying")) {
+        } if (nbt.contains("Flying")) {
             this.flying = nbt.getBoolean("Flying");
         } if (nbt.contains("Intangible")) {
             this.intangible = nbt.getBoolean("Intangible");
@@ -332,15 +333,17 @@ public class HUPlayer implements IHUPlayer {
             superpower = Superpower.deserializeNBT(nbt.getCompound("superpower"));
         }
 
-        this.activeAbilities = Lists.newArrayList();
-        ListNBT listNBT = nbt.getList("Abilities", Constants.NBT.TAG_STRING);
-        for (int i = 0; i < listNBT.size(); i++) {
-            AbilityType type = AbilityType.ABILITIES.getValue(new ResourceLocation(listNBT.getString(i)));
-            if (type != null) {
-                this.activeAbilities.add(type);
+        this.activeAbilities.clear();
+        for (String id : abilities.keySet()) {
+            CompoundNBT tag = abilities.getCompound(id);
+            AbilityType abilityType = AbilityType.ABILITIES.getValue(new ResourceLocation(tag.getString("AbilityType")));
+            if (abilityType != null) {
+                Ability ability = abilityType.create(id);
+                ability.deserializeNBT(tag);
+                this.activeAbilities.put(id, ability);
+                ability.name = id;
             }
         }
-
         inventory.read(nbt);
     }
 }

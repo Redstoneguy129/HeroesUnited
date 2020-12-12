@@ -31,9 +31,9 @@ public class HUEventHandler {
         if (event.phase == TickEvent.Phase.START) {
             pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
                 AbilityHelper.getAbilities(pl).forEach(type -> {
-                    type.create().onUpdate(pl);
-                    if (type.create() instanceof ITimerAbility) {
-                        ITimerAbility timer = (ITimerAbility) type.create();
+                    type.onUpdate(pl);
+                    if (type instanceof ITimerAbility) {
+                        ITimerAbility timer = (ITimerAbility) type;
                         if (a.isInTimer() && a.getTimer() < timer.maxTimer()) {
                             a.setTimer(a.getTimer() + 1);
                         } else if (!a.isInTimer() & a.getTimer() > 0) {
@@ -42,11 +42,11 @@ public class HUEventHandler {
                     }
                 });
 
-                for (AbilityType type : Superpower.getTypesFromSuperpower(pl)) {
-                    if (type != null && type.alwaysActive()) {
-                        a.enable(type);
+                Superpower.getTypesFromSuperpower(pl).forEach((id, ability) -> {
+                    if (ability != null && ability.alwaysActive()) {
+                        a.enable(id, ability);
                     }
-                }
+                });
 
                 if (Suit.getSuit(pl) != null) {
                     Suit.getSuit(pl).onUpdate(pl);
@@ -85,8 +85,8 @@ public class HUEventHandler {
                 SuitItem suitItem = (SuitItem) e.getTo().getItem();
                 if (Suit.getSuit(player) != null) {
                     suitItem.getSuit().onActivated(player);
-                    for (AbilityType type : AbilityHelper.getAbilities(player)) {
-                        if (type != null && !suitItem.getSuit().canCombineWithAbility(type, player)) {
+                    for (Ability ability : AbilityHelper.getAbilities(player)) {
+                        if (ability != null && !suitItem.getSuit().canCombineWithAbility(ability, player)) {
                             AbilityHelper.disable(player);
                         }
                     }

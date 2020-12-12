@@ -22,7 +22,8 @@ public class HUNetworking {
         INSTANCE.registerMessage(NextID(), ClientRemoveSuperpower.class, ClientRemoveSuperpower::toBytes, ClientRemoveSuperpower::new, ClientRemoveSuperpower::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncSuperpower.class, ClientSyncSuperpower::toBytes, ClientSyncSuperpower::new, ClientSyncSuperpower::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncHUType.class, ClientSyncHUType::toBytes, ClientSyncHUType::new, ClientSyncHUType::handle);
-        INSTANCE.registerMessage(NextID(), ClientSyncAbilities.class, ClientSyncAbilities::toBytes, ClientSyncAbilities::new, ClientSyncAbilities::handle);
+        INSTANCE.registerMessage(NextID(), ClientEnableAbility.class, ClientEnableAbility::toBytes, ClientEnableAbility::new, ClientEnableAbility::handle);
+        INSTANCE.registerMessage(NextID(), ClientDisableAbility.class, ClientDisableAbility::toBytes, ClientDisableAbility::new, ClientDisableAbility::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncCap.class, ClientSyncCap::toBytes, ClientSyncCap::new, ClientSyncCap::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncHUData.class, ClientSyncHUData::toBytes, ClientSyncHUData::new, ClientSyncHUData::handle);
         //Server
@@ -31,7 +32,8 @@ public class HUNetworking {
         INSTANCE.registerMessage(NextID(), ServerSetHUType.class, ServerSetHUType::toBytes, ServerSetHUType::new, ServerSetHUType::handle);
         INSTANCE.registerMessage(NextID(), ServerHorasPlayerSetDimension.class, ServerHorasPlayerSetDimension::toBytes, ServerHorasPlayerSetDimension::new, ServerHorasPlayerSetDimension::handle);
         INSTANCE.registerMessage(NextID(), ServerToggleKey.class, ServerToggleKey::toBytes, ServerToggleKey::new, ServerToggleKey::handle);
-        INSTANCE.registerMessage(NextID(), ServerToggleAbility.class, ServerToggleAbility::toBytes, ServerToggleAbility::new, ServerToggleAbility::handle);
+        INSTANCE.registerMessage(NextID(), ServerEnableAbility.class, ServerEnableAbility::toBytes, ServerEnableAbility::new, ServerEnableAbility::handle);
+        INSTANCE.registerMessage(NextID(), ServerDisableAbility.class, ServerDisableAbility::toBytes, ServerDisableAbility::new, ServerDisableAbility::handle);
         INSTANCE.registerMessage(NextID(), ServerOpenAccesoireInv.class, ServerOpenAccesoireInv::toBytes, ServerOpenAccesoireInv::new, ServerOpenAccesoireInv::handle);
     }
 }

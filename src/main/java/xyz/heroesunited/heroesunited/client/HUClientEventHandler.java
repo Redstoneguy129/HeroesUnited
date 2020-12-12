@@ -30,8 +30,8 @@ import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.client.render.HULayerRenderer;
 import xyz.heroesunited.heroesunited.common.HUConfig;
+import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
@@ -99,8 +99,8 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void renderPlayerPre(RenderPlayerEvent.Pre event) {
-        for (AbilityType type : AbilityHelper.getAbilities(event.getPlayer())) {
-            type.create().renderPlayerPre(event);
+        for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
+            ability.renderPlayerPre(event);
         }
         event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             if (cap.isFlying() && !event.getPlayer().isOnGround() && !event.getPlayer().isSwimming() && event.getPlayer().isSprinting()) {
@@ -117,8 +117,8 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void renderPlayerPost(RenderPlayerEvent.Post event) {
-        for (AbilityType type : AbilityHelper.getAbilities(event.getPlayer())) {
-            type.create().renderPlayerPost(event);
+        for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
+            ability.renderPlayerPost(event);
         }
         event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             if (cap.isFlying() && !event.getPlayer().isOnGround() && !event.getPlayer().isSwimming() && event.getPlayer().isSprinting()) {
@@ -145,8 +145,8 @@ public class HUClientEventHandler {
     @SubscribeEvent
     public void setRotationAngles(HUSetRotationAnglesEvent event) {
         PlayerEntity player = event.getPlayer();
-        for (AbilityType type : AbilityHelper.getAbilities(player)) {
-            type.create().setRotationAngles(event);
+        for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
+            ability.setRotationAngles(event);
         }
         if (Suit.getSuit(player) != null) {
             Suit.getSuit(player).setRotationAngles(event);

@@ -2,11 +2,12 @@ package xyz.heroesunited.heroesunited.common.capabilities;
 
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.INBTSerializable;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
+import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
 
 import java.util.Collection;
+import java.util.Map;
 
 public interface IHUPlayer extends INBTSerializable<CompoundNBT> {
 
@@ -15,9 +16,9 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT> {
 
     /**Ability - Gen Rex abilities, Aliens powers, Danny Phantom powers active, etc.
     If using unofficial mod like *The Boys - By Chappie* then you can set ability to A-Train to make so other mods abilities don't work.**/
-    void enable(AbilityType ability);
-    void disable(AbilityType ability);
-    Collection<AbilityType> getActiveAbilities();
+    void enable(String id, Ability ability);
+    void disable(String id);
+    Map<String, Ability> getAbilityMap();
 
     Superpower getSuperpower();
     void setSuperpower(Superpower superpower);
@@ -57,10 +58,6 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT> {
     <T> IHUPlayer register(String key, T defaultValue, boolean saving);
     <T> IHUPlayer set(String key, T value);
     <T> HUData<T> getFromName(String key);
-    default IHUPlayer reset(String key) {
-        this.set(key, getFromName(key).getDefaultValue());
-        return this;
-    }
     Collection<HUData<?>> getDatas();
 
     void copy(IHUPlayer ihuPlayer);

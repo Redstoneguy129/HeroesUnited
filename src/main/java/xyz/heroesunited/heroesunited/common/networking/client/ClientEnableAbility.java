@@ -1,43 +1,38 @@
 package xyz.heroesunited.heroesunited.common.networking.client;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
-import java.util.Collection;
 import java.util.function.Supplier;
 
-public class ClientSyncAbilities {
+public class ClientEnableAbility {
 
     public int entityId;
-    public Collection<AbilityType> abilities;
+    public String id;
+    public CompoundNBT data;
 
-    public ClientSyncAbilities(int entityId, Collection<AbilityType> abilities) {
+    public ClientEnableAbility(int entityId, String id, CompoundNBT data) {
         this.entityId = entityId;
-        this.abilities = abilities;
+        this.id = id;
+        this.data = data;
     }
 
-    public ClientSyncAbilities(PacketBuffer buf) {
+    public ClientEnableAbility(PacketBuffer buf) {
         this.entityId = buf.readInt();
-        int amount = buf.readInt();
-        this.abilities = Lists.newArrayList();
-        for (int i = 0; i < amount; i++) {
-            this.abilities.add(buf.readRegistryIdSafe(AbilityType.class));
-        }
+        this.id = buf.readString(32767);
+        this.data = buf.readCompoundTag();
     }
 
     public void toBytes(PacketBuffer buf) {
         buf.writeInt(this.entityId);
-        buf.writeInt(this.abilities.size());
-
-        for (AbilityType type : this.abilities) {
-            buf.writeRegistryId(type);
-        }
+        buf.writeString(this.id);
+        buf.writeCompoundTag(this.data);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
@@ -46,11 +41,9 @@ public class ClientSyncAbilities {
 
             if (entity instanceof AbstractClientPlayerEntity) {
                 entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                    for (AbilityType type : ImmutableList.copyOf(cap.getActiveAbilities())) {
-                        cap.disable(type);
-                    }
-                    for (AbilityType type : this.abilities) {
-                        cap.enable(type);
+                    AbilityType abilityType = AbilityType.ABILITIES.getValue(new ResourceLocation(this.data.getString("AbilityType")));
+                    if (abilityType != null) {
+                        cap.enable(this.id, abilityType.create(this.id));
                     }
                 });
             }

@@ -17,7 +17,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.IForgeRegistry;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
+import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 
 import java.util.List;
@@ -84,7 +84,7 @@ public class JsonSuit extends Suit {
     }
 
     @Override
-    public boolean canCombineWithAbility(AbilityType type, PlayerEntity player) {
+    public boolean canCombineWithAbility(Ability type, PlayerEntity player) {
         return JSONUtils.hasField(jsonObject, "combine") ? JSONUtils.getBoolean(jsonObject, "combine") : super.canCombineWithAbility(type, player);
     }
 

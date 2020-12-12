@@ -17,14 +17,16 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fml.network.PacketDistributor;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
+import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
+import xyz.heroesunited.heroesunited.common.networking.server.ServerDisableAbility;
+import xyz.heroesunited.heroesunited.common.networking.server.ServerEnableAbility;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerSetTheme;
-import xyz.heroesunited.heroesunited.common.networking.server.ServerToggleAbility;
 
 import java.awt.*;
 import java.util.List;
@@ -38,7 +40,7 @@ public class AbilitiesScreen extends Screen {
     private final ResourceLocation BUTTON = new ResourceLocation(HeroesUnited.MODID, "textures/gui/ability_button.png");
     public static List<ResourceLocation> themes = Lists.newArrayList(getTheme("default"), getTheme("black"), getTheme("rainbow"));
     private int left, top, scrollOffset;
-    private List<AbilityType> types;
+    private List<Ability> types;
 
     public AbilitiesScreen() {
         super(new TranslationTextComponent("gui.heroesunited.abilities"));
@@ -54,7 +56,7 @@ public class AbilitiesScreen extends Screen {
         super.init();
         left = (width - 200) / 2;
         top = (height - 170) / 2;
-        types = Lists.newArrayList(Superpower.getTypesFromSuperpower(this.minecraft.player));
+        types = Lists.newArrayList(Superpower.getTypesFromSuperpower(this.minecraft.player).values());
         IHUPlayer cap = HUPlayer.getCap(minecraft.player);
 
         this.addButton(new Button(left + 110, top + 5, 80, 20, new TranslationTextComponent("Change Theme"), (b) -> {
@@ -67,9 +69,9 @@ public class AbilitiesScreen extends Screen {
         for (int i = scrollOffset; i < scrollOffset + 4; i++) {
             if (i >= types.size()) break;
             int n = i - scrollOffset;
-            AbilityType type = types.get(i);
-            if (type != null && !type.isHidden()) {
-                this.addButton(new AbilityButton(left + 25, top + 50 + 25 * n, 150, 20, this, type));
+            Ability ability = types.get(i);
+            if (ability != null && !ability.isHidden()) {
+                this.addButton(new AbilityButton(left + 25, top + 50 + 25 * n, 150, 20, this, ability));
             }
         }
     }
@@ -109,7 +111,7 @@ public class AbilitiesScreen extends Screen {
 
     public void renderAbilityDescription(MatrixStack matrix, int mx, int my, AbilityButton button) {
         if (!(mx >= button.x && mx <= button.x + button.getWidth() && my >= button.y && my <= button.y + button.getHeightRealms())) return;
-        if (button.type.create().getHoveredDescription() == null) return;
+        if (button.ability.getHoveredDescription() == null) return;
         int bgX = mx + button.descWidth > this.width ? mx - button.descWidth : mx + 15;
         int bgY = my + button.descHeight + 10 > this.height ? my - 5 - button.descHeight : my;
 
@@ -134,29 +136,29 @@ public class AbilitiesScreen extends Screen {
             String line = button.abilityDescription.get(i);
             this.font.drawStringWithShadow(matrix, line, bgX + 10, bgY + 10 + i * 13, 0xFFFFFF);
         }
-        boolean activate = AbilityHelper.canActiveAbility(button.type, this.minecraft.player);
+        boolean activate = AbilityHelper.canActiveAbility(button.ability, this.minecraft.player);
         this.font.drawStringWithShadow(matrix, activate ? "Ability can be activated" : "Ability cannot be activated", bgX + 10, bgY + 10 + (button.abilityDescription.size() + 1) * 13, activate ? 0x00FF00 : 0xFF0000);
     }
 
     public static class AbilityButton extends Button {
 
         private final AbilitiesScreen parent;
-        private final AbilityType type;
+        private final Ability ability;
         private List<String> abilityDescription = Lists.newArrayList();
         private int descWidth, descHeight;
 
-        public AbilityButton(int x, int y, int w, int h, AbilitiesScreen screen, AbilityType type) {
+        public AbilityButton(int x, int y, int w, int h, AbilitiesScreen screen, Ability ability) {
             super(x, y, w, h, StringTextComponent.EMPTY, AbilityButton::onPressed);
             this.parent = screen;
-            this.type = type;
+            this.ability = ability;
             this.prepareDescriptionRender();
         }
 
         @Override
         public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
             boolean hovered = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
-            Color color = AbilityHelper.getEnabled(this.type, this.parent.minecraft.player) ? hovered ? Color.ORANGE : Color.YELLOW :
-                    hovered ? AbilityHelper.canActiveAbility(this.type, this.parent.minecraft.player) ? Color.GREEN : Color.RED : Color.WHITE;
+            Color color = AbilityHelper.getEnabled(this.ability, this.parent.minecraft.player) ? hovered ? Color.ORANGE : Color.YELLOW :
+                    hovered ? AbilityHelper.canActiveAbility(this.ability, this.parent.minecraft.player) ? Color.GREEN : Color.RED : Color.WHITE;
             Tessellator tessellator = Tessellator.getInstance();
             BufferBuilder builder = tessellator.getBuffer();
             RenderSystem.enableBlend();
@@ -171,24 +173,30 @@ public class AbilitiesScreen extends Screen {
             RenderSystem.disableBlend();
             RenderSystem.color3f(1f, 1f, 1f);
 
-            this.type.create().drawIcon(stack, x + 2, y + 2);
-            this.parent.font.drawStringWithShadow(stack, this.type.getDisplayName().getString(), x + 20, y + 6, 0xFFFFFFFF);
+            this.ability.drawIcon(stack, x + 2, y + 2);
+            this.parent.font.drawStringWithShadow(stack, this.ability.name, x + 20, y + 6, 0xFFFFFFFF);
         }
 
         private static void onPressed(Button button) {
             AbilityButton btn = (AbilityButton) button;
-            if (!btn.type.alwaysActive()) {
-                HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerToggleAbility(btn.type));
+            btn.parent.minecraft.player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+            if (!btn.ability.alwaysActive()) {
+                if (AbilityHelper.getEnabled(btn.ability, btn.parent.minecraft.player)) {
+                    HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerDisableAbility(btn.ability.name));
+                } else {
+                    HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerEnableAbility(btn.ability.name, btn.ability.serializeNBT()));
+                }
                 btn.parent.minecraft.getSoundHandler().play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             }
+            });
         }
 
         private void prepareDescriptionRender() {
             abilityDescription.clear();
-            if (this.type.create().getHoveredDescription() == null) return;
+            if (this.ability.getHoveredDescription() == null) return;
             int maxWidth = 0;
-            for (int i = 0; i < this.type.create().getHoveredDescription().size(); i++) {
-                String text = this.type.create().getHoveredDescription().get(i);
+            for (int i = 0; i < this.ability.getHoveredDescription().size(); i++) {
+                String text = this.ability.getHoveredDescription().get(i);
                 int j = 0, width = text.length();
                 while (width > 0) {
                     width -= 40;

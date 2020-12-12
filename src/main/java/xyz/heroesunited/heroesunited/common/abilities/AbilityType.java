@@ -21,9 +21,6 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
 
     public static IForgeRegistry<AbilityType> ABILITIES;
     private Supplier<Ability> supplier;
-    private boolean hidden, active;
-    private JsonObject jsonObject;
-    private ITextComponent displayName;
 
     public AbilityType(Supplier<Ability> supplier) {
         this.supplier = supplier;
@@ -34,40 +31,21 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
         this.setRegistryName(modid, name);
     }
 
-    public boolean isHidden() {
-        return hidden;
+    public Ability create(String id) {
+        Ability a = this.supplier.get();
+        a.name = id;
+        return a;
     }
 
-    public void setHidden(boolean hidden) {
-        this.hidden = hidden;
-    }
-
-    public boolean alwaysActive() {
-        return active;
-    }
-
-    public void setAlwaysActive(boolean active) {
-        this.active = active;
-    }
-
-    public void setJsonObject(JsonObject jsonObject) {
-        this.jsonObject = jsonObject;
-    }
-
-    public JsonObject getJsonObject() {
-        return this.jsonObject;
-    }
-
-    public Ability create() {
-        return this.supplier.get();
-    }
-
-    public void setDisplayName(String key) {
-        this.displayName = new TranslationTextComponent(Util.makeTranslationKey("ability", new ResourceLocation(key)));
+    public Ability create(String id, JsonObject jsonObject) {
+        Ability a = this.supplier.get();
+        a.name = id;
+        a.setJsonObject(jsonObject);
+        return a;
     }
 
     public ITextComponent getDisplayName() {
-        return displayName == null ? new TranslationTextComponent(Util.makeTranslationKey("ability", this.getRegistryName())) : displayName;
+        return new TranslationTextComponent(Util.makeTranslationKey("ability", this.getRegistryName()));
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -76,9 +54,11 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
     }
 
     public static final AbilityType ATTRIBUTE_MODIFIER = new AbilityType(AttributeModifierAbility::new, HeroesUnited.MODID, "attribute_modifier");
+    public static final AbilityType FLIGHT = new AbilityType(FlightAbility::new, HeroesUnited.MODID, "flight");
 
     @SubscribeEvent
     public static void registerAbilityTypes(RegistryEvent.Register<AbilityType> e) {
         e.getRegistry().register(ATTRIBUTE_MODIFIER);
+        e.getRegistry().register(FLIGHT);
     }
 }
