@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.hupacks;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -12,11 +13,12 @@ import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.common.abilities.Ability;
+import xyz.heroesunited.heroesunited.common.abilities.AbilityCreator;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.events.HURegisterSuperpower;
 
+import java.util.List;
 import java.util.Map;
 
 public class HUPackSuperpowers extends JsonReloadListener {
@@ -45,21 +47,21 @@ public class HUPackSuperpowers extends JsonReloadListener {
     }
 
     public Superpower parseSuperpower(ResourceLocation resourceLocation, JsonObject json) {
-        Map<String, Ability> abilityMap = Maps.newHashMap();
+        List<AbilityCreator> abilityList = Lists.newArrayList();
         if (JSONUtils.hasField(json, "abilities")) {
             JsonObject abilities = JSONUtils.getJsonObject(json, "abilities");
             abilities.entrySet().forEach((e) -> {
                 if (e.getValue() instanceof JsonObject) {
                     JsonObject o = (JsonObject) e.getValue();
-                    Ability ability = AbilityType.ABILITIES.getValue(new ResourceLocation(JSONUtils.getString(o, "ability"))).create(e.getKey(), o);
+                    AbilityType ability = AbilityType.ABILITIES.getValue(new ResourceLocation(JSONUtils.getString(o, "ability")));
                     if (ability != null) {
-                        abilityMap.put(e.getKey(), ability);
+                        abilityList.add(new AbilityCreator(e.getKey(), ability, o));
                     } else HeroesUnited.LOGGER.error("Couldn't read ability {} in superpower {}", JSONUtils.getString(o, "ability"), resourceLocation);
                 }
             });
 
         }
-        return new Superpower(resourceLocation, abilityMap);
+        return new Superpower(resourceLocation, abilityList);
     }
 
     public Map<ResourceLocation, Superpower> getSuperpowers() {

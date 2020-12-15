@@ -11,23 +11,24 @@ import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.Map;
 
 public class Superpower {
 
     private final ResourceLocation name;
-    private Map<String, Ability> containedAbilities;
+    private List<AbilityCreator> containedAbilities;
 
     public Superpower(ResourceLocation name) {
         this.name = name;
     }
 
-    public Superpower(ResourceLocation name, Map<String, Ability> containedAbilities) {
+    public Superpower(ResourceLocation name, List<AbilityCreator> containedAbilities) {
         this.name = name;
         this.containedAbilities = containedAbilities;
     }
 
-    public Map<String, Ability> getContainedAbilities(PlayerEntity player) {
+    public List<AbilityCreator> getContainedAbilities(PlayerEntity player) {
         return containedAbilities;
     }
 
@@ -41,7 +42,7 @@ public class Superpower {
         Map<String, Ability> map = Maps.newHashMap();
         Superpower power = Superpower.getSuperpower(player);
         if (power != null) {
-            power.getContainedAbilities(player).forEach((id, ability) -> map.put(id, ability));
+            power.getContainedAbilities(player).forEach(a -> map.put(a.getKey(), a.create()));
         }
         return map;
     }
@@ -57,7 +58,7 @@ public class Superpower {
     public CompoundNBT serializeNBT(PlayerEntity player) {
         CompoundNBT nbt = new CompoundNBT();
         //CompoundNBT abilities = new CompoundNBT();
-        getContainedAbilities(player).forEach((id, ability) -> nbt.put(id, ability.serializeNBT()));
+        getContainedAbilities(player).forEach(a -> nbt.put(a.getKey(), a.create().serializeNBT()));
         //nbt.put("contain", abilities);
         nbt.putString("name", name.toString());
         return nbt;
@@ -67,14 +68,13 @@ public class Superpower {
         Superpower superpower = HUPackSuperpowers.getInstance().getSuperpowers().get(new ResourceLocation(nbt.getString("name")));
         if (superpower != null) {
             superpower.containedAbilities.clear();
-            CompoundNBT contain = nbt.getCompound("contain");
             for (String id : nbt.keySet()) {
                 CompoundNBT tag = nbt.getCompound(id);
                 AbilityType abilityType = AbilityType.ABILITIES.getValue(new ResourceLocation(tag.getString("AbilityType")));
                 if (abilityType != null) {
                     Ability ability = abilityType.create(id);
                     ability.deserializeNBT(tag);
-                    superpower.containedAbilities.put(id, ability);
+                    superpower.containedAbilities.add(AbilityCreator.createdAbilities.get(id));
                     ability.name = id;
                 }
             }

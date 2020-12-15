@@ -201,6 +201,7 @@ public class HUPlayer implements IHUPlayer {
         this.superpower = ihuPlayer.getSuperpower();
         this.theme = ihuPlayer.getTheme();
         this.inventory.copy(ihuPlayer.getInventory());
+        this.flying = false;
         for (HUData data : this.dataList) {
             for (HUData oldData : ihuPlayer.getDatas()) {
                 if (data.canBeSaved() && oldData.canBeSaved() && data.getKey().equals(oldData.getKey())) {

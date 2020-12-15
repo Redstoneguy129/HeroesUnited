@@ -24,7 +24,6 @@ import java.util.List;
 public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
     public String name;
-    private JsonObject jsonObject;
     public final AbilityType type;
 
     public Ability(AbilityType type) {
@@ -102,11 +101,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         return JSONUtils.getBoolean(getJsonObject(), "active", false);
     }
 
-    public void setJsonObject(JsonObject jsonObject) {
-        this.jsonObject = jsonObject;
-    }
-
     public JsonObject getJsonObject() {
-        return jsonObject;
+        return AbilityCreator.createdAbilities.get(this.name).getJsonObject();
     }
 }

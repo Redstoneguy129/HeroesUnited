@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import com.google.gson.JsonObject;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
@@ -34,13 +33,6 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
     public Ability create(String id) {
         Ability a = this.supplier.get();
         a.name = id;
-        return a;
-    }
-
-    public Ability create(String id, JsonObject jsonObject) {
-        Ability a = this.supplier.get();
-        a.name = id;
-        a.setJsonObject(jsonObject);
         return a;
     }
 
