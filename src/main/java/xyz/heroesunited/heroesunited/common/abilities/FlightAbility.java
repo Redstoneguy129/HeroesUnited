@@ -20,7 +20,9 @@ public class FlightAbility extends Ability implements IFlyingAbility {
     @Override
     public void toggle(PlayerEntity player, int id, int action) {
         if (JSONUtils.hasField(this.getJsonObject(), "key") && id == JSONUtils.getInt(this.getJsonObject(), "key")) {
-            HUPlayer.getCap(player).setFlying(!HUPlayer.getCap(player).isFlying());
+            if (action == JSONUtils.getInt(this.getJsonObject(), "action")) {
+                HUPlayer.getCap(player).setFlying(!HUPlayer.getCap(player).isFlying());
+            }
         }
     }
 

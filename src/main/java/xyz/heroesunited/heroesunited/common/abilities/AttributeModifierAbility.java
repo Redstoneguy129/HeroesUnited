@@ -24,7 +24,9 @@ public class AttributeModifierAbility extends Ability {
     @Override
     public void toggle(PlayerEntity player, int id, int action) {
         if (JSONUtils.hasField(this.getJsonObject(), "key") && id == JSONUtils.getInt(this.getJsonObject(), "key")) {
-            setAttribute(player, false);
+            if (action == JSONUtils.getInt(this.getJsonObject(), "action")) {
+                setAttribute(player, false);
+            }
         }
     }
 

@@ -94,11 +94,11 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     public boolean isHidden() {
-        return JSONUtils.getBoolean(getJsonObject(), "hidden", false);
+        return getJsonObject() != null ? JSONUtils.getBoolean(getJsonObject(), "hidden", false) : false;
     }
 
     public boolean alwaysActive() {
-        return JSONUtils.getBoolean(getJsonObject(), "active", false);
+        return getJsonObject() != null ? JSONUtils.getBoolean(getJsonObject(), "active", false) : false;
     }
 
     public JsonObject getJsonObject() {
