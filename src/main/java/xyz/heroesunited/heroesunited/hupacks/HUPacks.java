@@ -5,12 +5,18 @@ import com.google.gson.GsonBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.*;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.moddiscovery.ModFile;
 import net.minecraftforge.fml.packs.ModFileResourcePack;
 import org.apache.commons.io.FileUtils;
+import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
+import xyz.heroesunited.heroesunited.client.render.renderer.GeckoSuitRenderer;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
+import xyz.heroesunited.heroesunited.common.abilities.suit.GeckoSuitItem;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 
 import java.io.File;
@@ -44,12 +50,18 @@ public class HUPacks {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             ((IReloadableResourceManager) Minecraft.getInstance().getResourceManager()).addReloadListener(new HUPackLayers());
             Minecraft.getInstance().getResourcePackList().addPackFinder(new HUPackFinder());
+            FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
         });
     }
 
     public static void init() {
         if (instance == null)
             instance = new HUPacks();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void clientSetup(final FMLClientSetupEvent event) {
+        GeoArmorRenderer.registerArmorRenderer(GeckoSuitItem.class, new GeckoSuitRenderer());
     }
 
     public static HUPacks getInstance() {

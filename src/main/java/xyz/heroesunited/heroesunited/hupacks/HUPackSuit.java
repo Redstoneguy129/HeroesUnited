@@ -8,6 +8,7 @@ import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.common.abilities.suit.GeckoJsonSuit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.JsonSuit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 
@@ -25,6 +26,7 @@ public class HUPackSuit {
 
     public static void init() {
         registerSuitType(new ResourceLocation(HeroesUnited.MODID, "default"), JsonSuit::new);
+        registerSuitType(new ResourceLocation(HeroesUnited.MODID, "gecko"), GeckoJsonSuit::new);
 
         IResourceManager resourceManager = HUPacks.getInstance().getResourceManager();
         LinkedHashMap<ResourceLocation, JsonObject> suits = Maps.newLinkedHashMap();

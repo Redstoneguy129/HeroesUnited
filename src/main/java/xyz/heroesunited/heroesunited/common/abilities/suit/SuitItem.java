@@ -54,15 +54,14 @@ public class SuitItem extends ArmorItem {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @OnlyIn(Dist.CLIENT)
     @Override
-    public BipedModel<?> getArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlotType armorSlot, BipedModel _default) {
+    public <A extends BipedModel<?>> A getArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlotType armorSlot, A _default) {
         if (stack != ItemStack.EMPTY) {
             if (stack.getItem() instanceof SuitItem) {
                 BipedModel model = getSuit().getArmorModel(entity, stack, armorSlot, _default);
                 model.setModelAttributes(_default);
-                return model;
+                return (A) model;
             }
         }
         return null;

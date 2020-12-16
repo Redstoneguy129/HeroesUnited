@@ -156,14 +156,15 @@ public class AbilitiesScreen extends Screen {
 
         @Override
         public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
+            Minecraft mc = Minecraft.getInstance();
             boolean hovered = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
-            Color color = AbilityHelper.getEnabled(this.ability, this.parent.minecraft.player) ? hovered ? Color.ORANGE : Color.YELLOW :
-                    hovered ? AbilityHelper.canActiveAbility(this.ability, this.parent.minecraft.player) ? Color.GREEN : Color.RED : Color.WHITE;
+            Color color = AbilityHelper.getEnabled(this.ability, mc.player) ? hovered ? Color.ORANGE : Color.YELLOW :
+                    hovered ? AbilityHelper.canActiveAbility(this.ability, mc.player) ? Color.GREEN : Color.RED : Color.WHITE;
             Tessellator tessellator = Tessellator.getInstance();
             BufferBuilder builder = tessellator.getBuffer();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            this.parent.minecraft.getTextureManager().bindTexture(this.parent.BUTTON);
+            mc.getTextureManager().bindTexture(this.parent.BUTTON);
             builder.begin(7, DefaultVertexFormats.POSITION_COLOR_TEX);
             builder.pos(x, y + height, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).tex(0, 1).endVertex();
             builder.pos(x + width, y + height, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).tex(1, 1).endVertex();
@@ -172,9 +173,9 @@ public class AbilitiesScreen extends Screen {
             tessellator.draw();
             RenderSystem.disableBlend();
             RenderSystem.color3f(1f, 1f, 1f);
-
             this.ability.drawIcon(stack, x + 2, y + 2);
-            this.parent.font.drawStringWithShadow(stack, this.ability.name, x + 20, y + 6, 0xFFFFFFFF);
+            mc.fontRenderer.drawString(stack, this.ability.name, x + 20, y + 6, 0xFFFFFFFF);
+            mc.fontRenderer.drawString(stack, this.ability.name, x + 22, y + 8, 0);
         }
 
         private static void onPressed(Button button) {

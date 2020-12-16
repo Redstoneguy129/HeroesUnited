@@ -3,6 +3,7 @@ package xyz.heroesunited.heroesunited.common.abilities;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.SoundEvent;
+import org.lwjgl.glfw.GLFW;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 
 public class FlightAbility extends Ability implements IFlyingAbility {
@@ -19,10 +20,8 @@ public class FlightAbility extends Ability implements IFlyingAbility {
 
     @Override
     public void toggle(PlayerEntity player, int id, int action) {
-        if (JSONUtils.hasField(this.getJsonObject(), "key") && id == JSONUtils.getInt(this.getJsonObject(), "key")) {
-            if (action == JSONUtils.getInt(this.getJsonObject(), "action")) {
-                HUPlayer.getCap(player).setFlying(!HUPlayer.getCap(player).isFlying());
-            }
+        if (JSONUtils.hasField(this.getJsonObject(), "key") && id == JSONUtils.getInt(this.getJsonObject(), "key") && action < GLFW.GLFW_REPEAT) {
+            HUPlayer.getCap(player).setFlying(!HUPlayer.getCap(player).isFlying());
         }
     }
 
