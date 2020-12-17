@@ -92,6 +92,9 @@ shadowJar {
 dependencies {
     minecraft "net.minecraftforge:forge:$project.minecraft_version-$project.forge_version"
     compile 'org.spongepowered:mixin:0.8'
+    compile 'com.github.Vatuu:discord-rpc:1.6.2'
+    compile fg.deobf('software.bernie.geckolib:forge-1.16.4-geckolib:3.0.0')
+
     shade 'com.github.Vatuu:discord-rpc:1.6.2'
     shade 'com.github.Vatuu:discord-rpc-binaries:3.4.0'
     shade fg.deobf('software.bernie.geckolib:forge-1.16.4-geckolib:3.0.0')
