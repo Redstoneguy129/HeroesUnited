@@ -22,6 +22,10 @@ public class AbilityHelper {
         return HUPlayer.getCap(player).getAbilityMap().containsKey(ability.name);
     }
 
+    public static boolean getEnabled(String name, PlayerEntity player) {
+        return HUPlayer.getCap(player).getAbilityMap().containsKey(name);
+    }
+
     public static void disable(PlayerEntity player) {
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
             ImmutableMap.copyOf(a.getAbilityMap()).forEach((id, ability) -> {

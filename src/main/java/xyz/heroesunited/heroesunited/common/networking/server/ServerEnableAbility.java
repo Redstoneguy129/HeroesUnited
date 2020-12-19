@@ -5,6 +5,8 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
+import xyz.heroesunited.heroesunited.common.abilities.Ability;
+import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
@@ -35,9 +37,9 @@ public class ServerEnableAbility {
             PlayerEntity player = ctx.get().getSender();
             if (player != null) {
                 player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                    AbilityType abilityType = AbilityType.ABILITIES.getValue(new ResourceLocation(this.data.getString("AbilityType")));
-                    if (abilityType != null) {
-                        cap.enable(this.id, abilityType.create(this.id));
+                    Ability ability = AbilityType.ABILITIES.getValue(new ResourceLocation(this.data.getString("AbilityType"))).create(this.id);
+                    if (ability != null && AbilityHelper.canActiveAbility(ability, player)) {
+                        cap.enable(this.id, ability);
                     }
                 });
             }
