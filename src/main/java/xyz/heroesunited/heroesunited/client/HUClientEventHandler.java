@@ -66,16 +66,16 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void keyInput(InputEvent.KeyInputEvent event) {
-        if (Minecraft.getInstance().player == null || Minecraft.getInstance().currentScreen != null) return;
-        PlayerEntity player = Minecraft.getInstance().player;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc == null || mc.currentScreen != null) return;
         ABILITY_KEYS.forEach(key -> {
             if (event.getKey() == key.getKey().getKeyCode() && key.isKeyDown()) {
                 HUNetworking.INSTANCE.sendToServer(new ServerToggleKey(key.index, event.getAction()));
             }
         });
         if (ABILITIES_SCREEN.isPressed()) {
-            player.world.playSound(player, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.BLOCK_STONE_BUTTON_CLICK_ON, SoundCategory.NEUTRAL, 1, 0);
-            Minecraft.getInstance().displayGuiScreen(new AbilitiesScreen());
+            mc.player.world.playSound(mc.player, mc.player.getPosX(), mc.player.getPosY(), mc.player.getPosZ(), SoundEvents.BLOCK_STONE_BUTTON_CLICK_ON, SoundCategory.NEUTRAL, 1, 0);
+            mc.displayGuiScreen(new AbilitiesScreen());
         } else if (ACCESSOIRES_SCREEN.isPressed()) {
             HUNetworking.INSTANCE.sendToServer(new ServerOpenAccesoireInv());
         }

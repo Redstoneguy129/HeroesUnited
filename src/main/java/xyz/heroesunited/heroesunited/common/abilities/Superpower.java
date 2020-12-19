@@ -56,10 +56,11 @@ public class Superpower {
     }
 
     public CompoundNBT serializeNBT(PlayerEntity player) {
-        CompoundNBT nbt = new CompoundNBT();
-        //CompoundNBT abilities = new CompoundNBT();
-        getContainedAbilities(player).forEach(a -> nbt.put(a.getKey(), a.create().serializeNBT()));
-        //nbt.put("contain", abilities);
+        CompoundNBT nbt = new CompoundNBT(), abilities = new CompoundNBT();
+        for (AbilityCreator a : this.getContainedAbilities(player)) {
+            abilities.put(a.getKey(), a.create().serializeNBT());
+        }
+        nbt.put("abilities", abilities);
         nbt.putString("name", name.toString());
         return nbt;
     }
@@ -67,9 +68,10 @@ public class Superpower {
     public static Superpower deserializeNBT(CompoundNBT nbt) {
         Superpower superpower = HUPackSuperpowers.getInstance().getSuperpowers().get(new ResourceLocation(nbt.getString("name")));
         if (superpower != null) {
+            CompoundNBT abilities = nbt.getCompound("abilities");
             superpower.containedAbilities.clear();
-            for (String id : nbt.keySet()) {
-                CompoundNBT tag = nbt.getCompound(id);
+            for (String id : abilities.keySet()) {
+                CompoundNBT tag = abilities.getCompound(id);
                 AbilityType abilityType = AbilityType.ABILITIES.getValue(new ResourceLocation(tag.getString("AbilityType")));
                 if (abilityType != null) {
                     Ability ability = abilityType.create(id);

@@ -11,6 +11,7 @@ import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.text.StringTextComponent;
@@ -30,6 +31,7 @@ import xyz.heroesunited.heroesunited.common.networking.server.ServerSetTheme;
 
 import java.awt.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * For adding new themes, use @AbilityHelper.addTheme(modid, location);
@@ -39,8 +41,8 @@ public class AbilitiesScreen extends Screen {
     private final ResourceLocation HEAD = new ResourceLocation(HeroesUnited.MODID, "textures/gui/head.png");
     private final ResourceLocation BUTTON = new ResourceLocation(HeroesUnited.MODID, "textures/gui/ability_button.png");
     public static List<ResourceLocation> themes = Lists.newArrayList(getTheme("default"), getTheme("black"), getTheme("rainbow"));
-    private int left, top, scrollOffset;
-    private List<Ability> types;
+    public static int INDEX = 0;
+    private int left, top;
 
     public AbilitiesScreen() {
         super(new TranslationTextComponent("gui.heroesunited.abilities"));
@@ -56,7 +58,6 @@ public class AbilitiesScreen extends Screen {
         super.init();
         left = (width - 200) / 2;
         top = (height - 170) / 2;
-        types = Lists.newArrayList(Superpower.getTypesFromSuperpower(this.minecraft.player).values());
         IHUPlayer cap = HUPlayer.getCap(minecraft.player);
 
         this.addButton(new Button(left + 110, top + 5, 80, 20, new TranslationTextComponent("Change Theme"), (b) -> {
@@ -65,15 +66,40 @@ public class AbilitiesScreen extends Screen {
             HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerSetTheme(cap.getTheme() + 1, themes.size()));
             minecraft.getSoundHandler().play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }));
-
-        for (int i = scrollOffset; i < scrollOffset + 4; i++) {
-            if (i >= types.size()) break;
-            int n = i - scrollOffset;
-            Ability ability = types.get(i);
-            if (ability != null && !ability.isHidden()) {
-                this.addButton(new AbilityButton(left + 25, top + 50 + 25 * n, 150, 20, this, ability));
-            }
+        for (int i = 0; i < getCurrentDisplayedAbilities(this.minecraft.player).size(); i++) {
+            Ability ability = getCurrentDisplayedAbilities(this.minecraft.player).get(i);
+            this.addButton(new AbilityButton(left, top, i, this, ability));
         }
+    }
+
+    public static List<Ability> getCurrentDisplayedAbilities(PlayerEntity player) {
+        List<Ability> abilities = Superpower.getTypesFromSuperpower(player).values().stream()
+                .filter(a -> a != null && !a.isHidden()).collect(Collectors.toList());
+        List<Ability> list = Lists.newArrayList();
+
+        if (abilities.isEmpty()) {
+            return list;
+        }
+
+        if (INDEX >= abilities.size()) {
+            INDEX = 0;
+        } else if (INDEX < 0) {
+            INDEX = abilities.size() - 1;
+        }
+
+        list.add(abilities.get(INDEX));
+
+        int i = INDEX + 1, added = 1;
+        while (list.size() < 4 && added < abilities.size()) {
+            if (i >= abilities.size()) {
+                i = 0;
+            }
+            list.add(abilities.get(i));
+            i++;
+            added++;
+        }
+
+        return list;
     }
 
     @Override
@@ -85,14 +111,12 @@ public class AbilitiesScreen extends Screen {
         if (cap.getTheme() < themes.size()) {
             theme = themes.get(cap.getTheme());
         }
-        //Background
         minecraft.getTextureManager().bindTexture(theme);
         blit(matrixStack, left, top, 0, 0, 200, 170, 200, 170);
-        renderScrollbar(left + 187.5F, 6);
-        if (types.size() == 0) {
+        if (getCurrentDisplayedAbilities(this.minecraft.player).isEmpty()) {
             this.drawCenteredString(matrixStack, this.font, "You don't have any ability yet", left + 95, top + 95, 16777215);
         }
-        //Player Head and nick
+
         minecraft.getTextureManager().bindTexture(HEAD);
         blit(matrixStack, left + 1, top + 1, 0, 0, 40, 40, 40, 40);
 
@@ -147,8 +171,8 @@ public class AbilitiesScreen extends Screen {
         private List<String> abilityDescription = Lists.newArrayList();
         private int descWidth, descHeight;
 
-        public AbilityButton(int x, int y, int w, int h, AbilitiesScreen screen, Ability ability) {
-            super(x, y, w, h, StringTextComponent.EMPTY, AbilityButton::onPressed);
+        public AbilityButton(int x, int y, int id, AbilitiesScreen screen, Ability ability) {
+            super(x + 25, y + 50 + 25 * id, 150, 20, StringTextComponent.EMPTY, AbilityButton::onPressed);
             this.parent = screen;
             this.ability = ability;
             this.prepareDescriptionRender();
@@ -174,21 +198,22 @@ public class AbilitiesScreen extends Screen {
             RenderSystem.disableBlend();
             RenderSystem.color3f(1f, 1f, 1f);
             this.ability.drawIcon(stack, x + 2, y + 2);
-            mc.fontRenderer.drawString(stack, this.ability.name, x + 20, y + 6, 0xFFFFFFFF);
-            mc.fontRenderer.drawString(stack, this.ability.name, x + 22, y + 8, 0);
+            String name = this.ability.name.length() > 20 ? this.ability.name.substring(0, 20) : this.ability.name;
+            mc.fontRenderer.drawString(stack, name, x + 21, y + 7, 0);
+            mc.fontRenderer.drawString(stack, name, x + 20, y + 6, 0xFFFFFFFF);
         }
 
         private static void onPressed(Button button) {
             AbilityButton btn = (AbilityButton) button;
             btn.parent.minecraft.player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-            if (!btn.ability.alwaysActive()) {
-                if (AbilityHelper.getEnabled(btn.ability, btn.parent.minecraft.player)) {
-                    HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerDisableAbility(btn.ability.name));
-                } else {
-                    HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerEnableAbility(btn.ability.name, btn.ability.serializeNBT()));
+                if (!btn.ability.alwaysActive()) {
+                    if (AbilityHelper.getEnabled(btn.ability, btn.parent.minecraft.player)) {
+                        HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerDisableAbility(btn.ability.name));
+                    } else {
+                        HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerEnableAbility(btn.ability.name, btn.ability.serializeNBT()));
+                    }
+                    btn.parent.minecraft.getSoundHandler().play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                 }
-                btn.parent.minecraft.getSoundHandler().play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            }
             });
         }
 
@@ -228,57 +253,22 @@ public class AbilitiesScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double value) {
-        int next = scrollOffset - (int) value;
-        if (next >= 0 && next <= types.size() - 4) {
-            scrollOffset = next;
-            init();
-            return true;
+        if (value > 0) {
+            INDEX--;
+        } else {
+            INDEX++;
         }
-        return false;
+        init();
+        return true;
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
-        if (mouseButton == 0) {
-            for (Widget widget : buttons) {
-                if (widget.mouseClicked(mouseX, mouseY, mouseButton)) {
-                    return true;
-                }
+        for (Widget widget : buttons) {
+            if (mouseButton == 0 && widget.mouseClicked(mouseX, mouseY, mouseButton)) {
+                return true;
             }
         }
         return false;
-    }
-
-    public void renderScrollbar(float x, int width) {
-        int barHeight = 4 * 25 + 20;
-        double step = barHeight / (types.size() != 0 ? types.size() : 1);
-        double start = scrollOffset * step;
-        double end = Math.min(barHeight, (scrollOffset + 4) * step);
-        int y = top + 36;
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder builder = tessellator.getBuffer();
-        RenderSystem.color3f(1f, 1f, 1f);
-        RenderSystem.disableTexture();
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        builder.begin(7, DefaultVertexFormats.POSITION_COLOR);
-        builder.pos(x - 1.5, y + 2 + barHeight, 0).color(0, 0, 0, 255).endVertex();
-        builder.pos(x + width + 1.5, y + 2 + barHeight, 0).color(0, 0, 0, 255).endVertex();
-        builder.pos(x + width + 1.5, y + 7, 0).color(0, 0, 0, 255).endVertex();
-        builder.pos(x - 1.5, y + 7, 0).color(0, 0, 0, 255).endVertex();
-
-        builder.pos(x, y + end, 0).color(128, 128, 128, 255).endVertex();
-        builder.pos(x + width, y + end, 0).color(128, 128, 128, 255).endVertex();
-        builder.pos(x + width, y + 9 + start, 0).color(128, 128, 128, 255).endVertex();
-        builder.pos(x, y + 9 + start, 0).color(128, 128, 128, 255).endVertex();
-
-        builder.pos(x + 1, y - 1 + end, 0).color(192, 192, 192, 255).endVertex();
-        builder.pos(x + width - 1, y - 1 + end, 0).color(192, 192, 192, 255).endVertex();
-        builder.pos(x + width - 1, y + 10 + start, 0).color(192, 192, 192, 255).endVertex();
-        builder.pos(x + 1, y + 10 + start, 0).color(192, 192, 192, 255).endVertex();
-
-        tessellator.draw();
-        RenderSystem.disableBlend();
-        RenderSystem.enableTexture();
     }
 }
