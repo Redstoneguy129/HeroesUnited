@@ -36,9 +36,8 @@ public class AbilityHelper {
     }
 
     public static boolean canActiveAbility(Ability ability, PlayerEntity player) {
-        boolean a = ability.canActivate(player);
-        boolean b = Suit.getSuit(player) == null || Suit.getSuit(player) != null && Suit.getSuit(player).canCombineWithAbility(ability, player);
-        return a && b;
+        boolean suit = Suit.getSuit(player) == null || Suit.getSuit(player) != null && Suit.getSuit(player).canCombineWithAbility(ability, player);
+        return ability.canActivate(player) && suit;
     }
 
     public static List<Ability> getAbilities(PlayerEntity player) {
@@ -75,6 +74,7 @@ public class AbilityHelper {
 
         if (amount == 0 || modifier != null && (modifier.getAmount() != amount || modifier.getOperation() != operation)) {
             instance.removeModifier(uuid);
+            return;
         }
 
         modifier = instance.getModifier(uuid);

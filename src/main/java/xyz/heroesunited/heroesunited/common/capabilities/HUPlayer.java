@@ -175,14 +175,14 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
-    public void toggle(int id, int action) {
+    public void toggle(int id, boolean pressed) {
         activeAbilities.forEach((name, ability) -> {
             if (ability != null) {
-                ability.toggle(player, id, action);
+                ability.toggle(player, id, pressed);
             }
         });
         if (Suit.getSuit(player) != null) {
-            Suit.getSuit(player).toggle(player, id, action);
+            Suit.getSuit(player).toggle(player, id, pressed);
         }
     }
 

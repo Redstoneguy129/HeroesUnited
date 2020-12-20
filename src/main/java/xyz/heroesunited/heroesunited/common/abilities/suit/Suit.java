@@ -86,7 +86,7 @@ public abstract class Suit {
     public void onDeactivated(PlayerEntity player) {
     }
 
-    public void toggle(PlayerEntity player, int id, int action) {
+    public void toggle(PlayerEntity player, int id, boolean pressed) {
     }
 
     public boolean canCombineWithAbility(Ability type, PlayerEntity player) {

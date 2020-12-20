@@ -48,7 +48,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     public void onDeactivated(PlayerEntity player) {
     }
 
-    public void toggle(PlayerEntity player, int id, int action) {
+    public void toggle(PlayerEntity player, int id, boolean pressed) {
     }
 
     //Client Stuff

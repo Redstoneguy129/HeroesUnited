@@ -9,21 +9,22 @@ import java.util.function.Supplier;
 
 public class ServerToggleKey {
 
-    private int id, action;
+    private int id;
+    private boolean pressed;
 
-    public ServerToggleKey(int id, int action) {
+    public ServerToggleKey(int id, boolean pressed) {
         this.id = id;
-        this.action = action;
+        this.pressed = pressed;
     }
 
     public ServerToggleKey(ByteBuf buf) {
         this.id = buf.readInt();
-        this.action = buf.readInt();
+        this.pressed = buf.readBoolean();
     }
 
     public void toBytes(ByteBuf buf) {
         buf.writeInt(this.id);
-        buf.writeInt(this.action);
+        buf.writeBoolean(this.pressed);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
@@ -31,7 +32,7 @@ public class ServerToggleKey {
             PlayerEntity player = ctx.get().getSender();
             if(player != null) {
                 player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                    cap.toggle(Math.min(6, Math.max(1, this.id)), this.action);
+                    cap.toggle(Math.min(6, Math.max(1, this.id)), this.pressed);
                     cap.sync();
                 });
             }

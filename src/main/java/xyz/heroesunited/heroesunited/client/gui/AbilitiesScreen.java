@@ -22,7 +22,6 @@ import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerDisableAbility;
@@ -56,6 +55,7 @@ public class AbilitiesScreen extends Screen {
     @Override
     protected void init() {
         super.init();
+        buttons.clear();
         left = (width - 200) / 2;
         top = (height - 170) / 2;
         IHUPlayer cap = HUPlayer.getCap(minecraft.player);
@@ -66,9 +66,9 @@ public class AbilitiesScreen extends Screen {
             HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerSetTheme(cap.getTheme() + 1, themes.size()));
             minecraft.getSoundHandler().play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }));
-        for (int i = 0; i < getCurrentDisplayedAbilities(this.minecraft.player).size(); i++) {
-            Ability ability = getCurrentDisplayedAbilities(this.minecraft.player).get(i);
-            this.addButton(new AbilityButton(left, top, i, this, ability));
+        List<Ability> abilities = getCurrentDisplayedAbilities(this.minecraft.player);
+        for (int i = 0; i < abilities.size(); i++) {
+            this.addButton(new AbilityButton(left, top, i, this, abilities.get(i)));
         }
     }
 
@@ -205,16 +205,14 @@ public class AbilitiesScreen extends Screen {
 
         private static void onPressed(Button button) {
             AbilityButton btn = (AbilityButton) button;
-            btn.parent.minecraft.player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                if (!btn.ability.alwaysActive()) {
-                    if (AbilityHelper.getEnabled(btn.ability, btn.parent.minecraft.player)) {
-                        HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerDisableAbility(btn.ability.name));
-                    } else {
-                        HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerEnableAbility(btn.ability.name, btn.ability.serializeNBT()));
-                    }
-                    btn.parent.minecraft.getSoundHandler().play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            if (!btn.ability.alwaysActive()) {
+                if (AbilityHelper.getEnabled(btn.ability, btn.parent.minecraft.player)) {
+                    HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerDisableAbility(btn.ability.name));
+                } else {
+                    HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerEnableAbility(btn.ability.name, btn.ability.serializeNBT()));
                 }
-            });
+                btn.parent.minecraft.getSoundHandler().play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            }
         }
 
         private void prepareDescriptionRender() {

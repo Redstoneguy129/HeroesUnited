@@ -7,7 +7,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.lwjgl.glfw.GLFW;
+import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 
 import java.util.UUID;
 
@@ -20,16 +20,41 @@ public class AttributeModifierAbility extends Ability {
     public void onUpdate(PlayerEntity player) {
         if (!JSONUtils.hasField(this.getJsonObject(), "key")) {
             setAttribute(player, false);
+        } else {
+            JsonObject key = JSONUtils.getJsonObject(this.getJsonObject(), "key");
+            if (JSONUtils.getString(key, "pressType").equals("action") && HUPlayer.getCap(player).getCooldown() == 0) {
+                setAttribute (player, true);
+            }
         }
     }
 
     @Override
-    public void toggle(PlayerEntity player, int id, int action) {
-        if (JSONUtils.hasField(this.getJsonObject(), "key") && id == JSONUtils.getInt(this.getJsonObject(), "key") && action < GLFW.GLFW_REPEAT) {
-            if (getModifier(player) == null) {
-                setAttribute(player, false);
-            } else {
-                setAttribute(player, true);
+    public void toggle(PlayerEntity player, int id, boolean pressed) {
+        if (JSONUtils.hasField(this.getJsonObject(), "key")) {
+            JsonObject key = JSONUtils.getJsonObject(this.getJsonObject(), "key");
+            String pressType = JSONUtils.getString(key, "pressType", "toggle");
+
+            if (id == JSONUtils.getInt(key, "id")) {
+                if (pressType.equals("toggle")) {
+                    if (pressed) {
+                        if (getModifier(player) == null) {
+                            setAttribute(player, false);
+                        } else {
+                            setAttribute(player, true);
+                        }
+                    }
+                } else if (pressType.equals("action")) {
+                    if (pressed) {
+                        setAttribute(player, false);
+                        HUPlayer.getCap(player).setCooldown(JSONUtils.getInt(key, "cooldown", 2));
+                    }
+                } else if (pressType.equals("held")) {
+                    if (pressed && getModifier(player) == null) {
+                        setAttribute(player, false);
+                    } else if (!pressed && getModifier(player) != null) {
+                        setAttribute(player, true);
+                    }
+                }
             }
         }
     }

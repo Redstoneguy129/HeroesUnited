@@ -1,6 +1,7 @@
 package xyz.heroesunited.heroesunited.client;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.CustomizeSkinScreen;
 import net.minecraft.client.gui.widget.button.Button;
@@ -42,6 +43,7 @@ import xyz.heroesunited.heroesunited.util.HUClientUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @OnlyIn(Dist.CLIENT)
 public class HUClientEventHandler {
@@ -49,6 +51,7 @@ public class HUClientEventHandler {
     public static final KeyBinding ABILITIES_SCREEN = new KeyBinding(HeroesUnited.MODID+".key.abilities_screen", GLFW.GLFW_KEY_H, "key.categories."+ HeroesUnited.MODID);
     public static final KeyBinding ACCESSOIRES_SCREEN = new KeyBinding(HeroesUnited.MODID+".key.accessoires_screen", GLFW.GLFW_KEY_J, "key.categories."+ HeroesUnited.MODID);
     public static List<AbilityKeyBinding> ABILITY_KEYS = Lists.newArrayList();
+    public static Map<Integer, Boolean> KEY_STATE = Maps.newHashMap();
 
     public HUClientEventHandler() {
         if (Minecraft.getInstance() != null) {
@@ -65,20 +68,26 @@ public class HUClientEventHandler {
     }
 
     @SubscribeEvent
-    public void keyInput(InputEvent.KeyInputEvent event) {
+    public void keyInput(InputEvent.KeyInputEvent e) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc == null || mc.currentScreen != null) return;
-        ABILITY_KEYS.forEach(key -> {
-            if (event.getKey() == key.getKey().getKeyCode() && key.isKeyDown()) {
-                HUNetworking.INSTANCE.sendToServer(new ServerToggleKey(key.index, event.getAction()));
-            }
-        });
         if (ABILITIES_SCREEN.isPressed()) {
             mc.player.world.playSound(mc.player, mc.player.getPosX(), mc.player.getPosY(), mc.player.getPosZ(), SoundEvents.BLOCK_STONE_BUTTON_CLICK_ON, SoundCategory.NEUTRAL, 1, 0);
             mc.displayGuiScreen(new AbilitiesScreen());
         } else if (ACCESSOIRES_SCREEN.isPressed()) {
             HUNetworking.INSTANCE.sendToServer(new ServerOpenAccesoireInv());
         }
+
+        ABILITY_KEYS.forEach(key -> {
+            if (e.getAction() < GLFW.GLFW_REPEAT) {
+                if (e.getKey() == key.getKey().getKeyCode()) {
+                    if (!KEY_STATE.containsKey(e.getKey())) KEY_STATE.put(e.getKey(), false);
+                    if (KEY_STATE.get(e.getKey()) != (e.getAction() == GLFW.GLFW_PRESS))
+                        HUNetworking.INSTANCE.sendToServer(new ServerToggleKey(key.index, e.getAction() == GLFW.GLFW_PRESS));
+                    KEY_STATE.put(e.getKey(), e.getAction() == GLFW.GLFW_PRESS);
+                }
+            }
+        });
     }
 
     @SubscribeEvent

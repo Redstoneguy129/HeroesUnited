@@ -12,7 +12,7 @@ import java.util.Map;
 public interface IHUPlayer extends INBTSerializable<CompoundNBT> {
 
     /**Using for toggle abilities in Suits or default abilities**/
-    void toggle(int id, int action);
+    void toggle(int id, boolean pressed);
 
     /**Ability - Gen Rex abilities, Aliens powers, Danny Phantom powers active, etc.
     If using unofficial mod like *The Boys - By Chappie* then you can set ability to A-Train to make so other mods abilities don't work.**/

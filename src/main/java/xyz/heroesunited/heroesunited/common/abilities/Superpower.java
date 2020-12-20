@@ -67,7 +67,7 @@ public class Superpower {
 
     public static Superpower deserializeNBT(CompoundNBT nbt) {
         Superpower superpower = HUPackSuperpowers.getInstance().getSuperpowers().get(new ResourceLocation(nbt.getString("name")));
-        if (superpower != null) {
+        if (superpower != null && !superpower.containedAbilities.isEmpty()) {
             CompoundNBT abilities = nbt.getCompound("abilities");
             superpower.containedAbilities.clear();
             for (String id : abilities.keySet()) {

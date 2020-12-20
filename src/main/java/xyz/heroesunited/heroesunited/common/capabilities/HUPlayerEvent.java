@@ -74,11 +74,11 @@ public class HUPlayerEvent {
     }
 
     public void syncServerMessages(Entity entity, IHUPlayer a) {
-        a.sync();
         if (a.getSuperpower() != null) HUNetworking.INSTANCE.sendTo(new ClientSyncSuperpower(entity.getEntityId(), a.getSuperpower().getRegistryName()), ((ServerPlayerEntity) entity).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
         for (HUData<?> data : a.getDatas()) {
             if (data.canBeSaved())
                 HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(entity.getEntityId(), data.getKey(), a.serializeNBT()), ((ServerPlayerEntity) entity).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
         }
+        a.sync();
     }
 }
