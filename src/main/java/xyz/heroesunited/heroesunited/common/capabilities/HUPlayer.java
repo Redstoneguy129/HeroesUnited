@@ -331,7 +331,7 @@ public class HUPlayer implements IHUPlayer {
         } if (nbt.contains("isInTimer")) {
             this.isInTimer = nbt.getBoolean("isInTimer");
         } if (nbt.contains("superpower")) {
-            superpower = Superpower.deserializeNBT(nbt.getCompound("superpower"));
+            superpower = Superpower.deserializeNBT(nbt.getCompound("superpower"), player);
         }
 
         this.activeAbilities.clear();

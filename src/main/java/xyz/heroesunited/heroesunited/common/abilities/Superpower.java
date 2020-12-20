@@ -65,18 +65,18 @@ public class Superpower {
         return nbt;
     }
 
-    public static Superpower deserializeNBT(CompoundNBT nbt) {
+    public static Superpower deserializeNBT(CompoundNBT nbt, PlayerEntity player) {
         Superpower superpower = HUPackSuperpowers.getInstance().getSuperpowers().get(new ResourceLocation(nbt.getString("name")));
-        if (superpower != null && !superpower.containedAbilities.isEmpty()) {
+        if (superpower != null) {
             CompoundNBT abilities = nbt.getCompound("abilities");
-            superpower.containedAbilities.clear();
+            superpower.getContainedAbilities(player).clear();
             for (String id : abilities.keySet()) {
                 CompoundNBT tag = abilities.getCompound(id);
                 AbilityType abilityType = AbilityType.ABILITIES.getValue(new ResourceLocation(tag.getString("AbilityType")));
                 if (abilityType != null) {
                     Ability ability = abilityType.create(id);
                     ability.deserializeNBT(tag);
-                    superpower.containedAbilities.add(AbilityCreator.createdAbilities.get(id));
+                    superpower.getContainedAbilities(player).add(AbilityCreator.createdAbilities.get(id));
                     ability.name = id;
                 }
             }
