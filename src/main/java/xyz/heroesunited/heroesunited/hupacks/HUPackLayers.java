@@ -20,7 +20,7 @@ public class HUPackLayers extends JsonReloadListener {
     private Map<ResourceLocation, Layer> registeredLayers = Maps.newHashMap();
 
     public HUPackLayers() {
-        super(GSON, "models/heroes");
+        super(GSON, "models/layers");
         INSTANCE = this;
     }
 

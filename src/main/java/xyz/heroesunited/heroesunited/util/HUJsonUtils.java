@@ -100,6 +100,14 @@ public class HUJsonUtils {
         return Suit.SUITS.get(new ResourceLocation(modid, name));
     }
 
+    public static Superpower getSuperpower(ResourceLocation location) {
+        return HUPackSuperpowers.getInstance().getSuperpowers().get(location);
+    }
+
+    public static Suit getSuit(ResourceLocation location) {
+        return Suit.SUITS.get(location);
+    }
+
     public static ModelRenderer getPart(String name, PlayerModel model) {
         switch (name) {
             case "head":

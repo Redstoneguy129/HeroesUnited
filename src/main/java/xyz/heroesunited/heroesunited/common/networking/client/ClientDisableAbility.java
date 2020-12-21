@@ -33,7 +33,10 @@ public class ClientDisableAbility {
             Entity entity = net.minecraft.client.Minecraft.getInstance().world.getEntityByID(this.entityId);
 
             if (entity instanceof AbstractClientPlayerEntity) {
-                entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> cap.disable(this.id));
+                entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+                    cap.disable(this.id);
+                    cap.sync();
+                });
             }
         });
         ctx.get().setPacketHandled(true);

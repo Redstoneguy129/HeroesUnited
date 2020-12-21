@@ -44,6 +44,7 @@ public class ClientEnableAbility {
                     AbilityType abilityType = AbilityType.ABILITIES.getValue(new ResourceLocation(this.data.getString("AbilityType")));
                     if (abilityType != null) {
                         cap.enable(this.id, abilityType.create(this.id));
+                        cap.sync();
                     }
                 });
             }
