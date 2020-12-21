@@ -12,6 +12,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.JSONUtils;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderPlayerEvent;
@@ -91,6 +92,10 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
+    }
+
+    public ITextComponent getTitle() {
+        return AbilityCreator.createdAbilities.get(this.name).getTextComponent();
     }
 
     public boolean isHidden() {

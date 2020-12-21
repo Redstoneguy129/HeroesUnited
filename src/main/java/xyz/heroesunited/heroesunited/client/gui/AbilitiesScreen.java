@@ -198,7 +198,7 @@ public class AbilitiesScreen extends Screen {
             RenderSystem.disableBlend();
             RenderSystem.color3f(1f, 1f, 1f);
             this.ability.drawIcon(stack, x + 2, y + 2);
-            String name = this.ability.name.length() > 20 ? this.ability.name.substring(0, 20) : this.ability.name;
+            String name = this.ability.getTitle().getString().length() > 20 ? this.ability.getTitle().getString().substring(0, 20) : this.ability.getTitle().getString();
             mc.fontRenderer.drawString(stack, name, x + 21, y + 7, 0);
             mc.fontRenderer.drawString(stack, name, x + 20, y + 6, 0xFFFFFFFF);
         }
