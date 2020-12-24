@@ -102,4 +102,14 @@ public class HUPackSuperpowers extends JsonReloadListener {
         }));
         return b.get();
     }
+
+    public static boolean hasSuperpowers(PlayerEntity player) {
+        AtomicBoolean b = new AtomicBoolean(false);
+        player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> cap.getAbilities().forEach(ability -> {
+            if(ability.create().getSuperpower() != null && !player.world.isRemote) {
+                b.set(true);
+            }
+        }));
+        return b.get();
+    }
 }
