@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import com.google.common.collect.Lists;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
@@ -33,13 +32,5 @@ public class Superpower {
 
     public ResourceLocation getRegistryName() {
         return name;
-    }
-
-    public List<AbilityCreator> getAbilities(PlayerEntity player) {
-        List<AbilityCreator> list = Lists.newArrayList();
-        this.getContainedAbilities(player).forEach(a -> {
-            list.add(a.setSuperpower(this.getRegistryName().toString()));
-        });
-        return list;
     }
 }

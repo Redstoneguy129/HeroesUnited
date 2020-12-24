@@ -159,7 +159,7 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public void addAbilities(Superpower superpower) {
-        containedAbilities.addAll(superpower.getAbilities(player));
+        containedAbilities.addAll(superpower.getContainedAbilities(player));
     }
 
     @Override
