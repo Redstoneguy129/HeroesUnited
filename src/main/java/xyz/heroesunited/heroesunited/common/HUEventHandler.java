@@ -27,7 +27,6 @@ import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 public class HUEventHandler {
 
-
     @SubscribeEvent
     public void playerTick(TickEvent.PlayerTickEvent event) {
         PlayerEntity pl = event.player;
@@ -46,9 +45,11 @@ public class HUEventHandler {
                 });
 
                 a.getAbilities().forEach((creator) -> {
-                    Ability ability = creator.create();
-                    if (ability != null && ability.alwaysActive()) {
-                        a.enable(creator.getKey(), ability);
+                    if (creator != null && creator.create() != null) {
+                        Ability ability = creator.create();
+                        if (ability.alwaysActive()) {
+                            a.enable(creator.getKey(), ability);
+                        }
                     }
                 });
 
@@ -57,7 +58,7 @@ public class HUEventHandler {
                 }
 
                 if (a.getCooldown() > 0) {
-                    a.setCooldown(a.getCooldown()-1);
+                    a.setCooldown(a.getCooldown() - 1);
                 }
 
                 if (a.getAnimationTimer() > 0) a.setAnimationTimer(a.getAnimationTimer() + 1);
@@ -69,8 +70,10 @@ public class HUEventHandler {
                         Vector3d vec = pl.getLookVec();
                         double speed = pl.isSprinting() ? 2.5f : 1f;
                         pl.setMotion(vec.x * speed, vec.y * speed - (pl.isSneaking() ? pl.getHeight() * 0.2F : 0), vec.z * speed);
-                    } else if (pl.isSneaking()) pl.setMotion(new Vector3d(pl.getMotion().x, pl.getHeight() * -0.2F, pl.getMotion().z));
-                    else pl.setMotion(new Vector3d(pl.getMotion().x, Math.sin(pl.ticksExisted / 10F) / 100F, pl.getMotion().z));
+                    } else if (pl.isSneaking())
+                        pl.setMotion(new Vector3d(pl.getMotion().x, pl.getHeight() * -0.2F, pl.getMotion().z));
+                    else
+                        pl.setMotion(new Vector3d(pl.getMotion().x, Math.sin(pl.ticksExisted / 10F) / 100F, pl.getMotion().z));
                 }
             });
         }
