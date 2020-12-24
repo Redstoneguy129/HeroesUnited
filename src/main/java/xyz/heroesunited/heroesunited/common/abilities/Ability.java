@@ -26,6 +26,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
     public String name;
     public final AbilityType type;
+    private String superpower;
 
     public Ability(AbilityType type) {
         this.type = type;
@@ -83,15 +84,30 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         Minecraft.getInstance().getItemRenderer().renderItemAndEffectIntoGuiWithoutEntity(new ItemStack(Items.DIAMOND), x, y);
     }
 
+    public String getSuperpower() {
+        return superpower;
+    }
+
+    public Ability setSuperpower(String superpower) {
+        this.superpower = superpower;
+        return this;
+    }
+
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT nbt = new CompoundNBT();
         nbt.putString("AbilityType", this.type.getRegistryName().toString());
+        if (this.superpower != null) {
+            nbt.putString("Superpower", this.superpower);
+        }
         return nbt;
     }
 
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
+        if (nbt.contains("Superpower")) {
+            this.superpower = nbt.getString("Superpower");
+        }
     }
 
     public ITextComponent getTitle() {

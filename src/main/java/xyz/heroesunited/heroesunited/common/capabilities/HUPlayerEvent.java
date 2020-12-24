@@ -16,7 +16,6 @@ import net.minecraftforge.fml.network.NetworkDirection;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUData;
-import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncSuperpower;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessoire;
 
@@ -74,7 +73,6 @@ public class HUPlayerEvent {
     }
 
     public void syncServerMessages(Entity entity, IHUPlayer a) {
-        if (a.getSuperpower() != null) HUNetworking.INSTANCE.sendTo(new ClientSyncSuperpower(entity.getEntityId(), a.getSuperpower().getRegistryName()), ((ServerPlayerEntity) entity).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
         for (HUData<?> data : a.getDatas()) {
             if (data.canBeSaved())
                 HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(entity.getEntityId(), data.getKey(), a.serializeNBT()), ((ServerPlayerEntity) entity).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);

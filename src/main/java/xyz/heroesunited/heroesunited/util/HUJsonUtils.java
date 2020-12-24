@@ -93,15 +93,11 @@ public class HUJsonUtils {
     }
 
     public static Superpower getSuperpower(String modid, String name) {
-        return HUPackSuperpowers.getInstance().getSuperpowers().get(new ResourceLocation(modid, name));
+        return HUPackSuperpowers.getSuperpower(new ResourceLocation(modid, name));
     }
 
     public static Suit getSuit(String modid, String name) {
         return Suit.SUITS.get(new ResourceLocation(modid, name));
-    }
-
-    public static Superpower getSuperpower(ResourceLocation location) {
-        return HUPackSuperpowers.getInstance().getSuperpowers().get(location);
     }
 
     public static Suit getSuit(ResourceLocation location) {

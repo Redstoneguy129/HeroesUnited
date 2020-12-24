@@ -7,6 +7,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.client.resources.JsonReloadListener;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.JSONUtils;
@@ -16,10 +17,12 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityCreator;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
+import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.events.HURegisterSuperpower;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HUPackSuperpowers extends JsonReloadListener {
     private static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
@@ -64,11 +67,39 @@ public class HUPackSuperpowers extends JsonReloadListener {
         return new Superpower(resourceLocation, abilityList);
     }
 
-    public Map<ResourceLocation, Superpower> getSuperpowers() {
-        return this.registeredSuperpowers;
+    public static Map<ResourceLocation, Superpower> getSuperpowers() {
+        return getInstance().registeredSuperpowers;
     }
 
     public static HUPackSuperpowers getInstance() {
         return INSTANCE;
+    }
+
+    public static Superpower getSuperpower(ResourceLocation location) {
+        return getSuperpowers().get(location);
+    }
+
+    public static void setSuperpower(PlayerEntity player, Superpower superpower) {
+        try {
+            player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap  -> {
+                cap.clearAbilities();
+                if (superpower != null) {
+                    cap.addAbilities(superpower);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static boolean hasSuperpower(PlayerEntity player, Superpower superpower) {
+        AtomicBoolean b = new AtomicBoolean(false);
+        player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> cap.getAbilities().forEach(ability -> {
+            String s = ability.create().getSuperpower();
+            if(s != null && s.equals(superpower.getRegistryName().toString()) && !player.world.isRemote) {
+                b.set(true);
+            }
+        }));
+        return b.get();
     }
 }

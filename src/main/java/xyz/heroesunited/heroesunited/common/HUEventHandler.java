@@ -12,7 +12,10 @@ import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import xyz.heroesunited.heroesunited.common.abilities.*;
+import xyz.heroesunited.heroesunited.common.abilities.Ability;
+import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
+import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
+import xyz.heroesunited.heroesunited.common.abilities.ITimerAbility;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
@@ -42,9 +45,10 @@ public class HUEventHandler {
                     }
                 });
 
-                Superpower.getTypesFromSuperpower(pl).forEach((id, ability) -> {
+                a.getAbilities().forEach((creator) -> {
+                    Ability ability = creator.create();
                     if (ability != null && ability.alwaysActive()) {
-                        a.enable(id, ability);
+                        a.enable(creator.getKey(), ability);
                     }
                 });
 

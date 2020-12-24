@@ -16,6 +16,7 @@ public class AbilityCreator {
     private final AbilityType abilityType;
     private ITextComponent textComponent;
     private JsonObject jsonObject;
+    private String superpower;
 
     public AbilityCreator(String key, AbilityType abilityType, ITextComponent textComponent) {
         this.key = key;
@@ -48,6 +49,12 @@ public class AbilityCreator {
         }
     }
 
+    public AbilityCreator setSuperpower(String superpower) {
+        this.superpower = superpower;
+        this.create().setSuperpower(superpower);
+        return this;
+    }
+
     public AbilityType getAbilityType() {
         return abilityType;
     }
@@ -57,6 +64,6 @@ public class AbilityCreator {
     }
 
     public Ability create() {
-        return this.getAbilityType().create(this.getKey());
+        return this.getAbilityType().create(this.getKey()).setSuperpower(superpower);
     }
 }

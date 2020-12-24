@@ -19,16 +19,16 @@ import java.util.UUID;
 public class AbilityHelper {
 
     public static boolean getEnabled(Ability ability, PlayerEntity player) {
-        return HUPlayer.getCap(player).getAbilityMap().containsKey(ability.name);
+        return HUPlayer.getCap(player).getActiveAbilities().containsKey(ability.name);
     }
 
     public static boolean getEnabled(String name, PlayerEntity player) {
-        return HUPlayer.getCap(player).getAbilityMap().containsKey(name);
+        return HUPlayer.getCap(player).getActiveAbilities().containsKey(name);
     }
 
     public static void disable(PlayerEntity player) {
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
-            ImmutableMap.copyOf(a.getAbilityMap()).forEach((id, ability) -> {
+            ImmutableMap.copyOf(a.getActiveAbilities()).forEach((id, ability) -> {
                 a.disable(id);
                 ability.onDeactivated(player);
             });
@@ -42,7 +42,7 @@ public class AbilityHelper {
 
     public static List<Ability> getAbilities(PlayerEntity player) {
         List<Ability> list = new ArrayList<>();
-        player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((f) -> list.addAll(f.getAbilityMap().values()));
+        player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((f) -> list.addAll(f.getActiveAbilities().values()));
         return list;
     }
 

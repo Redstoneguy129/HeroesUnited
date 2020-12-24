@@ -10,10 +10,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.PacketDistributor;
-import xyz.heroesunited.heroesunited.common.abilities.Ability;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
-import xyz.heroesunited.heroesunited.common.abilities.Superpower;
+import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.events.HURegisterDataEvent;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
@@ -27,14 +24,13 @@ import java.util.List;
 import java.util.Map;
 
 public class HUPlayer implements IHUPlayer {
-
-    private Superpower superpower;
     private final PlayerEntity player;
     private boolean flying, intangible, isInTimer;
     private int theme, type, cooldown, timer, animationTimer;
     public final AccessoireInventory inventory = new AccessoireInventory();
     protected Map<String, Ability> activeAbilities = Maps.newHashMap();
     protected List<HUData<?>> dataList = Lists.newArrayList();
+    private List<AbilityCreator> containedAbilities = Lists.newArrayList();
 
     public HUPlayer(PlayerEntity player) {
         this.player = player;
@@ -152,25 +148,23 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
-    public Map<String, Ability> getAbilityMap() {
+    public Map<String, Ability> getActiveAbilities() {
         return activeAbilities;
     }
 
     @Override
-    public Superpower getSuperpower() {
-        return superpower;
+    public List<AbilityCreator> getAbilities() {
+        return containedAbilities;
     }
 
     @Override
-    public void setSuperpower(Superpower superpower) {
-        this.superpower = superpower;
-        if (!player.world.isRemote) {
-            if (superpower != null) {
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncSuperpower(player.getEntityId(), this.superpower.getRegistryName()));
-            } else {
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientRemoveSuperpower(player.getEntityId()));
-            }
-        }
+    public void addAbilities(Superpower superpower) {
+        containedAbilities.addAll(superpower.getAbilities(player));
+    }
+
+    @Override
+    public void clearAbilities() {
+        containedAbilities.clear();
         AbilityHelper.disable(player);
     }
 
@@ -198,7 +192,6 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public void copy(IHUPlayer ihuPlayer) {
-        this.superpower = ihuPlayer.getSuperpower();
         this.theme = ihuPlayer.getTheme();
         this.inventory.copy(ihuPlayer.getInventory());
         this.flying = false;
@@ -275,8 +268,11 @@ public class HUPlayer implements IHUPlayer {
 
         }
 
-        CompoundNBT abilities = new CompoundNBT();
-        this.activeAbilities.forEach((id, ability) -> abilities.put(id, ability.serializeNBT()));
+        CompoundNBT activeAbilities = new CompoundNBT(), abilities = new CompoundNBT();
+        this.activeAbilities.forEach((id, ability) -> activeAbilities.put(id, ability.serializeNBT()));
+        this.containedAbilities.forEach(a -> abilities.put(a.getKey(), a.create().serializeNBT()));
+
+        nbt.put("ActiveAbilities", activeAbilities);
         nbt.put("Abilities", abilities);
         nbt.putBoolean("Flying", this.flying);
         nbt.putBoolean("Intangible", this.intangible);
@@ -286,17 +282,13 @@ public class HUPlayer implements IHUPlayer {
         nbt.putInt("AnimationTimer", this.animationTimer);
         nbt.putInt("Timer", this.timer);
         nbt.putBoolean("isInTimer", this.isInTimer);
-
-        if (superpower != null) {
-            nbt.put("superpower", superpower.serializeNBT(player));
-        }
         inventory.write(nbt);
         return nbt;
     }
 
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
-        CompoundNBT abilities = nbt.getCompound("Abilities");
+        CompoundNBT activeAbilities = nbt.getCompound("ActiveAbilities"), abilities = nbt.getCompound("Abilities");
 
         for (HUData data : dataList) {
             if (nbt.contains(data.getKey())) {
@@ -330,18 +322,28 @@ public class HUPlayer implements IHUPlayer {
             this.timer = nbt.getInt("Timer");
         } if (nbt.contains("isInTimer")) {
             this.isInTimer = nbt.getBoolean("isInTimer");
-        } if (nbt.contains("superpower")) {
-            superpower = Superpower.deserializeNBT(nbt.getCompound("superpower"), player);
         }
 
         this.activeAbilities.clear();
+        for (String id : activeAbilities.keySet()) {
+            CompoundNBT tag = activeAbilities.getCompound(id);
+            AbilityType abilityType = AbilityType.ABILITIES.getValue(new ResourceLocation(tag.getString("AbilityType")));
+            if (abilityType != null) {
+                Ability ability = abilityType.create(id);
+                ability.deserializeNBT(tag);
+                this.activeAbilities.put(id, ability);
+                ability.name = id;
+            }
+        }
+
+        containedAbilities = Lists.newArrayList();
         for (String id : abilities.keySet()) {
             CompoundNBT tag = abilities.getCompound(id);
             AbilityType abilityType = AbilityType.ABILITIES.getValue(new ResourceLocation(tag.getString("AbilityType")));
             if (abilityType != null) {
                 Ability ability = abilityType.create(id);
                 ability.deserializeNBT(tag);
-                this.activeAbilities.put(id, ability);
+                containedAbilities.add(AbilityCreator.createdAbilities.get(id));
                 ability.name = id;
             }
         }

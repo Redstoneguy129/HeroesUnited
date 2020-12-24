@@ -3,10 +3,12 @@ package xyz.heroesunited.heroesunited.common.capabilities;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.INBTSerializable;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
+import xyz.heroesunited.heroesunited.common.abilities.AbilityCreator;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public interface IHUPlayer extends INBTSerializable<CompoundNBT> {
@@ -18,10 +20,11 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT> {
     If using unofficial mod like *The Boys - By Chappie* then you can set ability to A-Train to make so other mods abilities don't work.**/
     void enable(String id, Ability ability);
     void disable(String id);
-    Map<String, Ability> getAbilityMap();
+    Map<String, Ability> getActiveAbilities();
 
-    Superpower getSuperpower();
-    void setSuperpower(Superpower superpower);
+    List<AbilityCreator> getAbilities();
+    void addAbilities(Superpower superpower);
+    void clearAbilities();
 
     int getTheme();
     void setTheme(int theme);

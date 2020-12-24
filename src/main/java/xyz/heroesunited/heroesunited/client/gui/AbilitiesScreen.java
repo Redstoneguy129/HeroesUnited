@@ -20,7 +20,6 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
-import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
@@ -73,8 +72,10 @@ public class AbilitiesScreen extends Screen {
     }
 
     public static List<Ability> getCurrentDisplayedAbilities(PlayerEntity player) {
-        List<Ability> abilities = Superpower.getTypesFromSuperpower(player).values().stream()
-                .filter(a -> a != null && !a.isHidden()).collect(Collectors.toList());
+        List<Ability> abilities = Lists.newArrayList();
+        HUPlayer.getCap(player).getAbilities().stream()
+                .filter(a -> a.create() != null && !a.create().isHidden())
+                .collect(Collectors.toList()).forEach(creator -> abilities.add(creator.create()));
         List<Ability> list = Lists.newArrayList();
 
         if (abilities.isEmpty()) {

@@ -1,18 +1,13 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
-import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 
-import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.Map;
 
 public class Superpower {
 
@@ -32,21 +27,6 @@ public class Superpower {
         return containedAbilities;
     }
 
-    @Nonnull
-    public static Superpower getSuperpower(PlayerEntity player) {
-        return HUPlayer.getCap(player).getSuperpower();
-    }
-
-    @Nonnull
-    public static Map<String, Ability> getTypesFromSuperpower(PlayerEntity player) {
-        Map<String, Ability> map = Maps.newHashMap();
-        Superpower power = Superpower.getSuperpower(player);
-        if (power != null) {
-            power.getContainedAbilities(player).forEach(a -> map.put(a.getKey(), a.create()));
-        }
-        return map;
-    }
-
     public ITextComponent getDisplayName() {
         return new TranslationTextComponent(Util.makeTranslationKey("superpowers", name));
     }
@@ -55,32 +35,11 @@ public class Superpower {
         return name;
     }
 
-    public CompoundNBT serializeNBT(PlayerEntity player) {
-        CompoundNBT nbt = new CompoundNBT(), abilities = new CompoundNBT();
-        for (AbilityCreator a : this.getContainedAbilities(player)) {
-            abilities.put(a.getKey(), a.create().serializeNBT());
-        }
-        nbt.put("abilities", abilities);
-        nbt.putString("name", name.toString());
-        return nbt;
-    }
-
-    public static Superpower deserializeNBT(CompoundNBT nbt, PlayerEntity player) {
-        Superpower superpower = HUPackSuperpowers.getInstance().getSuperpowers().get(new ResourceLocation(nbt.getString("name")));
-        if (superpower != null) {
-            CompoundNBT abilities = nbt.getCompound("abilities");
-            superpower.getContainedAbilities(player).clear();
-            for (String id : abilities.keySet()) {
-                CompoundNBT tag = abilities.getCompound(id);
-                AbilityType abilityType = AbilityType.ABILITIES.getValue(new ResourceLocation(tag.getString("AbilityType")));
-                if (abilityType != null) {
-                    Ability ability = abilityType.create(id);
-                    ability.deserializeNBT(tag);
-                    superpower.getContainedAbilities(player).add(AbilityCreator.createdAbilities.get(id));
-                    ability.name = id;
-                }
-            }
-        }
-        return superpower;
+    public List<AbilityCreator> getAbilities(PlayerEntity player) {
+        List<AbilityCreator> list = Lists.newArrayList();
+        this.getContainedAbilities(player).forEach(a -> {
+            list.add(a.setSuperpower(this.getRegistryName().toString()));
+        });
+        return list;
     }
 }

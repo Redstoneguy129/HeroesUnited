@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 public class HUCoreCommand {
-    private static final SuggestionProvider<CommandSource> SUGGEST_SUPERPOWERS = (context, builder) -> ISuggestionProvider.func_212476_a(HUPackSuperpowers.getInstance().getSuperpowers().values().stream().map(Superpower::getRegistryName), builder);
+    private static final SuggestionProvider<CommandSource> SUGGEST_SUPERPOWERS = (context, builder) -> ISuggestionProvider.func_212476_a(HUPackSuperpowers.getSuperpowers().values().stream().map(Superpower::getRegistryName), builder);
     private static final SuggestionProvider<CommandSource> SUGGEST_SUITS = (context, builder) -> ISuggestionProvider.func_212476_a(Suit.SUITS.values().stream().map(Suit::getRegistryName), builder);
     public static final DynamicCommandExceptionType DIDNT_EXIST = new DynamicCommandExceptionType((object) -> new TranslationTextComponent("commands.heroesunited.DidntExist", object));
 
@@ -54,7 +54,7 @@ public class HUCoreCommand {
         while (iterator.hasNext()) {
             PlayerEntity pl = (PlayerEntity) iterator.next();
             pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((k) -> {
-                k.setSuperpower(superpower);
+                HUPackSuperpowers.setSuperpower(pl,superpower);
                 k.sync();
             });
             if (pl.getCapability(HUPlayerProvider.CAPABILITY).isPresent())
@@ -71,7 +71,7 @@ public class HUCoreCommand {
         while (iterator.hasNext()) {
             PlayerEntity pl = (PlayerEntity) iterator.next();
             pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((k) -> {
-                k.setSuperpower(null);
+                HUPackSuperpowers.setSuperpower(pl,null);
                 k.sync();
             });
             if (pl.getCapability(HUPlayerProvider.CAPABILITY).isPresent())
@@ -84,7 +84,7 @@ public class HUCoreCommand {
 
     public static Superpower getSuperpower(CommandContext<CommandSource> context, String key) throws CommandSyntaxException {
         ResourceLocation resourceLocation = context.getArgument(key, ResourceLocation.class);
-            Superpower superpower = HUPackSuperpowers.getInstance().getSuperpowers().get(resourceLocation);
+            Superpower superpower = HUPackSuperpowers.getSuperpower(resourceLocation);
         if (superpower == null) {
             throw DIDNT_EXIST.create(resourceLocation);
         } else {

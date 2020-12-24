@@ -33,7 +33,7 @@ public class HUPacks {
     private static HUPacks instance;
     public ResourcePackList hupackFinder = new ResourcePackList(new HUPackFinder());
     private SimpleReloadableResourceManager resourceManager = new SimpleReloadableResourceManager(ResourcePackType.SERVER_DATA);
-    public static final File HUPACKS_DIR = new File(Minecraft.getInstance().gameDir, "hupacks");
+    public static final File HUPACKS_DIR = new File("hupacks");
     public static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     public HUPacks() {
