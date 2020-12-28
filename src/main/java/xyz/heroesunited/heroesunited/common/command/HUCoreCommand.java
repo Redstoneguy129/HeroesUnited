@@ -71,7 +71,7 @@ public class HUCoreCommand {
         while (iterator.hasNext()) {
             PlayerEntity pl = (PlayerEntity) iterator.next();
             pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((k) -> {
-                HUPackSuperpowers.setSuperpower(pl,null);
+                HUPackSuperpowers.removeSuperpower(pl);
                 k.sync();
             });
             if (pl.getCapability(HUPlayerProvider.CAPABILITY).isPresent())

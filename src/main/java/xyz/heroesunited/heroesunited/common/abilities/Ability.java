@@ -1,23 +1,30 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.fml.network.PacketDistributor;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
+import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityCreators;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -27,6 +34,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     public String name;
     public final AbilityType type;
     private String superpower;
+    protected JsonObject jsonObject;
 
     public Ability(AbilityType type) {
         this.type = type;
@@ -100,6 +108,9 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         if (this.superpower != null) {
             nbt.putString("Superpower", this.superpower);
         }
+        if (this.jsonObject != null) {
+            nbt.putString("JsonObject", this.jsonObject.toString());
+        }
         return nbt;
     }
 
@@ -108,21 +119,36 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         if (nbt.contains("Superpower")) {
             this.superpower = nbt.getString("Superpower");
         }
+        if (nbt.contains("JsonObject")) {
+            this.jsonObject = new JsonParser().parse(nbt.getString("JsonObject")).getAsJsonObject();
+        }
     }
 
     public ITextComponent getTitle() {
-        return AbilityCreator.createdAbilities.get(this.name).getTextComponent();
+        if (getJsonObject() != null && JSONUtils.hasField(getJsonObject(), "title")) {
+            return ITextComponent.Serializer.getComponentFromJson(JSONUtils.getJsonObject(getJsonObject(), "title"));
+        } else {
+            return new TranslationTextComponent(name);
+        }
     }
 
     public boolean isHidden() {
-        return getJsonObject() != null ? JSONUtils.getBoolean(getJsonObject(), "hidden", false) : false;
+        return jsonObject != null && JSONUtils.getBoolean(getJsonObject(), "hidden", false);
     }
 
     public boolean alwaysActive() {
-        return getJsonObject() != null ? JSONUtils.getBoolean(getJsonObject(), "active", false) : false;
+        return getJsonObject() != null && JSONUtils.getBoolean(getJsonObject(), "active", false);
+    }
+
+    public Ability setJsonObject(Entity entity, JsonObject jsonObject) {
+        this.jsonObject = jsonObject;
+        if (entity instanceof ServerPlayerEntity) {
+            HUNetworking.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) entity), new ClientSyncAbilityCreators(entity.getEntityId(), name, jsonObject));
+        }
+        return this;
     }
 
     public JsonObject getJsonObject() {
-        return AbilityCreator.createdAbilities.get(this.name).getJsonObject();
+        return jsonObject;
     }
 }

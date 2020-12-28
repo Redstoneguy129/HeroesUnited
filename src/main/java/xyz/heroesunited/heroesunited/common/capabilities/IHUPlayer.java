@@ -3,12 +3,10 @@ package xyz.heroesunited.heroesunited.common.capabilities;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.INBTSerializable;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityCreator;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 public interface IHUPlayer extends INBTSerializable<CompoundNBT> {
@@ -22,8 +20,10 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT> {
     void disable(String id);
     Map<String, Ability> getActiveAbilities();
 
-    List<AbilityCreator> getAbilities();
+    void addAbility(String id, Ability ability);
     void addAbilities(Superpower superpower);
+    void removeAbility(String id);
+    Map<String, Ability> getAbilities();
     void clearAbilities();
 
     int getTheme();

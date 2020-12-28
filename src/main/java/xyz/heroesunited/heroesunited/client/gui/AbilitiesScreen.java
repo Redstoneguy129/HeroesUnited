@@ -73,9 +73,9 @@ public class AbilitiesScreen extends Screen {
 
     public static List<Ability> getCurrentDisplayedAbilities(PlayerEntity player) {
         List<Ability> abilities = Lists.newArrayList();
-        HUPlayer.getCap(player).getAbilities().stream()
-                .filter(a -> a.create() != null && !a.create().isHidden())
-                .collect(Collectors.toList()).forEach(creator -> abilities.add(creator.create()));
+        HUPlayer.getCap(player).getAbilities().values().stream()
+                .filter(a -> a != null && !a.isHidden())
+                .collect(Collectors.toList()).forEach(creator -> abilities.add(creator));
         List<Ability> list = Lists.newArrayList();
 
         if (abilities.isEmpty()) {

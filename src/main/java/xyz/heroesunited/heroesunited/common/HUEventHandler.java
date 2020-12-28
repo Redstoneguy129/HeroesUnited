@@ -7,7 +7,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
@@ -25,12 +24,14 @@ import xyz.heroesunited.heroesunited.common.objects.HUSounds;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
+import java.util.Map;
+
 public class HUEventHandler {
 
     @SubscribeEvent
-    public void playerTick(TickEvent.PlayerTickEvent event) {
-        PlayerEntity pl = event.player;
-        if (event.phase == TickEvent.Phase.START) {
+    public void playerTick(LivingEvent.LivingUpdateEvent event) {
+        if (event.getEntityLiving() instanceof PlayerEntity && event.getEntityLiving() != null) {
+            PlayerEntity pl = (PlayerEntity) event.getEntityLiving();
             pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
                 AbilityHelper.getAbilities(pl).forEach(type -> {
                     type.onUpdate(pl);
@@ -44,14 +45,12 @@ public class HUEventHandler {
                     }
                 });
 
-                a.getAbilities().forEach((creator) -> {
-                    if (creator != null && creator.create() != null) {
-                        Ability ability = creator.create();
-                        if (ability.alwaysActive()) {
-                            a.enable(creator.getKey(), ability);
-                        }
+                for (Map.Entry<String, Ability> e : a.getAbilities().entrySet()) {
+                    Ability ability = e.getValue();
+                    if (ability != null && ability.alwaysActive()) {
+                        a.enable(e.getKey(), ability);
                     }
-                });
+                }
 
                 if (Suit.getSuit(pl) != null) {
                     Suit.getSuit(pl).onUpdate(pl);

@@ -23,7 +23,7 @@ public class AttributeModifierAbility extends Ability {
         } else {
             JsonObject key = JSONUtils.getJsonObject(this.getJsonObject(), "key");
             if (JSONUtils.getString(key, "pressType").equals("action") && HUPlayer.getCap(player).getCooldown() == 0) {
-                setAttribute (player, true);
+                setAttribute(player, true);
             }
         }
     }
@@ -65,12 +65,14 @@ public class AttributeModifierAbility extends Ability {
     }
 
     public void setAttribute(PlayerEntity player, boolean disable) {
-        JsonObject attribute = JSONUtils.getJsonObject(this.getJsonObject(), "attribute");
-        AbilityHelper.setAttribute(player, this.name,
-                ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(JSONUtils.getString(attribute, "name"))),
-                UUID.fromString(JSONUtils.getString(attribute, "uuid", "16c0c8f6-565e-4175-94f5-029986f3cc2c")),
-                disable ? 0D : JSONUtils.getFloat(attribute, "amount", 1f),
-                AttributeModifier.Operation.byId(JSONUtils.getInt(attribute, "operation", 0)));
+        if (this.jsonObject != null) {
+            JsonObject attribute = JSONUtils.getJsonObject(this.getJsonObject(), "attribute");
+            AbilityHelper.setAttribute(player, this.name,
+                    ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(JSONUtils.getString(attribute, "name"))),
+                    UUID.fromString(JSONUtils.getString(attribute, "uuid", "16c0c8f6-565e-4175-94f5-029986f3cc2c")),
+                    disable ? 0D : JSONUtils.getFloat(attribute, "amount", 1f),
+                    AttributeModifier.Operation.byId(JSONUtils.getInt(attribute, "operation", 0)));
+        }
     }
 
     public AttributeModifier getModifier(PlayerEntity player) {

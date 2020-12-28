@@ -2,57 +2,35 @@ package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.Map;
 
 public class AbilityCreator {
 
-    public static final Map<String, AbilityCreator> createdAbilities = Maps.newHashMap();
+    //Only for Server dist, so dont use in client
+    public static Map<String, JsonObject> createdJsons = Maps.newHashMap();
 
-    private final String key;
+    private final String key, superpower;
     private final AbilityType abilityType;
-    private ITextComponent textComponent;
     private JsonObject jsonObject;
-    private String superpower;
 
-    public AbilityCreator(String key, AbilityType abilityType, ITextComponent textComponent) {
+    public AbilityCreator(String key, AbilityType abilityType, String superpower) {
         this.key = key;
         this.abilityType = abilityType;
-        this.textComponent = textComponent;
-        if (createdAbilities.containsKey(key)) {
-            createdAbilities.remove(key, this);
-        }
-        createdAbilities.put(key, this);
+        this.superpower = superpower;
     }
 
-    public AbilityCreator(String key, AbilityType abilityType) {
-        this(key, abilityType, new TranslationTextComponent(key));
-    }
-
-    public AbilityCreator(String key, AbilityType abilityType, JsonObject jsonObject) {
-        this(key, abilityType, new TranslationTextComponent(key));
+    public AbilityCreator(String key, AbilityType abilityType, String superpower, JsonObject jsonObject) {
+        this(key, abilityType, superpower);
         this.jsonObject = jsonObject;
+        if (createdJsons.containsKey(key)) {
+            createdJsons.remove(key, jsonObject);
+        }
+        createdJsons.put(key, jsonObject);
     }
 
     public String getKey() {
         return key;
-    }
-
-    public ITextComponent getTextComponent() {
-        if (getJsonObject() != null && JSONUtils.hasField(getJsonObject(), "title")) {
-            return ITextComponent.Serializer.getComponentFromJson(JSONUtils.getJsonObject(getJsonObject(), "title"));
-        } else {
-            return textComponent;
-        }
-    }
-
-    public AbilityCreator setSuperpower(String superpower) {
-        this.superpower = superpower;
-        this.create().setSuperpower(superpower);
-        return this;
     }
 
     public AbilityType getAbilityType() {

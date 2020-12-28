@@ -77,6 +77,7 @@ public class HUPlayerEvent {
             if (data.canBeSaved())
                 HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(entity.getEntityId(), data.getKey(), a.serializeNBT()), ((ServerPlayerEntity) entity).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
         }
+
         a.sync();
     }
 }

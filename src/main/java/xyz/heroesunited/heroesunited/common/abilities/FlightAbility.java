@@ -58,12 +58,12 @@ public class FlightAbility extends Ability implements IFlyingAbility {
 
     @Override
     public boolean renderFlying(PlayerEntity player) {
-        return JSONUtils.getBoolean(this.getJsonObject(), "render", true);
+        return getJsonObject() != null && JSONUtils.getBoolean(this.getJsonObject(), "render", true);
     }
 
     @Override
     public boolean rotateArms() {
-        return JSONUtils.getBoolean(this.getJsonObject(), "rotateArms", false);
+        return getJsonObject() != null && JSONUtils.getBoolean(this.getJsonObject(), "rotateArms", false);
     }
 
     @Override

@@ -1,40 +1,37 @@
 package xyz.heroesunited.heroesunited.common.networking.client;
 
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
-import xyz.heroesunited.heroesunited.common.abilities.Ability;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
 import java.util.function.Supplier;
 
-public class ClientEnableAbility {
+public class ClientSyncAbilityCreators {
 
     public int entityId;
     public String id;
-    public CompoundNBT data;
+    public JsonObject jsonObject;
 
-    public ClientEnableAbility(int entityId, String id, CompoundNBT data) {
+    public ClientSyncAbilityCreators(int entityId, String id, JsonObject jsonObject) {
         this.entityId = entityId;
         this.id = id;
-        this.data = data;
+        this.jsonObject = jsonObject;
     }
 
-    public ClientEnableAbility(PacketBuffer buf) {
+    public ClientSyncAbilityCreators(PacketBuffer buf) {
         this.entityId = buf.readInt();
         this.id = buf.readString(32767);
-        this.data = buf.readCompoundTag();
+        this.jsonObject = new JsonParser().parse(buf.readString(999999)).getAsJsonObject();
     }
 
     public void toBytes(PacketBuffer buf) {
         buf.writeInt(this.entityId);
         buf.writeString(this.id);
-        buf.writeCompoundTag(this.data);
+        buf.writeString(this.jsonObject.toString());
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
@@ -43,16 +40,11 @@ public class ClientEnableAbility {
 
             if (entity instanceof AbstractClientPlayerEntity) {
                 entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                    AbilityType abilityType = AbilityType.ABILITIES.getValue(new ResourceLocation(this.data.getString("AbilityType")));
-                    if (abilityType != null) {
-                        Ability ability = abilityType.create(this.id);
-                        ability.setJsonObject(entity, new JsonParser().parse(this.data.getString("JsonObject")).getAsJsonObject());
-                        ability.setSuperpower(this.data.getString("Superpower"));
-                        cap.enable(this.id, ability);
-                        cap.sync();
+                    if (cap.getAbilities().containsKey(this.id) && jsonObject != null) {
+                        cap.getAbilities().get(this.id).setJsonObject(entity, jsonObject);
                     }
                 });
-            }
+             }
         });
         ctx.get().setPacketHandled(true);
     }

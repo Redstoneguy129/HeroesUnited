@@ -13,19 +13,19 @@ import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
 import java.util.function.Supplier;
 
-public class ClientEnableAbility {
+public class ClientAddAbility {
 
     public int entityId;
     public String id;
     public CompoundNBT data;
 
-    public ClientEnableAbility(int entityId, String id, CompoundNBT data) {
+    public ClientAddAbility(int entityId, String id, CompoundNBT data) {
         this.entityId = entityId;
         this.id = id;
         this.data = data;
     }
 
-    public ClientEnableAbility(PacketBuffer buf) {
+    public ClientAddAbility(PacketBuffer buf) {
         this.entityId = buf.readInt();
         this.id = buf.readString(32767);
         this.data = buf.readCompoundTag();
@@ -48,7 +48,7 @@ public class ClientEnableAbility {
                         Ability ability = abilityType.create(this.id);
                         ability.setJsonObject(entity, new JsonParser().parse(this.data.getString("JsonObject")).getAsJsonObject());
                         ability.setSuperpower(this.data.getString("Superpower"));
-                        cap.enable(this.id, ability);
+                        cap.addAbility(this.id, ability);
                         cap.sync();
                     }
                 });
