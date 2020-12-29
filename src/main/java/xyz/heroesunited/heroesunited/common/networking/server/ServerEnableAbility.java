@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.common.networking.server;
 
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -41,9 +40,8 @@ public class ServerEnableAbility {
                 player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                     Ability ability = AbilityType.ABILITIES.getValue(new ResourceLocation(this.data.getString("AbilityType"))).create(this.id);
                     if (ability != null && AbilityHelper.canActiveAbility(ability, player)) {
-                        JsonObject jsonObject = new JsonParser().parse(this.data.getString("JsonObject")).getAsJsonObject();
-                        if (jsonObject != null) {
-                            ability.setJsonObject(null, jsonObject);
+                        if (this.data.contains("JsonObject")) {
+                            ability.setJsonObject(null, new JsonParser().parse(this.data.getString("JsonObject")).getAsJsonObject());
                         }
                         if (this.data.contains("Superpower")) {
                             ability.setSuperpower(this.data.getString("Superpower"));

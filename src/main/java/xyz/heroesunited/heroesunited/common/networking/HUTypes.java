@@ -4,7 +4,6 @@ import net.minecraft.entity.Entity;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
 public enum HUTypes {
-    ADD, REMOVE, ENABLE, DISABLE,
     COOLDOWN, TYPE, TIMER, ANIMATION_TIMER, FLYING, INTAGIBLE, IN_TIMER;
 
     public static void set(Entity entity, HUTypes data, int value) {

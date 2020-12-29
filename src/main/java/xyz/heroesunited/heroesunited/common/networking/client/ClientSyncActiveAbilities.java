@@ -2,7 +2,6 @@ package xyz.heroesunited.heroesunited.common.networking.client;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
@@ -36,9 +35,8 @@ public class ClientSyncActiveAbilities {
             String id = buf.readString(32767);
             CompoundNBT nbt = buf.readCompoundTag();
             Ability ability = AbilityType.ABILITIES.getValue(new ResourceLocation(nbt.getString("AbilityType"))).create(id);
-            JsonObject jsonObject = new JsonParser().parse(nbt.getString("JsonObject")).getAsJsonObject();
-            if (jsonObject != null) {
-                ability.setJsonObject(null, jsonObject);
+            if (nbt.contains("JsonObject")) {
+                ability.setJsonObject(null, new JsonParser().parse(nbt.getString("JsonObject")).getAsJsonObject());
             }
             if (nbt.contains("Superpower")) {
                 ability.setSuperpower(nbt.getString("Superpower"));
