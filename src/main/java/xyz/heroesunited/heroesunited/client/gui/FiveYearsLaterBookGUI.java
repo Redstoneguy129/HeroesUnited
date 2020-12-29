@@ -66,6 +66,7 @@ public class FiveYearsLaterBookGUI extends Screen {
 
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        SnowWidget.drawSnowOnScreen(matrixStack, this.width, this.height);
         this.renderBackground(matrixStack);
         matrixStack.push();
         Page page = Page.getPage(pageNum);

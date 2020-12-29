@@ -106,6 +106,7 @@ public class AbilitiesScreen extends Screen {
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         IHUPlayer cap = HUPlayer.getCap(minecraft.player);
+        SnowWidget.drawSnowOnScreen(matrixStack, this.width, this.height);
         this.renderBackground(matrixStack);
         matrixStack.push();
         ResourceLocation theme = getTheme("default");

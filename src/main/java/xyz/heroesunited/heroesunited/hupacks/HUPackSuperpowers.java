@@ -18,12 +18,12 @@ import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityCreator;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
+import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.events.HURegisterSuperpower;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HUPackSuperpowers extends JsonReloadListener {
     private static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
@@ -106,13 +106,12 @@ public class HUPackSuperpowers extends JsonReloadListener {
     }
 
     public static boolean hasSuperpower(PlayerEntity player, ResourceLocation location) {
-        AtomicBoolean b = new AtomicBoolean(false);
-        player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> cap.getAbilities().forEach((key, ability) -> {
+        for (Ability ability : HUPlayer.getCap(player).getAbilities().values()) {
             if (ability.getSuperpower() != null && ability.getSuperpower().equals(location.toString())) {
-                b.set(true);
+                return true;
             }
-        }));
-        return b.get();
+        }
+        return false;
     }
 
     public static boolean hasSuperpower(PlayerEntity player, Superpower superpower) {
@@ -120,12 +119,11 @@ public class HUPackSuperpowers extends JsonReloadListener {
     }
 
     public static boolean hasSuperpowers(PlayerEntity player) {
-        AtomicBoolean b = new AtomicBoolean(false);
-        player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> cap.getAbilities().forEach((key, ability) -> {
+        for (Ability ability : HUPlayer.getCap(player).getAbilities().values()) {
             if(ability.getSuperpower() != null) {
-                b.set(true);
+                return true;
             }
-        }));
-        return b.get();
+        }
+        return false;
     }
 }

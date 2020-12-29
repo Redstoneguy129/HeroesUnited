@@ -15,6 +15,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.network.NetworkDirection;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilities;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncActiveAbilities;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUData;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessoire;
@@ -73,11 +75,9 @@ public class HUPlayerEvent {
     }
 
     public void syncServerMessages(Entity entity, IHUPlayer a) {
-        for (HUData<?> data : a.getDatas()) {
-            if (data.canBeSaved())
-                HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(entity.getEntityId(), data.getKey(), a.serializeNBT()), ((ServerPlayerEntity) entity).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
-        }
-
+        HUNetworking.INSTANCE.sendTo(new ClientSyncAbilities(entity.getEntityId(), a.getAbilities()), ((ServerPlayerEntity) entity).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
+        a.getDataList().stream().filter(HUData::canBeSaved).forEachOrdered(data -> HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(entity.getEntityId(), data.getKey(), a.serializeNBT()), ((ServerPlayerEntity) entity).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT));
+        HUNetworking.INSTANCE.sendTo(new ClientSyncActiveAbilities(entity.getEntityId(), a.getActiveAbilities()), ((ServerPlayerEntity) entity).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
         a.sync();
     }
 }

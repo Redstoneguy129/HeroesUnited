@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.util;
 
+import com.google.common.collect.Lists;
 import net.arikia.dev.drpc.DiscordEventHandlers;
 import net.arikia.dev.drpc.DiscordRPC;
 import net.arikia.dev.drpc.DiscordRichPresence;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -27,17 +29,35 @@ public class HURichPresence {
         return RPC;
     }
     private final Random random = new Random();
-    private List<String> list;
+    private List<String> list = Lists.newArrayList();
 
     public HURichPresence(String clientID) {
-        try {
-            IResource iresource = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation(HeroesUnited.MODID, "splash.txt"));
-            BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(iresource.getInputStream(), StandardCharsets.UTF_8));
-            list = bufferedreader.lines().map(String::trim).filter((p_215277_0_) -> p_215277_0_.hashCode() != 125780783).collect(Collectors.toList());
-        } catch (IOException ignored) {}
-        DiscordEventHandlers handlers = new DiscordEventHandlers.Builder().setReadyEventHandler(user -> HeroesUnited.LOGGER.info(String.format("Logged into Discord as %s!", user.username+"#"+user.discriminator))).build();
+        if (HUCalendarHelper.isSnowTime()) {
+            list.add("Happy New-Year!");
+            list.add("Merry Christmas");
+            list.add("Uhuhuhu, Santa, where are my gifts?!");
+            list.add("This is what Santa Claus loves!");
+        } else if (HUCalendarHelper.isAprilFoolsDay()) {
+            list.add("You trolled!");
+        } else if (HUCalendarHelper.isHalloween()) {
+            list.add("OOoooOOOoooo! Spooky!");
+        } else {
+            list.addAll(getListFromTXT(new ResourceLocation(HeroesUnited.MODID, "splash.txt")));
+            list.addAll(getListFromTXT(new ResourceLocation("texts/splashes.txt")));
+        }
+        DiscordEventHandlers handlers = new DiscordEventHandlers.Builder().setReadyEventHandler(user -> HeroesUnited.LOGGER.info(String.format("Logged into Discord as %s!", user.username + "#" + user.discriminator))).build();
         DiscordRPC.discordInitialize(clientID, handlers, true);
         DiscordRPC.discordClearPresence();
+    }
+
+    private List<String> getListFromTXT(ResourceLocation resourceLocation) {
+        try {
+            IResource iresource = Minecraft.getInstance().getResourceManager().getResource(resourceLocation);
+            BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(iresource.getInputStream(), StandardCharsets.UTF_8));
+            return bufferedreader.lines().map(String::trim).filter((p_215277_0_) -> p_215277_0_.hashCode() != 125780783).collect(Collectors.toList());
+        } catch (IOException ignored) {
+            return Collections.emptyList();
+        }
     }
 
     public void setDiscordRichPresence(String title, String description, MiniLogos logo, String caption) {

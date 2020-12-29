@@ -8,6 +8,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.render.model.ModelHoras;
 import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
+import xyz.heroesunited.heroesunited.util.HUCalendarHelper;
 
 @OnlyIn(Dist.CLIENT)
 public class RendererHoras extends BipedRenderer<Horas, ModelHoras<Horas>> {
@@ -18,6 +19,6 @@ public class RendererHoras extends BipedRenderer<Horas, ModelHoras<Horas>> {
 
     @Override
     public ResourceLocation getEntityTexture(Horas entity) {
-        return new ResourceLocation(HeroesUnited.MODID, "textures/entity/horas.png");
+        return new ResourceLocation(HeroesUnited.MODID, "textures/entity/horas" + (HUCalendarHelper.isSnowTime() ? "_new_year.png" : ".png"));
     }
 }

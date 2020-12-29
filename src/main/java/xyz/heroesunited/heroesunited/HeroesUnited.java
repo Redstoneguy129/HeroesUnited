@@ -27,6 +27,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import software.bernie.geckolib3.GeckoLib;
@@ -121,6 +122,10 @@ public class HeroesUnited {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public void runSecurity(EntityJoinWorldEvent event) {
-        HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United", null, HURichPresence.MiniLogos.NONE, null);
+        if (FMLEnvironment.production) {
+            HURichPresence.getPresence().setDiscordRichPresence("Testing Heroes United", "Adding new things to the game!", HURichPresence.MiniLogos.NONE, null);
+        } else {
+            HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United", null, HURichPresence.MiniLogos.NONE, null);
+        }
     }
 }

@@ -14,9 +14,7 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.registries.ForgeRegistries;
-import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
-import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 
 import java.util.HashMap;
 import java.util.List;
@@ -90,10 +88,6 @@ public class HUJsonUtils {
         Ingredient repairMaterial = JSONUtils.hasField(json, "repair_material") ? Ingredient.deserialize(json.get("repair_material")) : Ingredient.EMPTY;
 
         return new HUArmorMaterial(name, JSONUtils.getInt(json, "max_damage_factor", 0), damageReductionAmountArray, JSONUtils.getInt(json, "enchantibility", 0), soundEvent, JSONUtils.getFloat(json, "toughness", 0), JSONUtils.getFloat(json, "knockback_resistance", 0), repairMaterial);
-    }
-
-    public static Superpower getSuperpower(String modid, String name) {
-        return HUPackSuperpowers.getSuperpower(new ResourceLocation(modid, name));
     }
 
     public static Suit getSuit(String modid, String name) {

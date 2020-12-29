@@ -39,7 +39,6 @@ public class HUData<T> {
         return this.saving;
     }
 
-
     public static <T> T readValue(HUData data, CompoundNBT nbt, T newValue) {
         if (data != null && !data.getValue().equals(newValue)) {
             if (data.getDefaultValue() instanceof Boolean) {

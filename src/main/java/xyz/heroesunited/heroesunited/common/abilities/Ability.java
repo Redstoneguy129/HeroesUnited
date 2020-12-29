@@ -142,7 +142,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
     public Ability setJsonObject(Entity entity, JsonObject jsonObject) {
         this.jsonObject = jsonObject;
-        if (entity instanceof ServerPlayerEntity) {
+        if (entity != null && entity instanceof ServerPlayerEntity) {
             HUNetworking.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) entity), new ClientSyncAbilityCreators(entity.getEntityId(), name, jsonObject));
         }
         return this;

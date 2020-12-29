@@ -24,19 +24,20 @@ import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class HUPlayer implements IHUPlayer {
     private final PlayerEntity player;
     private boolean flying, intangible, isInTimer;
     private int theme, type, cooldown, timer, animationTimer;
     public final AccessoireInventory inventory = new AccessoireInventory();
-    protected Map<String, Ability> activeAbilities = Maps.newHashMap();
-    private Map<String, Ability> containedAbilities = Maps.newHashMap();
-    protected List<HUData<?>> dataList = Lists.newArrayList();
+    protected Map<String, Ability> activeAbilities, containedAbilities;
+    protected final List<HUData<?>> dataList;
 
     public HUPlayer(PlayerEntity player) {
         this.player = player;
+        this.activeAbilities = Maps.newHashMap();
+        this.containedAbilities = Maps.newHashMap();
+        this.dataList = Lists.newArrayList();
         MinecraftForge.EVENT_BUS.post(new HURegisterDataEvent(player, this));
     }
 
@@ -136,7 +137,7 @@ public class HUPlayer implements IHUPlayer {
             ability.name = id;
             ability.onActivated(player);
             if (!player.world.isRemote)
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientEnableAbility(player.getEntityId(), id, ability.serializeNBT()));
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncActiveAbilities(player.getEntityId(), this.getActiveAbilities()));
         }
     }
 
@@ -146,7 +147,7 @@ public class HUPlayer implements IHUPlayer {
             activeAbilities.get(id).onDeactivated(player);
             activeAbilities.remove(id);
             if (!player.world.isRemote)
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientDisableAbility(player.getEntityId(), id));
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncActiveAbilities(player.getEntityId(), this.getActiveAbilities()));
         }
     }
 
@@ -161,20 +162,13 @@ public class HUPlayer implements IHUPlayer {
             containedAbilities.put(id, ability);
             ability.name = id;
             if (!player.world.isRemote)
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientAddAbility(player.getEntityId(), id, ability.serializeNBT()));
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getEntityId(), this.getAbilities()));
         }
     }
 
     @Override
     public Map<String, Ability> getAbilities() {
         return containedAbilities;
-    }
-
-    @Override
-    public void clearAbilities() {
-        for (Ability ab : getAbilities().values().stream().collect(Collectors.toList())) {
-            removeAbility(ab.name);
-        }
     }
 
     @Override
@@ -188,7 +182,7 @@ public class HUPlayer implements IHUPlayer {
             containedAbilities.remove(id);
             disable(id);
             if (!player.world.isRemote)
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientRemoveAbility(player.getEntityId(), id));
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getEntityId(), this.getAbilities()));
         }
     }
 
@@ -215,24 +209,28 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
-    public void copy(IHUPlayer ihuPlayer) {
-        this.theme = ihuPlayer.getTheme();
-        this.inventory.copy(ihuPlayer.getInventory());
+    public IHUPlayer copy(IHUPlayer cap) {
+        this.theme = cap.getTheme();
+        this.inventory.copy(cap.getInventory());
+        this.activeAbilities = cap.getActiveAbilities();
+        this.containedAbilities = cap.getAbilities();
         this.flying = false;
         for (HUData data : this.dataList) {
-            for (HUData oldData : ihuPlayer.getDatas()) {
+            for (HUData oldData : cap.getDataList()) {
                 if (data.canBeSaved() && oldData.canBeSaved() && data.getKey().equals(oldData.getKey())) {
                     data.setValue(oldData.getValue());
                 }
             }
         }
+        return this;
     }
 
     @Override
-    public void sync() {
+    public IHUPlayer sync() {
         if (!player.world.isRemote) {
             HUNetworking.INSTANCE.sendTo(new ClientSyncCap(player.getEntityId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
         }
+        return this;
     }
 
     @Override
@@ -258,17 +256,7 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
-    public <T> HUData<T> getFromName(String key) {
-        for (HUData data : dataList) {
-            if (data.getKey().equals(key)) {
-                return data;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public Collection<HUData<?>> getDatas() {
+    public Collection<HUData<?>> getDataList() {
         return this.dataList;
     }
 

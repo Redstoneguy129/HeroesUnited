@@ -23,6 +23,7 @@ public class AccessoireScreen extends ContainerScreen<AccessoireContainer> {
 
     @Override
     public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
+        SnowWidget.drawSnowOnScreen(matrix, this.width, this.height);
         this.renderBackground(matrix);
         super.render(matrix, mouseX, mouseY, partialTicks);
         this.renderHoveredTooltip(matrix, mouseX, mouseY);

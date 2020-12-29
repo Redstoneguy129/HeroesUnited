@@ -16,7 +16,6 @@ import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
-import org.lwjgl.opengl.GL11;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
 import xyz.heroesunited.heroesunited.client.render.renderer.IHUModel;
@@ -91,7 +90,9 @@ public class HorasScreen extends Screen {
 
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        GL11.glEnable(GL11.GL_BLEND);
+        SnowWidget.drawSnowOnScreen(matrixStack, this.width, this.height);
+        this.renderBackground(matrixStack);
+        RenderSystem.enableBlend();
         this.getMinecraft().getTextureManager().bindTexture(TabEnum.MENU.getLocation());
         this.blit(matrixStack, x, y, 256, 256, xSize, ySize);
         this.buttons.forEach(button -> {
@@ -125,7 +126,7 @@ public class HorasScreen extends Screen {
                 break;
         }
         super.render(matrixStack, mouseX, mouseY, partialTicks);
-        GL11.glDisable(GL11.GL_BLEND);
+        RenderSystem.disableBlend();
     }
 
     @Override

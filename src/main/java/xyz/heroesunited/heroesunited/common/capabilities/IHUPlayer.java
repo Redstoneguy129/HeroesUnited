@@ -8,6 +8,7 @@ import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventor
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public interface IHUPlayer extends INBTSerializable<CompoundNBT> {
 
@@ -21,10 +22,15 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT> {
     Map<String, Ability> getActiveAbilities();
 
     void addAbility(String id, Ability ability);
-    void addAbilities(Superpower superpower);
     void removeAbility(String id);
     Map<String, Ability> getAbilities();
-    void clearAbilities();
+
+    void addAbilities(Superpower superpower);
+    default void clearAbilities() {
+        for (Ability ab : getAbilities().values().stream().collect(Collectors.toList())) {
+            removeAbility(ab.name);
+        }
+    }
 
     int getTheme();
     void setTheme(int theme);
@@ -60,9 +66,17 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT> {
 
     <T> IHUPlayer register(String key, T defaultValue, boolean saving);
     <T> IHUPlayer set(String key, T value);
-    <T> HUData<T> getFromName(String key);
-    Collection<HUData<?>> getDatas();
+    Collection<HUData<?>> getDataList();
 
-    void copy(IHUPlayer ihuPlayer);
-    void sync();
+    default <T> HUData<T> getFromName(String key) {
+        for (HUData data : getDataList()) {
+            if (data.getKey().equals(key)) {
+                return data;
+            }
+        }
+        return null;
+    }
+
+    IHUPlayer copy(IHUPlayer ihuPlayer);
+    IHUPlayer sync();
 }

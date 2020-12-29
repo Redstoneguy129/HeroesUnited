@@ -19,14 +19,12 @@ public class HUNetworking {
     public static void registerMessages() {
         INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(HeroesUnited.MODID, "networking"), () -> "1.0", s -> true, s -> true);
         //Client
-        INSTANCE.registerMessage(NextID(), ClientSyncHUType.class, ClientSyncHUType::toBytes, ClientSyncHUType::new, ClientSyncHUType::handle);
-        INSTANCE.registerMessage(NextID(), ClientEnableAbility.class, ClientEnableAbility::toBytes, ClientEnableAbility::new, ClientEnableAbility::handle);
-        INSTANCE.registerMessage(NextID(), ClientDisableAbility.class, ClientDisableAbility::toBytes, ClientDisableAbility::new, ClientDisableAbility::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncCap.class, ClientSyncCap::toBytes, ClientSyncCap::new, ClientSyncCap::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncHUData.class, ClientSyncHUData::toBytes, ClientSyncHUData::new, ClientSyncHUData::handle);
+        INSTANCE.registerMessage(NextID(), ClientSyncHUType.class, ClientSyncHUType::toBytes, ClientSyncHUType::new, ClientSyncHUType::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncAbilityCreators.class, ClientSyncAbilityCreators::toBytes, ClientSyncAbilityCreators::new, ClientSyncAbilityCreators::handle);
-        INSTANCE.registerMessage(NextID(), ClientAddAbility.class, ClientAddAbility::toBytes, ClientAddAbility::new, ClientAddAbility::handle);
-        INSTANCE.registerMessage(NextID(), ClientRemoveAbility.class, ClientRemoveAbility::toBytes, ClientRemoveAbility::new, ClientRemoveAbility::handle);
+        INSTANCE.registerMessage(NextID(), ClientSyncActiveAbilities.class, ClientSyncActiveAbilities::toBytes, ClientSyncActiveAbilities::new, ClientSyncActiveAbilities::handle);
+        INSTANCE.registerMessage(NextID(), ClientSyncAbilities.class, ClientSyncAbilities::toBytes, ClientSyncAbilities::new, ClientSyncAbilities::handle);
         //Server
         INSTANCE.registerMessage(NextID(), ServerSetHUData.class, ServerSetHUData::toBytes, ServerSetHUData::new, ServerSetHUData::handle);
         INSTANCE.registerMessage(NextID(), ServerSetTheme.class, ServerSetTheme::toBytes, ServerSetTheme::new, ServerSetTheme::handle);
