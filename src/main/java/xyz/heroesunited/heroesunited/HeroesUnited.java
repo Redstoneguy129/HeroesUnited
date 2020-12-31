@@ -1,7 +1,9 @@
 package xyz.heroesunited.heroesunited;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.entity.ai.attributes.GlobalEntityTypeAttributes;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
@@ -27,7 +29,6 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import software.bernie.geckolib3.GeckoLib;
@@ -122,9 +123,8 @@ public class HeroesUnited {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public void runSecurity(EntityJoinWorldEvent event) {
-        if (FMLEnvironment.production) {
-            HURichPresence.getPresence().setDiscordRichPresence("Testing Heroes United", "Adding new things to the game!", HURichPresence.MiniLogos.NONE, null);
-        } else {
+        if(!event.getEntity().world.isRemote || !(event.getEntity() instanceof PlayerEntity) || Minecraft.getInstance().player == null) return;
+        if(Minecraft.getInstance().player.getUniqueID() == event.getEntity().getUniqueID()) {
             HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United", null, HURichPresence.MiniLogos.NONE, null);
         }
     }

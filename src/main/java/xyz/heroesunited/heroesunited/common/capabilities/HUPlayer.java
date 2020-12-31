@@ -252,7 +252,7 @@ public class HUPlayer implements IHUPlayer {
         HUData<T> data = getFromName(key);
         if (data != null && !data.getValue().equals(value)) {
             data.setValue(value);
-            if (!player.world.isRemote && data.canBeSaved())
+            if (!player.world.isRemote)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), key, this.serializeNBT()));
         }
         return this;
