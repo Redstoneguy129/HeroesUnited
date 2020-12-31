@@ -99,14 +99,23 @@ public class JsonSuit extends Suit {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void setRotationAngles(HUSetRotationAnglesEvent event) {
+    public void setRotationAngles(HUSetRotationAnglesEvent event, EquipmentSlotType slot) {
         if (JSONUtils.hasField(jsonObject, "visibility_parts")) {
             JsonObject overrides = JSONUtils.getJsonObject(jsonObject, "visibility_parts");
 
             for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
                 ModelRenderer part = HUJsonUtils.getPart(entry.getKey(), event.getPlayerModel());
                 if (part != null) {
-                    part.showModel = JSONUtils.getBoolean(overrides, entry.getKey());
+                    if (entry.getValue() instanceof JsonObject) {
+                        JsonObject json = (JsonObject) entry.getValue();
+                        if (slot.equals(EquipmentSlotType.fromString(JSONUtils.getString(json, "slot")))) {
+                            part.showModel = JSONUtils.getBoolean(json, "show");
+                        }
+                    } else {
+                        if (hasArmorOn(event.getPlayer())) {
+                            part.showModel = JSONUtils.getBoolean(overrides, entry.getKey());
+                        }
+                    }
                 }
             }
         }

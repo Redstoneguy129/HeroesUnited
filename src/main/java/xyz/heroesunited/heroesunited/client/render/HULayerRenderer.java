@@ -11,13 +11,14 @@ import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import xyz.heroesunited.heroesunited.client.events.HURenderLayerEvent;
 import xyz.heroesunited.heroesunited.client.render.model.ModelSuit;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
-import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
+import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoireSlot;
@@ -35,12 +36,14 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
 
     @Override
     public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        if (MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Pre(entityRendererIn, entity, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch)) && entity.isChild() == true)
-            return;
+        if (MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Pre(entityRendererIn, entity, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch)) && entity.isChild() == true) return;
 
-        if (Suit.getSuit(entity) != null) {
-            Suit.getSuit(entity).renderLayer(entityRendererIn, entity, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+        for (EquipmentSlotType slot : EquipmentSlotType.values()) {
+            if (slot.getSlotType() == EquipmentSlotType.Group.ARMOR) {
+                renderSuit(matrixStack, buffer, entity, slot, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+            }
         }
+
         MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent(entityRendererIn, entity, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch));
 
         if (entityRendererIn instanceof PlayerRenderer && entity instanceof AbstractClientPlayerEntity) {
@@ -90,5 +93,15 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
         playerRenderer.getEntityModel().setModelAttributes(suitModel);
 
         suitModel.render(matrixStack, buffer.getBuffer(RenderType.getEntityTranslucent(accessoire.getTexture(stack, player, slot))), packedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+    }
+
+    private void renderSuit(MatrixStack stack, IRenderTypeBuffer buffer, T entity, EquipmentSlotType slot, int packedLight, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+        ItemStack itemstack = entity.getItemStackFromSlot(slot);
+        if (itemstack.getItem() instanceof SuitItem) {
+            SuitItem suitItem = (SuitItem)itemstack.getItem();
+            if (suitItem.getEquipmentSlot() == slot) {
+                suitItem.getSuit().renderLayer(entityRendererIn, entity, slot, stack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+            }
+        }
     }
 }

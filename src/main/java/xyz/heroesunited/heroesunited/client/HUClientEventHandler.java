@@ -11,6 +11,8 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.Item;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.vector.Quaternion;
@@ -34,7 +36,7 @@ import xyz.heroesunited.heroesunited.common.HUConfig;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
-import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
+import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccesoireInv;
@@ -157,8 +159,15 @@ public class HUClientEventHandler {
         for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
             ability.setRotationAngles(event);
         }
-        if (Suit.getSuit(player) != null) {
-            Suit.getSuit(player).setRotationAngles(event);
+
+        for (EquipmentSlotType slot : EquipmentSlotType.values()) {
+            Item item = player.getItemStackFromSlot(slot).getItem();
+            if (slot.getSlotType() == EquipmentSlotType.Group.ARMOR && item instanceof SuitItem) {
+                SuitItem suitItem = (SuitItem)item;
+                if (suitItem.getEquipmentSlot() == slot) {
+                    suitItem.getSuit().setRotationAngles(event, slot);
+                }
+            }
         }
 
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
