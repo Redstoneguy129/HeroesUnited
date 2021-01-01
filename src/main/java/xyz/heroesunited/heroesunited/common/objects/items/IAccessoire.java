@@ -12,15 +12,17 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoireSlot;
 
-@OnlyIn(Dist.CLIENT)
 public interface IAccessoire {
 
+    @OnlyIn(Dist.CLIENT)
     default boolean renderDefaultModel() {
         return true;
     }
 
+    @OnlyIn(Dist.CLIENT)
     default void render(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {}
 
+    @OnlyIn(Dist.CLIENT)
     ResourceLocation getTexture(ItemStack stack, PlayerEntity entity, EquipmentAccessoireSlot slot);
 
     EquipmentAccessoireSlot getSlot();
@@ -33,6 +35,7 @@ public interface IAccessoire {
         return true;
     }
 
+    @OnlyIn(Dist.CLIENT)
     default float getScale(ItemStack stack){
         return 0.08F;
     }
