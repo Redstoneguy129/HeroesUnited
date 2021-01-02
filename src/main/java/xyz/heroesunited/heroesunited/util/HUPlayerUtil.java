@@ -104,7 +104,9 @@ public class HUPlayerUtil {
             if ((player.world.getBlockState(bpos).isSolid() && !player.world.isAirBlock(bpos)) || block) {
                 return new BlockRayTraceResult(pos, null, bpos, false);
             } else {
-                for (Entity entity : player.world.getEntitiesWithinAABBExcludingEntity(player, new AxisAlignedBB(0.25F, 0.25F, 0.25F, -0.25F, -0.25F, -0.25F))) {
+                Vector3d min = pos.add(0.25F, 0.25F, 0.25F);
+                Vector3d max = pos.add(-0.25F, -0.25F, -0.25F);
+                for (Entity entity : player.world.getEntitiesWithinAABBExcludingEntity(player, new AxisAlignedBB(min.x, min.y, min.z, max.x, max.y, max.z))) {
                     return new EntityRayTraceResult(entity);
                 }
             }
