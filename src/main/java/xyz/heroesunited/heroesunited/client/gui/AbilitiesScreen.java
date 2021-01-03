@@ -222,7 +222,7 @@ public class AbilitiesScreen extends Screen {
             if (this.ability.getHoveredDescription() == null) return;
             int maxWidth = 0;
             for (int i = 0; i < this.ability.getHoveredDescription().size(); i++) {
-                String text = this.ability.getHoveredDescription().get(i);
+                String text = this.ability.getHoveredDescription().get(i).getString();
                 int j = 0, width = text.length();
                 while (width > 0) {
                     width -= 40;

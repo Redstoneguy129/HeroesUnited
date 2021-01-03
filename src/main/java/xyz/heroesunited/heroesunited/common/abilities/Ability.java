@@ -48,7 +48,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     @Nullable
-    public List<String> getHoveredDescription() {
+    public List<ITextComponent> getHoveredDescription() {
         return null;
     }
 
