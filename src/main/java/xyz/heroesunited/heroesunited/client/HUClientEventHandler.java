@@ -2,6 +2,8 @@ package xyz.heroesunited.heroesunited.client;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.CustomizeSkinScreen;
 import net.minecraft.client.gui.widget.button.Button;
@@ -13,6 +15,7 @@ import net.minecraft.entity.Pose;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.vector.Quaternion;
@@ -25,17 +28,17 @@ import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import org.lwjgl.glfw.GLFW;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.client.events.HURenderLayerEvent;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.client.render.HULayerRenderer;
 import xyz.heroesunited.heroesunited.common.HUConfig;
-import xyz.heroesunited.heroesunited.common.abilities.Ability;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
-import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
+import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
@@ -70,6 +73,14 @@ public class HUClientEventHandler {
     }
 
     @SubscribeEvent
+    public static void playerSize(EntityEvent.Size event) {
+        if (event.getEntity().isAddedToWorld() && event.getEntity() instanceof PlayerEntity) {
+            PlayerEntity player = (PlayerEntity) event.getEntity();
+            AbilityHelper.getAbilities(player).stream().filter(ability -> ability instanceof EyeHeightAbility).forEach(ability -> event.setNewEyeHeight(event.getOldEyeHeight() * JSONUtils.getFloat(ability.getJsonObject(), "amount", 1)));
+        }
+    }
+
+    @SubscribeEvent
     public void keyInput(InputEvent.KeyInputEvent e) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc == null || mc.currentScreen != null) return;
@@ -90,6 +101,40 @@ public class HUClientEventHandler {
                 }
             }
         });
+    }
+
+    @SubscribeEvent
+    public void onArmorLayer(HURenderLayerEvent.Pre event) {
+        if (event.getLivingEntity() instanceof PlayerEntity) {
+            PlayerEntity player = (PlayerEntity) event.getLivingEntity();
+            AbilityHelper.getAbilities(player).forEach(ability -> {
+                if (ability instanceof HideBodyPartsAbility && JSONUtils.hasField(ability.getJsonObject(), "visibility_parts")) {
+                    JsonObject overrides = JSONUtils.getJsonObject(ability.getJsonObject(), "visibility_parts");
+                    for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
+                        if (entry.getKey().equals("all")) {
+                            event.setCanceled(JSONUtils.getBoolean(overrides, entry.getKey()));
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    @SubscribeEvent
+    public void onArmorLayer(HURenderLayerEvent.Armor.Pre event) {
+        if (event.getLivingEntity() instanceof PlayerEntity) {
+            PlayerEntity player = (PlayerEntity) event.getLivingEntity();
+            AbilityHelper.getAbilities(player).forEach(ability -> {
+                if (ability instanceof HideBodyPartsAbility && JSONUtils.hasField(ability.getJsonObject(), "visibility_parts")) {
+                    JsonObject overrides = JSONUtils.getJsonObject(ability.getJsonObject(), "visibility_parts");
+                    for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
+                        if (entry.getKey().equals("all")) {
+                            event.setCanceled(JSONUtils.getBoolean(overrides, entry.getKey()));
+                        }
+                    }
+                }
+            });
+        }
     }
 
     @SubscribeEvent

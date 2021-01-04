@@ -2,6 +2,7 @@ package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.Map;
 
@@ -10,23 +11,13 @@ public class AbilityCreator {
     //Only for Server dist, so dont use in client
     public static Map<String, JsonObject> createdJsons = Maps.newHashMap();
 
-    private final String key, superpower;
+    private final String key;
+    private String creatorKey;
     private final AbilityType abilityType;
-    private JsonObject jsonObject;
 
-    public AbilityCreator(String key, AbilityType abilityType, String superpower) {
+    public AbilityCreator(String key, AbilityType abilityType) {
         this.key = key;
         this.abilityType = abilityType;
-        this.superpower = superpower;
-    }
-
-    public AbilityCreator(String key, AbilityType abilityType, String superpower, JsonObject jsonObject) {
-        this(key, abilityType, superpower);
-        this.jsonObject = jsonObject;
-        if (createdJsons.containsKey(key)) {
-            createdJsons.remove(key, jsonObject);
-        }
-        createdJsons.put(key, jsonObject);
     }
 
     public String getKey() {
@@ -37,11 +28,10 @@ public class AbilityCreator {
         return abilityType;
     }
 
-    public JsonObject getJsonObject() {
-        return jsonObject;
-    }
-
-    public Ability create() {
-        return this.getAbilityType().create(this.getKey()).setSuperpower(superpower);
+    public AbilityCreator setAdditional(ResourceLocation key, JsonObject jsonObject) {
+        this.creatorKey = key.toString() + "_" + this.getKey();
+        if (createdJsons.containsKey(this.creatorKey)) createdJsons.remove(this.creatorKey, jsonObject);
+        createdJsons.put(this.creatorKey, jsonObject);
+        return this;
     }
 }

@@ -36,8 +36,8 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
     public String name;
     public final AbilityType type;
-    private String superpower;
-    protected JsonObject jsonObject;
+    private ResourceLocation superpower;
+    private JsonObject jsonObject;
 
     public Ability(AbilityType type) {
         this.type = type;
@@ -117,11 +117,11 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
 
-    public String getSuperpower() {
+    public ResourceLocation getSuperpower() {
         return superpower;
     }
 
-    public Ability setSuperpower(String superpower) {
+    public Ability setSuperpower(ResourceLocation superpower) {
         this.superpower = superpower;
         return this;
     }
@@ -131,7 +131,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         CompoundNBT nbt = new CompoundNBT();
         nbt.putString("AbilityType", this.type.getRegistryName().toString());
         if (this.superpower != null) {
-            nbt.putString("Superpower", this.superpower);
+            nbt.putString("Superpower", this.superpower.toString());
         }
         if (this.jsonObject != null) {
             nbt.putString("JsonObject", this.jsonObject.toString());
@@ -142,7 +142,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
         if (nbt.contains("Superpower")) {
-            this.superpower = nbt.getString("Superpower");
+            this.superpower = new ResourceLocation(nbt.getString("Superpower"));
         }
         if (nbt.contains("JsonObject")) {
             this.jsonObject = new JsonParser().parse(nbt.getString("JsonObject")).getAsJsonObject();

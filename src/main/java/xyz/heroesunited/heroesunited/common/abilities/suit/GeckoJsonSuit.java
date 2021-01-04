@@ -56,5 +56,26 @@ public class GeckoJsonSuit extends JsonSuit {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side) {}
+    public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side) {
+        /*if (getItem() !=null) {
+            getItem().getArmorRenderer().swingProgress = 0.0F;
+            getItem().getArmorRenderer().isSneak = false;
+            getItem().getArmorRenderer().swimAnimation = 0.0F;
+            getItem().getArmorRenderer().setCurrentItem(player, new ItemStack(getItem()), getItem().getEquipmentSlot());
+            matrix.translate(0.0D, 1.5F, 0.0D);
+            matrix.scale(-1.0F, -1.0F, 1.0F);
+            matrix.push();
+            GeoBone bone = (GeoBone) getItem().getArmorRenderer().getGeoModelProvider().getAnimationProcessor().getBone(side == HandSide.LEFT ? "armorLeftArm" : "armorRightArm");
+            if (bone != null) {
+                getItem().getArmorRenderer().renderRecursively(bone, matrix, bufferIn.getBuffer(RenderType.getEntityTranslucent(getItem().getArmorRenderer().getTextureLocation(getItem()))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+            }
+            matrix.pop();
+            matrix.scale(-1.0F, -1.0F, 1.0F);
+            matrix.translate(0.0D, -1.5F, 0.0D);
+        }*/
+    }
+
+    private GeckoSuitItem getItem() {
+        return (GeckoSuitItem) (helmet != null ? helmet : chestplate != null ? chestplate : legs != null ? legs : boots != null ? boots : null);
+    }
 }

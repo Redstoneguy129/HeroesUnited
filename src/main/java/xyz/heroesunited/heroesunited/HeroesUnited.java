@@ -29,6 +29,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import software.bernie.example.GeckoLibMod;
@@ -71,7 +72,9 @@ public class HeroesUnited {
             FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
             MinecraftForge.EVENT_BUS.register(new HUClientEventHandler());
         });
-        GeckoLibMod.DISABLE_IN_DEV = true;
+        if (!FMLEnvironment.production) {
+            GeckoLibMod.DISABLE_IN_DEV = true;
+        }
         HUPacks.init();
         MinecraftForge.EVENT_BUS.register(new HUEventHandler());
         MinecraftForge.EVENT_BUS.register(new HUPlayerEvent());

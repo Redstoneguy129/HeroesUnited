@@ -39,7 +39,7 @@ public class ClientSyncAbilities {
                 ability.setJsonObject(null, new JsonParser().parse(nbt.getString("JsonObject")).getAsJsonObject());
             }
             if (nbt.contains("Superpower")) {
-                ability.setSuperpower(nbt.getString("Superpower"));
+                ability.setSuperpower(new ResourceLocation(nbt.getString("Superpower")));
             }
             this.abilities.put(id, ability);
         }

@@ -1,5 +1,7 @@
 package xyz.heroesunited.heroesunited.util;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
@@ -21,6 +23,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerModelPart;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ElytraItem;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
@@ -36,6 +39,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Map;
 
 import static net.minecraft.inventory.EquipmentSlotType.*;
 
@@ -43,6 +47,27 @@ import static net.minecraft.inventory.EquipmentSlotType.*;
 public class HUClientUtil {
 
     public static final ResourceLocation null_texture = new ResourceLocation(HeroesUnited.MODID + ":textures/null.png");
+
+    public static void hideBodyParts(JsonObject jsonObject, PlayerModel playerModel) {
+        if (JSONUtils.hasField(jsonObject, "visibility_parts")) {
+            JsonObject overrides = JSONUtils.getJsonObject(jsonObject, "visibility_parts");
+
+            for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
+                ModelRenderer part = HUJsonUtils.getPart(entry.getKey(), playerModel);
+                if (part != null) {
+                    if (entry.getValue() instanceof JsonObject) {
+                        part.showModel = JSONUtils.getBoolean((JsonObject) entry.getValue(), "show");
+                    } else {
+                        part.showModel = JSONUtils.getBoolean(overrides, entry.getKey());
+                    }
+                } else {
+                    if (entry.getKey().equals("all")) {
+                        playerModel.setVisible(false);
+                    }
+                }
+            }
+        }
+    }
 
     public static void renderCape(LivingRenderer<? extends LivingEntity, ? extends BipedModel<?>> renderer, LivingEntity entity, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, float partialTicks, ResourceLocation texture) {
         if (renderer != null) {

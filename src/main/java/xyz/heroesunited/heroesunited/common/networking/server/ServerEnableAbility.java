@@ -44,7 +44,7 @@ public class ServerEnableAbility {
                             ability.setJsonObject(null, new JsonParser().parse(this.data.getString("JsonObject")).getAsJsonObject());
                         }
                         if (this.data.contains("Superpower")) {
-                            ability.setSuperpower(this.data.getString("Superpower"));
+                            ability.setSuperpower(new ResourceLocation(this.data.getString("Superpower")));
                         }
                         cap.enable(this.id, ability);
                     }

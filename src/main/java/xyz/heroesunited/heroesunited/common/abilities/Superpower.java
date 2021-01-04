@@ -31,8 +31,7 @@ public class Superpower {
     public Map<String, Ability> getAbilities(PlayerEntity player) {
         Map<String, Ability> map = Maps.newHashMap();
         this.getContainedAbilities(player).forEach(a -> {
-            Ability ability = a.create();
-            ability.setSuperpower(this.getRegistryName().toString());
+            Ability ability = a.getAbilityType().create(a.getKey()).setSuperpower(this.getRegistryName());
             map.put(ability.name, ability);
         });
         return map;

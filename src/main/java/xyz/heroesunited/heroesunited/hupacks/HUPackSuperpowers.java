@@ -59,7 +59,7 @@ public class HUPackSuperpowers extends JsonReloadListener {
                     JsonObject o = (JsonObject) e.getValue();
                     AbilityType ability = AbilityType.ABILITIES.getValue(new ResourceLocation(JSONUtils.getString(o, "ability")));
                     if (ability != null) {
-                        abilityList.add(new AbilityCreator(e.getKey(), ability, resourceLocation.toString(), o));
+                        abilityList.add(new AbilityCreator(e.getKey(), ability).setAdditional(resourceLocation, o));
                     } else HeroesUnited.LOGGER.error("Couldn't read ability {} in superpower {}", JSONUtils.getString(o, "ability"), resourceLocation);
                 }
             });
@@ -85,12 +85,7 @@ public class HUPackSuperpowers extends JsonReloadListener {
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                 cap.clearAbilities();
                 cap.addAbilities(superpower);
-                for (Map.Entry<String, Ability> e : cap.getAbilities().entrySet()) {
-                    String id = e.getKey();
-                    if (AbilityCreator.createdJsons != null && AbilityCreator.createdJsons.get(id) != null) {
-                        e.getValue().setJsonObject(player, AbilityCreator.createdJsons.get(id));
-                    }
-                }
+                cap.getAbilities().forEach((key, value) -> value.setJsonObject(player, AbilityCreator.createdJsons.get(superpower.getRegistryName().toString() + "_" + key)));
             });
         } catch (Exception e) {
             e.printStackTrace();
@@ -107,7 +102,7 @@ public class HUPackSuperpowers extends JsonReloadListener {
 
     public static boolean hasSuperpower(PlayerEntity player, ResourceLocation location) {
         for (Ability ability : HUPlayer.getCap(player).getAbilities().values()) {
-            if (ability.getSuperpower() != null && ability.getSuperpower().equals(location.toString())) {
+            if (ability.getSuperpower() != null && ability.getSuperpower().equals(location)) {
                 return true;
             }
         }

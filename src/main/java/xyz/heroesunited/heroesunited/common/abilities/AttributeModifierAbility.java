@@ -65,7 +65,7 @@ public class AttributeModifierAbility extends Ability {
     }
 
     public void setAttribute(PlayerEntity player, boolean disable) {
-        if (this.jsonObject != null) {
+        if (this.getJsonObject() != null) {
             JsonObject attribute = JSONUtils.getJsonObject(this.getJsonObject(), "attribute");
             AbilityHelper.setAttribute(player, this.name,
                     ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(JSONUtils.getString(attribute, "name"))),

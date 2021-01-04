@@ -116,6 +116,8 @@ public class JsonSuit extends Suit {
                             part.showModel = JSONUtils.getBoolean(overrides, entry.getKey());
                         }
                     }
+                } else if (entry.getKey().equals("all")) {
+                    event.getPlayerModel().setVisible(false);
                 }
             }
         }

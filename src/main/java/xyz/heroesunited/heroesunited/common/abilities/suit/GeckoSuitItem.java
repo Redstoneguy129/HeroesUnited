@@ -30,8 +30,7 @@ public class GeckoSuitItem extends SuitItem implements IAnimatable {
     @OnlyIn(Dist.CLIENT)
     @Override
     public <A extends BipedModel<?>> A getArmorModel(LivingEntity entityLiving, ItemStack itemStack, EquipmentSlotType armorSlot, A _default) {
-        Class<? extends ArmorItem> clazz = this.getClass();
-        GeoArmorRenderer renderer = GeoArmorRenderer.getRenderer(clazz);
+        GeoArmorRenderer renderer = getArmorRenderer();
         renderer.setCurrentItem(entityLiving, itemStack, armorSlot);
         renderer.applyEntityStats(_default).applySlot(armorSlot);
         return (A) renderer;
@@ -40,9 +39,12 @@ public class GeckoSuitItem extends SuitItem implements IAnimatable {
     @Nullable
     @Override
     public final String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlotType slot, String type) {
+        return getArmorRenderer().getTextureLocation((ArmorItem) stack.getItem()).toString();
+    }
+
+    public GeoArmorRenderer getArmorRenderer() {
         Class<? extends ArmorItem> clazz = this.getClass();
-        GeoArmorRenderer renderer = GeoArmorRenderer.getRenderer(clazz);
-        return renderer.getTextureLocation((ArmorItem) stack.getItem()).toString();
+        return GeoArmorRenderer.getRenderer(clazz);
     }
 
     public void registerControllers(AnimationData data) {
