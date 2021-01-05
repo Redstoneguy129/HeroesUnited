@@ -40,9 +40,11 @@ public class HUPacks {
         instance = this;
 
         Map<ModFile, ModFileResourcePack> modResourcePacks = ModList.get().getModFiles().stream()
-                .filter(mf->!Objects.equals(mf.getModLoader(),"minecraft"))
+                .filter(mf -> !Objects.equals(mf.getModLoader(), "minecraft"))
                 .map(mf -> new ModFileResourcePack(mf.getFile()))
-                .collect(Collectors.toMap(ModFileResourcePack::getModFile, Function.identity(), (u,v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); },  LinkedHashMap::new));
+                .collect(Collectors.toMap(ModFileResourcePack::getModFile, Function.identity(), (u, v) -> {
+                    throw new IllegalStateException(String.format("Duplicate key %s", u));
+                }, LinkedHashMap::new));
         hupackFinder.reloadPacksFromFinders();
         this.hupackFinder.getAllPacks().stream().map(ResourcePackInfo::getResourcePack).collect(Collectors.toList()).forEach(pack -> resourceManager.addResourcePack(pack));
         modResourcePacks.forEach((file, pack) -> resourceManager.addResourcePack(pack));

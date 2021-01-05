@@ -44,7 +44,7 @@ public class Horas extends CreatureEntity implements IFlyingAnimal, HUEntity {
 
     @Override
     public ILivingEntityData onInitialSpawn(IServerWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, ILivingEntityData spawnDataIn, CompoundNBT dataTag) {
-        if(reason == SpawnReason.MOB_SUMMONED || reason == SpawnReason.SPAWN_EGG) {
+        if (reason == SpawnReason.MOB_SUMMONED || reason == SpawnReason.SPAWN_EGG) {
             this.playerEntity = worldIn.getClosestPlayer(this, 10D);
         }
         return super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
@@ -71,7 +71,7 @@ public class Horas extends CreatureEntity implements IFlyingAnimal, HUEntity {
     @OnlyIn(Dist.CLIENT)
     @Override
     public ActionResultType applyPlayerInteraction(PlayerEntity player, Vector3d vec, Hand hand) {
-        if(!player.world.isRemote) return ActionResultType.PASS;
+        if (!player.world.isRemote) return ActionResultType.PASS;
         Minecraft.getInstance().displayGuiScreen(new HorasScreen(this));
         return ActionResultType.SUCCESS;
     }
@@ -82,11 +82,11 @@ public class Horas extends CreatureEntity implements IFlyingAnimal, HUEntity {
 
     @Override
     public void livingTick() {
-        if(this.playerEntity != null && !this.playerEntity.isSpectator()) {
+        if (this.playerEntity != null && !this.playerEntity.isSpectator()) {
             List<PlayerEntity> playerEntities = this.getEntityWorld().getEntitiesWithinAABB(PlayerEntity.class, this.getBoundingBox().grow(10D));
-            if(!playerEntities.contains(this.playerEntity)) {
+            if (!playerEntities.contains(this.playerEntity)) {
                 if (this.playerEntity != null && !this.getLeashed()) {
-                    this.getLookController().setLookPositionWithEntity(this.playerEntity, 10.0F, (float)this.getVerticalFaceSpeed());
+                    this.getLookController().setLookPositionWithEntity(this.playerEntity, 10.0F, (float) this.getVerticalFaceSpeed());
                     if (--this.timeToRecalcPath <= 0) {
                         this.timeToRecalcPath = 10;
                         double d0 = this.getPosX() - this.playerEntity.getPosX();
@@ -116,12 +116,12 @@ public class Horas extends CreatureEntity implements IFlyingAnimal, HUEntity {
     private void calculateFlapping() {
         this.oFlap = this.flap;
         this.oFlapSpeed = this.flapSpeed;
-        this.flapSpeed = (float)((double)this.flapSpeed + (double)(!this.onGround && !this.isPassenger() ? 4 : -1) * 0.3D);
+        this.flapSpeed = (float) ((double) this.flapSpeed + (double) (!this.onGround && !this.isPassenger() ? 4 : -1) * 0.3D);
         this.flapSpeed = MathHelper.clamp(this.flapSpeed, 0.0F, 1.0F);
         if (!this.onGround && this.flapping < 1.0F) {
             this.flapping = 1.0F;
         }
-        this.flapping = (float)((double)this.flapping * 0.9D);
+        this.flapping = (float) ((double) this.flapping * 0.9D);
         Vector3d vector3d = this.getMotion();
         if (!this.onGround && vector3d.y < 0.0D) {
             this.setMotion(vector3d.mul(1.0D, 0.6D, 1.0D));
@@ -132,7 +132,7 @@ public class Horas extends CreatureEntity implements IFlyingAnimal, HUEntity {
     @Override
     public void readAdditional(CompoundNBT compound) {
         super.readAdditional(compound);
-        if(compound.contains("owner")) {
+        if (compound.contains("owner")) {
             UUID uuid = compound.getUniqueId("owner");
             this.playerEntity = this.world.getPlayerByUuid(uuid);
         }
@@ -141,7 +141,7 @@ public class Horas extends CreatureEntity implements IFlyingAnimal, HUEntity {
     @Override
     public void writeAdditional(CompoundNBT compound) {
         super.writeAdditional(compound);
-        if(this.playerEntity != null)
+        if (this.playerEntity != null)
             compound.putUniqueId("owner", this.playerEntity.getUniqueID());
     }
 }

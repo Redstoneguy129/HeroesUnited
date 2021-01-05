@@ -32,7 +32,7 @@ public class HUPlayerProvider implements ICapabilitySerializable<INBT> {
 
     @Nonnull
     @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap , Direction side) {
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction side) {
         return cap == CAPABILITY ? instance.cast() : LazyOptional.empty();
     }
 

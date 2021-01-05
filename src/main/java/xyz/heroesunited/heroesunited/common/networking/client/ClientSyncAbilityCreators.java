@@ -44,7 +44,7 @@ public class ClientSyncAbilityCreators {
                         cap.getAbilities().get(this.id).setJsonObject(entity, jsonObject);
                     }
                 });
-             }
+            }
         });
         ctx.get().setPacketHandled(true);
     }

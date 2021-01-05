@@ -76,6 +76,6 @@ public class GeckoJsonSuit extends JsonSuit {
     }
 
     private GeckoSuitItem getItem() {
-        return (GeckoSuitItem) (helmet != null ? helmet : chestplate != null ? chestplate : legs != null ? legs : boots != null ? boots : null);
+        return (GeckoSuitItem) (helmet != null ? helmet : chestplate != null ? chestplate : legs != null ? legs : boots);
     }
 }

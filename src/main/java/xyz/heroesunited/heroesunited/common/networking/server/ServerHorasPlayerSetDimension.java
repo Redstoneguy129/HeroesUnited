@@ -39,7 +39,7 @@ public class ServerHorasPlayerSetDimension {
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ServerPlayerEntity playerEntity = ctx.get().getSender();
-            if(playerEntity != null) {
+            if (playerEntity != null) {
                 Horas horas = (Horas) playerEntity.world.getEntityByID(horasID);
                 final BlockPos[] horasPos = {new BlockPos(0, 0, 0)};
                 playerEntity.changeDimension(playerEntity.getServerWorld().getServer().getWorld(RegistryKey.getOrCreateKey(Registry.WORLD_KEY, this.world)), new ITeleporter() {
@@ -48,33 +48,33 @@ public class ServerHorasPlayerSetDimension {
                         int attempts = 0;
                         boolean foundPos = false;
                         BlockPos locatedPos = new BlockPos(entity.getPosX(), entity.getPosY(), entity.getPosZ());
-                        while(!foundPos) {
-                            if(world.getBlockState(locatedPos.down()).getBlock() instanceof AirBlock) {
-                                for(int i = 0; i < world.getHeight()-15; i++) {
-                                    if(!(world.getBlockState(new BlockPos(locatedPos.getX(), i-1, locatedPos.getZ())).getBlock() instanceof AirBlock) && world.getBlockState(new BlockPos(locatedPos.getX(), i, locatedPos.getZ())).getBlock() instanceof AirBlock && world.getBlockState(new BlockPos(locatedPos.getX(), i+1, locatedPos.getZ())).getBlock() instanceof AirBlock) {
+                        while (!foundPos) {
+                            if (world.getBlockState(locatedPos.down()).getBlock() instanceof AirBlock) {
+                                for (int i = 0; i < world.getHeight() - 15; i++) {
+                                    if (!(world.getBlockState(new BlockPos(locatedPos.getX(), i - 1, locatedPos.getZ())).getBlock() instanceof AirBlock) && world.getBlockState(new BlockPos(locatedPos.getX(), i, locatedPos.getZ())).getBlock() instanceof AirBlock && world.getBlockState(new BlockPos(locatedPos.getX(), i + 1, locatedPos.getZ())).getBlock() instanceof AirBlock) {
                                         locatedPos = new BlockPos(locatedPos.getX(), i, locatedPos.getZ());
                                         foundPos = true;
                                     }
                                 }
                             } else {
-                                if(world.getBlockState(new BlockPos(locatedPos.getX(), locatedPos.getY(), locatedPos.getZ())).getBlock() instanceof AirBlock && world.getBlockState(new BlockPos(locatedPos.getX(), locatedPos.getY()+1, locatedPos.getZ())).getBlock() instanceof AirBlock) {
+                                if (world.getBlockState(new BlockPos(locatedPos.getX(), locatedPos.getY(), locatedPos.getZ())).getBlock() instanceof AirBlock && world.getBlockState(new BlockPos(locatedPos.getX(), locatedPos.getY() + 1, locatedPos.getZ())).getBlock() instanceof AirBlock) {
                                     foundPos = true;
                                 }
                             }
-                            if(!foundPos) {
-                                int RandomX = (int) (world.getRandom().nextInt((int) (entity.getPosX()+200 - entity.getPosX() + 1)) + entity.getPosX());
-                                int RandomZ = (int) (world.getRandom().nextInt((int) (entity.getPosZ()+200 - entity.getPosZ() + 1)) + entity.getPosZ());
+                            if (!foundPos) {
+                                int RandomX = (int) (world.getRandom().nextInt((int) (entity.getPosX() + 200 - entity.getPosX() + 1)) + entity.getPosX());
+                                int RandomZ = (int) (world.getRandom().nextInt((int) (entity.getPosZ() + 200 - entity.getPosZ() + 1)) + entity.getPosZ());
                                 locatedPos = new BlockPos(RandomX, locatedPos.getY(), RandomZ);
                             }
                             attempts++;
-                            if(attempts > 1000) {
-                                if(world.getBlockState(new BlockPos(locatedPos.getX(), locatedPos.getY(), locatedPos.getZ())).getBlock() instanceof AirBlock && world.getBlockState(new BlockPos(locatedPos.getX(), locatedPos.getY()+1, locatedPos.getZ())).getBlock() instanceof AirBlock) {
+                            if (attempts > 1000) {
+                                if (world.getBlockState(new BlockPos(locatedPos.getX(), locatedPos.getY(), locatedPos.getZ())).getBlock() instanceof AirBlock && world.getBlockState(new BlockPos(locatedPos.getX(), locatedPos.getY() + 1, locatedPos.getZ())).getBlock() instanceof AirBlock) {
                                     BlockPos platform = locatedPos.down();
-                                    if(world.getBlockState(platform).getBlock() instanceof AirBlock) {
-                                        if(world.getBlockState(platform.north()).getBlock() instanceof AirBlock) {
-                                            if(world.getBlockState(platform.east()).getBlock() instanceof AirBlock) {
-                                                if(world.getBlockState(platform.south()).getBlock() instanceof AirBlock) {
-                                                    if(world.getBlockState(platform.west()).getBlock() instanceof AirBlock) {
+                                    if (world.getBlockState(platform).getBlock() instanceof AirBlock) {
+                                        if (world.getBlockState(platform.north()).getBlock() instanceof AirBlock) {
+                                            if (world.getBlockState(platform.east()).getBlock() instanceof AirBlock) {
+                                                if (world.getBlockState(platform.south()).getBlock() instanceof AirBlock) {
+                                                    if (world.getBlockState(platform.west()).getBlock() instanceof AirBlock) {
                                                         world.setBlockState(platform, Blocks.DIRT.getDefaultState());
                                                         world.setBlockState(platform.north(), Blocks.DIRT.getDefaultState());
                                                         world.setBlockState(platform.north().east(), Blocks.DIRT.getDefaultState());
@@ -99,12 +99,13 @@ public class ServerHorasPlayerSetDimension {
                         return repositionedEntity;
                     }
                 });
-                if(horas != null) {
-                        horas.changeDimension(playerEntity.getServerWorld().getServer().getWorld(RegistryKey.getOrCreateKey(Registry.WORLD_KEY, this.world)), new ITeleporter() {
+                if (horas != null) {
+                    horas.changeDimension(playerEntity.getServerWorld().getServer().getWorld(RegistryKey.getOrCreateKey(Registry.WORLD_KEY, this.world)), new ITeleporter() {
                         @Override
-                        public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld world, float yaw, Function<Boolean, Entity> repositionEntity) { Entity repositionedEntity = repositionEntity.apply(false);
-                        repositionedEntity.setPositionAndUpdate(horasPos[0].getX(), horasPos[0].getY(), horasPos[0].getZ());
-                        return repositionedEntity;
+                        public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld world, float yaw, Function<Boolean, Entity> repositionEntity) {
+                            Entity repositionedEntity = repositionEntity.apply(false);
+                            repositionedEntity.setPositionAndUpdate(horasPos[0].getX(), horasPos[0].getY(), horasPos[0].getZ());
+                            return repositionedEntity;
                         }
                     });
                 }

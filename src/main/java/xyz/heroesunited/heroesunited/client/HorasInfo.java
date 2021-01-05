@@ -22,15 +22,19 @@ public class HorasInfo {
     public static List<PlanetInfo> getPlanets() {
         return planets;
     }
+
     public static List<DimensionInfo> getDimensions() {
         return dimensions;
     }
+
     public static List<AlienInfo> getAliens() {
         return aliens;
     }
+
     public static List<EvoInfo> getEvos() {
         return evos;
     }
+
     public static List<GhostInfo> getGhosts() {
         return ghosts;
     }

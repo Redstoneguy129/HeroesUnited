@@ -116,7 +116,7 @@ public class AbilitiesScreen extends Screen {
         minecraft.getTextureManager().bindTexture(theme);
         blit(matrixStack, left, top, 0, 0, 200, 170, 200, 170);
         if (getCurrentDisplayedAbilities(this.minecraft.player).isEmpty()) {
-            this.drawCenteredString(matrixStack, this.font, "You don't have any ability yet", left + 95, top + 95, 16777215);
+            drawCenteredString(matrixStack, this.font, "You don't have any ability yet", left + 95, top + 95, 16777215);
         }
 
         minecraft.getTextureManager().bindTexture(HEAD);
@@ -136,7 +136,8 @@ public class AbilitiesScreen extends Screen {
     }
 
     public void renderAbilityDescription(MatrixStack matrix, int mx, int my, AbilityButton button) {
-        if (!(mx >= button.x && mx <= button.x + button.getWidth() && my >= button.y && my <= button.y + button.getHeightRealms())) return;
+        if (!(mx >= button.x && mx <= button.x + button.getWidth() && my >= button.y && my <= button.y + button.getHeightRealms()))
+            return;
         if (button.ability.getHoveredDescription() == null) return;
         int bgX = mx + button.descWidth > this.width ? mx - button.descWidth : mx + 15;
         int bgY = my + button.descHeight + 10 > this.height ? my - 5 - button.descHeight : my;

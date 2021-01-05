@@ -53,8 +53,8 @@ import java.util.Map;
 @OnlyIn(Dist.CLIENT)
 public class HUClientEventHandler {
 
-    public static final KeyBinding ABILITIES_SCREEN = new KeyBinding(HeroesUnited.MODID+".key.abilities_screen", GLFW.GLFW_KEY_H, "key.categories."+ HeroesUnited.MODID);
-    public static final KeyBinding ACCESSOIRES_SCREEN = new KeyBinding(HeroesUnited.MODID+".key.accessoires_screen", GLFW.GLFW_KEY_J, "key.categories."+ HeroesUnited.MODID);
+    public static final KeyBinding ABILITIES_SCREEN = new KeyBinding(HeroesUnited.MODID + ".key.abilities_screen", GLFW.GLFW_KEY_H, "key.categories." + HeroesUnited.MODID);
+    public static final KeyBinding ACCESSOIRES_SCREEN = new KeyBinding(HeroesUnited.MODID + ".key.accessoires_screen", GLFW.GLFW_KEY_J, "key.categories." + HeroesUnited.MODID);
     public static List<AbilityKeyBinding> ABILITY_KEYS = Lists.newArrayList();
     public static Map<Integer, Boolean> KEY_STATE = Maps.newHashMap();
 
@@ -65,7 +65,7 @@ public class HUClientEventHandler {
 
             for (int i = 1; i <= 5; i++) {
                 int key = i == 1 ? GLFW.GLFW_KEY_Z : i == 2 ? GLFW.GLFW_KEY_R : i == 3 ? GLFW.GLFW_KEY_G : i == 4 ? GLFW.GLFW_KEY_V : i == 5 ? GLFW.GLFW_KEY_B : -1;
-                AbilityKeyBinding keyBinding = new AbilityKeyBinding(HeroesUnited.MODID+".key.ability_" + i, key, i);
+                AbilityKeyBinding keyBinding = new AbilityKeyBinding(HeroesUnited.MODID + ".key.ability_" + i, key, i);
                 ClientRegistry.registerKeyBinding(keyBinding);
                 ABILITY_KEYS.add(keyBinding);
             }
@@ -148,7 +148,7 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void renderEntityPre(RenderLivingEvent.Pre e) {
-        if(entitiesWithLayer.contains(e.getRenderer())) return;
+        if (entitiesWithLayer.contains(e.getRenderer())) return;
         e.getRenderer().addLayer(new HULayerRenderer(e.getRenderer()));
         entitiesWithLayer.add(e.getRenderer());
     }
@@ -163,9 +163,9 @@ public class HUClientEventHandler {
                 boolean renderFlying = IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).renderFlying(event.getPlayer());
                 if (renderFlying) {
                     event.getMatrixStack().push();
-                    event.getMatrixStack().rotate(new Quaternion(0,-event.getPlayer().rotationYaw,0, true));
-                    event.getMatrixStack().rotate(new Quaternion(event.getPlayer().rotationPitch,0,0, true));
-                    event.getMatrixStack().rotate(new Quaternion(0,event.getPlayer().rotationYaw,0, true));
+                    event.getMatrixStack().rotate(new Quaternion(0, -event.getPlayer().rotationYaw, 0, true));
+                    event.getMatrixStack().rotate(new Quaternion(event.getPlayer().rotationPitch, 0, 0, true));
+                    event.getMatrixStack().rotate(new Quaternion(0, event.getPlayer().rotationYaw, 0, true));
                 }
             }
         });
@@ -208,7 +208,7 @@ public class HUClientEventHandler {
         for (EquipmentSlotType slot : EquipmentSlotType.values()) {
             Item item = player.getItemStackFromSlot(slot).getItem();
             if (slot.getSlotType() == EquipmentSlotType.Group.ARMOR && item instanceof SuitItem) {
-                SuitItem suitItem = (SuitItem)item;
+                SuitItem suitItem = (SuitItem) item;
                 if (suitItem.getEquipmentSlot() == slot) {
                     suitItem.getSuit().setRotationAngles(event, slot);
                 }
@@ -236,7 +236,7 @@ public class HUClientEventHandler {
         public final int index;
 
         public AbilityKeyBinding(String description, int keyCode, int index) {
-            super(description, KeyConflictContext.IN_GAME, InputMappings.Type.KEYSYM, keyCode, "key.categories."+ HeroesUnited.MODID);
+            super(description, KeyConflictContext.IN_GAME, InputMappings.Type.KEYSYM, keyCode, "key.categories." + HeroesUnited.MODID);
             this.index = index;
         }
     }

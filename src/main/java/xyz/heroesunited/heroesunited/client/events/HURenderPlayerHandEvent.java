@@ -9,7 +9,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.Cancelable;
 
 /*
-* Use this to render Alien hand and others
+ * Use this to render Alien hand and others
  */
 public abstract class HURenderPlayerHandEvent extends PlayerEvent {
 
@@ -28,22 +28,34 @@ public abstract class HURenderPlayerHandEvent extends PlayerEvent {
         this.side = side;
     }
 
-    public PlayerRenderer getRenderer() { return renderer; }
-    public HandSide getSide() { return side; }
-    public MatrixStack getMatrixStack() { return stack; }
-    public IRenderTypeBuffer getBuffers() { return buffers; }
-    public int getLight() { return light; }
+    public PlayerRenderer getRenderer() {
+        return renderer;
+    }
+
+    public HandSide getSide() {
+        return side;
+    }
+
+    public MatrixStack getMatrixStack() {
+        return stack;
+    }
+
+    public IRenderTypeBuffer getBuffers() {
+        return buffers;
+    }
+
+    public int getLight() {
+        return light;
+    }
 
     @Cancelable
-    public static class Pre extends HURenderPlayerHandEvent
-    {
+    public static class Pre extends HURenderPlayerHandEvent {
         public Pre(PlayerEntity player, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, int light, HandSide side) {
             super(player, renderer, stack, buffers, light, side);
         }
     }
 
-    public static class Post extends HURenderPlayerHandEvent
-    {
+    public static class Post extends HURenderPlayerHandEvent {
         public Post(PlayerEntity player, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, int light, HandSide side) {
             super(player, renderer, stack, buffers, light, side);
         }

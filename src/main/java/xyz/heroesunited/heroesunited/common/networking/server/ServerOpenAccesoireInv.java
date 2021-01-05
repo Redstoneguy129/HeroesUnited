@@ -13,11 +13,14 @@ import java.util.function.Supplier;
 public class ServerOpenAccesoireInv {
     public static final TranslationTextComponent TRANSLATION = new TranslationTextComponent("gui.heroesunited.accesoire");
 
-    public ServerOpenAccesoireInv() {}
+    public ServerOpenAccesoireInv() {
+    }
 
-    public ServerOpenAccesoireInv(ByteBuf buf) {}
+    public ServerOpenAccesoireInv(ByteBuf buf) {
+    }
 
-    public void toBytes(ByteBuf buf) {}
+    public void toBytes(ByteBuf buf) {
+    }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {

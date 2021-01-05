@@ -12,7 +12,7 @@ public class GeckoSuitModel<T extends GeckoSuitItem> extends AnimatedGeoModel<T>
 
     @Override
     public ResourceLocation getTextureLocation(T item) {
-        return new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "textures/suits/" + item.getSuit().getRegistryName().getPath() +".png");
+        return new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "textures/suits/" + item.getSuit().getRegistryName().getPath() + ".png");
     }
 
     @Override

@@ -27,12 +27,13 @@ public class AccessoireScreen extends ContainerScreen<AccessoireContainer> {
         this.renderBackground(matrix);
         super.render(matrix, mouseX, mouseY, partialTicks);
         this.renderHoveredTooltip(matrix, mouseX, mouseY);
-        this.oldMouseX = (float)mouseX;
-        this.oldMouseY = (float)mouseY;
+        this.oldMouseX = (float) mouseX;
+        this.oldMouseY = (float) mouseY;
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) {}
+    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) {
+    }
 
     @Override
     protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int x, int y) {
@@ -41,6 +42,6 @@ public class AccessoireScreen extends ContainerScreen<AccessoireContainer> {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bindTexture(INVENTORY_GUI_TEXTURE);
         this.blit(matrixStack, i, j, 0, 0, this.xSize, this.ySize);
-        InventoryScreen.drawEntityOnScreen(i + 51, j + 75, 30, (float)(i + 51) - this.oldMouseX, (float)(j + 75 - 50) - this.oldMouseY, this.minecraft.player);
+        InventoryScreen.drawEntityOnScreen(i + 51, j + 75, 30, (float) (i + 51) - this.oldMouseX, (float) (j + 75 - 50) - this.oldMouseY, this.minecraft.player);
     }
 }

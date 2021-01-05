@@ -61,12 +61,12 @@ public class HUPlayerUtil {
         return false;
     }
 
-    public static AxisAlignedBB getCollisionBoxWithRange(Vector3d posVc3d, double range){
+    public static AxisAlignedBB getCollisionBoxWithRange(Vector3d posVc3d, double range) {
         AxisAlignedBB a = new AxisAlignedBB(new BlockPos(posVc3d.x - range, posVc3d.y - range, posVc3d.z - range), new BlockPos(posVc3d.x + range, posVc3d.y + range, posVc3d.z + range));
         return a;
     }
 
-    public static Vector3d getPlayerPos(PlayerEntity player){
+    public static Vector3d getPlayerPos(PlayerEntity player) {
         Vector3d vec = new Vector3d(player.getPosX(), player.getPosY(), player.getPosZ());
         return vec;
     }

@@ -94,7 +94,8 @@ public abstract class Suit {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void setRotationAngles(HUSetRotationAnglesEvent event, EquipmentSlotType slot) {}
+    public void setRotationAngles(HUSetRotationAnglesEvent event, EquipmentSlotType slot) {
+    }
 
     @OnlyIn(Dist.CLIENT)
     public void renderLayer(@Nullable LivingRenderer<? extends LivingEntity, ? extends BipedModel<?>> entityRenderer, @Nullable LivingEntity entity, EquipmentSlotType slot, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
@@ -139,7 +140,8 @@ public abstract class Suit {
         HUPackLayers.Layer layer = HUPackLayers.getInstance().getLayer(this.getRegistryName());
         if (layer != null) {
             String tex = slot != EquipmentSlotType.LEGS ? layer.getTexture("layer_0").toString() : layer.getTexture("layer_1").toString();
-            if (slot.equals(EquipmentSlotType.CHEST) && isSmallArms(entity) && layer.getTexture("smallArms") != null) tex = layer.getTexture("smallArms").toString();
+            if (slot.equals(EquipmentSlotType.CHEST) && isSmallArms(entity) && layer.getTexture("smallArms") != null)
+                tex = layer.getTexture("smallArms").toString();
             return tex;
         } else {
             String tex = slot != EquipmentSlotType.LEGS ? "layer_0" : "layer_1";
@@ -151,7 +153,7 @@ public abstract class Suit {
     @OnlyIn(Dist.CLIENT)
     public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side) {
         ModelSuit suitModel = new ModelSuit(getScale(EquipmentSlotType.CHEST), isSmallArms(player));
-        suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.getEntityTranslucent(new ResourceLocation(  getSuitTexture(player.getItemStackFromSlot(EquipmentSlotType.CHEST), player, EquipmentSlotType.CHEST)))), packedLightIn, player);
+        suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.getEntityTranslucent(new ResourceLocation(getSuitTexture(player.getItemStackFromSlot(EquipmentSlotType.CHEST), player, EquipmentSlotType.CHEST)))), packedLightIn, player);
     }
 
     public final Suit setRegistryName(ResourceLocation name) {
@@ -164,7 +166,7 @@ public abstract class Suit {
 
     @Nullable
     public final ResourceLocation getRegistryName() {
-        return registryName != null ? registryName : null;
+        return registryName;
     }
 
     public Item getHelmet() {

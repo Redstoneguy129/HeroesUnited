@@ -98,7 +98,7 @@ public class HeroesUnited {
         HUNetworking.registerMessages();
         event.enqueueWork(HUAttributes::registerAttributes);
         event.enqueueWork(() -> GlobalEntityTypeAttributes.put(HUEntities.HORAS, Horas.func_234225_eI_().create()));
-        LOGGER.info(MODID+": common is ready!");
+        LOGGER.info(MODID + ": common is ready!");
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -112,13 +112,13 @@ public class HeroesUnited {
         Runtime.getRuntime().addShutdownHook(new HURichPresence.CloseRichPresence());
         HUPacks.HUPackFinder.createFoldersAndLoadThemes();
         ScreenManager.registerFactory(HUContainers.ACCESSOIRE, AccessoireScreen::new);
-        LOGGER.info(MODID+": client is ready!");
+        LOGGER.info(MODID + ": client is ready!");
     }
 
     @SubscribeEvent
     public void biomeLoading(BiomeLoadingEvent event) {
         RegistryKey<Biome> biome = RegistryKey.getOrCreateKey(Registry.BIOME_KEY, Objects.requireNonNull(event.getName()));
-        if(BiomeDictionary.hasType(biome, BiomeDictionary.Type.OVERWORLD)) {
+        if (BiomeDictionary.hasType(biome, BiomeDictionary.Type.OVERWORLD)) {
             event.getGeneration().withFeature(GenerationStage.Decoration.UNDERGROUND_ORES,
                     Feature.ORE.withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.BASE_STONE_OVERWORLD,
                             HUBlocks.TITANIUM_ORE.getDefaultState(), 4)).range(32).square().func_242731_b(2));
@@ -128,8 +128,9 @@ public class HeroesUnited {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public void runSecurity(EntityJoinWorldEvent event) {
-        if(!event.getEntity().world.isRemote || !(event.getEntity() instanceof PlayerEntity) || Minecraft.getInstance().player == null) return;
-        if(Minecraft.getInstance().player.getUniqueID() == event.getEntity().getUniqueID()) {
+        if (!event.getEntity().world.isRemote || !(event.getEntity() instanceof PlayerEntity) || Minecraft.getInstance().player == null)
+            return;
+        if (Minecraft.getInstance().player.getUniqueID() == event.getEntity().getUniqueID()) {
             HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United", null, HURichPresence.MiniLogos.NONE, null);
         }
     }

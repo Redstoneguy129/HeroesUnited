@@ -20,7 +20,7 @@ public class ComicItem extends Item {
     @OnlyIn(Dist.CLIENT)
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        if(!playerIn.world.isRemote) return ActionResult.resultPass(playerIn.getHeldItem(handIn));
+        if (!playerIn.world.isRemote) return ActionResult.resultPass(playerIn.getHeldItem(handIn));
         Minecraft.getInstance().displayGuiScreen(new FiveYearsLaterBookGUI());
 
         return super.onItemRightClick(worldIn, playerIn, handIn);

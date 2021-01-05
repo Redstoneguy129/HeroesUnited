@@ -36,7 +36,8 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
 
     @Override
     public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        if (MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Pre(entityRendererIn, entity, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch)) && entity.isChild() == true) return;
+        if (MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Pre(entityRendererIn, entity, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch)) && entity.isChild() == true)
+            return;
 
         for (EquipmentSlotType slot : EquipmentSlotType.values()) {
             if (slot.getSlotType() == EquipmentSlotType.Group.ARMOR) {
@@ -98,7 +99,7 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
     private void renderSuit(MatrixStack stack, IRenderTypeBuffer buffer, T entity, EquipmentSlotType slot, int packedLight, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         ItemStack itemstack = entity.getItemStackFromSlot(slot);
         if (itemstack.getItem() instanceof SuitItem) {
-            SuitItem suitItem = (SuitItem)itemstack.getItem();
+            SuitItem suitItem = (SuitItem) itemstack.getItem();
             if (suitItem.getEquipmentSlot() == slot) {
                 suitItem.getSuit().renderLayer(entityRendererIn, entity, slot, stack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
             }

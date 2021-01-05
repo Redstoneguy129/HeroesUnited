@@ -82,7 +82,8 @@ public class HUJsonUtils {
         String name = requireName ? JSONUtils.getString(json, "name") : "";
         int[] damageReductionAmountArray = new int[4];
         JsonArray dmgReduction = JSONUtils.getJsonArray(json, "damage_reduction");
-        if (dmgReduction.size() != 4) throw new JsonParseException("The damage_reduction must contain 4 entries, one for each armor part!");
+        if (dmgReduction.size() != 4)
+            throw new JsonParseException("The damage_reduction must contain 4 entries, one for each armor part!");
         IntStream.range(0, dmgReduction.size()).forEach(i -> damageReductionAmountArray[i] = dmgReduction.get(i).getAsInt());
         SoundEvent soundEvent = ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(JSONUtils.getString(json, "equip_sound", "")));
         Ingredient repairMaterial = JSONUtils.hasField(json, "repair_material") ? Ingredient.deserialize(json.get("repair_material")) : Ingredient.EMPTY;

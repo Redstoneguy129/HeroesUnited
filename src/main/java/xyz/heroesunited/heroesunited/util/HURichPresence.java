@@ -25,9 +25,11 @@ import java.util.stream.Collectors;
 public class HURichPresence {
 
     private static HURichPresence RPC = new HURichPresence("778269026874163230");
+
     public static HURichPresence getPresence() {
         return RPC;
     }
+
     private final Random random = new Random();
     private List<String> list = Lists.newArrayList();
 
@@ -73,7 +75,7 @@ public class HURichPresence {
     }
 
     private String getQuote(String notNull) {
-        if(notNull != null) return notNull;
+        if (notNull != null) return notNull;
         return list.get(random.nextInt(list.size()));
     }
 

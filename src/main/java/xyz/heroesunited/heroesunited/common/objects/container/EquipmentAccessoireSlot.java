@@ -22,7 +22,7 @@ public enum EquipmentAccessoireSlot {
     }
 
     public static EquipmentAccessoireSlot getFromSlotIndex(int slotIndexIn) {
-        for(EquipmentAccessoireSlot slot : values()) {
+        for (EquipmentAccessoireSlot slot : values()) {
             if (slot.getSlot() == slotIndexIn) {
                 return slot;
             }

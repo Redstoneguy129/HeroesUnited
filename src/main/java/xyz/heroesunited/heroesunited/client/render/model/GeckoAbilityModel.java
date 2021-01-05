@@ -9,14 +9,14 @@ public class GeckoAbilityModel<T extends GeckoAbility> extends AnimatedGeoModel<
     @Override
     public ResourceLocation getModelLocation(T ability) {
         ResourceLocation res = new ResourceLocation(ability.getSuperpower().getNamespace(), "geo/" + ability.getSuperpower().getPath() + "_" + ability.name + ".geo.json");
-        return ability.getJsonObject()!=null ? new ResourceLocation(JSONUtils.getString(ability.getJsonObject(), "model", res.toString())) : res;
+        return ability.getJsonObject() != null ? new ResourceLocation(JSONUtils.getString(ability.getJsonObject(), "model", res.toString())) : res;
 
     }
 
     @Override
     public ResourceLocation getTextureLocation(T ability) {
-        ResourceLocation res = new ResourceLocation(ability.getSuperpower().getNamespace(), "textures/ability/" + ability.getSuperpower().getPath() + "_" + ability.name +".png");
-        return ability.getJsonObject()!=null ? new ResourceLocation(JSONUtils.getString(ability.getJsonObject(), "texture", res.toString())) : res;
+        ResourceLocation res = new ResourceLocation(ability.getSuperpower().getNamespace(), "textures/ability/" + ability.getSuperpower().getPath() + "_" + ability.name + ".png");
+        return ability.getJsonObject() != null ? new ResourceLocation(JSONUtils.getString(ability.getJsonObject(), "texture", res.toString())) : res;
     }
 
     @Override

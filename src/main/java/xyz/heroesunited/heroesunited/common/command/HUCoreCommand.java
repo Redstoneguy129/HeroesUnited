@@ -54,14 +54,16 @@ public class HUCoreCommand {
         while (iterator.hasNext()) {
             PlayerEntity pl = (PlayerEntity) iterator.next();
             pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((k) -> {
-                HUPackSuperpowers.setSuperpower(pl,superpower);
+                HUPackSuperpowers.setSuperpower(pl, superpower);
                 k.sync();
             });
             if (pl.getCapability(HUPlayerProvider.CAPABILITY).isPresent())
                 i++;
         }
-        if (i == 1) commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.superpower.set.single", (players.iterator().next()).getDisplayName(), superpower.getDisplayName()), true);
-        else commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.superpower.set.multiple", i, superpower.getDisplayName()), true);
+        if (i == 1)
+            commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.superpower.set.single", (players.iterator().next()).getDisplayName(), superpower.getDisplayName()), true);
+        else
+            commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.superpower.set.multiple", i, superpower.getDisplayName()), true);
         return players.size();
     }
 
@@ -77,14 +79,16 @@ public class HUCoreCommand {
             if (pl.getCapability(HUPlayerProvider.CAPABILITY).isPresent())
                 i++;
         }
-        if (i == 1) commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.superpower.removed", (players.iterator().next()).getDisplayName()), true);
-        else commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.superpower.removed.multiple", i), true);
+        if (i == 1)
+            commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.superpower.removed", (players.iterator().next()).getDisplayName()), true);
+        else
+            commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.superpower.removed.multiple", i), true);
         return players.size();
     }
 
     public static Superpower getSuperpower(CommandContext<CommandSource> context, String key) throws CommandSyntaxException {
         ResourceLocation resourceLocation = context.getArgument(key, ResourceLocation.class);
-            Superpower superpower = HUPackSuperpowers.getSuperpower(resourceLocation);
+        Superpower superpower = HUPackSuperpowers.getSuperpower(resourceLocation);
         if (superpower == null) {
             throw DIDNT_EXIST.create(resourceLocation);
         } else {
@@ -125,8 +129,10 @@ public class HUCoreCommand {
         }
         TranslationTextComponent display = new TranslationTextComponent(Util.makeTranslationKey("suits", suit.getRegistryName()));
 
-        if (players.size() == 1) commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.suit.set.single", (players.iterator().next()).getDisplayName(), display), true);
-        else commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.suit.set.multiple", display), true);
+        if (players.size() == 1)
+            commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.suit.set.single", (players.iterator().next()).getDisplayName(), display), true);
+        else
+            commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.suit.set.multiple", display), true);
         return players.size();
     }
 }

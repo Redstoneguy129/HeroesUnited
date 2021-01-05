@@ -47,7 +47,7 @@ public class HUPlayerEvent {
                 AccessoireInventory inv = a.getInventory();
                 NonNullList<ItemStack> stack = inv.getStacks();
                 for (int i = 0; i < stack.size(); ++i) {
-                    if (!stack.get(i).isEmpty() && !(stack.get(i).getItem() instanceof IAccessoire && ((IAccessoire)stack.get(i).getItem()).dropAfterDeath(player, stack.get(i)))) {
+                    if (!stack.get(i).isEmpty() && !(stack.get(i).getItem() instanceof IAccessoire && ((IAccessoire) stack.get(i).getItem()).dropAfterDeath(player, stack.get(i)))) {
                         player.dropItem(stack.get(i), true, false);
                     }
                 }

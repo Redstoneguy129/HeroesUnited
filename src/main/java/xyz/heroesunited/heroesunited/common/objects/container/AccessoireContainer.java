@@ -35,7 +35,7 @@ public class AccessoireContainer extends Container {
 
         for (int k = 0; k < 4; ++k) {
             this.addSlot(new AccessoireSlot(inventory, k, 110, 8 + k * 18));
-            if(4 + k == EquipmentAccessoireSlot.RIGHT_WRIST.getSlot() || 4 + k == EquipmentAccessoireSlot.LEFT_WRIST.getSlot()){
+            if (4 + k == EquipmentAccessoireSlot.RIGHT_WRIST.getSlot() || 4 + k == EquipmentAccessoireSlot.LEFT_WRIST.getSlot()) {
                 this.addSlot(new WristSlot(inventory, 4 + k, 141, 8 + k * 18));
             } else {
                 this.addSlot(new AccessoireSlot(inventory, 4 + k, 141, 8 + k * 18));
@@ -107,10 +107,9 @@ public class AccessoireContainer extends Container {
                     if (!this.mergeItemStack(itemstack1, 39, 48, false)) {
                         return ItemStack.EMPTY;
                     }
-                } else
-                    if (index >= 39 && index < 48 && !this.mergeItemStack(itemstack1, 12, 39, false)) {
-                        return ItemStack.EMPTY;
-                    }
+                } else if (index >= 39 && index < 48 && !this.mergeItemStack(itemstack1, 12, 39, false)) {
+                    return ItemStack.EMPTY;
+                }
             }
             if (itemstack1.getCount() == 0) {
                 slot.putStack(ItemStack.EMPTY);
@@ -151,15 +150,15 @@ public class AccessoireContainer extends Container {
 
         public boolean canTakeStack(PlayerEntity playerIn) {
             ItemStack stack = this.getStack();
-            return stack.getItem() instanceof IAccessoire && ((IAccessoire)stack.getItem()).canTakeStack(playerIn, stack) && super.canTakeStack(playerIn);
+            return stack.getItem() instanceof IAccessoire && ((IAccessoire) stack.getItem()).canTakeStack(playerIn, stack) && super.canTakeStack(playerIn);
         }
 
         public boolean isItemValid(ItemStack stack) {
-            return stack.getItem() instanceof IAccessoire && equipmentSlot == ((IAccessoire)stack.getItem()).getSlot();
+            return stack.getItem() instanceof IAccessoire && equipmentSlot == ((IAccessoire) stack.getItem()).getSlot();
         }
     }
 
-    public class WristSlot extends AccessoireSlot{
+    public class WristSlot extends AccessoireSlot {
 
         public WristSlot(IInventory inventoryIn, int index, int xPosition, int yPosition) {
             super(inventoryIn, index, xPosition, yPosition);
@@ -167,7 +166,7 @@ public class AccessoireContainer extends Container {
 
         @Override
         public boolean isItemValid(ItemStack stack) {
-            return super.isItemValid(stack) || ((IAccessoire)stack.getItem()).getSlot() == EquipmentAccessoireSlot.WRIST;
+            return super.isItemValid(stack) || ((IAccessoire) stack.getItem()).getSlot() == EquipmentAccessoireSlot.WRIST;
         }
     }
 }

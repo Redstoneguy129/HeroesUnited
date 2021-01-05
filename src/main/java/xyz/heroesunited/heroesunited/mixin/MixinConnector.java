@@ -7,6 +7,6 @@ public class MixinConnector implements IMixinConnector {
 
     @Override
     public void connect() {
-            Mixins.addConfiguration("heroesunited.mixins.json");
+        Mixins.addConfiguration("heroesunited.mixins.json");
     }
 }

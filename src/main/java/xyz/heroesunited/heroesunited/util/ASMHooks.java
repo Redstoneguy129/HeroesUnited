@@ -14,7 +14,8 @@ import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 public class ASMHooks {
 
     public static void renderRightArm(PlayerRenderer playerRenderer, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int combinedLightIn, AbstractClientPlayerEntity player) {
-        if (MinecraftForge.EVENT_BUS.post(new HURenderPlayerHandEvent.Pre(player, playerRenderer, matrixStack, bufferIn, combinedLightIn, HandSide.RIGHT))) return;
+        if (MinecraftForge.EVENT_BUS.post(new HURenderPlayerHandEvent.Pre(player, playerRenderer, matrixStack, bufferIn, combinedLightIn, HandSide.RIGHT)))
+            return;
         boolean renderArm = true;
         for (Ability ability : AbilityHelper.getAbilities(player)) {
             ability.renderFirstPersonArm(playerRenderer, matrixStack, bufferIn, combinedLightIn, player, HandSide.RIGHT);
@@ -31,7 +32,8 @@ public class ASMHooks {
     }
 
     public static void renderLeftArm(PlayerRenderer playerRenderer, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int combinedLightIn, AbstractClientPlayerEntity player) {
-        if (MinecraftForge.EVENT_BUS.post(new HURenderPlayerHandEvent.Pre(player, playerRenderer, matrixStack, bufferIn, combinedLightIn, HandSide.LEFT))) return;
+        if (MinecraftForge.EVENT_BUS.post(new HURenderPlayerHandEvent.Pre(player, playerRenderer, matrixStack, bufferIn, combinedLightIn, HandSide.LEFT)))
+            return;
 
         boolean renderArm = true;
         for (Ability ability : AbilityHelper.getAbilities(player)) {

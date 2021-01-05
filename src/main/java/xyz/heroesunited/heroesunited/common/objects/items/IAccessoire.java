@@ -20,7 +20,8 @@ public interface IAccessoire {
     }
 
     @OnlyIn(Dist.CLIENT)
-    default void render(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {}
+    default void render(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {
+    }
 
     @OnlyIn(Dist.CLIENT)
     ResourceLocation getTexture(ItemStack stack, PlayerEntity entity, EquipmentAccessoireSlot slot);
@@ -36,7 +37,7 @@ public interface IAccessoire {
     }
 
     @OnlyIn(Dist.CLIENT)
-    default float getScale(ItemStack stack){
+    default float getScale(ItemStack stack) {
         return 0.08F;
     }
 }

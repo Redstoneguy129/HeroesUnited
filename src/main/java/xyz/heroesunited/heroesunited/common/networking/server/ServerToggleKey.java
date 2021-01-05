@@ -30,7 +30,7 @@ public class ServerToggleKey {
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             PlayerEntity player = ctx.get().getSender();
-            if(player != null) {
+            if (player != null) {
                 player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                     cap.toggle(Math.min(6, Math.max(1, this.id)), this.pressed);
                     cap.sync();

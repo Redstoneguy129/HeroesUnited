@@ -37,13 +37,13 @@ public class HorasItem extends Item {
         } else if (!(worldIn instanceof ServerWorld)) {
             return ActionResult.resultSuccess(itemstack);
         } else {
-            BlockRayTraceResult blockraytraceresult = (BlockRayTraceResult)raytraceresult;
+            BlockRayTraceResult blockraytraceresult = (BlockRayTraceResult) raytraceresult;
             BlockPos blockpos = blockraytraceresult.getPos();
             if (!(worldIn.getBlockState(blockpos).getBlock() instanceof FlowingFluidBlock)) {
                 return ActionResult.resultPass(itemstack);
             } else if (worldIn.isBlockModifiable(playerIn, blockpos) && playerIn.canPlayerEdit(blockpos, blockraytraceresult.getFace(), itemstack)) {
                 EntityType<?> entitytype = HUEntities.HORAS;
-                if (entitytype.spawn((ServerWorld)worldIn, itemstack, playerIn, blockpos, SpawnReason.SPAWN_EGG, false, false) == null) {
+                if (entitytype.spawn((ServerWorld) worldIn, itemstack, playerIn, blockpos, SpawnReason.SPAWN_EGG, false, false) == null) {
                     return ActionResult.resultPass(itemstack);
                 } else {
                     if (!playerIn.abilities.isCreativeMode) {
@@ -76,7 +76,7 @@ public class HorasItem extends Item {
                 blockpos1 = blockpos.offset(direction);
             }
             EntityType<?> entitytype = HUEntities.HORAS;
-            if (entitytype.spawn((ServerWorld)world, itemstack, context.getPlayer(), blockpos1, SpawnReason.SPAWN_EGG, true, !Objects.equals(blockpos, blockpos1) && direction == Direction.UP) != null) {
+            if (entitytype.spawn((ServerWorld) world, itemstack, context.getPlayer(), blockpos1, SpawnReason.SPAWN_EGG, true, !Objects.equals(blockpos, blockpos1) && direction == Direction.UP) != null) {
                 itemstack.shrink(1);
             }
 

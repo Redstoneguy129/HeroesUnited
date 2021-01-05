@@ -17,7 +17,7 @@ public interface IFlyingAbility {
     static IFlyingAbility getFlyingAbility(PlayerEntity player) {
         for (Ability type : AbilityHelper.getAbilities(player)) {
             if (type != null && type instanceof IFlyingAbility) {
-                return (IFlyingAbility)type;
+                return (IFlyingAbility) type;
             }
         }
         return null;

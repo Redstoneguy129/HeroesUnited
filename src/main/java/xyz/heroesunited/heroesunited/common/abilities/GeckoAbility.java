@@ -36,7 +36,8 @@ public class GeckoAbility extends Ability implements IAnimatable {
         abilityRenderer.renderFirstPersonArm(this, renderer, matrix, bufferIn, packedLightIn, player, side);
     }
 
-    public void registerControllers(AnimationData data) {}
+    public void registerControllers(AnimationData data) {
+    }
 
     public AnimationFactory getFactory() {
         return this.factory;

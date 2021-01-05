@@ -52,12 +52,6 @@ public class AbilityHelper {
         }
     }
 
-    public static void removeTheme(ResourceLocation theme) {
-        if (AbilitiesScreen.themes.contains(theme)) {
-            AbilitiesScreen.themes.remove(theme);
-        }
-    }
-
     public static void setAttribute(LivingEntity entity, Attribute attribute, UUID uuid, double amount, AttributeModifier.Operation operation) {
         setAttribute(entity, "hudefault", attribute, uuid, amount, operation);
     }

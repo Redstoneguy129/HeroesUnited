@@ -8,7 +8,7 @@ public enum HUTypes {
 
     public static void set(Entity entity, HUTypes data, int value) {
         entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((a) -> {
-            boolean booleans = value == 1 ? true : false;
+            boolean booleans = value == 1;
             switch (data) {
                 case COOLDOWN: {
                     a.setCooldown(value);

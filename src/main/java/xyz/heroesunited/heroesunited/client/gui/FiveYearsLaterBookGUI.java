@@ -23,7 +23,7 @@ public class FiveYearsLaterBookGUI extends Screen {
         P4("p4"),
         P5("p5"),
         P6("p6"),
-        P7( "p7");
+        P7("p7");
 
         private final ResourceLocation texture;
 
@@ -75,10 +75,10 @@ public class FiveYearsLaterBookGUI extends Screen {
         this.getMinecraft().getTextureManager().bindTexture(page.getTexture());
         blit(matrixStack, xCanvas, yCanvas, 0, 0, 200, 260, 200, 260);
         this.buttons.clear();
-        this.addButton(new Button(xCanvas-20, yCanvas, 20, 20, new TranslationTextComponent("<"), p_onPress_1_ -> backPage()));
-        this.addButton(new Button(xCanvas+200, yCanvas, 20, 20, new TranslationTextComponent(">"), p_onPress_1_ -> nextPage()));
-        if(pageNum == Page.values().length-1) {
-            this.addButton(new Button(xCanvas+25, yCanvas+(260/2)+50, 150, 20, new TranslationTextComponent("Check Out The 5YL Comic!"), p_onPress_1_ -> goTo5YLPage()));
+        this.addButton(new Button(xCanvas - 20, yCanvas, 20, 20, new TranslationTextComponent("<"), p_onPress_1_ -> backPage()));
+        this.addButton(new Button(xCanvas + 200, yCanvas, 20, 20, new TranslationTextComponent(">"), p_onPress_1_ -> nextPage()));
+        if (pageNum == Page.values().length - 1) {
+            this.addButton(new Button(xCanvas + 25, yCanvas + (260 / 2) + 50, 150, 20, new TranslationTextComponent("Check Out The 5YL Comic!"), p_onPress_1_ -> goTo5YLPage()));
         }
         matrixStack.pop();
         super.render(matrixStack, mouseX, mouseY, partialTicks);
@@ -90,7 +90,7 @@ public class FiveYearsLaterBookGUI extends Screen {
 
     private void confirmCallback(boolean will) {
         this.getMinecraft().displayGuiScreen(null);
-        if(will) {
+        if (will) {
             try {
                 Util.getOSType().openURI(new URI("https://www.theinktank.co/5yearslater"));
             } catch (URISyntaxException e) {
@@ -101,15 +101,15 @@ public class FiveYearsLaterBookGUI extends Screen {
 
     private void nextPage() {
         pageNum++;
-        if(pageNum > Page.values().length-1) {
+        if (pageNum > Page.values().length - 1) {
             pageNum = 0;
         }
     }
 
     private void backPage() {
-        pageNum-=1;
-        if(pageNum < 0) {
-            pageNum = Page.values().length-1;
+        pageNum -= 1;
+        if (pageNum < 0) {
+            pageNum = Page.values().length - 1;
         }
     }
 }

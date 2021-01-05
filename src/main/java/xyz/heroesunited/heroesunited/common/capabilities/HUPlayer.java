@@ -321,21 +321,29 @@ public class HUPlayer implements IHUPlayer {
                     data.setValue(nbt.getLong(data.getKey()));
                 }
             }
-        } if (nbt.contains("Flying")) {
+        }
+        if (nbt.contains("Flying")) {
             this.flying = nbt.getBoolean("Flying");
-        } if (nbt.contains("Intangible")) {
+        }
+        if (nbt.contains("Intangible")) {
             this.intangible = nbt.getBoolean("Intangible");
-        } if (nbt.contains("Theme")) {
+        }
+        if (nbt.contains("Theme")) {
             this.theme = nbt.getInt("Theme");
-        } if (nbt.contains("Type")) {
+        }
+        if (nbt.contains("Type")) {
             this.type = nbt.getInt("Type");
-        } if (nbt.contains("Cooldown")) {
+        }
+        if (nbt.contains("Cooldown")) {
             this.cooldown = nbt.getInt("Cooldown");
-        } if (nbt.contains("AnimationTimer")) {
+        }
+        if (nbt.contains("AnimationTimer")) {
             this.animationTimer = nbt.getInt("AnimationTimer");
-        } if (nbt.contains("Timer")) {
+        }
+        if (nbt.contains("Timer")) {
             this.timer = nbt.getInt("Timer");
-        } if (nbt.contains("isInTimer")) {
+        }
+        if (nbt.contains("isInTimer")) {
             this.isInTimer = nbt.getBoolean("isInTimer");
         }
 
