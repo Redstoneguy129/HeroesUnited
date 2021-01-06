@@ -11,10 +11,10 @@ import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
 import xyz.heroesunited.heroesunited.util.HUCalendarHelper;
 
 @OnlyIn(Dist.CLIENT)
-public class RendererHoras extends BipedRenderer<Horas, ModelHoras<Horas>> {
+public class RendererHoras extends BipedRenderer<Horas, ModelHoras> {
 
     public RendererHoras(EntityRendererManager manager) {
-        super(manager, new ModelHoras<>(), 0.0F);
+        super(manager, new ModelHoras(), 0.0F);
     }
 
     @Override

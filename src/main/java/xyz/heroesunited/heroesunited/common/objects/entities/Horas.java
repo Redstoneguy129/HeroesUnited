@@ -27,10 +27,7 @@ import java.util.UUID;
 
 @SuppressWarnings("EntityConstructor")
 public class Horas extends CreatureEntity implements IFlyingAnimal, HUEntity {
-    private float flap;
-    private float flapSpeed;
-    private float oFlapSpeed;
-    private float oFlap;
+    private float flap, flapSpeed;
     private float flapping = 1.0F;
     private PlayerEntity playerEntity;
     private final PathNavigator navigator;
@@ -44,9 +41,7 @@ public class Horas extends CreatureEntity implements IFlyingAnimal, HUEntity {
 
     @Override
     public ILivingEntityData onInitialSpawn(IServerWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, ILivingEntityData spawnDataIn, CompoundNBT dataTag) {
-        if (reason == SpawnReason.MOB_SUMMONED || reason == SpawnReason.SPAWN_EGG) {
-            this.playerEntity = worldIn.getClosestPlayer(this, 10D);
-        }
+        if (reason == SpawnReason.MOB_SUMMONED || reason == SpawnReason.SPAWN_EGG) this.playerEntity = worldIn.getClosestPlayer(this, 10D);
         return super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
     }
 
@@ -57,10 +52,6 @@ public class Horas extends CreatureEntity implements IFlyingAnimal, HUEntity {
         this.goalSelector.addGoal(0, new SwimGoal(this));
         this.goalSelector.addGoal(0, new PanicGoal(this, 1.25D));
         this.goalSelector.addGoal(2, new WaterAvoidingRandomFlyingGoal(this, 1.0D));
-    }
-
-    public boolean isFlying() {
-        return !this.onGround;
     }
 
     @Override
@@ -114,8 +105,6 @@ public class Horas extends CreatureEntity implements IFlyingAnimal, HUEntity {
     }
 
     private void calculateFlapping() {
-        this.oFlap = this.flap;
-        this.oFlapSpeed = this.flapSpeed;
         this.flapSpeed = (float) ((double) this.flapSpeed + (double) (!this.onGround && !this.isPassenger() ? 4 : -1) * 0.3D);
         this.flapSpeed = MathHelper.clamp(this.flapSpeed, 0.0F, 1.0F);
         if (!this.onGround && this.flapping < 1.0F) {

@@ -18,7 +18,6 @@ import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilities;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncActiveAbilities;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUData;
-import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessoire;
 
 public class HUPlayerEvent {
@@ -36,7 +35,6 @@ public class HUPlayerEvent {
         IHUPlayer oldCap = HUPlayer.getCap(event.getOriginal());
         newCap.deserializeNBT(oldCap.serializeNBT());
         newCap.copy(oldCap);
-        newCap.sync();
     }
 
     @SubscribeEvent
@@ -44,14 +42,14 @@ public class HUPlayerEvent {
         if (event.getEntityLiving() instanceof PlayerEntity && !event.getEntityLiving().world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
             PlayerEntity player = (PlayerEntity) event.getEntityLiving();
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
-                AccessoireInventory inv = a.getInventory();
-                NonNullList<ItemStack> stack = inv.getStacks();
-                for (int i = 0; i < stack.size(); ++i) {
-                    if (!stack.get(i).isEmpty() && !(stack.get(i).getItem() instanceof IAccessoire && ((IAccessoire) stack.get(i).getItem()).dropAfterDeath(player, stack.get(i)))) {
-                        player.dropItem(stack.get(i), true, false);
+                NonNullList<ItemStack> list = a.getInventory().getInventory();
+                for (int i = 0; i < list.size(); ++i) {
+                    ItemStack stack = list.get(i);
+                    if (!stack.isEmpty() && stack.getItem() instanceof IAccessoire && !((IAccessoire) stack.getItem()).dropAfterDeath(player, stack)) {
+                        player.dropItem(stack, true, false);
+                        list.set(i, ItemStack.EMPTY);
                     }
                 }
-                inv.clear();
             });
         }
     }
@@ -60,7 +58,10 @@ public class HUPlayerEvent {
     public void onStartTracking(PlayerEvent.StartTracking e) {
         e.getTarget().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
             if (e.getPlayer() instanceof ServerPlayerEntity) {
-                syncServerMessages(e.getEntity(), a);
+                HUNetworking.INSTANCE.sendTo(new ClientSyncAbilities(e.getTarget().getEntityId(), a.getAbilities()), ((ServerPlayerEntity) e.getPlayer()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
+                HUNetworking.INSTANCE.sendTo(new ClientSyncActiveAbilities(e.getTarget().getEntityId(), a.getActiveAbilities()), ((ServerPlayerEntity) e.getPlayer()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
+                a.getDataList().stream().filter(HUData::canBeSaved).forEachOrdered(data -> HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(e.getTarget().getEntityId(), data.getKey(), a.serializeNBT()), ((ServerPlayerEntity) e.getPlayer()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT));
+                a.sync();
             }
         });
     }
@@ -69,15 +70,11 @@ public class HUPlayerEvent {
     public void onJoinWorld(EntityJoinWorldEvent e) {
         e.getEntity().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
             if (e.getEntity() instanceof ServerPlayerEntity) {
-                syncServerMessages(e.getEntity(), a);
+                HUNetworking.INSTANCE.sendTo(new ClientSyncAbilities(e.getEntity().getEntityId(), a.getAbilities()), ((ServerPlayerEntity) e.getEntity()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
+                HUNetworking.INSTANCE.sendTo(new ClientSyncActiveAbilities(e.getEntity().getEntityId(), a.getActiveAbilities()), ((ServerPlayerEntity) e.getEntity()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
+                a.getDataList().stream().filter(HUData::canBeSaved).forEachOrdered(data -> HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(e.getEntity().getEntityId(), data.getKey(), a.serializeNBT()), ((ServerPlayerEntity) e.getEntity()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT));
+                a.sync();
             }
         });
-    }
-
-    public void syncServerMessages(Entity entity, IHUPlayer a) {
-        HUNetworking.INSTANCE.sendTo(new ClientSyncAbilities(entity.getEntityId(), a.getAbilities()), ((ServerPlayerEntity) entity).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
-        a.getDataList().stream().filter(HUData::canBeSaved).forEachOrdered(data -> HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(entity.getEntityId(), data.getKey(), a.serializeNBT()), ((ServerPlayerEntity) entity).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT));
-        HUNetworking.INSTANCE.sendTo(new ClientSyncActiveAbilities(entity.getEntityId(), a.getActiveAbilities()), ((ServerPlayerEntity) entity).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
-        a.sync();
     }
 }

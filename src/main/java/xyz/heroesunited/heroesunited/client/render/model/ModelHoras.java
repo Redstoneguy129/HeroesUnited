@@ -4,12 +4,12 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.CreatureEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
 
 @OnlyIn(Dist.CLIENT)
-public class ModelHoras<T extends CreatureEntity> extends BipedModel<T> {
+public class ModelHoras extends BipedModel<Horas> {
     private final ModelRenderer bone20;
     private final ModelRenderer bone19;
     private final ModelRenderer bone18;
@@ -275,12 +275,11 @@ public class ModelHoras<T extends CreatureEntity> extends BipedModel<T> {
     }
 
     @Override
-    public void setRotationAngles(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void setRotationAngles(Horas entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
     }
 
     @Override
     public void render(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        //matrixStack.scale(0.5F, 0.5F, 0.5F);
         this.bipedHead.render(matrixStack, buffer, packedLight, packedOverlay);
         this.bipedBody.render(matrixStack, buffer, packedLight, packedOverlay);
         this.bipedLeftArm.render(matrixStack, buffer, packedLight, packedOverlay);

@@ -19,12 +19,7 @@ public class HURenderLayerEvent<T extends LivingEntity, M extends EntityModel<T>
     private final MatrixStack matrixStack;
     private final IRenderTypeBuffer bufferIn;
     private final int packedLightIn;
-    private float limbSwing;
-    private float limbSwingAmount;
-    private float partialTicks;
-    private float ageInTicks;
-    private float netHeadYaw;
-    private float headPitch;
+    private float limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch;
 
     public HURenderLayerEvent(LivingRenderer<T, M> renderer, T livingEntity, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         this.livingEntity = livingEntity;

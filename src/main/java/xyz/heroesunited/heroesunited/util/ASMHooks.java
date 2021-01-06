@@ -8,8 +8,10 @@ import net.minecraft.util.HandSide;
 import net.minecraftforge.common.MinecraftForge;
 import xyz.heroesunited.heroesunited.client.events.HURenderPlayerHandEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
+import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
+
+import java.util.Map;
 
 public class ASMHooks {
 
@@ -17,7 +19,8 @@ public class ASMHooks {
         if (MinecraftForge.EVENT_BUS.post(new HURenderPlayerHandEvent.Pre(player, playerRenderer, matrixStack, bufferIn, combinedLightIn, HandSide.RIGHT)))
             return;
         boolean renderArm = true;
-        for (Ability ability : AbilityHelper.getAbilities(player)) {
+        for (Map.Entry<String, Ability> e : HUPlayer.getCap(player).getActiveAbilities().entrySet()) {
+            Ability ability = e.getValue();
             ability.renderFirstPersonArm(playerRenderer, matrixStack, bufferIn, combinedLightIn, player, HandSide.RIGHT);
             renderArm = ability.renderFirstPersonArm(player);
             break;
@@ -36,7 +39,8 @@ public class ASMHooks {
             return;
 
         boolean renderArm = true;
-        for (Ability ability : AbilityHelper.getAbilities(player)) {
+        for (Map.Entry<String, Ability> e : HUPlayer.getCap(player).getActiveAbilities().entrySet()) {
+            Ability ability = e.getValue();
             ability.renderFirstPersonArm(playerRenderer, matrixStack, bufferIn, combinedLightIn, player, HandSide.LEFT);
             renderArm = ability.renderFirstPersonArm(player);
             break;

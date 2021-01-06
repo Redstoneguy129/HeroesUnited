@@ -14,7 +14,7 @@ import java.util.Random;
 public class SnowWidget {
     private static ResourceLocation snow = new ResourceLocation(HeroesUnited.MODID, "textures/gui/snow.png");
     private static Random rand = new Random();
-    private int newX, height, x, y, index, rotation, friction, frictionTemp;
+    private int height, x, y, index, rotation, friction, frictionTemp;
     private boolean dead;
     private static SnowWidget[] cloud = new SnowWidget[150];
 
@@ -28,22 +28,18 @@ public class SnowWidget {
 
     public void drawSnowflake(MatrixStack stack) {
         if (this.isDead()) return;
-
         stack.push();
         stack.translate((float) this.x, (float) this.y, 0);
         stack.rotate(new Quaternion(0, 0, this.rotation, true));
         AbstractGui.blit(stack, 0, 0, 16 * this.index, 0, 16, 16, 96, 16);
         stack.pop();
-
-        //To slow down snow
         if (this.frictionTemp-- <= 0) {
             this.frictionTemp = this.friction;
             this.y++;
         }
         this.rotation++;
-        if (this.y > height) {
+        if (this.y > height)
             this.setDead();
-        }
     }
 
     public static void drawSnowOnScreen(MatrixStack stack, int width, int height) {

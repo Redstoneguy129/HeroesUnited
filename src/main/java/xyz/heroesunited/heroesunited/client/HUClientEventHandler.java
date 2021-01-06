@@ -2,8 +2,6 @@ package xyz.heroesunited.heroesunited.client;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.CustomizeSkinScreen;
 import net.minecraft.client.gui.widget.button.Button;
@@ -11,10 +9,8 @@ import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
-import net.minecraft.entity.Pose;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.Item;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
@@ -27,8 +23,8 @@ import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import org.lwjgl.glfw.GLFW;
@@ -38,13 +34,17 @@ import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.client.render.HULayerRenderer;
 import xyz.heroesunited.heroesunited.common.HUConfig;
-import xyz.heroesunited.heroesunited.common.abilities.*;
+import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
+import xyz.heroesunited.heroesunited.common.abilities.EyeHeightAbility;
+import xyz.heroesunited.heroesunited.common.abilities.HideBodyPartsAbility;
+import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccesoireInv;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerToggleKey;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
+import xyz.heroesunited.heroesunited.util.HURichPresence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +55,7 @@ public class HUClientEventHandler {
 
     public static final KeyBinding ABILITIES_SCREEN = new KeyBinding(HeroesUnited.MODID + ".key.abilities_screen", GLFW.GLFW_KEY_H, "key.categories." + HeroesUnited.MODID);
     public static final KeyBinding ACCESSOIRES_SCREEN = new KeyBinding(HeroesUnited.MODID + ".key.accessoires_screen", GLFW.GLFW_KEY_J, "key.categories." + HeroesUnited.MODID);
+    private final ArrayList<LivingRenderer> entitiesWithLayer = Lists.newArrayList();
     public static List<AbilityKeyBinding> ABILITY_KEYS = Lists.newArrayList();
     public static Map<Integer, Boolean> KEY_STATE = Maps.newHashMap();
 
@@ -70,6 +71,13 @@ public class HUClientEventHandler {
                 ABILITY_KEYS.add(keyBinding);
             }
         }
+    }
+
+    @SubscribeEvent
+    public void renderEntityPre(RenderLivingEvent.Pre e) {
+        if (entitiesWithLayer.contains(e.getRenderer())) return;
+        e.getRenderer().addLayer(new HULayerRenderer(e.getRenderer()));
+        entitiesWithLayer.add(e.getRenderer());
     }
 
     @SubscribeEvent
@@ -91,32 +99,23 @@ public class HUClientEventHandler {
             HUNetworking.INSTANCE.sendToServer(new ServerOpenAccesoireInv());
         }
 
-        ABILITY_KEYS.forEach(key -> {
-            if (e.getAction() < GLFW.GLFW_REPEAT) {
-                if (e.getKey() == key.getKey().getKeyCode()) {
-                    if (!KEY_STATE.containsKey(e.getKey())) KEY_STATE.put(e.getKey(), false);
-                    if (KEY_STATE.get(e.getKey()) != (e.getAction() == GLFW.GLFW_PRESS))
-                        HUNetworking.INSTANCE.sendToServer(new ServerToggleKey(key.index, e.getAction() == GLFW.GLFW_PRESS));
-                    KEY_STATE.put(e.getKey(), e.getAction() == GLFW.GLFW_PRESS);
-                }
+        for (AbilityKeyBinding key : ABILITY_KEYS) {
+            if (e.getAction() < GLFW.GLFW_REPEAT && e.getKey() == key.getKey().getKeyCode()) {
+                if (!KEY_STATE.containsKey(e.getKey())) KEY_STATE.put(e.getKey(), false);
+                if (KEY_STATE.get(e.getKey()) != (e.getAction() == GLFW.GLFW_PRESS))
+                    HUNetworking.INSTANCE.sendToServer(new ServerToggleKey(key.index, e.getAction() == GLFW.GLFW_PRESS));
+                KEY_STATE.put(e.getKey(), e.getAction() == GLFW.GLFW_PRESS);
             }
-        });
+        }
     }
 
     @SubscribeEvent
     public void onArmorLayer(HURenderLayerEvent.Pre event) {
         if (event.getLivingEntity() instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) event.getLivingEntity();
-            AbilityHelper.getAbilities(player).forEach(ability -> {
-                if (ability instanceof HideBodyPartsAbility && JSONUtils.hasField(ability.getJsonObject(), "visibility_parts")) {
-                    JsonObject overrides = JSONUtils.getJsonObject(ability.getJsonObject(), "visibility_parts");
-                    for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
-                        if (entry.getKey().equals("all")) {
-                            event.setCanceled(JSONUtils.getBoolean(overrides, entry.getKey()));
-                        }
-                    }
-                }
-            });
+            AbilityHelper.getAbilities(player).stream().filter(ability -> ability instanceof HideBodyPartsAbility && JSONUtils.hasField(ability.getJsonObject(), "visibility_parts"))
+                    .map(ability -> JSONUtils.getJsonObject(ability.getJsonObject(), "visibility_parts")).forEachOrdered(overrides -> overrides.entrySet().stream().filter(entry -> entry.getKey().equals("all"))
+                    .map(entry -> JSONUtils.getBoolean(overrides, entry.getKey())).forEachOrdered(event::setCanceled));
         }
     }
 
@@ -124,17 +123,16 @@ public class HUClientEventHandler {
     public void onArmorLayer(HURenderLayerEvent.Armor.Pre event) {
         if (event.getLivingEntity() instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) event.getLivingEntity();
-            AbilityHelper.getAbilities(player).forEach(ability -> {
-                if (ability instanceof HideBodyPartsAbility && JSONUtils.hasField(ability.getJsonObject(), "visibility_parts")) {
-                    JsonObject overrides = JSONUtils.getJsonObject(ability.getJsonObject(), "visibility_parts");
-                    for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
-                        if (entry.getKey().equals("all")) {
-                            event.setCanceled(JSONUtils.getBoolean(overrides, entry.getKey()));
-                        }
-                    }
-                }
-            });
+            AbilityHelper.getAbilities(player).stream().filter(ability -> ability instanceof HideBodyPartsAbility && JSONUtils.hasField(ability.getJsonObject(), "visibility_parts"))
+                    .map(ability -> JSONUtils.getJsonObject(ability.getJsonObject(), "visibility_parts")).forEachOrdered(overrides -> overrides.entrySet().stream().filter(entry -> entry.getKey().equals("all"))
+                    .map(entry -> JSONUtils.getBoolean(overrides, entry.getKey())).forEachOrdered(event::setCanceled));
         }
+    }
+
+    @SubscribeEvent
+    public void setDiscordPresence(EntityJoinWorldEvent event) {
+        if (!(event.getEntity() instanceof PlayerEntity) || Minecraft.getInstance().player == null || Minecraft.getInstance().player.getUniqueID() != event.getEntity().getUniqueID()) return;
+        HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United", null, HURichPresence.MiniLogos.NONE, null);
     }
 
     @SubscribeEvent
@@ -144,24 +142,12 @@ public class HUClientEventHandler {
         }
     }
 
-    private final ArrayList<LivingRenderer> entitiesWithLayer = new ArrayList<>();
-
-    @SubscribeEvent
-    public void renderEntityPre(RenderLivingEvent.Pre e) {
-        if (entitiesWithLayer.contains(e.getRenderer())) return;
-        e.getRenderer().addLayer(new HULayerRenderer(e.getRenderer()));
-        entitiesWithLayer.add(e.getRenderer());
-    }
-
     @SubscribeEvent
     public void renderPlayerPre(RenderPlayerEvent.Pre event) {
-        for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
-            ability.renderPlayerPre(event);
-        }
+        AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.renderPlayerPre(event));
         event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             if (cap.isFlying() && !event.getPlayer().isOnGround() && !event.getPlayer().isSwimming() && event.getPlayer().isSprinting()) {
-                boolean renderFlying = IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).renderFlying(event.getPlayer());
-                if (renderFlying) {
+                if (IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).renderFlying(event.getPlayer())) {
                     event.getMatrixStack().push();
                     event.getMatrixStack().rotate(new Quaternion(0, -event.getPlayer().rotationYaw, 0, true));
                     event.getMatrixStack().rotate(new Quaternion(event.getPlayer().rotationPitch, 0, 0, true));
@@ -173,13 +159,10 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void renderPlayerPost(RenderPlayerEvent.Post event) {
-        for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
-            ability.renderPlayerPost(event);
-        }
+        AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.renderPlayerPost(event));
         event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             if (cap.isFlying() && !event.getPlayer().isOnGround() && !event.getPlayer().isSwimming() && event.getPlayer().isSprinting()) {
-                boolean renderFlying = IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).renderFlying(event.getPlayer());
-                if (renderFlying) {
+                if (IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).renderFlying(event.getPlayer())) {
                     event.getMatrixStack().pop();
                 }
             }
@@ -187,29 +170,13 @@ public class HUClientEventHandler {
     }
 
     @SubscribeEvent
-    public void onTick(TickEvent.PlayerTickEvent event) {
-        PlayerEntity pl = event.player;
-        if (event.phase == TickEvent.Phase.END) {
-            pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
-                if (a.isFlying() && !pl.isOnGround() && pl.isSprinting()) {
-                    pl.setPose(Pose.SWIMMING);
-                }
-            });
-        }
-    }
-
-    @SubscribeEvent
     public void setRotationAngles(HUSetRotationAnglesEvent event) {
         PlayerEntity player = event.getPlayer();
-        for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
-            ability.setRotationAngles(event);
-        }
-
+        AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.setRotationAngles(event));
         for (EquipmentSlotType slot : EquipmentSlotType.values()) {
-            Item item = player.getItemStackFromSlot(slot).getItem();
-            if (slot.getSlotType() == EquipmentSlotType.Group.ARMOR && item instanceof SuitItem) {
-                SuitItem suitItem = (SuitItem) item;
-                if (suitItem.getEquipmentSlot() == slot) {
+            if (slot.getSlotType() == EquipmentSlotType.Group.ARMOR && player.getItemStackFromSlot(slot).getItem() instanceof SuitItem) {
+                SuitItem suitItem = (SuitItem) player.getItemStackFromSlot(slot).getItem();
+                if (suitItem.getEquipmentSlot().equals(slot)) {
                     suitItem.getSuit().setRotationAngles(event, slot);
                 }
             }
@@ -218,9 +185,8 @@ public class HUClientEventHandler {
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
             if (a.isFlying() && !player.isOnGround() && !player.isSwimming() && player.isSprinting()) {
                 PlayerModel model = event.getPlayerModel();
-                boolean renderFlying = IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).renderFlying(event.getPlayer());
-                if (renderFlying) {
-                    model.bipedRightArm.rotateAngleX = IFlyingAbility.getFlyingAbility(event.getPlayer()) != null && IFlyingAbility.getFlyingAbility(event.getPlayer()).rotateArms() ? (float) Math.toRadians(180F) : (float) Math.toRadians(0F);
+                if (IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).renderFlying(event.getPlayer())) {
+                    model.bipedRightArm.rotateAngleX = IFlyingAbility.getFlyingAbility(event.getPlayer()) != null && IFlyingAbility.getFlyingAbility(event.getPlayer()).rotateArms() ? (float) Math.toRadians(180F) : 0;
                     model.bipedLeftArm.rotateAngleX = model.bipedRightArm.rotateAngleX;
                     model.bipedRightArm.rotateAngleY = model.bipedRightArm.rotateAngleZ =
                             model.bipedLeftArm.rotateAngleY = model.bipedLeftArm.rotateAngleZ =

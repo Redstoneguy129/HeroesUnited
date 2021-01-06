@@ -25,7 +25,7 @@ public class AccessoireInventory implements IInventory {
         return getStackInSlot(slot.getSlot()) != null && !getStackInSlot(slot.getSlot()).isEmpty();
     }
 
-    public NonNullList<ItemStack> getStacks() {
+    public NonNullList<ItemStack> getInventory() {
         return this.inventory;
     }
 

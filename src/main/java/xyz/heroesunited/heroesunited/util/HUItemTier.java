@@ -7,11 +7,8 @@ import java.util.function.Supplier;
 
 public class HUItemTier implements IItemTier {
 
-    private final int harvestLevel;
-    private final int maxUses;
-    private final float efficiency;
-    private final float attackDamage;
-    private final int enchantability;
+    private final int harvestLevel, maxUses, enchantability;
+    private final float efficiency, attackDamage;
     private final Supplier<Ingredient> repairMaterial;
 
     public HUItemTier(int harvestLevel, int maxUses, float efficiency, float attackDamage, int enchantability, Supplier<Ingredient> repairMaterial) {

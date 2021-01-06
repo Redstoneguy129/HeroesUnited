@@ -11,12 +11,10 @@ public class HUArmorMaterial implements IArmorMaterial {
 
     private static final int[] MAX_DAMAGE_ARRAY = new int[]{13, 15, 16, 11};
     private final String name;
-    private final int maxDamageFactor;
+    private final int maxDamageFactor, enchantability;
     private final int[] damageReductionAmountArray;
-    private final int enchantability;
     private final SoundEvent soundEvent;
-    private final float toughness;
-    private final float knockBackResistance;
+    private final float toughness, knockBackResistance;
     private final Ingredient repairMaterial;
 
     public HUArmorMaterial(String nameIn, int maxDamageFactorIn, int[] damageReductionAmountsIn, int enchantabilityIn, SoundEvent equipSoundIn, float toughness, float knockBackResistance, Ingredient repairMaterialSupplier) {

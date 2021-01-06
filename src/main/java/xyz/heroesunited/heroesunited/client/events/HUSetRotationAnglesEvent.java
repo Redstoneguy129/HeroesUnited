@@ -11,11 +11,7 @@ You can alter the position of the limbs etc.
 public class HUSetRotationAnglesEvent extends PlayerEvent {
 
     private final PlayerModel playerModel;
-    private float limbSwing;
-    private float limbSwingAmount;
-    private float ageInTicks;
-    private float netHeadYaw;
-    private float headPitch;
+    private float limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch;
 
     public HUSetRotationAnglesEvent(PlayerEntity playerEntity, PlayerModel playerModel, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         super(playerEntity);

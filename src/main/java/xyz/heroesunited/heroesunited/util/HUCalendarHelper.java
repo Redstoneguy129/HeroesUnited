@@ -10,7 +10,9 @@ public class HUCalendarHelper {
     }
 
     public static boolean isSnowTime() {
-        return getCalendar().get(Calendar.MONTH) == Calendar.DECEMBER || getCalendar().get(Calendar.MONTH) == Calendar.JANUARY;
+        boolean decemberHolidays = getCalendar().get(Calendar.MONTH) == Calendar.DECEMBER && getCalendar().get(Calendar.DAY_OF_MONTH) > 24;
+        boolean januaryHolidays = getCalendar().get(Calendar.MONTH) == Calendar.JANUARY && getCalendar().get(Calendar.DAY_OF_MONTH) < 15;
+        return decemberHolidays || januaryHolidays;
     }
 
     public static boolean isHalloween() {

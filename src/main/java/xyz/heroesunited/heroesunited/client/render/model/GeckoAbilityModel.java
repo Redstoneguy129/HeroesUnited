@@ -10,7 +10,6 @@ public class GeckoAbilityModel<T extends GeckoAbility> extends AnimatedGeoModel<
     public ResourceLocation getModelLocation(T ability) {
         ResourceLocation res = new ResourceLocation(ability.getSuperpower().getNamespace(), "geo/" + ability.getSuperpower().getPath() + "_" + ability.name + ".geo.json");
         return ability.getJsonObject() != null ? new ResourceLocation(JSONUtils.getString(ability.getJsonObject(), "model", res.toString())) : res;
-
     }
 
     @Override
@@ -21,7 +20,6 @@ public class GeckoAbilityModel<T extends GeckoAbility> extends AnimatedGeoModel<
 
     @Override
     public ResourceLocation getAnimationFileLocation(T ability) {
-        ResourceLocation res = ability.getSuperpower();
-        return new ResourceLocation(res.getNamespace(), "animations/" + res.getPath() + "_" + ability.name + ".animation.json");
+        return new ResourceLocation(ability.getSuperpower().getNamespace(), "animations/" + ability.getSuperpower().getPath() + "_" + ability.name + ".animation.json");
     }
 }

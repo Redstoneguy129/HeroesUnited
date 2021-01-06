@@ -12,8 +12,7 @@ import xyz.heroesunited.heroesunited.common.objects.container.AccessoireContaine
 
 public class AccessoireScreen extends ContainerScreen<AccessoireContainer> {
 
-    private float oldMouseX;
-    private float oldMouseY;
+    private float oldMouseX, oldMouseY;
 
     private static final ResourceLocation INVENTORY_GUI_TEXTURE = new ResourceLocation(HeroesUnited.MODID + ":textures/gui/accessories_gui.png");
 

@@ -1,8 +1,5 @@
 package xyz.heroesunited.heroesunited.common.objects.items;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FlowingFluidBlock;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -31,56 +28,38 @@ public class HorasItem extends Item {
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
         ItemStack itemstack = playerIn.getHeldItem(handIn);
-        RayTraceResult raytraceresult = rayTrace(worldIn, playerIn, RayTraceContext.FluidMode.SOURCE_ONLY);
-        if (raytraceresult.getType() != RayTraceResult.Type.BLOCK) {
-            return ActionResult.resultPass(itemstack);
-        } else if (!(worldIn instanceof ServerWorld)) {
-            return ActionResult.resultSuccess(itemstack);
-        } else {
-            BlockRayTraceResult blockraytraceresult = (BlockRayTraceResult) raytraceresult;
-            BlockPos blockpos = blockraytraceresult.getPos();
-            if (!(worldIn.getBlockState(blockpos).getBlock() instanceof FlowingFluidBlock)) {
-                return ActionResult.resultPass(itemstack);
-            } else if (worldIn.isBlockModifiable(playerIn, blockpos) && playerIn.canPlayerEdit(blockpos, blockraytraceresult.getFace(), itemstack)) {
-                EntityType<?> entitytype = HUEntities.HORAS;
-                if (entitytype.spawn((ServerWorld) worldIn, itemstack, playerIn, blockpos, SpawnReason.SPAWN_EGG, false, false) == null) {
+        RayTraceResult rtr = rayTrace(worldIn, playerIn, RayTraceContext.FluidMode.SOURCE_ONLY);
+        if (rtr.getType() != RayTraceResult.Type.BLOCK && !worldIn.isRemote) {
+            BlockPos pos = ((BlockRayTraceResult) rtr).getPos();
+            if (worldIn.isBlockModifiable(playerIn, pos) && playerIn.canPlayerEdit(pos, ((BlockRayTraceResult) rtr).getFace(), itemstack)) {
+                if (HUEntities.HORAS.spawn((ServerWorld) worldIn, itemstack, playerIn, pos, SpawnReason.SPAWN_EGG, false, false) == null) {
                     return ActionResult.resultPass(itemstack);
                 } else {
-                    if (!playerIn.abilities.isCreativeMode) {
-                        itemstack.shrink(1);
-                    }
-
+                    itemstack.shrink(1);
                     playerIn.addStat(Stats.ITEM_USED.get(this));
                     return ActionResult.resultConsume(itemstack);
                 }
             } else {
                 return ActionResult.resultFail(itemstack);
             }
+        } else {
+            return ActionResult.resultSuccess(itemstack);
         }
     }
 
     @Override
     public ActionResultType onItemUse(ItemUseContext context) {
         World world = context.getWorld();
-        if (!(world instanceof ServerWorld)) {
-            return ActionResultType.SUCCESS;
-        } else {
+        if (!world.isRemote) {
             ItemStack itemstack = context.getItem();
-            BlockPos blockpos = context.getPos();
+            BlockPos pos = context.getPos();
             Direction direction = context.getFace();
-            BlockState blockstate = world.getBlockState(blockpos);
-            BlockPos blockpos1;
-            if (blockstate.getCollisionShape(world, blockpos).isEmpty()) {
-                blockpos1 = blockpos;
-            } else {
-                blockpos1 = blockpos.offset(direction);
-            }
-            EntityType<?> entitytype = HUEntities.HORAS;
-            if (entitytype.spawn((ServerWorld) world, itemstack, context.getPlayer(), blockpos1, SpawnReason.SPAWN_EGG, true, !Objects.equals(blockpos, blockpos1) && direction == Direction.UP) != null) {
+            BlockPos pos1 = world.getBlockState(pos).getCollisionShape(world, pos).isEmpty() ? pos : pos.offset(direction);
+            if (HUEntities.HORAS.spawn((ServerWorld) world, itemstack, context.getPlayer(), pos1, SpawnReason.SPAWN_EGG, true, !Objects.equals(pos, pos1) && direction == Direction.UP) != null) {
                 itemstack.shrink(1);
             }
-
             return ActionResultType.CONSUME;
         }
+        return ActionResultType.SUCCESS;
     }
 }

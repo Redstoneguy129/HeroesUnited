@@ -2,12 +2,15 @@ package xyz.heroesunited.heroesunited.common.objects;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.*;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.AttributeModifierMap;
+import net.minecraft.entity.ai.attributes.GlobalEntityTypeAttributes;
+import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-
-import java.util.Map;
+import xyz.heroesunited.heroesunited.common.objects.entities.HUEntities;
+import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
 
 public class HUAttributes {
     public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister.create(ForgeRegistries.ATTRIBUTES, HeroesUnited.MODID);
@@ -22,15 +25,16 @@ public class HUAttributes {
 
     public static void registerAttributes() {
         for (EntityType<?> value : ForgeRegistries.ENTITIES.getValues()) {
-            AttributeModifierMap map = GlobalEntityTypeAttributes.getAttributesForEntity((EntityType<? extends LivingEntity>) value);
+            EntityType<? extends LivingEntity> type = (EntityType<? extends LivingEntity>) value;
+            AttributeModifierMap map = GlobalEntityTypeAttributes.getAttributesForEntity(type);
             if (map != null) {
-                Map<Attribute, ModifiableAttributeInstance> oldAttributes = map.attributeMap;
                 AttributeModifierMap.MutableAttribute newMap = AttributeModifierMap.createMutableAttribute();
-                newMap.attributeMap.putAll(oldAttributes);
+                newMap.attributeMap.putAll(map.attributeMap);
                 newMap.createMutableAttribute(FALL_RESISTANCE);
                 newMap.createMutableAttribute(JUMP_BOOST);
-                GlobalEntityTypeAttributes.put((EntityType<? extends LivingEntity>) value, newMap.create());
+                GlobalEntityTypeAttributes.put(type, newMap.create());
             }
         }
+        GlobalEntityTypeAttributes.put(HUEntities.HORAS, Horas.func_234225_eI_().create());
     }
 }

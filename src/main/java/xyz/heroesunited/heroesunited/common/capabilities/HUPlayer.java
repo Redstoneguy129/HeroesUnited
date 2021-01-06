@@ -217,7 +217,7 @@ public class HUPlayer implements IHUPlayer {
         this.activeAbilities = cap.getActiveAbilities();
         this.containedAbilities = cap.getAbilities();
         this.flying = this.isInTimer = false;
-        this.timer = 0;
+        this.timer = this.animationTimer = this.cooldown = 0;
         for (HUData data : this.dataList) {
             for (HUData oldData : cap.getDataList()) {
                 if (data.canBeSaved() && oldData.canBeSaved() && data.getKey().equals(oldData.getKey())) {
@@ -225,6 +225,7 @@ public class HUPlayer implements IHUPlayer {
                 }
             }
         }
+        this.sync();
         return this;
     }
 

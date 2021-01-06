@@ -1,15 +1,23 @@
 package xyz.heroesunited.heroesunited.common;
 
+import net.minecraft.entity.Pose;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.gen.GenerationStage;
+import net.minecraft.world.gen.feature.Feature;
+import net.minecraft.world.gen.feature.OreFeatureConfig;
+import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
@@ -21,15 +29,17 @@ import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.command.HUCoreCommand;
 import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
 import xyz.heroesunited.heroesunited.common.objects.HUSounds;
+import xyz.heroesunited.heroesunited.common.objects.blocks.HUBlocks;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class HUEventHandler {
 
     @SubscribeEvent
-    public void playerTick(LivingEvent.LivingUpdateEvent event) {
+    public void livingUpdate(LivingEvent.LivingUpdateEvent event) {
         if (event.getEntityLiving() instanceof PlayerEntity && event.getEntityLiving() != null) {
             PlayerEntity pl = (PlayerEntity) event.getEntityLiving();
             pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
@@ -54,6 +64,10 @@ public class HUEventHandler {
 
                 if (Suit.getSuit(pl) != null) {
                     Suit.getSuit(pl).onUpdate(pl);
+                }
+
+                if (a.isFlying() && !pl.isOnGround() && pl.isSprinting()) {
+                    pl.setPose(Pose.SWIMMING);
                 }
 
                 if (a.getCooldown() > 0) {
@@ -123,5 +137,13 @@ public class HUEventHandler {
     @SubscribeEvent
     public void addListenerEvent(AddReloadListenerEvent event) {
         event.addListener(new HUPackSuperpowers());
+    }
+
+    @SubscribeEvent
+    public void biomeLoading(BiomeLoadingEvent event) {
+        if (BiomeDictionary.hasType(RegistryKey.getOrCreateKey(Registry.BIOME_KEY, Objects.requireNonNull(event.getName())), BiomeDictionary.Type.OVERWORLD)) {
+            event.getGeneration().withFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Feature.ORE.withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.BASE_STONE_OVERWORLD,
+                    HUBlocks.TITANIUM_ORE.getDefaultState(), 4)).range(32).square().func_242731_b(2));
+        }
     }
 }

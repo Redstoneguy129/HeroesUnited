@@ -67,13 +67,6 @@ public class HURichPresence {
         DiscordRPC.discordUpdatePresence(discordRichPresence);
     }
 
-    public static class CloseRichPresence extends Thread {
-        @Override
-        public void run() {
-            DiscordRPC.discordShutdown();
-        }
-    }
-
     private String getQuote(String notNull) {
         if (notNull != null) return notNull;
         return list.get(random.nextInt(list.size()));

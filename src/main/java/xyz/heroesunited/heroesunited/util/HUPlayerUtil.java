@@ -17,8 +17,6 @@ import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 
 public class HUPlayerUtil {
@@ -28,7 +26,7 @@ public class HUPlayerUtil {
     }
 
     public static void sendStatusMessage(PlayerEntity player, ITextComponent text, boolean showInActionbar) {
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> player.sendStatusMessage(text, showInActionbar));
+        if (player.world.isRemote) player.sendStatusMessage(text, showInActionbar);
     }
 
     public static void playSound(PlayerEntity player, Vector3d vec, SoundEvent sound, SoundCategory category, float volume, float pitch) {
