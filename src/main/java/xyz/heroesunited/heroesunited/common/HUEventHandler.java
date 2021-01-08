@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.common;
 
-import net.minecraft.entity.Pose;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -64,10 +63,6 @@ public class HUEventHandler {
 
                 if (Suit.getSuit(pl) != null) {
                     Suit.getSuit(pl).onUpdate(pl);
-                }
-
-                if (a.isFlying() && !pl.isOnGround() && pl.isSprinting()) {
-                    pl.setPose(Pose.SWIMMING);
                 }
 
                 if (a.getCooldown() > 0) {

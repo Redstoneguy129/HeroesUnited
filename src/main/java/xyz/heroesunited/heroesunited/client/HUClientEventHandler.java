@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
+import net.minecraft.entity.Pose;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.util.JSONUtils;
@@ -23,6 +24,7 @@ import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -39,6 +41,7 @@ import xyz.heroesunited.heroesunited.common.abilities.EyeHeightAbility;
 import xyz.heroesunited.heroesunited.common.abilities.HideBodyPartsAbility;
 import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
+import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccesoireInv;
@@ -147,7 +150,8 @@ public class HUClientEventHandler {
         AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.renderPlayerPre(event));
         event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             if (cap.isFlying() && !event.getPlayer().isOnGround() && !event.getPlayer().isSwimming() && event.getPlayer().isSprinting()) {
-                if (IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).renderFlying(event.getPlayer())) {
+                boolean renderFlying = IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).renderFlying(event.getPlayer());
+                if (renderFlying) {
                     event.getMatrixStack().push();
                     event.getMatrixStack().rotate(new Quaternion(0, -event.getPlayer().rotationYaw, 0, true));
                     event.getMatrixStack().rotate(new Quaternion(event.getPlayer().rotationPitch, 0, 0, true));
@@ -162,11 +166,20 @@ public class HUClientEventHandler {
         AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.renderPlayerPost(event));
         event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             if (cap.isFlying() && !event.getPlayer().isOnGround() && !event.getPlayer().isSwimming() && event.getPlayer().isSprinting()) {
-                if (IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).renderFlying(event.getPlayer())) {
+                boolean renderFlying = IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).renderFlying(event.getPlayer());
+                if (renderFlying) {
                     event.getMatrixStack().pop();
                 }
             }
         });
+    }
+
+    @SubscribeEvent
+    public void onTick(TickEvent.PlayerTickEvent event) {
+        PlayerEntity pl = event.player;
+        if (event.phase == TickEvent.Phase.END && HUPlayer.getCap(pl).isFlying() && !pl.isOnGround() && pl.isSprinting()) {
+            pl.setPose(Pose.SWIMMING);
+        }
     }
 
     @SubscribeEvent
@@ -185,8 +198,9 @@ public class HUClientEventHandler {
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
             if (a.isFlying() && !player.isOnGround() && !player.isSwimming() && player.isSprinting()) {
                 PlayerModel model = event.getPlayerModel();
-                if (IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).renderFlying(event.getPlayer())) {
-                    model.bipedRightArm.rotateAngleX = IFlyingAbility.getFlyingAbility(event.getPlayer()) != null && IFlyingAbility.getFlyingAbility(event.getPlayer()).rotateArms() ? (float) Math.toRadians(180F) : 0;
+                boolean renderFlying = IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).renderFlying(event.getPlayer());
+                if (renderFlying) {
+                    model.bipedRightArm.rotateAngleX = IFlyingAbility.getFlyingAbility(event.getPlayer()) != null && IFlyingAbility.getFlyingAbility(event.getPlayer()).rotateArms() ? (float) Math.toRadians(180F) : (float) Math.toRadians(0F);
                     model.bipedLeftArm.rotateAngleX = model.bipedRightArm.rotateAngleX;
                     model.bipedRightArm.rotateAngleY = model.bipedRightArm.rotateAngleZ =
                             model.bipedLeftArm.rotateAngleY = model.bipedLeftArm.rotateAngleZ =
