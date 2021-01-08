@@ -64,7 +64,7 @@ public class HUClientUtil {
     }
 
     public static Color getColor(JsonObject json) {
-        JsonObject jsonObject = JSONUtils.getJsonObject(json, "color");
+        JsonObject jsonObject = JSONUtils.getJsonObject(json, "color", null);
         if (jsonObject.isJsonArray()) {
             JsonArray jsonColor = jsonObject.getAsJsonArray();
             if (jsonColor.getAsJsonArray().size() == 4) throw new JsonParseException("The color must contain 4 entries, one for each color!");
