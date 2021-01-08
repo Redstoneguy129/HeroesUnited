@@ -16,6 +16,7 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.registries.ForgeRegistries;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,17 @@ public class HUJsonUtils {
     static {
         for (ArmorMaterial armorMaterial : ArmorMaterial.values()) {
             addArmorMaterial(armorMaterial.name(), armorMaterial);
+        }
+    }
+
+    public static Color getColor(JsonObject json) {
+        JsonObject jsonObject = JSONUtils.getJsonObject(json, "color", null);
+        if (jsonObject == null) {
+            return Color.decode(JSONUtils.getString(json, "color"));
+        } else {
+            JsonArray jsonColor = jsonObject.getAsJsonArray();
+            if (jsonColor.getAsJsonArray().size() == 4) throw new JsonParseException("The color must contain 4 entries, one for each color!");
+            return new Color(jsonColor.get(0).getAsFloat() / 255F, jsonColor.get(1).getAsFloat() / 255F, jsonColor.get(2).getAsFloat() / 255F, jsonColor.get(3).getAsFloat() / 255F);
         }
     }
 

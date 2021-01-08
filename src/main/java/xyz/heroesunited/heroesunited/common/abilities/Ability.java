@@ -28,6 +28,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityCreators;
+import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -49,7 +50,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
     @Nullable
     public List<ITextComponent> getHoveredDescription() {
-        return null;
+        return getJsonObject() != null && JSONUtils.hasField(getJsonObject(), "description") ? HUJsonUtils.parseDescriptionLines(jsonObject.get("description")) : null;
     }
 
     public void onActivated(PlayerEntity player) {

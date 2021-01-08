@@ -1,8 +1,5 @@
 package xyz.heroesunited.heroesunited.util;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
@@ -27,7 +24,6 @@ import net.minecraft.entity.player.PlayerModelPart;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ElytraItem;
 import net.minecraft.util.HandSide;
-import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
@@ -60,17 +56,6 @@ public class HUClientUtil {
             matrix.translate(i * (side == HandSide.LEFT ? 1 : -1), 10, 0);
             renderLightning(player, matrix, bufferIn, packedLightIn, y, i, color);
             matrix.pop();
-        }
-    }
-
-    public static Color getColor(JsonObject json) {
-        JsonObject jsonObject = JSONUtils.getJsonObject(json, "color", null);
-        if (jsonObject.isJsonArray()) {
-            JsonArray jsonColor = jsonObject.getAsJsonArray();
-            if (jsonColor.getAsJsonArray().size() == 4) throw new JsonParseException("The color must contain 4 entries, one for each color!");
-            return new Color(jsonColor.get(0).getAsFloat() / 255F, jsonColor.get(1).getAsFloat() / 255F, jsonColor.get(2).getAsFloat() / 255F, jsonColor.get(3).getAsFloat() / 255F);
-        } else {
-            return Color.decode(JSONUtils.getString(json, "color"));
         }
     }
 
