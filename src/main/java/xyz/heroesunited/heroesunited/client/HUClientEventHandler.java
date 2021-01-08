@@ -41,7 +41,6 @@ import xyz.heroesunited.heroesunited.common.abilities.EyeHeightAbility;
 import xyz.heroesunited.heroesunited.common.abilities.HideBodyPartsAbility;
 import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccesoireInv;
@@ -177,10 +176,13 @@ public class HUClientEventHandler {
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         PlayerEntity pl = event.player;
-        if (event.phase == TickEvent.Phase.END && pl != null)
-            if (HUPlayer.getCap(pl).isFlying() && !pl.isOnGround() && pl.isSprinting() && !pl.getPose().equals(Pose.SWIMMING)) {
-                pl.setPose(Pose.SWIMMING);
-            }
+        if (event.phase == TickEvent.Phase.END && pl != null) {
+            pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+                if (cap.isFlying() && !pl.isOnGround() && pl.isSprinting() && !pl.getPose().equals(Pose.SWIMMING)) {
+                    pl.setPose(Pose.SWIMMING);
+                }
+            });
+        }
     }
 
     @SubscribeEvent

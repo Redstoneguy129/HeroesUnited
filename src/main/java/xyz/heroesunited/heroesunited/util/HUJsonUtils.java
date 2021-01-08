@@ -32,16 +32,10 @@ public class HUJsonUtils {
     }
 
     public static Color getColor(JsonObject json) {
-        if (json.has("color")) {
-            if (json.get("color") instanceof JsonArray){
-                JsonArray jsonColor = (JsonArray) json.get("color");
-                if (jsonColor.getAsJsonArray().size() == 4)
-                    throw new JsonParseException("The color must contain 4 entries, one for each color!");
-                return new Color(jsonColor.get(0).getAsFloat() / 255F, jsonColor.get(1).getAsFloat() / 255F, jsonColor.get(2).getAsFloat() / 255F, jsonColor.get(3).getAsFloat() / 255F);
-            } else {
-                return Color.decode(JSONUtils.getString(json, "color", "FFFFFF"));
-            }
-        } else return Color.WHITE;
+        JsonArray jsonColor = JSONUtils.getJsonArray(json, "color");
+        if (jsonColor.getAsJsonArray().size() == 4)
+            throw new JsonParseException("The color must contain 4 entries, one for each color!");
+        return new Color(jsonColor.get(0).getAsFloat() / 255F, jsonColor.get(1).getAsFloat() / 255F, jsonColor.get(2).getAsFloat() / 255F, jsonColor.get(3).getAsFloat() / 255F);
     }
 
     public static List<ITextComponent> parseDescriptionLines(JsonElement jsonElement) {

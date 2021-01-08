@@ -49,6 +49,7 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
     public static final AbilityType FLIGHT = new AbilityType(FlightAbility::new, HeroesUnited.MODID, "flight");
     public static final AbilityType GECKO = new AbilityType(GeckoAbility::new, HeroesUnited.MODID, "gecko");
     public static final AbilityType HIDE_BODY_PARTS = new AbilityType(HideBodyPartsAbility::new, HeroesUnited.MODID, "hide_body_parts");
+    public static final AbilityType ROTATE_PARTS = new AbilityType(RotatePartsAbility::new, HeroesUnited.MODID, "rotate_parts");
     public static final AbilityType EYE_HEIGHT = new AbilityType(EyeHeightAbility::new, HeroesUnited.MODID, "eye_height");
     public static final AbilityType COMMAND = new AbilityType(CommandAbility::new, HeroesUnited.MODID, "command");
     public static final AbilityType DAMAGE_IMMUNITY = new AbilityType(DamageImmunityAbility::new, HeroesUnited.MODID, "damage_immunity");
@@ -62,5 +63,6 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
         e.getRegistry().register(EYE_HEIGHT);
         e.getRegistry().register(COMMAND);
         e.getRegistry().register(DAMAGE_IMMUNITY);
+        e.getRegistry().register(ROTATE_PARTS);
     }
 }

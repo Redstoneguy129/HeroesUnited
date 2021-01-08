@@ -145,7 +145,7 @@ public class GeoAbilityRenderer<T extends GeckoAbility & IAnimatable> extends Bi
         matrix.push();
         GeoBone bone = (GeoBone) this.getGeoModelProvider().getAnimationProcessor().getBone(side == HandSide.LEFT ? "armorLeftArm" : "armorRightArm");
         if (bone != null) {
-            this.renderBone(side == HandSide.LEFT ? "armorLeftArm" : "armorRightArm", matrix, bufferIn.getBuffer(RenderType.getEntityTranslucent(this.getTextureLocation(ability))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+            this.renderBone(bone.getName(), matrix, bufferIn.getBuffer(RenderType.getEntityTranslucent(this.getTextureLocation(ability))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
         }
         matrix.pop();
         matrix.scale(-1.0F, -1.0F, 1.0F);
