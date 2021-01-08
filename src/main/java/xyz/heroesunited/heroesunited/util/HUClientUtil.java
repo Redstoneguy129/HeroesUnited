@@ -1,15 +1,18 @@
 package xyz.heroesunited.heroesunited.util;
 
-import com.google.gson.JsonElement;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderState;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingRenderer;
+import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
@@ -23,6 +26,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerModelPart;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ElytraItem;
+import net.minecraft.util.HandSide;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -39,7 +43,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Map;
+import java.util.Random;
 
 import static net.minecraft.inventory.EquipmentSlotType.*;
 
@@ -48,24 +52,25 @@ public class HUClientUtil {
 
     public static final ResourceLocation null_texture = new ResourceLocation(HeroesUnited.MODID + ":textures/null.png");
 
-    public static void hideBodyParts(JsonObject jsonObject, PlayerModel playerModel) {
-        if (JSONUtils.hasField(jsonObject, "visibility_parts")) {
-            JsonObject overrides = JSONUtils.getJsonObject(jsonObject, "visibility_parts");
+    public static void drawArmWithLightning(MatrixStack matrix, IRenderTypeBuffer bufferIn, PlayerRenderer renderer, AbstractClientPlayerEntity player, HandSide side, double y , int packedLightIn, Color color) {
+        for (int i = 0; i < 3; i++) {
+            matrix.push();
+            renderer.getEntityModel().translateHand(side, matrix);
+            matrix.scale(0.05F, 0.06F, 0.05F);
+            matrix.translate(i * (side == HandSide.LEFT ? 1 : -1), 10, 0);
+            renderLightning(player, matrix, bufferIn, packedLightIn, y, i, color);
+            matrix.pop();
+        }
+    }
 
-            for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
-                ModelRenderer part = HUJsonUtils.getPart(entry.getKey(), playerModel);
-                if (part != null) {
-                    if (entry.getValue() instanceof JsonObject) {
-                        part.showModel = JSONUtils.getBoolean((JsonObject) entry.getValue(), "show");
-                    } else {
-                        part.showModel = JSONUtils.getBoolean(overrides, entry.getKey());
-                    }
-                } else {
-                    if (entry.getKey().equals("all")) {
-                        playerModel.setVisible(false);
-                    }
-                }
-            }
+    public static Color getColor(JsonObject json) {
+        JsonObject jsonObject = JSONUtils.getJsonObject(json, "color");
+        if (jsonObject.isJsonArray()) {
+            JsonArray jsonColor = jsonObject.getAsJsonArray();
+            if (jsonColor.getAsJsonArray().size() == 4) throw new JsonParseException("The color must contain 4 entries, one for each color!");
+            return new Color(jsonColor.get(0).getAsFloat() / 255F, jsonColor.get(1).getAsFloat() / 255F, jsonColor.get(2).getAsFloat() / 255F, jsonColor.get(3).getAsFloat() / 255F);
+        } else {
+            return Color.decode(JSONUtils.getString(json, "color"));
         }
     }
 
@@ -146,11 +151,6 @@ public class HUClientUtil {
         builder.pos(matrix, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
     }
 
-    public static void renderGlowingLine(MatrixStack matrixStack, IRenderTypeBuffer bufferIn, AxisAlignedBB box, Color color, int combinedLightIn) {
-        HUClientUtil.renderFilledBox(matrixStack, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.grow(0.0312D), 1F, 1F, 1F, color.getAlpha(), combinedLightIn);
-        HUClientUtil.renderFilledBox(matrixStack, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.grow(0.0625D), -color.getRed(), -color.getGreen(), -color.getBlue(), 0.5F * color.getAlpha(), combinedLightIn);
-    }
-
     public static void hideSuitPlayerWear(PlayerEntity player, PlayerModel model) {
         if (player.getItemStackFromSlot(HEAD).getItem() instanceof SuitItem) {
             model.bipedHeadwear.showModel = false;
@@ -181,6 +181,57 @@ public class HUClientUtil {
         to.rotateAngleX = from.rotateAngleX;
         to.rotateAngleY = from.rotateAngleY;
         to.rotateAngleZ = from.rotateAngleZ;
+    }
+
+    public static void renderLightning(AbstractClientPlayerEntity player, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn, double y, int j, Color color) {
+        float[] afloat = new float[8], afloat1 = new float[8];
+        float f = 0.0F;
+        float f1 = 0.0F;
+        IVertexBuilder builder = bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER);
+        Matrix4f m4f = matrixStackIn.getLast().getMatrix();
+        long seed = player.world.rand.nextLong();
+        Random randPrev = new Random(seed), rand = new Random(seed);
+
+        for (int i = 7; i >= 0; --i) {
+            afloat[i] = f;
+            afloat1[i] = f1;
+            f += (float) (randPrev.nextInt(11) - 5);
+            f1 += (float) (randPrev.nextInt(11) - 5);
+        }
+
+
+        for (int k = 0; k < 3; ++k) {
+            int l = 7;
+            int i1 = 0;
+            if (k > 0) {
+                l = 7 - k;
+                i1 = l - 2;
+            }
+
+            float f2 = afloat[l] - f;
+            float f3 = afloat1[l] - f1;
+
+            for (int j1 = l; j1 >= i1; --j1) {
+                float f4 = f2;
+                float f5 = f3;
+                f2 += (float) (rand.nextInt(11) - 5);
+                f3 += (float) (rand.nextInt(11) - 5);
+
+                float f6 = 0.1F + j * 0.05F;
+
+                renderLightningPart(m4f, builder, f2, f3, j1, (float)y, f4, f5, f6, false, false, true, false, packedLightIn, color);
+                renderLightningPart(m4f, builder, f2, f3, j1, (float)y, f4, f5, f6, true, false, true, true, packedLightIn, color);
+                renderLightningPart(m4f, builder, f2, f3, j1, (float)y, f4, f5, f6, true, true, false, true, packedLightIn, color);
+                renderLightningPart(m4f, builder, f2, f3, j1, (float)y, f4, f5, f6, false, true, false, false, packedLightIn, color);
+            }
+        }
+    }
+
+    private static void renderLightningPart(Matrix4f matrix4f, IVertexBuilder builder, float x, float z, int y, float y2, float x2, float z2, float additional, boolean p_229116_12_, boolean p_229116_13_, boolean p_229116_14_, boolean p_229116_15_, int packedLight, Color color) {
+        builder.pos(matrix4f, x + (p_229116_12_ ? additional : -additional), y * y2, z + (p_229116_13_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).lightmap(packedLight).endVertex();
+        builder.pos(matrix4f, x2 + (p_229116_12_ ? additional : -additional), (y + 1) * y2, z2 + (p_229116_13_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).lightmap(packedLight).endVertex();
+        builder.pos(matrix4f, x2 + (p_229116_14_ ? additional : -additional), (y + 1) * y2, z2 + (p_229116_15_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).lightmap(packedLight).endVertex();
+        builder.pos(matrix4f, x + (p_229116_14_ ? additional : -additional), y * y2, z + (p_229116_15_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).lightmap(packedLight).endVertex();
     }
 
     public static class HURenderTypes extends RenderType {

@@ -16,12 +16,10 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import xyz.heroesunited.heroesunited.common.abilities.Ability;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
-import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
-import xyz.heroesunited.heroesunited.common.abilities.ITimerAbility;
+import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
@@ -88,16 +86,28 @@ public class HUEventHandler {
     }
 
     @SubscribeEvent
+    public void onLivingHurt(LivingHurtEvent event) {
+        if (event.getEntityLiving() instanceof PlayerEntity) {
+            for (Ability ability : AbilityHelper.getAbilities((PlayerEntity) event.getEntityLiving())) {
+                if (ability instanceof DamageImmunityAbility && ((DamageImmunityAbility) ability).haveImmuneTo(event.getSource())) {
+                    event.setCanceled(true);
+                }
+            }
+        }
+    }
+
+
+    @SubscribeEvent
     public void registerCommands(RegisterCommandsEvent event) {
         HUCoreCommand.register(event.getDispatcher());
     }
 
     @SubscribeEvent
-    public void onChangeEquipment(LivingEquipmentChangeEvent e) {
-        if (e.getEntityLiving() instanceof PlayerEntity && e.getSlot().getSlotType() == EquipmentSlotType.Group.ARMOR) {
-            PlayerEntity player = (PlayerEntity) e.getEntityLiving();
-            if (e.getTo().getItem() instanceof SuitItem) {
-                SuitItem suitItem = (SuitItem) e.getTo().getItem();
+    public void onChangeEquipment(LivingEquipmentChangeEvent event) {
+        if (event.getEntityLiving() instanceof PlayerEntity && event.getSlot().getSlotType() == EquipmentSlotType.Group.ARMOR) {
+            PlayerEntity player = (PlayerEntity) event.getEntityLiving();
+            if (event.getTo().getItem() instanceof SuitItem) {
+                SuitItem suitItem = (SuitItem) event.getTo().getItem();
                 if (Suit.getSuit(player) != null) {
                     suitItem.getSuit().onActivated(player);
                     for (Ability ability : AbilityHelper.getAbilities(player)) {
@@ -106,26 +116,26 @@ public class HUEventHandler {
                         }
                     }
                 }
-            } else if (e.getFrom().getItem() instanceof SuitItem) {
-                SuitItem suitItem = (SuitItem) e.getFrom().getItem();
+            } else if (event.getFrom().getItem() instanceof SuitItem) {
+                SuitItem suitItem = (SuitItem) event.getFrom().getItem();
                 suitItem.getSuit().onDeactivated(player);
             }
         }
     }
 
     @SubscribeEvent
-    public void LivingFallEvent(LivingFallEvent e) {
-        ModifiableAttributeInstance fallAttribute = e.getEntityLiving().getAttribute(HUAttributes.FALL_RESISTANCE);
+    public void LivingFallEvent(LivingFallEvent event) {
+        ModifiableAttributeInstance fallAttribute = event.getEntityLiving().getAttribute(HUAttributes.FALL_RESISTANCE);
         if (fallAttribute != null) {
-            fallAttribute.setBaseValue(e.getDamageMultiplier());
-            e.setDamageMultiplier((float) fallAttribute.getValue());
+            fallAttribute.setBaseValue(event.getDamageMultiplier());
+            event.setDamageMultiplier((float) fallAttribute.getValue());
         }
     }
 
     @SubscribeEvent
-    public void LivingJumpEvent(LivingEvent.LivingJumpEvent e) {
-        if (!e.getEntityLiving().isCrouching()) {
-            e.getEntityLiving().setMotion(e.getEntity().getMotion().x, e.getEntity().getMotion().y + 0.1F * e.getEntityLiving().getAttribute(HUAttributes.JUMP_BOOST).getValue(), e.getEntity().getMotion().z);
+    public void LivingJumpEvent(LivingEvent.LivingJumpEvent event) {
+        if (!event.getEntityLiving().isCrouching()) {
+            event.getEntityLiving().setMotion(event.getEntity().getMotion().x, event.getEntity().getMotion().y + 0.1F * event.getEntityLiving().getAttribute(HUAttributes.JUMP_BOOST).getValue(), event.getEntity().getMotion().z);
         }
     }
 
