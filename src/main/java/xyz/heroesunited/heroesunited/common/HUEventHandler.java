@@ -56,7 +56,7 @@ public class HUEventHandler {
 
                 for (Map.Entry<String, Ability> e : a.getAbilities().entrySet()) {
                     Ability ability = e.getValue();
-                    if (ability != null && ability.alwaysActive()) {
+                    if (ability != null && ability.alwaysActive() && AbilityHelper.canActiveAbility(ability, pl)) {
                         a.enable(e.getKey(), ability);
                     }
                 }

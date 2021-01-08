@@ -84,7 +84,7 @@ public class HUClientEventHandler {
     }
 
     @SubscribeEvent
-    public static void playerSize(EntityEvent.Size event) {
+    public void playerSize(EntityEvent.Size event) {
         if (event.getEntity().isAddedToWorld() && event.getEntity() instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) event.getEntity();
             AbilityHelper.getAbilities(player).stream().filter(ability -> ability instanceof EyeHeightAbility).forEach(ability -> event.setNewEyeHeight(event.getOldEyeHeight() * JSONUtils.getFloat(ability.getJsonObject(), "amount", 1)));
@@ -177,9 +177,10 @@ public class HUClientEventHandler {
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         PlayerEntity pl = event.player;
-        if (event.phase == TickEvent.Phase.END && HUPlayer.getCap(pl).isFlying() && !pl.isOnGround() && pl.isSprinting()) {
-            pl.setPose(Pose.SWIMMING);
-        }
+        if (event.phase == TickEvent.Phase.END && pl != null)
+            if (HUPlayer.getCap(pl).isFlying() && !pl.isOnGround() && pl.isSprinting() && !pl.getPose().equals(Pose.SWIMMING)) {
+                pl.setPose(Pose.SWIMMING);
+            }
     }
 
     @SubscribeEvent
