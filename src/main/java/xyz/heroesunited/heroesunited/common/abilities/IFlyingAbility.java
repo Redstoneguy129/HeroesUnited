@@ -9,7 +9,9 @@ public interface IFlyingAbility {
 
     boolean renderFlying(PlayerEntity player);
 
-    boolean rotateArms();
+    boolean rotateArms(PlayerEntity player);
+
+    boolean setDefaultRotationAngles(PlayerEntity player);
 
     SoundEvent getSoundEvent();
 

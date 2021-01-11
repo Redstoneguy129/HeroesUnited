@@ -201,9 +201,9 @@ public class HUClientEventHandler {
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
             if (a.isFlying() && !player.isOnGround() && !player.isSwimming() && player.isSprinting()) {
                 PlayerModel model = event.getPlayerModel();
-                boolean renderFlying = IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).renderFlying(event.getPlayer());
+                boolean renderFlying = IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).setDefaultRotationAngles(event.getPlayer());
                 if (renderFlying) {
-                    model.bipedRightArm.rotateAngleX = IFlyingAbility.getFlyingAbility(event.getPlayer()) != null && IFlyingAbility.getFlyingAbility(event.getPlayer()).rotateArms() ? (float) Math.toRadians(180F) : (float) Math.toRadians(0F);
+                    model.bipedRightArm.rotateAngleX = IFlyingAbility.getFlyingAbility(event.getPlayer()) != null && IFlyingAbility.getFlyingAbility(event.getPlayer()).rotateArms(event.getPlayer()) ? (float) Math.toRadians(180F) : (float) Math.toRadians(0F);
                     model.bipedLeftArm.rotateAngleX = model.bipedRightArm.rotateAngleX;
                     model.bipedRightArm.rotateAngleY = model.bipedRightArm.rotateAngleZ =
                             model.bipedLeftArm.rotateAngleY = model.bipedLeftArm.rotateAngleZ =

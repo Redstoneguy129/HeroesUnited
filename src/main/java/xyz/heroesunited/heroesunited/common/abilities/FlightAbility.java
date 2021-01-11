@@ -62,8 +62,13 @@ public class FlightAbility extends Ability implements IFlyingAbility {
     }
 
     @Override
-    public boolean rotateArms() {
+    public boolean rotateArms(PlayerEntity player) {
         return getJsonObject() != null && JSONUtils.getBoolean(this.getJsonObject(), "rotateArms", false);
+    }
+
+    @Override
+    public boolean setDefaultRotationAngles(PlayerEntity player) {
+        return getJsonObject() != null && JSONUtils.getBoolean(this.getJsonObject(), "setDefaultRotationAngles", false);
     }
 
     @Override
