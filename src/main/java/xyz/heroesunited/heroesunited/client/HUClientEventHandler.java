@@ -111,8 +111,10 @@ public class HUClientEventHandler {
         for (AbilityKeyBinding key : ABILITY_KEYS) {
             if (e.getAction() < GLFW.GLFW_REPEAT && e.getKey() == key.getKey().getKeyCode()) {
                 if (!KEY_STATE.containsKey(e.getKey())) KEY_STATE.put(e.getKey(), false);
-                if (KEY_STATE.get(e.getKey()) != (e.getAction() == GLFW.GLFW_PRESS))
+                if (KEY_STATE.get(e.getKey()) != (e.getAction() == GLFW.GLFW_PRESS)) {
                     HUNetworking.INSTANCE.sendToServer(new ServerToggleKey(key.index, e.getAction() == GLFW.GLFW_PRESS));
+                    mc.player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap->cap.toggle(key.index, e.getAction() == GLFW.GLFW_PRESS));
+                }
                 KEY_STATE.put(e.getKey(), e.getAction() == GLFW.GLFW_PRESS);
             }
         }

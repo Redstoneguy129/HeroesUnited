@@ -3,7 +3,6 @@ package xyz.heroesunited.heroesunited.common;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.Items;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.vector.Vector3d;
@@ -20,7 +19,6 @@ import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
 import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
@@ -59,13 +57,6 @@ public class HUEventHandler {
                     if (ability != null && ability.alwaysActive() && AbilityHelper.canActiveAbility(ability, pl)) {
                         a.enable(e.getKey(), ability);
                     }
-                }
-
-                if (pl.getHeldItemMainhand().getItem() == Items.DIAMOND) {
-                    a.getController().setAnimation(new AnimationBuilder().addAnimation("hello", false));
-                }
-                if (pl.getHeldItemMainhand().getItem() == Items.EMERALD) {
-                    a.getController().setAnimation(new AnimationBuilder().addAnimation("dab", false));
                 }
 
                 if (Suit.getSuit(pl) != null) {
