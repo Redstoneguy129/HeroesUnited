@@ -1,7 +1,11 @@
 package xyz.heroesunited.heroesunited.common.capabilities;
 
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.INBTSerializable;
+import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.controller.AnimationController;
+import software.bernie.geckolib3.model.AnimatedGeoModel;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
@@ -10,7 +14,15 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public interface IHUPlayer extends INBTSerializable<CompoundNBT> {
+public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable {
+
+    /**
+     * Can be used for custom player animations
+     */
+    void setAnimationFile(ResourceLocation animationFile);
+    ResourceLocation getAnimationFile();
+    AnimatedGeoModel getAnimatedModel();
+    AnimationController getController();
 
     /**
      * Using for toggle abilities in Suits or default abilities

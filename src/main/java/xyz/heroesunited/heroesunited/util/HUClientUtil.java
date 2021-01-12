@@ -153,6 +153,24 @@ public class HUClientUtil {
         }
     }
 
+    public static class CustomRenderState extends RenderState.TexturingState {
+        public CustomRenderState(Runnable start, Runnable end) {
+            super("offset_texturing_custom", start, end);
+        }
+    }
+
+    public static ModelRenderer getModelRendererById(PlayerModel model, String name) {
+        switch (name) {
+            case "bipedHead": return model.bipedHead;
+            case "bipedBody": return model.bipedBody;
+            case "bipedRightArm": return model.bipedRightArm;
+            case "bipedLeftArm": return model.bipedLeftArm;
+            case "bipedRightLeg": return model.bipedRightLeg;
+            case "bipedLeftLeg": return model.bipedLeftLeg;
+            default: return null;
+        }
+    }
+
     public static void copyAnglesToWear(PlayerModel model) {
         model.bipedHeadwear.copyModelAngles(model.bipedHead);
         model.bipedBodyWear.copyModelAngles(model.bipedBody);
@@ -238,6 +256,11 @@ public class HUClientUtil {
                     .alpha(DEFAULT_ALPHA)
                     .lightmap(LIGHTMAP_ENABLED).build(false);
             return makeType(HeroesUnited.MODID + ":light", DefaultVertexFormats.ENTITY, 7, 256, true, true, render);
+        }
+
+        public static RenderType getEntityCutout(ResourceLocation locationIn, Runnable start, Runnable end) {
+            RenderType.State render = RenderType.State.getBuilder().texture(new RenderState.TextureState(locationIn, false, false)).texturing(new CustomRenderState(start, end)).transparency(NO_TRANSPARENCY).diffuseLighting(DIFFUSE_LIGHTING_ENABLED).alpha(DEFAULT_ALPHA).lightmap(LIGHTMAP_ENABLED).overlay(OVERLAY_ENABLED).build(true);
+            return makeType(HeroesUnited.MODID + ":entity_cutout", DefaultVertexFormats.ENTITY, 7, 256, false, true, render);
         }
     }
 

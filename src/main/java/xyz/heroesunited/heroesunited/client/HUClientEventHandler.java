@@ -7,6 +7,7 @@ import net.minecraft.client.gui.screen.CustomizeSkinScreen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
+import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.Pose;
@@ -30,6 +31,10 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import org.lwjgl.glfw.GLFW;
+import software.bernie.geckolib3.core.AnimationState;
+import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import software.bernie.geckolib3.core.keyframe.BoneAnimation;
+import software.bernie.geckolib3.geo.render.built.GeoBone;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.HURenderLayerEvent;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
@@ -49,6 +54,7 @@ import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -57,6 +63,7 @@ public class HUClientEventHandler {
 
     public static final KeyBinding ABILITIES_SCREEN = new KeyBinding(HeroesUnited.MODID + ".key.abilities_screen", GLFW.GLFW_KEY_H, "key.categories." + HeroesUnited.MODID);
     public static final KeyBinding ACCESSOIRES_SCREEN = new KeyBinding(HeroesUnited.MODID + ".key.accessoires_screen", GLFW.GLFW_KEY_J, "key.categories." + HeroesUnited.MODID);
+    private final List<String> playerBones = Arrays.asList("bipedHead", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg");
     private final ArrayList<LivingRenderer> entitiesWithLayer = Lists.newArrayList();
     public static List<AbilityKeyBinding> ABILITY_KEYS = Lists.newArrayList();
     public static Map<Integer, Boolean> KEY_STATE = Maps.newHashMap();
@@ -148,6 +155,10 @@ public class HUClientEventHandler {
     public void renderPlayerPre(RenderPlayerEvent.Pre event) {
         AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.renderPlayerPre(event));
         event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+            AnimationEvent animationEvent = new AnimationEvent(cap, 0.0F, 0.0F, 0.0F, false, Arrays.asList(event.getPlayer().getUniqueID()));
+            animationEvent.setController(cap.getController());
+            cap.getAnimatedModel().setLivingAnimations(cap, event.getPlayer().getUniqueID().hashCode(), animationEvent);
+
             if (cap.isFlying() && !event.getPlayer().isOnGround() && !event.getPlayer().isSwimming() && event.getPlayer().isSprinting()) {
                 boolean renderFlying = IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).renderFlying(event.getPlayer());
                 if (renderFlying) {
@@ -199,6 +210,21 @@ public class HUClientEventHandler {
         }
 
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
+            for (String s : playerBones) {
+                GeoBone bone = a.getAnimatedModel().getModel(a.getAnimatedModel().getModelLocation(a)).getBone(s).get();
+                ModelRenderer renderer = HUClientUtil.getModelRendererById(event.getPlayerModel(), s);
+                if (a.getController().getCurrentAnimation() != null && a.getController().getAnimationState() == AnimationState.Running) {
+                    for (BoneAnimation boneAnimation : a.getController().getCurrentAnimation().boneAnimations) {
+                        if (boneAnimation.boneName.equals(s)) {
+                            renderer.rotateAngleX = -bone.getRotationX();
+                            renderer.rotateAngleY = -bone.getRotationY();
+                            renderer.rotateAngleZ = bone.getRotationZ();
+                        }
+                    }
+                    HUClientUtil.copyAnglesToWear(event.getPlayerModel());
+                }
+            }
+
             if (a.isFlying() && !player.isOnGround() && !player.isSwimming() && player.isSprinting()) {
                 PlayerModel model = event.getPlayerModel();
                 boolean renderFlying = IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).setDefaultRotationAngles(event.getPlayer());

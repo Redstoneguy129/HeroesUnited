@@ -2,14 +2,25 @@ package xyz.heroesunited.heroesunited.common.capabilities;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.PacketDistributor;
+import software.bernie.geckolib3.core.AnimationState;
+import software.bernie.geckolib3.core.PlayState;
+import software.bernie.geckolib3.core.controller.AnimationController;
+import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import software.bernie.geckolib3.core.manager.AnimationData;
+import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib3.model.AnimatedGeoModel;
+import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
@@ -24,14 +35,39 @@ import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class HUPlayer implements IHUPlayer {
     private final PlayerEntity player;
     private boolean flying, intangible, isInTimer;
     private int theme, type, cooldown, timer, animationTimer;
     public final AccessoireInventory inventory = new AccessoireInventory();
+    private AnimationFactory factory = new AnimationFactory(this);
+    private ResourceLocation animationFile;
     protected Map<String, Ability> activeAbilities, containedAbilities;
     protected final List<HUData<?>> dataList;
+
+    @OnlyIn(Dist.CLIENT)
+    public UUID uuidHuman = UUID.randomUUID();
+
+    @OnlyIn(Dist.CLIENT)
+    private AnimatedGeoModel modelProvider = new AnimatedGeoModel() {
+
+        @Override
+        public ResourceLocation getModelLocation(Object o) {
+            return new ResourceLocation(HeroesUnited.MODID, "geo/player.geo.json");
+        }
+
+        @Override
+        public ResourceLocation getTextureLocation(Object o) {
+            return ((ClientPlayerEntity) player).getLocationSkin();
+        }
+
+        @Override
+        public ResourceLocation getAnimationFileLocation(Object o) {
+            return animationFile != null ? animationFile : new ResourceLocation(HeroesUnited.MODID, "animations/player.animation.json");
+        }
+    };
 
     public HUPlayer(PlayerEntity player) {
         this.player = player;
@@ -219,6 +255,7 @@ public class HUPlayer implements IHUPlayer {
         this.containedAbilities = cap.getAbilities();
         this.flying = this.isInTimer = false;
         this.timer = this.animationTimer = this.cooldown = 0;
+        this.animationFile = cap.getAnimationFile();
         for (HUData data : this.dataList) {
             for (HUData oldData : cap.getDataList()) {
                 if (data.canBeSaved() && oldData.canBeSaved() && data.getKey().equals(oldData.getKey())) {
@@ -267,6 +304,43 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
+    public void setAnimationFile(ResourceLocation animationFile) {
+        this.animationFile = animationFile;
+    }
+
+    @Override
+    public ResourceLocation getAnimationFile() {
+        return animationFile;
+    }
+
+    @Override
+    public AnimatedGeoModel getAnimatedModel() {
+        return modelProvider;
+    }
+
+    @Override
+    public void registerControllers(AnimationData data) {
+        data.addAnimationController(new AnimationController(this, "controller", 1, this::predicate));
+    }
+
+    private <P extends IHUPlayer> PlayState predicate(AnimationEvent<P> event) {
+        if (event.getController().getAnimationState().equals(AnimationState.Stopped)) {
+            event.getController().markNeedsReload();
+        }
+        return PlayState.CONTINUE;
+    }
+
+    @Override
+    public AnimationFactory getFactory() {
+        return this.factory;
+    }
+
+    @Override
+    public AnimationController getController() {
+        return getFactory().getOrCreateAnimationData(player.getUniqueID().hashCode()).getAnimationControllers().get("controller");
+    }
+
+    @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT nbt = new CompoundNBT();
         for (HUData data : dataList) {
@@ -300,6 +374,9 @@ public class HUPlayer implements IHUPlayer {
         nbt.putInt("AnimationTimer", this.animationTimer);
         nbt.putInt("Timer", this.timer);
         nbt.putBoolean("isInTimer", this.isInTimer);
+        if (this.animationFile != null) {
+            nbt.putString("AnimationFile", this.animationFile.toString());
+        }
         inventory.write(nbt);
         return nbt;
     }
@@ -348,6 +425,9 @@ public class HUPlayer implements IHUPlayer {
         }
         if (nbt.contains("isInTimer")) {
             this.isInTimer = nbt.getBoolean("isInTimer");
+        }
+        if (nbt.contains("AnimationFile")) {
+            this.animationFile = new ResourceLocation(nbt.getString("AnimationFile"));
         }
 
         this.activeAbilities.clear();

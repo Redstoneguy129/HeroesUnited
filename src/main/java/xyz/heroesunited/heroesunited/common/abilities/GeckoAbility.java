@@ -26,7 +26,6 @@ public class GeckoAbility extends Ability implements IAnimatable {
     @Override
     public void render(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         abilityRenderer.setCurrentAbility(player, this, renderer.getEntityModel());
-        abilityRenderer.setRotationAngles(player, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
         abilityRenderer.render(matrix, bufferIn.getBuffer(RenderType.getEntityTranslucent(abilityRenderer.getTextureLocation(this))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
     }
 

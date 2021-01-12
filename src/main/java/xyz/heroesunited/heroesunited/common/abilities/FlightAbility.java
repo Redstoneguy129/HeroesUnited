@@ -68,7 +68,7 @@ public class FlightAbility extends Ability implements IFlyingAbility {
 
     @Override
     public boolean setDefaultRotationAngles(PlayerEntity player) {
-        return getJsonObject() != null && JSONUtils.getBoolean(this.getJsonObject(), "setDefaultRotationAngles", false);
+        return getJsonObject() != null ? JSONUtils.getBoolean(this.getJsonObject(), "setDefaultRotationAngles", true) : true;
     }
 
     @Override
