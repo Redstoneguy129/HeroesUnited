@@ -13,7 +13,6 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.ResourceLocation;
-import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.geo.render.built.GeoCube;
@@ -23,25 +22,26 @@ import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 import software.bernie.geckolib3.util.GeoUtils;
 import software.bernie.geckolib3.util.RenderUtils;
 import xyz.heroesunited.heroesunited.client.render.model.GeckoAbilityModel;
-import xyz.heroesunited.heroesunited.common.abilities.GeckoAbility;
 
 import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class GeoAbilityRenderer<T extends GeckoAbility & IAnimatable> extends BipedModel implements IGeoRenderer<T> {
+public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implements IGeoRenderer<T> {
 
     private T currentAbility;
     private LivingEntity entityLiving;
+    private final String name;
 
     // Set these to the names of your abilities bones
     public List<String> armorBones = Arrays.asList("armorHead", "armorBody", "armorRightArm", "armorLeftArm", "armorRightLeg", "armorLeftLeg", "armorRightBoot", "armorLeftBoot");
 
     private final AnimatedGeoModel<T> modelProvider;
 
-    public GeoAbilityRenderer() {
+    public GeoAbilityRenderer(String name) {
         super(1);
+        this.name = name;
         this.modelProvider = new GeckoAbilityModel();
     }
 
@@ -97,16 +97,17 @@ public class GeoAbilityRenderer<T extends GeckoAbility & IAnimatable> extends Bi
         matrixStackIn.translate(0.0D, -1.5F, 0.0D);
 
         matrixStackIn.push();
-        matrixStackIn.translate(from.rotationPointX / 16.0F, from.rotationPointY / 16.0F, from.rotationPointZ / 16.0F);
-        GeoUtils.copyRotations(from, to);
+        if (currentAbility.copyPos()) matrixStackIn.translate(from.rotationPointX / 16.0F, from.rotationPointY / 16.0F, from.rotationPointZ / 16.0F);
+        if (currentAbility.copyRotations()) GeoUtils.copyRotations(from, to);
 
         matrixStackIn.translate(0.0D, 1.5F, 0.0D);
         matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
-        if (from == bipedRightArm) matrixStackIn.translate(-0.31, 0.13, 0);
-        if (from == bipedLeftArm) matrixStackIn.translate(0.31, 0.13, 0);
-        if (from == bipedRightLeg) matrixStackIn.translate(-0.12, 0.75, 0);
-        if (from == bipedLeftLeg) matrixStackIn.translate(0.12, 0.75, 0);
-
+        if (currentAbility.copyPos()) {
+            if (from == bipedRightArm) matrixStackIn.translate(-0.31, 0.13, 0);
+            if (from == bipedLeftArm) matrixStackIn.translate(0.31, 0.13, 0);
+            if (from == bipedRightLeg) matrixStackIn.translate(-0.12, 0.75, 0);
+            if (from == bipedLeftLeg) matrixStackIn.translate(0.12, 0.75, 0);
+        }
         renderRecursively(to, matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
         matrixStackIn.pop();
 
@@ -175,6 +176,6 @@ public class GeoAbilityRenderer<T extends GeckoAbility & IAnimatable> extends Bi
 
     @Override
     public Integer getUniqueID(T animatable) {
-        return Objects.hash(currentAbility, currentAbility.getTitle(), currentAbility.isHidden(), currentAbility.alwaysActive(), currentAbility.name, currentAbility.type, this.entityLiving.getUniqueID().toString());
+        return Objects.hash(currentAbility, name, this.entityLiving.getUniqueID().toString());
     }
 }

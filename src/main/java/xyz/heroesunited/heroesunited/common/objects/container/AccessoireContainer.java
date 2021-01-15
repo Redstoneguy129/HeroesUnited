@@ -166,7 +166,7 @@ public class AccessoireContainer extends Container {
 
         @Override
         public boolean isItemValid(ItemStack stack) {
-            return super.isItemValid(stack) || ((IAccessoire) stack.getItem()).getSlot() == EquipmentAccessoireSlot.WRIST;
+            return stack.getItem() instanceof IAccessoire ? ((IAccessoire) stack.getItem()).getSlot() == EquipmentAccessoireSlot.WRIST : super.isItemValid(stack);
         }
     }
 }

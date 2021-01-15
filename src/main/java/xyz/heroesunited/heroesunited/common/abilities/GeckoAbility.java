@@ -9,14 +9,14 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.HandSide;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import xyz.heroesunited.heroesunited.client.render.renderer.GeoAbilityRenderer;
+import xyz.heroesunited.heroesunited.client.render.renderer.IGeoAbility;
 
-public class GeckoAbility extends Ability implements IAnimatable {
+public class GeckoAbility extends Ability implements IGeoAbility {
     private AnimationFactory factory = new AnimationFactory(this);
-    private final GeoAbilityRenderer abilityRenderer = new GeoAbilityRenderer();
+    private final GeoAbilityRenderer abilityRenderer = new GeoAbilityRenderer(name);
 
     public GeckoAbility() {
         super(AbilityType.GECKO);
