@@ -4,16 +4,15 @@ import net.minecraft.nbt.CompoundNBT;
 
 import javax.annotation.Nonnull;
 
-public class HUData<T> {
+public class HUData {
 
     private final String key;
     protected boolean saving;
-    private T defaultValue, value;
+    private Object value;
 
-    public HUData(@Nonnull String key, @Nonnull T value, @Nonnull T defaultValue, @Nonnull boolean saving) {
+    public HUData(String key, @Nonnull Object value, @Nonnull boolean saving) {
         this.key = key;
         this.value = value;
-        this.defaultValue = defaultValue;
         this.saving = saving;
     }
 
@@ -21,18 +20,13 @@ public class HUData<T> {
         return this.key;
     }
 
-    public void setValue(@Nonnull T valueIn) {
+    public void setValue(@Nonnull Object valueIn) {
         this.value = valueIn;
     }
 
     @Nonnull
-    public T getValue() {
+    public Object getValue() {
         return this.value;
-    }
-
-    @Nonnull
-    public T getDefaultValue() {
-        return this.defaultValue;
     }
 
     public boolean canBeSaved() {
@@ -41,17 +35,17 @@ public class HUData<T> {
 
     public static <T> T readValue(HUData data, CompoundNBT nbt, T newValue) {
         if (data != null && !data.getValue().equals(newValue)) {
-            if (data.getDefaultValue() instanceof Boolean) {
+            if (data.getValue() instanceof Boolean) {
                 data.setValue(nbt.getBoolean(data.getKey()));
-            } else if (data.getDefaultValue() instanceof Integer) {
+            } else if (data.getValue() instanceof Integer) {
                 data.setValue(nbt.getInt(data.getKey()));
-            } else if (data.getDefaultValue() instanceof String) {
+            } else if (data.getValue() instanceof String) {
                 data.setValue(nbt.getString(data.getKey()));
-            } else if (data.getDefaultValue() instanceof Float) {
+            } else if (data.getValue() instanceof Float) {
                 data.setValue(nbt.getFloat(data.getKey()));
-            } else if (data.getDefaultValue() instanceof Double) {
+            } else if (data.getValue() instanceof Double) {
                 data.setValue(nbt.getDouble(data.getKey()));
-            } else if (data.getDefaultValue() instanceof Long) {
+            } else if (data.getValue() instanceof Long) {
                 data.setValue(nbt.getLong(data.getKey()));
             }
             return newValue;

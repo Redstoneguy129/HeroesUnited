@@ -34,7 +34,7 @@ public class ServerSetHUData {
             PlayerEntity player = ctx.get().getSender();
             if (player != null) {
                 player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                    HUData<?> data = cap.getFromName(this.key);
+                    HUData data = cap.getDataList().get(this.key);
                     if (data != null) {
                         HUData.readValue(data, this.nbt, data.getValue());
                     }

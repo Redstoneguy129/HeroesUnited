@@ -10,7 +10,6 @@ import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -105,20 +104,9 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable {
      **/
     AccessoireInventory getInventory();
 
-    <T> IHUPlayer register(String key, T defaultValue, boolean saving);
+    IHUPlayer setHUData(String key, Object value, boolean save);
 
-    <T> IHUPlayer set(String key, T value);
-
-    Collection<HUData<?>> getDataList();
-
-    default <T> HUData<T> getFromName(String key) {
-        for (HUData data : getDataList()) {
-            if (data.getKey().equals(key)) {
-                return data;
-            }
-        }
-        return null;
-    }
+    Map<String, HUData> getDataList();
 
     IHUPlayer copy(IHUPlayer ihuPlayer);
 

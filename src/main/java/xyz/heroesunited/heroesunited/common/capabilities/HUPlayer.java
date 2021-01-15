@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.common.capabilities;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
@@ -10,7 +9,6 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.PacketDistributor;
 import software.bernie.geckolib3.core.AnimationState;
@@ -25,17 +23,13 @@ import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
-import xyz.heroesunited.heroesunited.common.events.HURegisterDataEvent;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.HUTypes;
 import xyz.heroesunited.heroesunited.common.networking.client.*;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class HUPlayer implements IHUPlayer {
     private final PlayerEntity player;
@@ -45,10 +39,7 @@ public class HUPlayer implements IHUPlayer {
     private AnimationFactory factory = new AnimationFactory(this);
     private ResourceLocation animationFile;
     protected Map<String, Ability> activeAbilities, containedAbilities;
-    protected final List<HUData<?>> dataList;
-
-    @OnlyIn(Dist.CLIENT)
-    public UUID uuidHuman = UUID.randomUUID();
+    protected final Map<String, HUData> dataList;
 
     @OnlyIn(Dist.CLIENT)
     private AnimatedGeoModel modelProvider = new AnimatedGeoModel() {
@@ -73,8 +64,7 @@ public class HUPlayer implements IHUPlayer {
         this.player = player;
         this.activeAbilities = Maps.newHashMap();
         this.containedAbilities = Maps.newHashMap();
-        this.dataList = Lists.newArrayList();
-        MinecraftForge.EVENT_BUS.post(new HURegisterDataEvent(player, this));
+        this.dataList = Maps.newHashMap();
     }
 
     @Nonnull
@@ -256,8 +246,8 @@ public class HUPlayer implements IHUPlayer {
         this.flying = this.isInTimer = false;
         this.timer = this.animationTimer = this.cooldown = 0;
         this.animationFile = cap.getAnimationFile();
-        for (HUData data : this.dataList) {
-            for (HUData oldData : cap.getDataList()) {
+        for (HUData data : this.dataList.values()) {
+            for (HUData oldData : cap.getDataList().values()) {
                 if (data.canBeSaved() && oldData.canBeSaved() && data.getKey().equals(oldData.getKey())) {
                     data.setValue(oldData.getValue());
                 }
@@ -282,14 +272,9 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
-    public <T> IHUPlayer register(String key, T defaultValue, boolean saving) {
-        dataList.add(new HUData<>(key, defaultValue, defaultValue, saving));
-        return this;
-    }
-
-    @Override
-    public <T> IHUPlayer set(String key, T value) {
-        HUData<T> data = getFromName(key);
+    public IHUPlayer setHUData(String key, Object value, boolean save) {
+        if (!dataList.containsKey(key)) dataList.put(key, new HUData(key, value, false));
+        HUData data = dataList.get(key);
         if (data != null && !data.getValue().equals(value)) {
             data.setValue(value);
             if (!player.world.isRemote)
@@ -299,7 +284,7 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
-    public Collection<HUData<?>> getDataList() {
+    public Map<String, HUData> getDataList() {
         return this.dataList;
     }
 
@@ -343,7 +328,7 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT nbt = new CompoundNBT();
-        for (HUData data : dataList) {
+        for (HUData data : dataList.values()) {
             if (data.getValue() instanceof Boolean) {
                 nbt.putBoolean(data.getKey(), (Boolean) data.getValue());
             } else if (data.getValue() instanceof Integer) {
@@ -385,19 +370,19 @@ public class HUPlayer implements IHUPlayer {
     public void deserializeNBT(CompoundNBT nbt) {
         CompoundNBT activeAbilities = nbt.getCompound("ActiveAbilities"), abilities = nbt.getCompound("Abilities");
 
-        for (HUData data : dataList) {
+        for (HUData data : dataList.values()) {
             if (nbt.contains(data.getKey())) {
-                if (data.getDefaultValue() instanceof Boolean) {
+                if (data.getValue() instanceof Boolean) {
                     data.setValue(nbt.getBoolean(data.getKey()));
-                } else if (data.getDefaultValue() instanceof Integer) {
+                } else if (data.getValue() instanceof Integer) {
                     data.setValue(nbt.getInt(data.getKey()));
-                } else if (data.getDefaultValue() instanceof String) {
+                } else if (data.getValue() instanceof String) {
                     data.setValue(nbt.getString(data.getKey()));
-                } else if (data.getDefaultValue() instanceof Float) {
+                } else if (data.getValue() instanceof Float) {
                     data.setValue(nbt.getFloat(data.getKey()));
-                } else if (data.getDefaultValue() instanceof Double) {
+                } else if (data.getValue() instanceof Double) {
                     data.setValue(nbt.getDouble(data.getKey()));
-                } else if (data.getDefaultValue() instanceof Long) {
+                } else if (data.getValue() instanceof Long) {
                     data.setValue(nbt.getLong(data.getKey()));
                 }
             }

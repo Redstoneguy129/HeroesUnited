@@ -39,7 +39,7 @@ public class ClientSyncHUData {
 
             if (entity != null) {
                 entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                    HUData<?> data = cap.getFromName(this.key);
+                    HUData data = cap.getDataList().get(this.key);
                     if (data != null) {
                         HUData.readValue(data, this.nbt, data.getValue());
                         cap.sync();
