@@ -22,6 +22,7 @@ import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 import software.bernie.geckolib3.util.GeoUtils;
 import software.bernie.geckolib3.util.RenderUtils;
 import xyz.heroesunited.heroesunited.client.render.model.GeckoAbilityModel;
+import xyz.heroesunited.heroesunited.common.abilities.Ability;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -178,6 +179,6 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
 
     @Override
     public Integer getUniqueID(T animatable) {
-        return Objects.hash(currentAbility, name, this.entityLiving.getUniqueID().toString());
+        return Objects.hash(currentAbility instanceof Ability ? ((Ability)currentAbility).type : 1, name, this.entityLiving.getUniqueID().toString());
     }
 }
