@@ -1,7 +1,7 @@
 package xyz.heroesunited.heroesunited.common.networking.server;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
@@ -17,12 +17,12 @@ public class ServerToggleKey {
         this.pressed = pressed;
     }
 
-    public ServerToggleKey(ByteBuf buf) {
+    public ServerToggleKey(PacketBuffer buf) {
         this.id = buf.readInt();
         this.pressed = buf.readBoolean();
     }
 
-    public void toBytes(ByteBuf buf) {
+    public void toBytes(PacketBuffer buf) {
         buf.writeInt(this.id);
         buf.writeBoolean(this.pressed);
     }
@@ -32,7 +32,7 @@ public class ServerToggleKey {
             PlayerEntity player = ctx.get().getSender();
             if (player != null) {
                 player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                    cap.toggle(Math.min(6, Math.max(1, this.id)), this.pressed);
+                    cap.toggle(Math.min(32767, Math.max(1, this.id)), this.pressed);
                     cap.sync();
                 });
             }

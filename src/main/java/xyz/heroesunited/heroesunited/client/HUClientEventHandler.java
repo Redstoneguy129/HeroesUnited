@@ -109,14 +109,21 @@ public class HUClientEventHandler {
         }
 
         for (AbilityKeyBinding key : ABILITY_KEYS) {
-            if (e.getAction() < GLFW.GLFW_REPEAT && e.getKey() == key.getKey().getKeyCode()) {
-                if (!KEY_STATE.containsKey(e.getKey())) KEY_STATE.put(e.getKey(), false);
-                if (KEY_STATE.get(e.getKey()) != (e.getAction() == GLFW.GLFW_PRESS)) {
-                    HUNetworking.INSTANCE.sendToServer(new ServerToggleKey(key.index, e.getAction() == GLFW.GLFW_PRESS));
-                    mc.player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap->cap.toggle(key.index, e.getAction() == GLFW.GLFW_PRESS));
-                }
-                KEY_STATE.put(e.getKey(), e.getAction() == GLFW.GLFW_PRESS);
+            sendToggleKey(e.getKey(), e.getAction(), key, key.index);
+        }
+        sendToggleKey(e.getKey(), e.getAction(), mc.gameSettings.keyBindAttack, 8);
+        sendToggleKey(e.getKey(), e.getAction(), mc.gameSettings.keyBindUseItem, 9);
+        sendToggleKey(e.getKey(), e.getAction(), mc.gameSettings.keyBindJump, 10);
+    }
+
+    public static void sendToggleKey(int key, int action, KeyBinding keyBind, int index) {
+        if (action < GLFW.GLFW_REPEAT && key == keyBind.getKey().getKeyCode()) {
+            if (!KEY_STATE.containsKey(key)) KEY_STATE.put(key, false);
+            if (KEY_STATE.get(key) != (action == GLFW.GLFW_PRESS)) {
+                HUNetworking.INSTANCE.sendToServer(new ServerToggleKey(index, action == GLFW.GLFW_PRESS));
+                Minecraft.getInstance().player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap->cap.toggle(index, action == GLFW.GLFW_PRESS));
             }
+            KEY_STATE.put(key, action == GLFW.GLFW_PRESS);
         }
     }
 

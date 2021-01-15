@@ -143,7 +143,10 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
         setCurrentAbility(player, ability, renderer.getEntityModel());
         matrix.translate(0.0D, 1.5F, 0.0D);
         matrix.scale(-1.0F, -1.0F, 1.0F);
+        AnimationEvent itemEvent = new AnimationEvent(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.entityLiving));
+        modelProvider.setLivingAnimations(currentAbility, this.getUniqueID(this.currentAbility), itemEvent);
         matrix.push();
+        Minecraft.getInstance().textureManager.bindTexture(getTextureLocation(currentAbility));
         GeoBone bone = (GeoBone) this.getGeoModelProvider().getAnimationProcessor().getBone(side == HandSide.LEFT ? "armorLeftArm" : "armorRightArm");
         if (bone != null) {
             this.renderBone(bone.getName(), matrix, bufferIn.getBuffer(RenderType.getEntityTranslucent(this.getTextureLocation(ability))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
