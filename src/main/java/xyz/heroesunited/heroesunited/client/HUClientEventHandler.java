@@ -111,9 +111,15 @@ public class HUClientEventHandler {
         for (AbilityKeyBinding key : ABILITY_KEYS) {
             sendToggleKey(e.getKey(), e.getAction(), key, key.index);
         }
-        sendToggleKey(e.getKey(), e.getAction(), mc.gameSettings.keyBindAttack, 8);
-        sendToggleKey(e.getKey(), e.getAction(), mc.gameSettings.keyBindUseItem, 9);
         sendToggleKey(e.getKey(), e.getAction(), mc.gameSettings.keyBindJump, 10);
+    }
+
+    @SubscribeEvent
+    public void onKeyInput(InputEvent.RawMouseEvent e) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc == null || mc.currentScreen != null) return;
+        sendToggleKey(e.getButton(), e.getAction(), mc.gameSettings.keyBindAttack, 8);
+        sendToggleKey(e.getButton(), e.getAction(), mc.gameSettings.keyBindUseItem, 9);
     }
 
     public static void sendToggleKey(int key, int action, KeyBinding keyBind, int index) {
