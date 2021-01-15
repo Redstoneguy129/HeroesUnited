@@ -18,7 +18,7 @@ import xyz.heroesunited.heroesunited.client.render.renderer.IGeoAbility;
 
 public class GeckoAbility extends Ability implements IGeoAbility {
     private AnimationFactory factory = new AnimationFactory(this);
-    private final GeoAbilityRenderer abilityRenderer = new GeoAbilityRenderer(name);
+    private final GeoAbilityRenderer abilityRenderer = new GeoAbilityRenderer();
 
     public GeckoAbility() {
         super(AbilityType.GECKO);
@@ -27,13 +27,14 @@ public class GeckoAbility extends Ability implements IGeoAbility {
     @OnlyIn(Dist.CLIENT)
     @Override
     public void render(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        abilityRenderer.setCurrentAbility(player, this, renderer.getEntityModel());
+        abilityRenderer.setCurrentAbility(player, this, renderer.getEntityModel(), name);
         abilityRenderer.render(matrix, bufferIn.getBuffer(RenderType.getEntityTranslucent(abilityRenderer.getTextureLocation(this))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
     public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side) {
+        abilityRenderer.setCurrentAbility(player, this, renderer.getEntityModel(), name);
         abilityRenderer.renderFirstPersonArm(this, renderer, matrix, bufferIn, packedLightIn, player, side);
     }
 
@@ -59,5 +60,10 @@ public class GeckoAbility extends Ability implements IGeoAbility {
     @Override
     public ResourceLocation getAnimationFile() {
         return new ResourceLocation(this.getSuperpower().getNamespace(), "animations/" + this.getSuperpower().getPath() + "_" + this.name + ".animation.json");
+    }
+
+    @Override
+    public GeoAbilityRenderer getGeoRenderer() {
+        return abilityRenderer;
     }
 }

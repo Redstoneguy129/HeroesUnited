@@ -28,6 +28,7 @@ import xyz.heroesunited.heroesunited.client.HUClientEventHandler;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
 import xyz.heroesunited.heroesunited.client.gui.AccessoireScreen;
 import xyz.heroesunited.heroesunited.client.render.renderer.GeckoSuitRenderer;
+import xyz.heroesunited.heroesunited.client.render.renderer.IGeoAbility;
 import xyz.heroesunited.heroesunited.client.render.renderer.RendererHoras;
 import xyz.heroesunited.heroesunited.common.HUConfig;
 import xyz.heroesunited.heroesunited.common.HUEventHandler;
@@ -83,6 +84,12 @@ public class HeroesUnited {
         AnimationController.addModelFetcher((IAnimatable object) -> {
             if (object instanceof IHUPlayer) {
                 return ((IHUPlayer) object).getAnimatedModel();
+            }
+            return null;
+        });
+        AnimationController.addModelFetcher((IAnimatable object) -> {
+            if (object instanceof IGeoAbility) {
+                return ((IGeoAbility) object).getGeoRenderer().getGeoModelProvider();
             }
             return null;
         });

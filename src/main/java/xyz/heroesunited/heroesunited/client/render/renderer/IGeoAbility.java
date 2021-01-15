@@ -16,4 +16,6 @@ public interface IGeoAbility extends IAnimatable {
     ResourceLocation getTexture();
     ResourceLocation getModelPath();
     ResourceLocation getAnimationFile();
+
+    GeoAbilityRenderer getGeoRenderer();
 }

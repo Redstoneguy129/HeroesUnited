@@ -32,16 +32,15 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
 
     private T currentAbility;
     private LivingEntity entityLiving;
-    private final String name;
+    private String name;
 
     // Set these to the names of your abilities bones
     public List<String> armorBones = Arrays.asList("armorHead", "armorBody", "armorRightArm", "armorLeftArm", "armorRightLeg", "armorLeftLeg", "armorRightBoot", "armorLeftBoot");
 
     private final AnimatedGeoModel<T> modelProvider;
 
-    public GeoAbilityRenderer(String name) {
+    public GeoAbilityRenderer() {
         super(1);
-        this.name = name;
         this.modelProvider = new GeckoAbilityModel();
     }
 
@@ -140,7 +139,6 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
         this.swingProgress = 0.0F;
         this.isSneak = false;
         this.swimAnimation = 0.0F;
-        setCurrentAbility(player, ability, renderer.getEntityModel());
         matrix.translate(0.0D, 1.5F, 0.0D);
         matrix.scale(-1.0F, -1.0F, 1.0F);
         AnimationEvent itemEvent = new AnimationEvent(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.entityLiving));
@@ -149,7 +147,7 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
         Minecraft.getInstance().textureManager.bindTexture(getTextureLocation(currentAbility));
         GeoBone bone = (GeoBone) this.getGeoModelProvider().getAnimationProcessor().getBone(side == HandSide.LEFT ? "armorLeftArm" : "armorRightArm");
         if (bone != null) {
-            this.renderBone(bone.getName(), matrix, bufferIn.getBuffer(RenderType.getEntityTranslucent(this.getTextureLocation(ability))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+            this.renderRecursively(bone, matrix, bufferIn.getBuffer(RenderType.getEntityTranslucent(this.getTextureLocation(ability))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
         }
         matrix.pop();
         matrix.scale(-1.0F, -1.0F, 1.0F);
@@ -166,9 +164,10 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
         return this.modelProvider.getTextureLocation(instance);
     }
 
-    public void setCurrentAbility(LivingEntity entityLiving, T ability, BipedModel from) {
+    public void setCurrentAbility(LivingEntity entityLiving, T ability, BipedModel from, String name) {
         this.entityLiving = entityLiving;
         this.currentAbility = ability;
+        this.name = name;
         from.setModelAttributes(this);
     }
 
