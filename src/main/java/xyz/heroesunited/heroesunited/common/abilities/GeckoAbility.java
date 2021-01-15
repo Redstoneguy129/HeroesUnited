@@ -7,6 +7,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.HandSide;
+import net.minecraft.util.JSONUtils;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import software.bernie.geckolib3.core.manager.AnimationData;
@@ -40,5 +42,22 @@ public class GeckoAbility extends Ability implements IGeoAbility {
 
     public AnimationFactory getFactory() {
         return this.factory;
+    }
+
+    @Override
+    public ResourceLocation getTexture() {
+        ResourceLocation res = new ResourceLocation(this.getSuperpower().getNamespace(), "textures/ability/" + this.getSuperpower().getPath() + "_" + this.name + ".png");
+        return this.getJsonObject() != null ? new ResourceLocation(JSONUtils.getString(this.getJsonObject(), "texture", res.toString())) : res;
+    }
+
+    @Override
+    public ResourceLocation getModelPath() {
+        ResourceLocation res = new ResourceLocation(this.getSuperpower().getNamespace(), "geo/" + this.getSuperpower().getPath() + "_" + this.name + ".geo.json");
+        return this.getJsonObject() != null ? new ResourceLocation(JSONUtils.getString(this.getJsonObject(), "model", res.toString())) : res;
+    }
+
+    @Override
+    public ResourceLocation getAnimationFile() {
+        return new ResourceLocation(this.getSuperpower().getNamespace(), "animations/" + this.getSuperpower().getPath() + "_" + this.name + ".animation.json");
     }
 }
