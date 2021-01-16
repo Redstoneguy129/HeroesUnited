@@ -12,7 +12,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoireSlot;
 
-public interface IAccessoire {
+public interface IAccessory {
 
     @OnlyIn(Dist.CLIENT)
     default boolean renderDefaultModel() {

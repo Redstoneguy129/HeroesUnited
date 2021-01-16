@@ -17,28 +17,28 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
-import xyz.heroesunited.heroesunited.common.objects.items.IAccessoire;
+import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 
 import javax.annotation.Nullable;
 
-public class AccessoireContainer extends Container {
+public class AccessoriesContainer extends Container {
 
     private static final ResourceLocation[] ARMOR_SLOT_TEXTURES = new ResourceLocation[]{PlayerContainer.EMPTY_ARMOR_SLOT_BOOTS, PlayerContainer.EMPTY_ARMOR_SLOT_LEGGINGS, PlayerContainer.EMPTY_ARMOR_SLOT_CHESTPLATE, PlayerContainer.EMPTY_ARMOR_SLOT_HELMET};
     private static final EquipmentSlotType[] VALID_EQUIPMENT_SLOTS = new EquipmentSlotType[]{EquipmentSlotType.HEAD, EquipmentSlotType.CHEST, EquipmentSlotType.LEGS, EquipmentSlotType.FEET};
 
-    public AccessoireContainer(int id, PlayerInventory playerInventory) {
+    public AccessoriesContainer(int id, PlayerInventory playerInventory) {
         this(id, playerInventory, HUPlayer.getCap(playerInventory.player).getInventory());
     }
 
-    public AccessoireContainer(int id, PlayerInventory playerInventory, AccessoireInventory inventory) {
-        super(HUContainers.ACCESSOIRE, id);
+    public AccessoriesContainer(int id, PlayerInventory playerInventory, AccessoriesInventory inventory) {
+        super(HUContainers.ACCESSORIES, id);
 
         for (int k = 0; k < 4; ++k) {
-            this.addSlot(new AccessoireSlot(inventory, k, 110, 8 + k * 18));
+            this.addSlot(new AccessorySlot(inventory, k, 110, 8 + k * 18));
             if (4 + k == EquipmentAccessoireSlot.RIGHT_WRIST.getSlot() || 4 + k == EquipmentAccessoireSlot.LEFT_WRIST.getSlot()) {
                 this.addSlot(new WristSlot(inventory, 4 + k, 141, 8 + k * 18));
             } else {
-                this.addSlot(new AccessoireSlot(inventory, 4 + k, 141, 8 + k * 18));
+                this.addSlot(new AccessorySlot(inventory, 4 + k, 141, 8 + k * 18));
             }
         }
 
@@ -60,7 +60,7 @@ public class AccessoireContainer extends Container {
 
                 @OnlyIn(Dist.CLIENT)
                 public Pair<ResourceLocation, ResourceLocation> getBackground() {
-                    return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, AccessoireContainer.ARMOR_SLOT_TEXTURES[type.getIndex()]);
+                    return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, AccessoriesContainer.ARMOR_SLOT_TEXTURES[type.getIndex()]);
                 }
             });
         }
@@ -135,11 +135,11 @@ public class AccessoireContainer extends Container {
         return true;
     }
 
-    public class AccessoireSlot extends Slot {
+    public class AccessorySlot extends Slot {
 
         private final EquipmentAccessoireSlot equipmentSlot;
 
-        public AccessoireSlot(IInventory inventoryIn, int index, int xPosition, int yPosition) {
+        public AccessorySlot(IInventory inventoryIn, int index, int xPosition, int yPosition) {
             super(inventoryIn, index, xPosition, yPosition);
             this.equipmentSlot = EquipmentAccessoireSlot.getFromSlotIndex(index);
         }
@@ -150,15 +150,15 @@ public class AccessoireContainer extends Container {
 
         public boolean canTakeStack(PlayerEntity playerIn) {
             ItemStack stack = this.getStack();
-            return stack.getItem() instanceof IAccessoire && ((IAccessoire) stack.getItem()).canTakeStack(playerIn, stack) && super.canTakeStack(playerIn);
+            return stack.getItem() instanceof IAccessory && ((IAccessory) stack.getItem()).canTakeStack(playerIn, stack) && super.canTakeStack(playerIn);
         }
 
         public boolean isItemValid(ItemStack stack) {
-            return stack.getItem() instanceof IAccessoire && equipmentSlot == ((IAccessoire) stack.getItem()).getSlot();
+            return stack.getItem() instanceof IAccessory && equipmentSlot == ((IAccessory) stack.getItem()).getSlot();
         }
     }
 
-    public class WristSlot extends AccessoireSlot {
+    public class WristSlot extends AccessorySlot {
 
         public WristSlot(IInventory inventoryIn, int index, int xPosition, int yPosition) {
             super(inventoryIn, index, xPosition, yPosition);
@@ -166,7 +166,7 @@ public class AccessoireContainer extends Container {
 
         @Override
         public boolean isItemValid(ItemStack stack) {
-            return stack.getItem() instanceof IAccessoire ? ((IAccessoire) stack.getItem()).getSlot() == EquipmentAccessoireSlot.WRIST : super.isItemValid(stack);
+            return stack.getItem() instanceof IAccessory ? ((IAccessory) stack.getItem()).getSlot() == EquipmentAccessoireSlot.WRIST || ((IAccessory) stack.getItem()).getSlot() == EquipmentAccessoireSlot.LEFT_WRIST || ((IAccessory) stack.getItem()).getSlot() == EquipmentAccessoireSlot.RIGHT_WRIST : super.isItemValid(stack);
         }
     }
 }

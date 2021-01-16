@@ -26,7 +26,7 @@ import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.HUTypes;
 import xyz.heroesunited.heroesunited.common.networking.client.*;
-import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
+import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesInventory;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -35,7 +35,7 @@ public class HUPlayer implements IHUPlayer {
     private final PlayerEntity player;
     private boolean flying, intangible, isInTimer;
     private int theme, type, cooldown, timer, animationTimer;
-    public final AccessoireInventory inventory = new AccessoireInventory();
+    public final AccessoriesInventory inventory = new AccessoriesInventory();
     private AnimationFactory factory = new AnimationFactory(this);
     private ResourceLocation animationFile;
     protected Map<String, Ability> activeAbilities, containedAbilities;
@@ -267,7 +267,7 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
-    public AccessoireInventory getInventory() {
+    public AccessoriesInventory getInventory() {
         return inventory;
     }
 

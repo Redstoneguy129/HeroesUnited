@@ -18,7 +18,7 @@ import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilities;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncActiveAbilities;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUData;
-import xyz.heroesunited.heroesunited.common.objects.items.IAccessoire;
+import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 
 public class HUPlayerEvent {
 
@@ -45,7 +45,7 @@ public class HUPlayerEvent {
                 NonNullList<ItemStack> list = a.getInventory().getInventory();
                 for (int i = 0; i < list.size(); ++i) {
                     ItemStack stack = list.get(i);
-                    if (!stack.isEmpty() && stack.getItem() instanceof IAccessoire && !((IAccessoire) stack.getItem()).dropAfterDeath(player, stack)) {
+                    if (!stack.isEmpty() && stack.getItem() instanceof IAccessory && !((IAccessory) stack.getItem()).dropAfterDeath(player, stack)) {
                         player.dropItem(stack, true, false);
                         list.set(i, ItemStack.EMPTY);
                     }

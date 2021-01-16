@@ -8,7 +8,7 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
-import xyz.heroesunited.heroesunited.common.objects.container.AccessoireInventory;
+import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesInventory;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -102,7 +102,7 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable {
     /**
      * Accessories inventory
      **/
-    AccessoireInventory getInventory();
+    AccessoriesInventory getInventory();
 
     IHUPlayer setHUData(String key, Object value, boolean save);
 

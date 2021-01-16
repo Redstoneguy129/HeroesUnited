@@ -22,7 +22,7 @@ import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoireSlot;
-import xyz.heroesunited.heroesunited.common.objects.items.IAccessoire;
+import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> extends LayerRenderer<T, M> {
@@ -56,8 +56,8 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                 for (int slot = 0; slot < 8; ++slot) {
                     ItemStack stack = cap.getInventory().getStackInSlot(slot);
-                    if (stack != null && stack.getItem() instanceof IAccessoire && !MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Accesoires(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch))) {
-                        IAccessoire accessoire = ((IAccessoire) stack.getItem());
+                    if (stack != null && stack.getItem() instanceof IAccessory && !MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Accesoires(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch))) {
+                        IAccessory accessoire = ((IAccessory) stack.getItem());
                         ModelSuit suitModel = new ModelSuit(accessoire.getScale(stack), HUPlayerUtil.haveSmallArms(player));
                         if (accessoire.renderDefaultModel()) {
                             renderAccessoire(suitModel, matrixStack, buffer, packedLight, player, playerRenderer, accessoire, stack, cap, EquipmentAccessoireSlot.getFromSlotIndex(slot));
@@ -71,7 +71,7 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
         }
     }
 
-    private void renderAccessoire(ModelSuit suitModel, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, PlayerEntity player, PlayerRenderer playerRenderer, IAccessoire accessoire, ItemStack stack, IHUPlayer cap, EquipmentAccessoireSlot slot) {
+    private void renderAccessoire(ModelSuit suitModel, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, PlayerEntity player, PlayerRenderer playerRenderer, IAccessory accessoire, ItemStack stack, IHUPlayer cap, EquipmentAccessoireSlot slot) {
         suitModel.setVisible(false);
         if (slot == EquipmentAccessoireSlot.HELMET) {
             suitModel.bipedHeadwear.showModel = suitModel.bipedHead.showModel = cap.getInventory().haveStack(slot);

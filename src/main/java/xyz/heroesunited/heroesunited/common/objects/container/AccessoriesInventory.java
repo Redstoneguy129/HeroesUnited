@@ -7,7 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.NonNullList;
 
-public class AccessoireInventory implements IInventory {
+public class AccessoriesInventory implements IInventory {
 
     private NonNullList<ItemStack> inventory = NonNullList.withSize(8, ItemStack.EMPTY);
 
@@ -103,7 +103,7 @@ public class AccessoireInventory implements IInventory {
         ItemStackHelper.loadAllItems(compound, this.inventory);
     }
 
-    public void copy(AccessoireInventory inv) {
+    public void copy(AccessoriesInventory inv) {
         for (int i = 0; i < inv.getSizeInventory(); ++i) {
             ItemStack stack = inv.getStackInSlot(i);
             inventory.set(i, stack.copy());

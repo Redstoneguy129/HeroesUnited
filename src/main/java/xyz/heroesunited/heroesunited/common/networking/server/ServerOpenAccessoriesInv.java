@@ -6,17 +6,17 @@ import net.minecraft.inventory.container.SimpleNamedContainerProvider;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.NetworkHooks;
-import xyz.heroesunited.heroesunited.common.objects.container.AccessoireContainer;
+import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesContainer;
 
 import java.util.function.Supplier;
 
-public class ServerOpenAccesoireInv {
+public class ServerOpenAccessoriesInv {
     public static final TranslationTextComponent TRANSLATION = new TranslationTextComponent("gui.heroesunited.accesoire");
 
-    public ServerOpenAccesoireInv() {
+    public ServerOpenAccessoriesInv() {
     }
 
-    public ServerOpenAccesoireInv(ByteBuf buf) {
+    public ServerOpenAccessoriesInv(ByteBuf buf) {
     }
 
     public void toBytes(ByteBuf buf) {
@@ -27,7 +27,7 @@ public class ServerOpenAccesoireInv {
             ServerPlayerEntity player = ctx.get().getSender();
             if (player != null) {
                 NetworkHooks.openGui(player, new SimpleNamedContainerProvider((id, playerInventory, entity) ->
-                        new AccessoireContainer(id, playerInventory), TRANSLATION));
+                        new AccessoriesContainer(id, playerInventory), TRANSLATION));
             }
         });
         ctx.get().setPacketHandled(true);
