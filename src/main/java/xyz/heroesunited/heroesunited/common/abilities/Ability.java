@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -44,7 +45,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     public boolean canActivate(PlayerEntity player) {
-        return true;
+        return jsonObject != null && jsonObject.has("condition") ? AbilityHelper.getEnabled(JSONUtils.getString(jsonObject, "condition"), player) : true;
     }
 
     @Nullable
@@ -167,8 +168,8 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
     public Ability setJsonObject(Entity entity, JsonObject jsonObject) {
         this.jsonObject = jsonObject;
-        if (!entity.world.isRemote) {
-            HUNetworking.INSTANCE.send(PacketDistributor.ALL.noArg(), new ClientSyncAbilityCreators(entity.getEntityId(), name, jsonObject));
+        if (entity != null && entity instanceof ServerPlayerEntity) {
+            HUNetworking.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) entity), new ClientSyncAbilityCreators(entity.getEntityId(), name, jsonObject));
         }
         return this;
     }
