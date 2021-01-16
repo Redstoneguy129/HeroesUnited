@@ -54,7 +54,7 @@ public class HUClientUtil {
             renderer.getEntityModel().translateHand(side, matrix);
             matrix.scale(0.05F, 0.06F, 0.05F);
             matrix.translate(i * (side == HandSide.LEFT ? 1 : -1), 10, 0);
-            renderLightning(player, matrix, bufferIn, packedLightIn, y, i, color);
+            renderLightning(player.world.rand, matrix, bufferIn, packedLightIn, y, i, color);
             matrix.pop();
         }
     }
@@ -186,13 +186,13 @@ public class HUClientUtil {
         to.rotateAngleZ = from.rotateAngleZ;
     }
 
-    public static void renderLightning(AbstractClientPlayerEntity player, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn, double y, int j, Color color) {
+    public static void renderLightning(Random random, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn, double y, int j, Color color) {
         float[] afloat = new float[8], afloat1 = new float[8];
         float f = 0.0F;
         float f1 = 0.0F;
         IVertexBuilder builder = bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER);
         Matrix4f m4f = matrixStackIn.getLast().getMatrix();
-        long seed = player.world.rand.nextLong();
+        long seed = random.nextLong();
         Random randPrev = new Random(seed), rand = new Random(seed);
 
         for (int i = 7; i >= 0; --i) {
