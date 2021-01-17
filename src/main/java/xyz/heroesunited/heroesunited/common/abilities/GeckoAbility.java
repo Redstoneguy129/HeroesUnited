@@ -1,6 +1,7 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
@@ -18,6 +19,7 @@ import xyz.heroesunited.heroesunited.client.render.renderer.IGeoAbility;
 
 public class GeckoAbility extends Ability implements IGeoAbility {
     private AnimationFactory factory = new AnimationFactory(this);
+    @OnlyIn(Dist.CLIENT)
     private final GeoAbilityRenderer abilityRenderer = new GeoAbilityRenderer();
 
     public GeckoAbility() {
@@ -45,23 +47,32 @@ public class GeckoAbility extends Ability implements IGeoAbility {
         return this.factory;
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public ResourceLocation getTexture() {
-        ResourceLocation res = new ResourceLocation(this.getSuperpower().getNamespace(), "textures/ability/" + this.getSuperpower().getPath() + "_" + this.name + ".png");
-        return this.getJsonObject() != null ? new ResourceLocation(JSONUtils.getString(this.getJsonObject(), "texture", res.toString())) : res;
+        if (this.getJsonObject() != null && this.getJsonObject().has("texture")) {
+            if (JSONUtils.getString(this.getJsonObject(), "texture").equals("player")) {
+                return Minecraft.getInstance().player.getLocationSkin();
+            } else {
+                return new ResourceLocation(JSONUtils.getString(this.getJsonObject(), "texture"));
+            }
+        } else return new ResourceLocation(this.getSuperpower().getNamespace(), "textures/ability/" + this.getSuperpower().getPath() + "_" + this.name + ".png");
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public ResourceLocation getModelPath() {
         ResourceLocation res = new ResourceLocation(this.getSuperpower().getNamespace(), "geo/" + this.getSuperpower().getPath() + "_" + this.name + ".geo.json");
         return this.getJsonObject() != null ? new ResourceLocation(JSONUtils.getString(this.getJsonObject(), "model", res.toString())) : res;
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public ResourceLocation getAnimationFile() {
         return new ResourceLocation(this.getSuperpower().getNamespace(), "animations/" + this.getSuperpower().getPath() + "_" + this.name + ".animation.json");
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public GeoAbilityRenderer getGeoRenderer() {
         return abilityRenderer;
