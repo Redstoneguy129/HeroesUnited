@@ -48,7 +48,7 @@ import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
-import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccesoireInv;
+import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccessoriesInv;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerToggleKey;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
@@ -105,7 +105,7 @@ public class HUClientEventHandler {
             mc.player.world.playSound(mc.player, mc.player.getPosX(), mc.player.getPosY(), mc.player.getPosZ(), SoundEvents.BLOCK_STONE_BUTTON_CLICK_ON, SoundCategory.NEUTRAL, 1, 0);
             mc.displayGuiScreen(new AbilitiesScreen());
         } else if (ACCESSOIRES_SCREEN.isPressed()) {
-            HUNetworking.INSTANCE.sendToServer(new ServerOpenAccesoireInv());
+            HUNetworking.INSTANCE.sendToServer(new ServerOpenAccessoriesInv());
         }
 
         for (AbilityKeyBinding key : ABILITY_KEYS) {

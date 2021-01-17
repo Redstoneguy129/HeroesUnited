@@ -33,6 +33,6 @@ public class HUNetworking {
         INSTANCE.registerMessage(NextID(), ServerToggleKey.class, ServerToggleKey::toBytes, ServerToggleKey::new, ServerToggleKey::handle);
         INSTANCE.registerMessage(NextID(), ServerEnableAbility.class, ServerEnableAbility::toBytes, ServerEnableAbility::new, ServerEnableAbility::handle);
         INSTANCE.registerMessage(NextID(), ServerDisableAbility.class, ServerDisableAbility::toBytes, ServerDisableAbility::new, ServerDisableAbility::handle);
-        INSTANCE.registerMessage(NextID(), ServerOpenAccesoireInv.class, ServerOpenAccesoireInv::toBytes, ServerOpenAccesoireInv::new, ServerOpenAccesoireInv::handle);
+        INSTANCE.registerMessage(NextID(), ServerOpenAccessoriesInv.class, ServerOpenAccessoriesInv::toBytes, ServerOpenAccessoriesInv::new, ServerOpenAccessoriesInv::handle);
     }
 }

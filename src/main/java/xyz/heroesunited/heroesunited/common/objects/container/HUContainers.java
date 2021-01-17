@@ -9,7 +9,7 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 public class HUContainers {
     public static final DeferredRegister<ContainerType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, HeroesUnited.MODID);
 
-    public static final ContainerType<AccessoireContainer> ACCESSOIRE = register("accesoire", AccessoireContainer::new);
+    public static final ContainerType<AccessoriesContainer> ACCESSORIES = register("accessories", AccessoriesContainer::new);
 
     private static <T extends Container> ContainerType<T> register(String name, ContainerType.IFactory<T> factory) {
         ContainerType type = new ContainerType<T>(factory);
