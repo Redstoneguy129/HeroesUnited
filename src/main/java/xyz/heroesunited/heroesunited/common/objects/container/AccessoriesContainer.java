@@ -35,10 +35,14 @@ public class AccessoriesContainer extends Container {
 
         for (int k = 0; k < 4; ++k) {
             this.addSlot(new AccessorySlot(inventory, k, 110, 8 + k * 18));
-            if (4 + k == EquipmentAccessoireSlot.RIGHT_WRIST.getSlot() || 4 + k == EquipmentAccessoireSlot.LEFT_WRIST.getSlot()) {
-                this.addSlot(new WristSlot(inventory, 4 + k, 141, 8 + k * 18));
+            if (4 + k == EquipmentAccessoireSlot.RIGHT_WRIST.getSlot()) {
+                this.addSlot(new WristSlot(inventory, 4 + k, 141, 8 + k * 18,EquipmentAccessoireSlot.RIGHT_WRIST));
             } else {
-                this.addSlot(new AccessorySlot(inventory, 4 + k, 141, 8 + k * 18));
+                if( 4 + k == EquipmentAccessoireSlot.LEFT_WRIST.getSlot()){
+                    this.addSlot(new WristSlot(inventory, 4 + k, 141, 8 + k * 18,EquipmentAccessoireSlot.LEFT_WRIST));
+                }else{
+                    this.addSlot(new AccessorySlot(inventory, 4 + k, 141, 8 + k * 18));
+                }
             }
         }
 
@@ -160,13 +164,16 @@ public class AccessoriesContainer extends Container {
 
     public class WristSlot extends AccessorySlot {
 
-        public WristSlot(IInventory inventoryIn, int index, int xPosition, int yPosition) {
+        private EquipmentAccessoireSlot slot;
+
+        public WristSlot(IInventory inventoryIn, int index, int xPosition, int yPosition, EquipmentAccessoireSlot slot) {
             super(inventoryIn, index, xPosition, yPosition);
+            this.slot = slot;
         }
 
         @Override
         public boolean isItemValid(ItemStack stack) {
-            return stack.getItem() instanceof IAccessory ? ((IAccessory) stack.getItem()).getSlot() == EquipmentAccessoireSlot.WRIST || ((IAccessory) stack.getItem()).getSlot() == EquipmentAccessoireSlot.LEFT_WRIST || ((IAccessory) stack.getItem()).getSlot() == EquipmentAccessoireSlot.RIGHT_WRIST : super.isItemValid(stack);
+            return stack.getItem() instanceof IAccessory ? ((IAccessory) stack.getItem()).getSlot() == EquipmentAccessoireSlot.WRIST || ((IAccessory) stack.getItem()).getSlot() == slot : super.isItemValid(stack);
         }
     }
 }
