@@ -12,6 +12,7 @@
     "block.MixinCactusBlock",
     "block.MixinFourWayBlock",
     "block.MixinWallBlock",
+    "entity.MixinLivingEntity",
     "MixinMinecraftServer"
   ]
 }

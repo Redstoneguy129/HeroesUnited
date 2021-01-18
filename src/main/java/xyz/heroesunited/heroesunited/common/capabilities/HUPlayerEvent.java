@@ -14,6 +14,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.network.NetworkDirection;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.common.events.HUCancelSprinting;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilities;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncActiveAbilities;
