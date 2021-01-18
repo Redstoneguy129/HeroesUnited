@@ -39,6 +39,7 @@ public class HUPlayer implements IHUPlayer {
     private AnimationFactory factory = new AnimationFactory(this);
     private ResourceLocation animationFile;
     protected Map<String, Ability> activeAbilities, containedAbilities;
+    protected Map<ResourceLocation, Level> superpowerLevels;
     protected final Map<String, HUData> dataList;
 
     @OnlyIn(Dist.CLIENT)
@@ -65,6 +66,12 @@ public class HUPlayer implements IHUPlayer {
         this.activeAbilities = Maps.newHashMap();
         this.containedAbilities = Maps.newHashMap();
         this.dataList = Maps.newHashMap();
+        this.superpowerLevels = Maps.newHashMap();
+    }
+
+    @Override
+    public Map<ResourceLocation, Level> getSuperpowerLevels() {
+        return superpowerLevels;
     }
 
     @Nonnull
@@ -345,6 +352,12 @@ public class HUPlayer implements IHUPlayer {
 
         }
 
+        CompoundNBT levels = new CompoundNBT();
+        superpowerLevels.forEach((resourceLocation,level)->{
+            levels.put(resourceLocation.toString(),level.writeNBT());
+        });
+        nbt.put("levels",levels);
+
         CompoundNBT activeAbilities = new CompoundNBT(), abilities = new CompoundNBT();
         this.activeAbilities.forEach((id, ability) -> activeAbilities.put(id, ability.serializeNBT()));
         this.containedAbilities.forEach((id, ability) -> abilities.put(id, ability.serializeNBT()));
@@ -369,6 +382,12 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
         CompoundNBT activeAbilities = nbt.getCompound("ActiveAbilities"), abilities = nbt.getCompound("Abilities");
+
+        CompoundNBT levels = nbt.getCompound("levels");
+        superpowerLevels.clear();
+        for (String key: levels.keySet()) {
+            superpowerLevels.put(new ResourceLocation(key),Level.readFromNBT(levels.getCompound(key)));
+        }
 
         for (HUData data : dataList.values()) {
             if (nbt.contains(data.getKey())) {

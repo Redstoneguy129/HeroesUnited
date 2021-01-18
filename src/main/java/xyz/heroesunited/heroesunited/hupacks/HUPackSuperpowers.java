@@ -20,6 +20,7 @@ import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.capabilities.Level;
 import xyz.heroesunited.heroesunited.common.events.HURegisterSuperpower;
 
 import java.util.List;
@@ -84,6 +85,9 @@ public class HUPackSuperpowers extends JsonReloadListener {
     public static void setSuperpower(PlayerEntity player, Superpower superpower) {
         try {
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+                if(!cap.getSuperpowerLevels().containsKey(superpower.getRegistryName())){
+                    cap.getSuperpowerLevels().put(superpower.getRegistryName(),new Level());
+                }
                 cap.clearAbilities();
                 cap.addAbilities(superpower);
                 cap.getAbilities().forEach((key, value) -> value.setJsonObject(player, AbilityCreator.createdJsons.get(superpower.getRegistryName().toString() + "_" + key)));

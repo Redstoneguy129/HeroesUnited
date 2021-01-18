@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 
 public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable {
 
+    Map<ResourceLocation, Level> getSuperpowerLevels();
+
     /**
      * Can be used for custom player animations
      */
