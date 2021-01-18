@@ -5,6 +5,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SimpleSound;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.gui.widget.button.Button;
@@ -22,6 +23,7 @@ import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
+import xyz.heroesunited.heroesunited.common.capabilities.Level;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerDisableAbility;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerEnableAbility;
@@ -127,12 +129,40 @@ public class AbilitiesScreen extends Screen {
         font.func_238406_a_(matrixStack, minecraft.player.getName().getString(), left + 42, top + 7, 16777215, false);
         matrixStack.pop();
 
+        for (Level level : cap.getSuperpowerLevels().values()) {
+            renderLevelBar(matrixStack, level);
+        }
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         buttons.forEach(button -> {
             if (button instanceof AbilityButton) {
                 this.renderAbilityDescription(matrixStack, mouseX, mouseY, (AbilityButton) button);
             }
         });
+    }
+
+    public void renderLevelBar(MatrixStack matrixStack, Level level) {
+        Minecraft mc = Minecraft.getInstance();
+        matrixStack.push();
+        RenderSystem.color4f(1.0F, 0F, 0F, 1.0F);
+        RenderSystem.disableBlend();
+        mc.getTextureManager().bindTexture(AbstractGui.GUI_ICONS_LOCATION);
+        int height = top + 160;
+        int width = left + 8;
+        int k = (int) (level.getExperience() / (level.getExpForNextLevel() + level.getExperience()));
+        this.blit(matrixStack, width, height, 0, 64, 182, 5);
+        this.blit(matrixStack, width, height, 0, 69, Math.min(k, 182), 5);
+        RenderSystem.enableBlend();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        matrixStack.pop();
+
+        String s = "" + level.getLevel();
+        int i1 = (this.width - this.font.getStringWidth(s)) / 2;
+        int j1 = height - 4;
+        this.font.drawString(matrixStack, s, (float) (i1 + 1), (float) j1, 0);
+        this.font.drawString(matrixStack, s, (float) (i1 - 1), (float) j1, 0);
+        this.font.drawString(matrixStack, s, (float) i1, (float) (j1 + 1), 0);
+        this.font.drawString(matrixStack, s, (float) i1, (float) (j1 - 1), 0);
+        this.font.drawString(matrixStack, s, (float) i1, (float) j1, -65536);
     }
 
     public void renderAbilityDescription(MatrixStack matrix, int mx, int my, AbilityButton button) {
