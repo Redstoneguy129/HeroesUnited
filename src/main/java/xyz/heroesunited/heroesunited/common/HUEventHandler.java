@@ -1,10 +1,12 @@
 package xyz.heroesunited.heroesunited.common;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.gen.GenerationStage;
@@ -13,10 +15,7 @@ import net.minecraft.world.gen.feature.OreFeatureConfig;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingFallEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import xyz.heroesunited.heroesunited.common.abilities.*;
@@ -24,6 +23,7 @@ import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.command.HUCoreCommand;
+import xyz.heroesunited.heroesunited.common.events.HUCancelBlockCollision;
 import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
 import xyz.heroesunited.heroesunited.common.objects.HUSounds;
 import xyz.heroesunited.heroesunited.common.objects.blocks.HUBlocks;
@@ -32,6 +32,7 @@ import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HUEventHandler {
 
@@ -86,7 +87,7 @@ public class HUEventHandler {
     }
 
     @SubscribeEvent
-    public void onLivingHurt(LivingHurtEvent event) {
+    public void onLivingHurt(LivingAttackEvent event) {
         if (event.getEntityLiving() instanceof PlayerEntity) {
             for (Ability ability : AbilityHelper.getAbilities((PlayerEntity) event.getEntityLiving())) {
                 if (ability instanceof DamageImmunityAbility && ((DamageImmunityAbility) ability).haveImmuneTo(event.getSource())) {
@@ -96,6 +97,27 @@ public class HUEventHandler {
         }
     }
 
+    @SubscribeEvent
+    public void onCancelCollision(HUCancelBlockCollision event) {
+        Entity entity = event.getEntity();
+        AtomicBoolean collidable = new AtomicBoolean(true);
+        if (entity instanceof PlayerEntity) {
+            entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+                if (cap != null && cap.isIntangible()) {
+                    if (event.getState().getShape(event.getWorld(), event.getPos()) != VoxelShapes.empty()) {
+                        if (entity.getPositionVec().y >= (event.getPos().getY() + event.getState().getShape(event.getWorld(), event.getPos()).getBoundingBox().getYSize())) {
+                            collidable.set(!cap.isFlying() && !entity.isSneaking());
+                        } else {
+                            collidable.set(false);
+                        }
+                    } else {
+                        collidable.set(false);
+                    }
+                }
+            });
+            event.setCanceled(!collidable.get());
+        }
+    }
 
     @SubscribeEvent
     public void registerCommands(RegisterCommandsEvent event) {
