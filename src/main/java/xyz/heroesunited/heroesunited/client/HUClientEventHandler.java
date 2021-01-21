@@ -211,7 +211,11 @@ public class HUClientEventHandler {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public void onRenderBlockOverlay(RenderBlockOverlayEvent event) {
-        event.setCanceled(true);
+        event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+            if (cap.isIntangible()) {
+                event.setCanceled(true);
+            }
+        });
     }
 
     @SubscribeEvent
