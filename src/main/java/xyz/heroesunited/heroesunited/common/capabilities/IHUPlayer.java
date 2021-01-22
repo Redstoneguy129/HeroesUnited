@@ -66,6 +66,13 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable {
     void setFlying(boolean flying);
 
     /**
+     * Default ability - For using look at TheBoys/Ben10 mod
+     **/
+    boolean isInSlowMo();
+
+    void setSlowMo(boolean slowMo);
+
+    /**
      * Default ability - For using look at Danny Phantom Mod
      **/
     boolean isIntangible();

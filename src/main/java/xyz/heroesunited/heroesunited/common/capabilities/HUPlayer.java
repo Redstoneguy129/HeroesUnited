@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class HUPlayer implements IHUPlayer {
     private final PlayerEntity player;
-    private boolean flying, intangible, isInTimer;
+    private boolean flying, slowMo, intangible, isInTimer;
     private int theme, type, cooldown, timer, animationTimer;
     public final AccessoriesInventory inventory = new AccessoriesInventory();
     private AnimationFactory factory = new AnimationFactory(this);
@@ -78,6 +78,16 @@ public class HUPlayer implements IHUPlayer {
     public static IHUPlayer getCap(Entity entity) {
         entity.recalculateSize();
         return entity.getCapability(HUPlayerProvider.CAPABILITY).orElse(null);
+    }
+
+    @Override
+    public boolean isInSlowMo() {
+        return slowMo;
+    }
+
+    @Override
+    public void setSlowMo(boolean slowMo) {
+        this.slowMo = slowMo;
     }
 
     @Override
@@ -250,7 +260,7 @@ public class HUPlayer implements IHUPlayer {
         this.inventory.copy(cap.getInventory());
         this.activeAbilities = cap.getActiveAbilities();
         this.containedAbilities = cap.getAbilities();
-        this.flying = this.isInTimer = false;
+        this.flying = this.slowMo = this.isInTimer = false;
         this.timer = this.animationTimer = this.cooldown = 0;
         this.animationFile = cap.getAnimationFile();
         for (HUData data : this.dataList.values()) {
@@ -365,6 +375,7 @@ public class HUPlayer implements IHUPlayer {
         nbt.put("ActiveAbilities", activeAbilities);
         nbt.put("Abilities", abilities);
         nbt.putBoolean("Flying", this.flying);
+        nbt.putBoolean("SlowMo", this.slowMo);
         nbt.putBoolean("Intangible", this.intangible);
         nbt.putInt("Theme", this.theme);
         nbt.putInt("Type", this.type);
@@ -411,6 +422,9 @@ public class HUPlayer implements IHUPlayer {
         }
         if (nbt.contains("Intangible")) {
             this.intangible = nbt.getBoolean("Intangible");
+        }
+        if (nbt.contains("SlowMo")) {
+            this.slowMo = nbt.getBoolean("SlowMo");
         }
         if (nbt.contains("Theme")) {
             this.theme = nbt.getInt("Theme");

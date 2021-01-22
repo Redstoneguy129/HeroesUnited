@@ -15,7 +15,11 @@ import net.minecraft.world.gen.feature.OreFeatureConfig;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.entity.living.*;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import xyz.heroesunited.heroesunited.common.abilities.*;
@@ -29,12 +33,20 @@ import xyz.heroesunited.heroesunited.common.objects.HUSounds;
 import xyz.heroesunited.heroesunited.common.objects.blocks.HUBlocks;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
+import xyz.heroesunited.heroesunited.util.HUTickrate;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HUEventHandler {
+
+    @SubscribeEvent
+    public void onWorldTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) {
+            HUTickrate.tick(event.player, event.side);
+        }
+    }
 
     @SubscribeEvent
     public void livingUpdate(LivingEvent.LivingUpdateEvent event) {

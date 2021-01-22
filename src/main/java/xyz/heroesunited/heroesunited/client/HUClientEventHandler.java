@@ -208,7 +208,6 @@ public class HUClientEventHandler {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public void onRenderBlockOverlay(RenderBlockOverlayEvent event) {
         event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {

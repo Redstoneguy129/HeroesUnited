@@ -47,6 +47,7 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
 
     public static final AbilityType ATTRIBUTE_MODIFIER = new AbilityType(AttributeModifierAbility::new, HeroesUnited.MODID, "attribute_modifier");
     public static final AbilityType FLIGHT = new AbilityType(FlightAbility::new, HeroesUnited.MODID, "flight");
+    public static final AbilityType SLOW_MO = new AbilityType(SlowMoAbility::new, HeroesUnited.MODID, "slow_mo");
     public static final AbilityType GECKO = new AbilityType(GeckoAbility::new, HeroesUnited.MODID, "gecko");
     public static final AbilityType HIDE_BODY_PARTS = new AbilityType(HideBodyPartsAbility::new, HeroesUnited.MODID, "hide_body_parts");
     public static final AbilityType ROTATE_PARTS = new AbilityType(RotatePartsAbility::new, HeroesUnited.MODID, "rotate_parts");
@@ -58,6 +59,7 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
     public static void registerAbilityTypes(RegistryEvent.Register<AbilityType> e) {
         e.getRegistry().register(ATTRIBUTE_MODIFIER);
         e.getRegistry().register(FLIGHT);
+        e.getRegistry().register(SLOW_MO);
         e.getRegistry().register(GECKO);
         e.getRegistry().register(HIDE_BODY_PARTS);
         e.getRegistry().register(EYE_HEIGHT);
