@@ -11,7 +11,7 @@ import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesContain
 import java.util.function.Supplier;
 
 public class ServerOpenAccessoriesInv {
-    public static final TranslationTextComponent TRANSLATION = new TranslationTextComponent("gui.heroesunited.accesoire");
+    public static final TranslationTextComponent TRANSLATION = new TranslationTextComponent("gui.heroesunited.accessories");
 
     public ServerOpenAccessoriesInv() {
     }

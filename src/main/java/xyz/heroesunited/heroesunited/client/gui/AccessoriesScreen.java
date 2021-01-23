@@ -10,13 +10,13 @@ import net.minecraft.util.text.ITextComponent;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesContainer;
 
-public class AccessoireScreen extends ContainerScreen<AccessoriesContainer> {
+public class AccessoriesScreen extends ContainerScreen<AccessoriesContainer> {
 
     private float oldMouseX, oldMouseY;
 
     private static final ResourceLocation INVENTORY_GUI_TEXTURE = new ResourceLocation(HeroesUnited.MODID + ":textures/gui/accessories_gui.png");
 
-    public AccessoireScreen(AccessoriesContainer screenContainer, PlayerInventory inv, ITextComponent titleIn) {
+    public AccessoriesScreen(AccessoriesContainer screenContainer, PlayerInventory inv, ITextComponent titleIn) {
         super(screenContainer, inv, titleIn);
     }
 

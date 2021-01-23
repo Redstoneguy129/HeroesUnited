@@ -1,6 +1,6 @@
 package xyz.heroesunited.heroesunited.common.objects.container;
 
-public enum EquipmentAccessoireSlot {
+public enum EquipmentAccessoriesSlot {
     HELMET(0),
     TSHIRT(1),
     PANTS(2),
@@ -13,7 +13,7 @@ public enum EquipmentAccessoireSlot {
 
     private final int slot;
 
-    EquipmentAccessoireSlot(int slot) {
+    EquipmentAccessoriesSlot(int slot) {
         this.slot = slot;
     }
 
@@ -21,8 +21,8 @@ public enum EquipmentAccessoireSlot {
         return this.slot;
     }
 
-    public static EquipmentAccessoireSlot getFromSlotIndex(int slotIndexIn) {
-        for (EquipmentAccessoireSlot slot : values()) {
+    public static EquipmentAccessoriesSlot getFromSlotIndex(int slotIndexIn) {
+        for (EquipmentAccessoriesSlot slot : values()) {
             if (slot.getSlot() == slotIndexIn) {
                 return slot;
             }

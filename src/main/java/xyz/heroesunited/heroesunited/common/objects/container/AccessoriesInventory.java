@@ -21,7 +21,7 @@ public class AccessoriesInventory implements IInventory {
         return index >= 0 && index < this.inventory.size() ? this.inventory.get(index) : ItemStack.EMPTY;
     }
 
-    public boolean haveStack(EquipmentAccessoireSlot slot) {
+    public boolean haveStack(EquipmentAccessoriesSlot slot) {
         return getStackInSlot(slot.getSlot()) != null && !getStackInSlot(slot.getSlot()).isEmpty();
     }
 

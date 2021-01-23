@@ -25,7 +25,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.client.render.model.ModelSuit;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
-import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoireSlot;
+import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
@@ -205,10 +205,10 @@ public abstract class Suit {
         return hasArmorOn;
     }
 
-    public List<EquipmentAccessoireSlot> getSlotForHide(EquipmentSlotType slot) {
-        List<EquipmentAccessoireSlot> list = Lists.newArrayList();
+    public List<EquipmentAccessoriesSlot> getSlotForHide(EquipmentSlotType slot) {
+        List<EquipmentAccessoriesSlot> list = Lists.newArrayList();
         for (int i = 0; i <= 8; ++i) {
-            list.add(EquipmentAccessoireSlot.getFromSlotIndex(i));
+            list.add(EquipmentAccessoriesSlot.getFromSlotIndex(i));
         }
         return list;
     }

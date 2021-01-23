@@ -35,11 +35,11 @@ public class AccessoriesContainer extends Container {
 
         for (int k = 0; k < 4; ++k) {
             this.addSlot(new AccessorySlot(inventory, k, 110, 8 + k * 18));
-            if (4 + k == EquipmentAccessoireSlot.RIGHT_WRIST.getSlot()) {
-                this.addSlot(new WristSlot(inventory, 4 + k, 141, 8 + k * 18,EquipmentAccessoireSlot.RIGHT_WRIST));
+            if (4 + k == EquipmentAccessoriesSlot.RIGHT_WRIST.getSlot()) {
+                this.addSlot(new WristSlot(inventory, 4 + k, 141, 8 + k * 18, EquipmentAccessoriesSlot.RIGHT_WRIST));
             } else {
-                if( 4 + k == EquipmentAccessoireSlot.LEFT_WRIST.getSlot()){
-                    this.addSlot(new WristSlot(inventory, 4 + k, 141, 8 + k * 18,EquipmentAccessoireSlot.LEFT_WRIST));
+                if( 4 + k == EquipmentAccessoriesSlot.LEFT_WRIST.getSlot()){
+                    this.addSlot(new WristSlot(inventory, 4 + k, 141, 8 + k * 18, EquipmentAccessoriesSlot.LEFT_WRIST));
                 }else{
                     this.addSlot(new AccessorySlot(inventory, 4 + k, 141, 8 + k * 18));
                 }
@@ -141,11 +141,11 @@ public class AccessoriesContainer extends Container {
 
     public class AccessorySlot extends Slot {
 
-        private final EquipmentAccessoireSlot equipmentSlot;
+        private final EquipmentAccessoriesSlot equipmentSlot;
 
         public AccessorySlot(IInventory inventoryIn, int index, int xPosition, int yPosition) {
             super(inventoryIn, index, xPosition, yPosition);
-            this.equipmentSlot = EquipmentAccessoireSlot.getFromSlotIndex(index);
+            this.equipmentSlot = EquipmentAccessoriesSlot.getFromSlotIndex(index);
         }
 
         public int getSlotStackLimit() {
@@ -164,16 +164,16 @@ public class AccessoriesContainer extends Container {
 
     public class WristSlot extends AccessorySlot {
 
-        private EquipmentAccessoireSlot slot;
+        private EquipmentAccessoriesSlot slot;
 
-        public WristSlot(IInventory inventoryIn, int index, int xPosition, int yPosition, EquipmentAccessoireSlot slot) {
+        public WristSlot(IInventory inventoryIn, int index, int xPosition, int yPosition, EquipmentAccessoriesSlot slot) {
             super(inventoryIn, index, xPosition, yPosition);
             this.slot = slot;
         }
 
         @Override
         public boolean isItemValid(ItemStack stack) {
-            return stack.getItem() instanceof IAccessory ? ((IAccessory) stack.getItem()).getSlot() == EquipmentAccessoireSlot.WRIST || ((IAccessory) stack.getItem()).getSlot() == slot : super.isItemValid(stack);
+            return stack.getItem() instanceof IAccessory ? ((IAccessory) stack.getItem()).getSlot() == EquipmentAccessoriesSlot.WRIST || ((IAccessory) stack.getItem()).getSlot() == slot : super.isItemValid(stack);
         }
     }
 }

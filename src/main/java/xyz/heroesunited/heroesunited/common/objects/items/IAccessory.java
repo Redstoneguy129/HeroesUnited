@@ -10,7 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoireSlot;
+import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
 
 import java.util.List;
@@ -27,9 +27,9 @@ public interface IAccessory {
     }
 
     @OnlyIn(Dist.CLIENT)
-    ResourceLocation getTexture(ItemStack stack, PlayerEntity entity, EquipmentAccessoireSlot slot);
+    ResourceLocation getTexture(ItemStack stack, PlayerEntity entity, EquipmentAccessoriesSlot slot);
 
-    EquipmentAccessoireSlot getSlot();
+    EquipmentAccessoriesSlot getSlot();
 
     default boolean canTakeStack(PlayerEntity player, ItemStack stack) {
         return stack.isEmpty() || player.isCreative() || !EnchantmentHelper.hasBindingCurse(stack);

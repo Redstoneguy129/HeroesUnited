@@ -45,7 +45,7 @@ import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccessoriesInv;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerToggleKey;
-import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoireSlot;
+import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
@@ -60,7 +60,7 @@ import java.util.Map;
 public class HUClientEventHandler {
 
     public static final KeyBinding ABILITIES_SCREEN = new KeyBinding(HeroesUnited.MODID + ".key.abilities_screen", GLFW.GLFW_KEY_H, "key.categories." + HeroesUnited.MODID);
-    public static final KeyBinding ACCESSOIRES_SCREEN = new KeyBinding(HeroesUnited.MODID + ".key.accessoires_screen", GLFW.GLFW_KEY_J, "key.categories." + HeroesUnited.MODID);
+    public static final KeyBinding ACCESSORIES_SCREEN = new KeyBinding(HeroesUnited.MODID + ".key.accessories_screen", GLFW.GLFW_KEY_J, "key.categories." + HeroesUnited.MODID);
     private final List<String> playerBones = Arrays.asList("bipedHead", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg");
     private final ArrayList<LivingRenderer> entitiesWithLayer = Lists.newArrayList();
     public static List<AbilityKeyBinding> ABILITY_KEYS = Lists.newArrayList();
@@ -69,7 +69,7 @@ public class HUClientEventHandler {
     public HUClientEventHandler() {
         if (Minecraft.getInstance() != null) {
             ClientRegistry.registerKeyBinding(ABILITIES_SCREEN);
-            ClientRegistry.registerKeyBinding(ACCESSOIRES_SCREEN);
+            ClientRegistry.registerKeyBinding(ACCESSORIES_SCREEN);
 
             for (int i = 1; i <= 5; i++) {
                 int key = i == 1 ? GLFW.GLFW_KEY_Z : i == 2 ? GLFW.GLFW_KEY_R : i == 3 ? GLFW.GLFW_KEY_G : i == 4 ? GLFW.GLFW_KEY_V : i == 5 ? GLFW.GLFW_KEY_B : -1;
@@ -102,7 +102,7 @@ public class HUClientEventHandler {
         if (ABILITIES_SCREEN.isPressed()) {
             mc.player.world.playSound(mc.player, mc.player.getPosX(), mc.player.getPosY(), mc.player.getPosZ(), SoundEvents.BLOCK_STONE_BUTTON_CLICK_ON, SoundCategory.NEUTRAL, 1, 0);
             mc.displayGuiScreen(new AbilitiesScreen());
-        } else if (ACCESSOIRES_SCREEN.isPressed()) {
+        } else if (ACCESSORIES_SCREEN.isPressed()) {
             HUNetworking.INSTANCE.sendToServer(new ServerOpenAccessoriesInv());
         }
 
@@ -132,7 +132,7 @@ public class HUClientEventHandler {
     }
 
     @SubscribeEvent
-    public void onRenderAccessoires(HURenderLayerEvent.Accesoires event) {
+    public void onRenderAccessories(HURenderLayerEvent.Accessories event) {
         for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
             if (ability instanceof HideBodyPartsAbility && JSONUtils.hasField(ability.getJsonObject(), "visibility_parts")) {
                 for (Map.Entry<String, JsonElement> yep : JSONUtils.getJsonObject(ability.getJsonObject(), "visibility_parts").entrySet()) {
@@ -271,7 +271,7 @@ public class HUClientEventHandler {
                 ItemStack stack = cap.getInventory().getStackInSlot(slot);
                 if (stack != null && stack.getItem() instanceof IAccessory) {
                     IAccessory accessoire = ((IAccessory) stack.getItem());
-                    if (!(Suit.getSuitItem(player) != null && Suit.getSuitItem(player).getSuit().getSlotForHide(Suit.getSuitItem(player).getEquipmentSlot()).contains(EquipmentAccessoireSlot.getFromSlotIndex(slot)))) {
+                    if (!(Suit.getSuitItem(player) != null && Suit.getSuitItem(player).getSuit().getSlotForHide(Suit.getSuitItem(player).getEquipmentSlot()).contains(EquipmentAccessoriesSlot.getFromSlotIndex(slot)))) {
                         if (accessoire.getHiddenParts() !=null) {
                             for (PlayerPart part : accessoire.getHiddenParts()) {
                                 part.setVisibility(event.getPlayerModel(), false);

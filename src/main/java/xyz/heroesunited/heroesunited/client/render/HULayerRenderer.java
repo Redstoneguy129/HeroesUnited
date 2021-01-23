@@ -22,7 +22,7 @@ import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
-import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoireSlot;
+import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
@@ -57,12 +57,12 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                 for (int slot = 0; slot < 8; ++slot) {
                     ItemStack stack = cap.getInventory().getStackInSlot(slot);
-                    if (stack != null && stack.getItem() instanceof IAccessory && !MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Accesoires(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch))) {
+                    if (stack != null && stack.getItem() instanceof IAccessory && !MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Accessories(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch))) {
                         IAccessory accessoire = ((IAccessory) stack.getItem());
                         ModelSuit suitModel = new ModelSuit(accessoire.getScale(stack), HUPlayerUtil.haveSmallArms(player));
-                        if (!(Suit.getSuitItem(player) != null && Suit.getSuitItem(player).getSuit().getSlotForHide(Suit.getSuitItem(player).getEquipmentSlot()).contains(EquipmentAccessoireSlot.getFromSlotIndex(slot)))) {
+                        if (!(Suit.getSuitItem(player) != null && Suit.getSuitItem(player).getSuit().getSlotForHide(Suit.getSuitItem(player).getEquipmentSlot()).contains(EquipmentAccessoriesSlot.getFromSlotIndex(slot)))) {
                             if (accessoire.renderDefaultModel()) {
-                                renderAccessoire(suitModel, matrixStack, buffer, packedLight, player, playerRenderer, accessoire, stack, cap, EquipmentAccessoireSlot.getFromSlotIndex(slot));
+                                renderAccessoire(suitModel, matrixStack, buffer, packedLight, player, playerRenderer, accessoire, stack, cap, EquipmentAccessoriesSlot.getFromSlotIndex(slot));
                             } else {
                                 accessoire.render(playerRenderer, matrixStack, buffer, packedLight, player, stack, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, slot);
                             }
@@ -74,25 +74,25 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
         }
     }
 
-    private void renderAccessoire(ModelSuit suitModel, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, PlayerEntity player, PlayerRenderer playerRenderer, IAccessory accessoire, ItemStack stack, IHUPlayer cap, EquipmentAccessoireSlot slot) {
+    private void renderAccessoire(ModelSuit suitModel, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, PlayerEntity player, PlayerRenderer playerRenderer, IAccessory accessoire, ItemStack stack, IHUPlayer cap, EquipmentAccessoriesSlot slot) {
         suitModel.setVisible(false);
-        if (slot == EquipmentAccessoireSlot.HELMET) {
+        if (slot == EquipmentAccessoriesSlot.HELMET) {
             suitModel.bipedHeadwear.showModel = suitModel.bipedHead.showModel = cap.getInventory().haveStack(slot);
-        } else if (slot == EquipmentAccessoireSlot.JACKET) {
+        } else if (slot == EquipmentAccessoriesSlot.JACKET) {
             suitModel.bipedHeadwear.showModel = suitModel.bipedHead.showModel =
                     suitModel.bipedBody.showModel = suitModel.bipedBodyWear.showModel =
                             suitModel.bipedLeftArmwear.showModel = suitModel.bipedLeftArm.showModel =
                                     suitModel.bipedRightArmwear.showModel = suitModel.bipedRightArm.showModel = cap.getInventory().haveStack(slot);
-        } else if (slot == EquipmentAccessoireSlot.TSHIRT || slot == EquipmentAccessoireSlot.RIGHT_WRIST ||
-                slot == EquipmentAccessoireSlot.LEFT_WRIST || slot == EquipmentAccessoireSlot.GLOVES) {
+        } else if (slot == EquipmentAccessoriesSlot.TSHIRT || slot == EquipmentAccessoriesSlot.RIGHT_WRIST ||
+                slot == EquipmentAccessoriesSlot.LEFT_WRIST || slot == EquipmentAccessoriesSlot.GLOVES) {
             suitModel.bipedBody.showModel = suitModel.bipedBodyWear.showModel =
                     suitModel.bipedLeftArmwear.showModel = suitModel.bipedLeftArm.showModel =
                             suitModel.bipedRightArmwear.showModel = suitModel.bipedRightArm.showModel = cap.getInventory().haveStack(slot);
         }
 
         suitModel.bipedLeftLegwear.showModel = suitModel.bipedRightLegwear.showModel = suitModel.bipedLeftLeg.showModel =
-                suitModel.bipedRightLeg.showModel = slot == EquipmentAccessoireSlot.PANTS && cap.getInventory().haveStack(slot)
-                        || slot == EquipmentAccessoireSlot.SHOES && cap.getInventory().haveStack(EquipmentAccessoireSlot.SHOES);
+                suitModel.bipedRightLeg.showModel = slot == EquipmentAccessoriesSlot.PANTS && cap.getInventory().haveStack(slot)
+                        || slot == EquipmentAccessoriesSlot.SHOES && cap.getInventory().haveStack(EquipmentAccessoriesSlot.SHOES);
 
         playerRenderer.getEntityModel().setModelAttributes(suitModel);
 

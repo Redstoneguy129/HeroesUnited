@@ -26,7 +26,7 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
 import xyz.heroesunited.heroesunited.client.HUClientEventHandler;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
-import xyz.heroesunited.heroesunited.client.gui.AccessoireScreen;
+import xyz.heroesunited.heroesunited.client.gui.AccessoriesScreen;
 import xyz.heroesunited.heroesunited.client.render.renderer.GeckoSuitRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.IGeoAbility;
 import xyz.heroesunited.heroesunited.client.render.renderer.RendererHoras;
@@ -109,7 +109,7 @@ public class HeroesUnited {
         ClientRegistry.registerEntityShader(Horas.class, new ResourceLocation(MODID, "shaders/post/horas.json"));
         RenderingRegistry.registerEntityRenderingHandler(HUEntities.HORAS, RendererHoras::new);
         GeoArmorRenderer.registerArmorRenderer(GeckoSuitItem.class, new GeckoSuitRenderer());
-        ScreenManager.registerFactory(HUContainers.ACCESSORIES, AccessoireScreen::new);
+        ScreenManager.registerFactory(HUContainers.ACCESSORIES, AccessoriesScreen::new);
         new HorasInfo.DimensionInfo("Overworld", "Default      Dimension", new ResourceLocation("overworld"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/overworld.png"));
         new HorasInfo.DimensionInfo("Nether", "Default      Dimension", new ResourceLocation("the_nether"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/the_nether.png"));
         new HorasInfo.DimensionInfo("End", "Default      Dimension", new ResourceLocation("the_end"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/the_end.png"));

@@ -19,7 +19,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.IForgeRegistry;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
-import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoireSlot;
+import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
 
@@ -101,14 +101,14 @@ public class JsonSuit extends Suit {
     }
 
     @Override
-    public List<EquipmentAccessoireSlot> getSlotForHide(EquipmentSlotType slot) {
-        List<EquipmentAccessoireSlot> list = Lists.newArrayList();
-        if (JSONUtils.hasField(jsonObject, "hide_accessoires")) {
-            JsonObject jsonObject = JSONUtils.getJsonObject(this.jsonObject, "hide_accessoires");
+    public List<EquipmentAccessoriesSlot> getSlotForHide(EquipmentSlotType slot) {
+        List<EquipmentAccessoriesSlot> list = Lists.newArrayList();
+        if (JSONUtils.hasField(jsonObject, "hide_accessories")) {
+            JsonObject jsonObject = JSONUtils.getJsonObject(this.jsonObject, "hide_accessories");
             for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
                 if (e.getValue() instanceof JsonArray && slot.equals(EquipmentSlotType.fromString(e.getKey()))) {
                     for (int i = 0; i < ((JsonArray) e.getValue()).size(); i++) {
-                        list.add(EquipmentAccessoireSlot.getFromSlotIndex(i));
+                        list.add(EquipmentAccessoriesSlot.getFromSlotIndex(i));
                     }
                 }
             }
