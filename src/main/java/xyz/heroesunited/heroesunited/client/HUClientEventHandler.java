@@ -2,6 +2,7 @@ package xyz.heroesunited.heroesunited.client;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonElement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.CustomizeSkinScreen;
 import net.minecraft.client.gui.widget.button.Button;
@@ -39,10 +40,7 @@ import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.client.render.HULayerRenderer;
 import xyz.heroesunited.heroesunited.common.HUConfig;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
-import xyz.heroesunited.heroesunited.common.abilities.EyeHeightAbility;
-import xyz.heroesunited.heroesunited.common.abilities.HideBodyPartsAbility;
-import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
+import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
@@ -135,12 +133,31 @@ public class HUClientEventHandler {
     }
 
     @SubscribeEvent
-    public void onArmorLayer(HURenderLayerEvent.Pre event) {
+    public void onRenderAccessoires(HURenderLayerEvent.Accesoires event) {
+        for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
+            if (ability instanceof HideBodyPartsAbility && JSONUtils.hasField(ability.getJsonObject(), "visibility_parts")) {
+                for (Map.Entry<String, JsonElement> yep : JSONUtils.getJsonObject(ability.getJsonObject(), "visibility_parts").entrySet()) {
+                    if (yep.getKey().equals("all")) {
+                        event.setCanceled(!JSONUtils.getBoolean(yep.getValue(), yep.getKey()));
+                    }
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onRenderHULayer(HURenderLayerEvent.Pre event) {
         if (event.getLivingEntity() instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) event.getLivingEntity();
-            AbilityHelper.getAbilities(player).stream().filter(ability -> ability instanceof HideBodyPartsAbility && JSONUtils.hasField(ability.getJsonObject(), "visibility_parts"))
-                    .map(ability -> JSONUtils.getJsonObject(ability.getJsonObject(), "visibility_parts")).forEachOrdered(overrides -> overrides.entrySet().stream().filter(entry -> entry.getKey().equals("all"))
-                    .map(entry -> JSONUtils.getBoolean(overrides, entry.getKey())).forEachOrdered(event::setCanceled));
+            for (Ability ability : AbilityHelper.getAbilities(player)) {
+                if (ability instanceof HideBodyPartsAbility && JSONUtils.hasField(ability.getJsonObject(), "visibility_parts")) {
+                    for (Map.Entry<String, JsonElement> yep : JSONUtils.getJsonObject(ability.getJsonObject(), "visibility_parts").entrySet()) {
+                        if (yep.getKey().equals("all")) {
+                            event.setCanceled(!JSONUtils.getBoolean(yep.getValue(), yep.getKey()));
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -148,9 +165,15 @@ public class HUClientEventHandler {
     public void onArmorLayer(HURenderLayerEvent.Armor.Pre event) {
         if (event.getLivingEntity() instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) event.getLivingEntity();
-            AbilityHelper.getAbilities(player).stream().filter(ability -> ability instanceof HideBodyPartsAbility && JSONUtils.hasField(ability.getJsonObject(), "visibility_parts"))
-                    .map(ability -> JSONUtils.getJsonObject(ability.getJsonObject(), "visibility_parts")).forEachOrdered(overrides -> overrides.entrySet().stream().filter(entry -> entry.getKey().equals("all"))
-                    .map(entry -> JSONUtils.getBoolean(overrides, entry.getKey())).forEachOrdered(event::setCanceled));
+            for (Ability ability : AbilityHelper.getAbilities(player)) {
+                if (ability instanceof HideBodyPartsAbility && JSONUtils.hasField(ability.getJsonObject(), "visibility_parts")) {
+                    for (Map.Entry<String, JsonElement> yep : JSONUtils.getJsonObject(ability.getJsonObject(), "visibility_parts").entrySet()) {
+                        if (yep.getKey().equals("all")) {
+                            event.setCanceled(!JSONUtils.getBoolean(yep.getValue(), yep.getKey()));
+                        }
+                    }
+                }
+            }
         }
     }
 
