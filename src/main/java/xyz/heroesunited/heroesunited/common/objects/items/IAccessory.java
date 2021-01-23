@@ -13,6 +13,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoireSlot;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
 
+import java.util.List;
+
 public interface IAccessory {
 
     @OnlyIn(Dist.CLIENT)
@@ -37,7 +39,7 @@ public interface IAccessory {
         return true;
     }
 
-    default PlayerPart getPart() {
+    default List<PlayerPart> getHiddenParts() {
         return null;
     }
 

@@ -51,6 +51,7 @@ import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoir
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
+import xyz.heroesunited.heroesunited.util.PlayerPart;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -278,8 +279,10 @@ public class HUClientEventHandler {
                 if (stack != null && stack.getItem() instanceof IAccessory) {
                     IAccessory accessoire = ((IAccessory) stack.getItem());
                     if (!(Suit.getSuit(player) != null && Suit.getSuit(player).getSlotForHide().contains(EquipmentAccessoireSlot.getFromSlotIndex(slot)))) {
-                        if (accessoire.getPart() !=null) {
-                            accessoire.getPart().setVisibility(event.getPlayerModel(), false);
+                        if (accessoire.getHiddenParts() !=null) {
+                            for (PlayerPart part : accessoire.getHiddenParts()) {
+                                part.setVisibility(event.getPlayerModel(), false);
+                            }
                         }
                     }
                 }
