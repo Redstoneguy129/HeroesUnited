@@ -1,5 +1,5 @@
 {
-  "key.categories.heroesunited": "Объеденение Героев",
+  "key.categories.heroesunited": "Объединение Героев",
   "heroesunited.key.ability_1": "Способность 1",
   "heroesunited.key.ability_2": "Способность 2",
   "heroesunited.key.ability_3": "Способность 3",
@@ -21,12 +21,13 @@
   "block.heroesunited.titanium": "Блок Титаниума",
   "block.heroesunited.titanium_ore": "Титаниумовая руда",
 
-  "advancements.heroesunited.root.title": "Объеденение Героев",
+  "advancements.heroesunited.root.title": "Объединение Героев",
   "advancements.heroesunited.root.description": "Вы скачали Объеденение Героев!",
 
   "config.heroesunited.renderhead": "Рендерить голову для Патреонов",
   "gui.heroesunited.changehead": "Переключить голову Патреона",
   "gui.heroesunited.abilities": "Окно Способностей",
+  "gui.heroesunited.accesoire": "Окно Аксессуаров",
 
   "commands.heroesunited.DidntExist": "Это не существует",
   "commands.heroesunited.suit.set.single": "%s выдан %s костюм",
@@ -38,5 +39,6 @@
   "commands.heroesunited.superpower.set.multiple": "У %s сущностей суперспособность была установлена на %s",
 
   "heroesunited.jumpBoost": "Прыгучесть",
-  "heroesunited.fallResistance": "Защита от Падения"
+  "heroesunited.fallResistance": "Защита от Падения",
+  "heroesunited.no_patreon.message": "Извинте, альфы только для патреонов,\nпожалуйста подождите до момента когда мод перейдет в стадию беты,\nили купите Патреон"
 }
