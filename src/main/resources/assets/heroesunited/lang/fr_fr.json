@@ -1,0 +1,45 @@
+{
+  "key.categories.heroesunited": "Héros Réunis",
+  "heroesunited.key.ability_1": "Abilité 1",
+  "heroesunited.key.ability_2": "Abilité 2",
+  "heroesunited.key.ability_3": "Abilité 3",
+  "heroesunited.key.ability_4": "Abilité 4",
+  "heroesunited.key.ability_5": "Abilité 5",
+  "heroesunited.key.abilities_screen": "Menu D'Abilité",
+  "heroesunited.key.accessoires_screen": "Menu D'accessoires",
+
+  "entity.heroesunited.horas": "HORAS",
+
+  "subtitles.flying": "Vol",
+
+  "item.heroesunited.comic": "Comics 5 ans Plus tard",
+  "item.heroesunited.titanium_ingot": "Lingot de Titanium",
+  "item.heroesunited.titanium": "Block de Titanium",
+  "item.heroesunited.titanium_ore": "Minerai de Titanium",
+  "item.heroesunited.horas": "Horas",
+  "item.heroesunited.heroes_united": "Héros Réunis",
+
+  "block.heroesunited.titanium": "Block de Titanium",
+  "block.heroesunited.titanium_ore": "Minerais de Titanium",
+
+  "advancements.heroesunited.root.title": "Héros Réunis",
+  "advancements.heroesunited.root.description": "Installer Héros Réunis!",
+
+  "config.heroesunited.renderhead": "Render Patreon Head",
+  "gui.heroesunited.changehead": "Toggle Patreon Head",
+  "gui.heroesunited.abilities": "Abilité Gui,",
+  "gui.heroesunited.accesoire": "Accessoires gui",
+
+  "commands.heroesunited.DidntExist": "Sa n'existe pas",
+  "commands.heroesunited.suit.set.single": "%s donné %s costume",
+  "commands.heroesunited.suit.set.multiple": "Les entités ont reçu le costume% s",
+  "commands.heroesunited.superpower.removed": "%s le pouvoir a été Retirer",
+  "commands.heroesunited.superpower.removed.multiple": "%s le pouvoir a été Retirer",
+  "commands.heroesunited.ability.disabled": "Abilité on été Désactiver",
+  "commands.heroesunited.superpower.set.single": "%s Pouvoir a été réglée sur %s",
+  "commands.heroesunited.superpower.set.multiple": "%s entités Pouvoir a été réglé sur %s",
+
+  "heroesunited.jumpBoost": "Boost de Saut",
+  "heroesunited.fallResistance": "Resistance a la Chute",
+  "heroesunited.no_patreon.message": "Désolé, Alpha est seulement pour les patréons,\ns'il vous plait patientez a la prochaine Beta,\nou rejoignez les patreons"
+}
