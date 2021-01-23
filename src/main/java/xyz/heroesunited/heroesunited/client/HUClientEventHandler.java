@@ -13,6 +13,7 @@ import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
@@ -42,11 +43,14 @@ import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.EyeHeightAbility;
 import xyz.heroesunited.heroesunited.common.abilities.HideBodyPartsAbility;
 import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
+import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccessoriesInv;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerToggleKey;
+import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoireSlot;
+import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
 
@@ -230,12 +234,12 @@ public class HUClientEventHandler {
             }
         }
 
-        player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
+        player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             for (String s : playerBones) {
-                GeoBone bone = a.getAnimatedModel().getModel(a.getAnimatedModel().getModelLocation(a)).getBone(s).get();
+                GeoBone bone = cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap)).getBone(s).get();
                 ModelRenderer renderer = HUClientUtil.getModelRendererById(event.getPlayerModel(), s);
-                if (a.getController().getCurrentAnimation() != null && a.getController().getAnimationState() == AnimationState.Running) {
-                    for (BoneAnimation boneAnimation : a.getController().getCurrentAnimation().boneAnimations) {
+                if (cap.getController().getCurrentAnimation() != null && cap.getController().getAnimationState() == AnimationState.Running) {
+                    for (BoneAnimation boneAnimation : cap.getController().getCurrentAnimation().boneAnimations) {
                         if (boneAnimation.boneName.equals(s)) {
                             renderer.rotateAngleX = -bone.getRotationX();
                             renderer.rotateAngleY = -bone.getRotationY();
@@ -246,7 +250,19 @@ public class HUClientEventHandler {
                 }
             }
 
-            if (a.isFlying() && !player.isOnGround() && !player.isSwimming() && player.isSprinting()) {
+            for (int slot = 0; slot <= 8; ++slot) {
+                ItemStack stack = cap.getInventory().getStackInSlot(slot);
+                if (stack != null && stack.getItem() instanceof IAccessory) {
+                    IAccessory accessoire = ((IAccessory) stack.getItem());
+                    if (!(Suit.getSuit(player) != null && Suit.getSuit(player).getSlotForHide().contains(EquipmentAccessoireSlot.getFromSlotIndex(slot)))) {
+                        if (accessoire.getPart() !=null) {
+                            accessoire.getPart().setVisibility(event.getPlayerModel(), false);
+                        }
+                    }
+                }
+            }
+
+            if (cap.isFlying() && !player.isOnGround() && !player.isSwimming() && player.isSprinting()) {
                 PlayerModel model = event.getPlayerModel();
                 boolean renderFlying = IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).setDefaultRotationAngles(event.getPlayer());
                 if (renderFlying) {

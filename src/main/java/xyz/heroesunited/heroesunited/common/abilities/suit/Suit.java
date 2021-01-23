@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.common.abilities.suit;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
@@ -24,6 +25,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.client.render.model.ModelSuit;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
+import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoireSlot;
 import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
@@ -201,6 +203,14 @@ public abstract class Suit {
             hasArmorOn = false;
 
         return hasArmorOn;
+    }
+
+    public List<EquipmentAccessoireSlot> getSlotForHide() {
+        List<EquipmentAccessoireSlot> list = Lists.newArrayList();
+        for (int i = 0; i <= 8; ++i) {
+            list.add(EquipmentAccessoireSlot.getFromSlotIndex(i));
+        }
+        return list;
     }
 
     public static void registerSuit(Suit suit) {

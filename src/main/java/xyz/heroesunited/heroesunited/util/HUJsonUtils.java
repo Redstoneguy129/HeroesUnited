@@ -2,7 +2,6 @@ package xyz.heroesunited.heroesunited.util;
 
 import com.google.common.collect.Lists;
 import com.google.gson.*;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.IArmorMaterial;
@@ -111,34 +110,17 @@ public class HUJsonUtils {
         return Suit.SUITS.get(location);
     }
 
-    public static ModelRenderer getPart(String name, PlayerModel model) {
-        switch (name) {
-            case "head":
-                return model.bipedHead;
-            case "head_wear":
-                return model.bipedHeadwear;
-            case "body":
-                return model.bipedBody;
-            case "body_wear":
-                return model.bipedBodyWear;
-            case "right_arm":
-                return model.bipedRightArm;
-            case "right_arm_wear":
-                return model.bipedRightArmwear;
-            case "left_arm":
-                return model.bipedLeftArm;
-            case "left_arm_wear":
-                return model.bipedLeftArmwear;
-            case "right_leg":
-                return model.bipedRightLeg;
-            case "right_leg_wear":
-                return model.bipedRightLegwear;
-            case "left_leg":
-                return model.bipedLeftLeg;
-            case "left_leg_wear":
-                return model.bipedLeftLegwear;
-            default:
-                return null;
+    public static void rotatePartOfModel(ModelRenderer modelRenderer, String xyz, float angle) {
+        switch (xyz) {
+            case "x":
+                modelRenderer.rotateAngleX = (float) Math.toRadians(angle);
+                break;
+            case "y":
+                modelRenderer.rotateAngleY = (float) Math.toRadians(angle);
+                break;
+            case "z":
+                modelRenderer.rotateAngleZ = (float) Math.toRadians(angle);
+                break;
         }
     }
 }

@@ -3,7 +3,6 @@ package xyz.heroesunited.heroesunited.common.abilities.suit;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.IArmorMaterial;
@@ -19,6 +18,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
+import xyz.heroesunited.heroesunited.util.PlayerPart;
 
 import java.util.List;
 import java.util.Map;
@@ -100,24 +100,23 @@ public class JsonSuit extends Suit {
     @OnlyIn(Dist.CLIENT)
     @Override
     public void setRotationAngles(HUSetRotationAnglesEvent event, EquipmentSlotType slot) {
+        super.setRotationAngles(event, slot);
         if (JSONUtils.hasField(jsonObject, "visibility_parts")) {
             JsonObject overrides = JSONUtils.getJsonObject(jsonObject, "visibility_parts");
 
             for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
-                ModelRenderer part = HUJsonUtils.getPart(entry.getKey(), event.getPlayerModel());
+                PlayerPart part = PlayerPart.getByName(entry.getKey());
                 if (part != null) {
                     if (entry.getValue() instanceof JsonObject) {
                         JsonObject json = (JsonObject) entry.getValue();
                         if (slot.equals(EquipmentSlotType.fromString(JSONUtils.getString(json, "slot")))) {
-                            part.showModel = JSONUtils.getBoolean(json, "show");
+                            part.setVisibility(event.getPlayerModel(), JSONUtils.getBoolean(json, "show"));
                         }
                     } else {
                         if (hasArmorOn(event.getPlayer())) {
-                            part.showModel = JSONUtils.getBoolean(overrides, entry.getKey());
+                            part.setVisibility(event.getPlayerModel(), JSONUtils.getBoolean(overrides, entry.getKey()));
                         }
                     }
-                } else if (entry.getKey().equals("all")) {
-                    event.getPlayerModel().setVisible(false);
                 }
             }
         }

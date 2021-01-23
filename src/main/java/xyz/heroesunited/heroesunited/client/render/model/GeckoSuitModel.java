@@ -1,5 +1,7 @@
 package xyz.heroesunited.heroesunited.client.render.model;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import xyz.heroesunited.heroesunited.common.abilities.suit.GeckoSuitItem;
@@ -7,12 +9,19 @@ import xyz.heroesunited.heroesunited.common.abilities.suit.GeckoSuitItem;
 public class GeckoSuitModel<T extends GeckoSuitItem> extends AnimatedGeoModel<T> {
     @Override
     public ResourceLocation getModelLocation(T item) {
-        return new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "geo/" + item.getSuit().getRegistryName().getPath() + ".geo.json");
+        ResourceLocation res = new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "geo/" + item.getSuit().getRegistryName().getPath() + ".geo.json");
+        return item.getSuit().getJsonObject() != null ? new ResourceLocation(JSONUtils.getString(item.getSuit().getJsonObject(), "model", res.toString())) : res;
     }
 
     @Override
     public ResourceLocation getTextureLocation(T item) {
-        return new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "textures/suits/" + item.getSuit().getRegistryName().getPath() + ".png");
+        if (item.getSuit().getJsonObject() != null && item.getSuit().getJsonObject().has("texture")) {
+            if (JSONUtils.getString(item.getSuit().getJsonObject(), "texture").equals("player")) {
+                return Minecraft.getInstance().player.getLocationSkin();
+            } else {
+                return new ResourceLocation(JSONUtils.getString(item.getSuit().getJsonObject(), "texture"));
+            }
+        } else return new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "textures/suits/" + item.getSuit().getRegistryName().getPath() + ".png");
     }
 
     @Override

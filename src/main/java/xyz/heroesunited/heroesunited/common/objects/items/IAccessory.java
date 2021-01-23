@@ -11,6 +11,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoireSlot;
+import xyz.heroesunited.heroesunited.util.PlayerPart;
 
 public interface IAccessory {
 
@@ -34,6 +35,10 @@ public interface IAccessory {
 
     default boolean dropAfterDeath(PlayerEntity player, ItemStack stack) {
         return true;
+    }
+
+    default PlayerPart getPart() {
+        return null;
     }
 
     @OnlyIn(Dist.CLIENT)
