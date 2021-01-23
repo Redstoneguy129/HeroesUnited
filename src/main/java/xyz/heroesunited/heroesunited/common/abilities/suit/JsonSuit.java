@@ -1,5 +1,7 @@
 package xyz.heroesunited.heroesunited.common.abilities.suit;
 
+import com.google.common.collect.Lists;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -17,6 +19,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.IForgeRegistry;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
+import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoireSlot;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
 
@@ -95,6 +98,22 @@ public class JsonSuit extends Suit {
     @Override
     public float getScale(EquipmentSlotType slot) {
         return JSONUtils.hasField(jsonObject, "scale") ? JSONUtils.getFloat(jsonObject, "scale") : super.getScale(slot);
+    }
+
+    @Override
+    public List<EquipmentAccessoireSlot> getSlotForHide(EquipmentSlotType slot) {
+        List<EquipmentAccessoireSlot> list = Lists.newArrayList();
+        if (JSONUtils.hasField(jsonObject, "hide_accessoires")) {
+            JsonObject jsonObject = JSONUtils.getJsonObject(this.jsonObject, "hide_accessoires");
+            for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
+                if (e.getValue() instanceof JsonArray && slot.equals(EquipmentSlotType.fromString(e.getKey()))) {
+                    for (int i = 0; i < ((JsonArray) e.getValue()).size(); i++) {
+                        list.add(EquipmentAccessoireSlot.getFromSlotIndex(i));
+                    }
+                }
+            }
+        }
+        return list;
     }
 
     @OnlyIn(Dist.CLIENT)

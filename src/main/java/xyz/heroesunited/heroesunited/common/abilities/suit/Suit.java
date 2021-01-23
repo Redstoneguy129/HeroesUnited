@@ -205,7 +205,7 @@ public abstract class Suit {
         return hasArmorOn;
     }
 
-    public List<EquipmentAccessoireSlot> getSlotForHide() {
+    public List<EquipmentAccessoireSlot> getSlotForHide(EquipmentSlotType slot) {
         List<EquipmentAccessoireSlot> list = Lists.newArrayList();
         for (int i = 0; i <= 8; ++i) {
             list.add(EquipmentAccessoireSlot.getFromSlotIndex(i));
@@ -216,6 +216,18 @@ public abstract class Suit {
     public static void registerSuit(Suit suit) {
         Suit.SUITS.put(suit.getRegistryName(), suit);
         suit.registerItems(ForgeRegistries.ITEMS);
+    }
+
+    public static SuitItem getSuitItem(LivingEntity entity) {
+        for (EquipmentSlotType slot : EquipmentSlotType.values()) {
+            if (slot.getSlotType() == EquipmentSlotType.Group.ARMOR && entity.getItemStackFromSlot(slot).getItem() instanceof SuitItem) {
+                SuitItem suitItem = (SuitItem) entity.getItemStackFromSlot(slot).getItem();
+                if (suitItem.getEquipmentSlot().equals(slot)) {
+                    return suitItem;
+                }
+            }
+        }
+        return null;
     }
 
     public static Suit getSuit(LivingEntity entity) {

@@ -13,7 +13,6 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.SoundCategory;
@@ -42,7 +41,6 @@ import xyz.heroesunited.heroesunited.client.render.HULayerRenderer;
 import xyz.heroesunited.heroesunited.common.HUConfig;
 import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
-import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccessoriesInv;
@@ -249,13 +247,8 @@ public class HUClientEventHandler {
     public void setRotationAngles(HUSetRotationAnglesEvent event) {
         PlayerEntity player = event.getPlayer();
         AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.setRotationAngles(event));
-        for (EquipmentSlotType slot : EquipmentSlotType.values()) {
-            if (slot.getSlotType() == EquipmentSlotType.Group.ARMOR && player.getItemStackFromSlot(slot).getItem() instanceof SuitItem) {
-                SuitItem suitItem = (SuitItem) player.getItemStackFromSlot(slot).getItem();
-                if (suitItem.getEquipmentSlot().equals(slot)) {
-                    suitItem.getSuit().setRotationAngles(event, slot);
-                }
-            }
+        if (Suit.getSuitItem(player) != null) {
+            Suit.getSuitItem(player).getSuit().setRotationAngles(event, Suit.getSuitItem(player).getEquipmentSlot());
         }
 
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
@@ -278,7 +271,7 @@ public class HUClientEventHandler {
                 ItemStack stack = cap.getInventory().getStackInSlot(slot);
                 if (stack != null && stack.getItem() instanceof IAccessory) {
                     IAccessory accessoire = ((IAccessory) stack.getItem());
-                    if (!(Suit.getSuit(player) != null && Suit.getSuit(player).getSlotForHide().contains(EquipmentAccessoireSlot.getFromSlotIndex(slot)))) {
+                    if (!(Suit.getSuitItem(player) != null && Suit.getSuitItem(player).getSuit().getSlotForHide(Suit.getSuitItem(player).getEquipmentSlot()).contains(EquipmentAccessoireSlot.getFromSlotIndex(slot)))) {
                         if (accessoire.getHiddenParts() !=null) {
                             for (PlayerPart part : accessoire.getHiddenParts()) {
                                 part.setVisibility(event.getPlayerModel(), false);
