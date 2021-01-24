@@ -62,7 +62,8 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
                         ModelSuit suitModel = new ModelSuit(accessoire.getScale(stack), HUPlayerUtil.haveSmallArms(player));
                         boolean shouldRender = true;
                         for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
-                            if (!(Suit.getSuitItem(equipmentSlot,player) != null && Suit.getSuitItem(equipmentSlot,player).getSuit().getSlotForHide(Suit.getSuitItem(equipmentSlot,player).getEquipmentSlot()).contains(EquipmentAccessoriesSlot.getFromSlotIndex(slot)))) {
+                            SuitItem item = Suit.getSuitItem(equipmentSlot,player);
+                            if (item != null && item.getSuit().getSlotForHide(equipmentSlot).contains(EquipmentAccessoriesSlot.getFromSlotIndex(slot))) {
                                 shouldRender = false;
                             }
                         }
