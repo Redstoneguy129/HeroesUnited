@@ -108,7 +108,7 @@ public class JsonSuit extends Suit {
             for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
                 if (e.getValue() instanceof JsonArray && slot.equals(EquipmentSlotType.fromString(e.getKey()))) {
                     for (int i = 0; i < ((JsonArray) e.getValue()).size(); i++) {
-                        list.add(EquipmentAccessoriesSlot.getFromSlotIndex(i));
+                        list.add(EquipmentAccessoriesSlot.getFromSlotIndex(((JsonArray)e.getValue()).get(i).getAsInt()));
                     }
                 }
             }
