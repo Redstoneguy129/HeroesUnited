@@ -13,6 +13,7 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.SoundCategory;
@@ -125,7 +126,7 @@ public class HUClientEventHandler {
             if (!KEY_STATE.containsKey(key)) KEY_STATE.put(key, false);
             if (KEY_STATE.get(key) != (action == GLFW.GLFW_PRESS)) {
                 HUNetworking.INSTANCE.sendToServer(new ServerToggleKey(index, action == GLFW.GLFW_PRESS));
-                Minecraft.getInstance().player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap->cap.toggle(index, action == GLFW.GLFW_PRESS));
+                Minecraft.getInstance().player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> cap.toggle(index, action == GLFW.GLFW_PRESS));
             }
             KEY_STATE.put(key, action == GLFW.GLFW_PRESS);
         }
@@ -178,7 +179,8 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void setDiscordPresence(EntityJoinWorldEvent event) {
-        if (!(event.getEntity() instanceof PlayerEntity) || Minecraft.getInstance().player == null || Minecraft.getInstance().player.getUniqueID() != event.getEntity().getUniqueID()) return;
+        if (!(event.getEntity() instanceof PlayerEntity) || Minecraft.getInstance().player == null || Minecraft.getInstance().player.getUniqueID() != event.getEntity().getUniqueID())
+            return;
         HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United", null, HURichPresence.MiniLogos.NONE, null);
     }
 
@@ -247,8 +249,10 @@ public class HUClientEventHandler {
     public void setRotationAngles(HUSetRotationAnglesEvent event) {
         PlayerEntity player = event.getPlayer();
         AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.setRotationAngles(event));
-        if (Suit.getSuitItem(player) != null) {
-            Suit.getSuitItem(player).getSuit().setRotationAngles(event, Suit.getSuitItem(player).getEquipmentSlot());
+        for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
+            if (Suit.getSuitItem(equipmentSlot, player) != null) {
+                Suit.getSuitItem(equipmentSlot, player).getSuit().setRotationAngles(event, equipmentSlot);
+            }
         }
 
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
@@ -270,15 +274,14 @@ public class HUClientEventHandler {
             for (int slot = 0; slot <= 8; ++slot) {
                 ItemStack stack = cap.getInventory().getStackInSlot(slot);
                 if (stack != null && stack.getItem() instanceof IAccessory) {
-                    IAccessory accessoire = ((IAccessory) stack.getItem());
-                    if (!(Suit.getSuitItem(player) != null && Suit.getSuitItem(player).getSuit().getSlotForHide(Suit.getSuitItem(player).getEquipmentSlot()).contains(EquipmentAccessoriesSlot.getFromSlotIndex(slot)))) {
-                        if (accessoire.getHiddenParts() !=null) {
-                            for (PlayerPart part : accessoire.getHiddenParts()) {
-                                part.setVisibility(event.getPlayerModel(), false);
-                            }
+                    IAccessory accessory = ((IAccessory) stack.getItem());
+                    if (accessory.getHiddenParts() != null) {
+                        for (PlayerPart part : accessory.getHiddenParts()) {
+                            part.setVisibility(event.getPlayerModel(), false);
                         }
                     }
                 }
+
             }
 
             if (cap.isFlying() && !player.isOnGround() && !player.isSwimming() && player.isSprinting()) {

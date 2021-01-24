@@ -60,9 +60,15 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
                     if (stack != null && stack.getItem() instanceof IAccessory && !MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Accessories(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch))) {
                         IAccessory accessoire = ((IAccessory) stack.getItem());
                         ModelSuit suitModel = new ModelSuit(accessoire.getScale(stack), HUPlayerUtil.haveSmallArms(player));
-                        if (!(Suit.getSuitItem(player) != null && Suit.getSuitItem(player).getSuit().getSlotForHide(Suit.getSuitItem(player).getEquipmentSlot()).contains(EquipmentAccessoriesSlot.getFromSlotIndex(slot)))) {
+                        boolean shouldRender = true;
+                        for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
+                            if (!(Suit.getSuitItem(equipmentSlot,player) != null && Suit.getSuitItem(equipmentSlot,player).getSuit().getSlotForHide(Suit.getSuitItem(equipmentSlot,player).getEquipmentSlot()).contains(EquipmentAccessoriesSlot.getFromSlotIndex(slot)))) {
+                                shouldRender = false;
+                            }
+                        }
+                        if(shouldRender){
                             if (accessoire.renderDefaultModel()) {
-                                renderAccessoire(suitModel, matrixStack, buffer, packedLight, player, playerRenderer, accessoire, stack, cap, EquipmentAccessoriesSlot.getFromSlotIndex(slot));
+                                renderAccessories(suitModel, matrixStack, buffer, packedLight, player, playerRenderer, accessoire, stack, cap, EquipmentAccessoriesSlot.getFromSlotIndex(slot));
                             } else {
                                 accessoire.render(playerRenderer, matrixStack, buffer, packedLight, player, stack, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, slot);
                             }
@@ -74,7 +80,7 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
         }
     }
 
-    private void renderAccessoire(ModelSuit suitModel, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, PlayerEntity player, PlayerRenderer playerRenderer, IAccessory accessoire, ItemStack stack, IHUPlayer cap, EquipmentAccessoriesSlot slot) {
+    private void renderAccessories(ModelSuit suitModel, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, PlayerEntity player, PlayerRenderer playerRenderer, IAccessory accessoire, ItemStack stack, IHUPlayer cap, EquipmentAccessoriesSlot slot) {
         suitModel.setVisible(false);
         if (slot == EquipmentAccessoriesSlot.HELMET) {
             suitModel.bipedHeadwear.showModel = suitModel.bipedHead.showModel = cap.getInventory().haveStack(slot);

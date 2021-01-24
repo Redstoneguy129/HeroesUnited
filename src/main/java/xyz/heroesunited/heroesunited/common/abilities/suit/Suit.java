@@ -218,13 +218,11 @@ public abstract class Suit {
         suit.registerItems(ForgeRegistries.ITEMS);
     }
 
-    public static SuitItem getSuitItem(LivingEntity entity) {
-        for (EquipmentSlotType slot : EquipmentSlotType.values()) {
-            if (slot.getSlotType() == EquipmentSlotType.Group.ARMOR && entity.getItemStackFromSlot(slot).getItem() instanceof SuitItem) {
-                SuitItem suitItem = (SuitItem) entity.getItemStackFromSlot(slot).getItem();
-                if (suitItem.getEquipmentSlot().equals(slot)) {
-                    return suitItem;
-                }
+    public static SuitItem getSuitItem(EquipmentSlotType slot, LivingEntity entity) {
+        if (slot.getSlotType() == EquipmentSlotType.Group.ARMOR && entity.getItemStackFromSlot(slot).getItem() instanceof SuitItem) {
+            SuitItem suitItem = (SuitItem) entity.getItemStackFromSlot(slot).getItem();
+            if (suitItem.getEquipmentSlot().equals(slot)) {
+                return suitItem;
             }
         }
         return null;
