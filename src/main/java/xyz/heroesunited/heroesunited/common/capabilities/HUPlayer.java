@@ -42,7 +42,6 @@ public class HUPlayer implements IHUPlayer {
     protected Map<ResourceLocation, Level> superpowerLevels;
     protected final Map<String, HUData> dataList;
 
-    @OnlyIn(Dist.CLIENT)
     private AnimatedGeoModel modelProvider = new AnimatedGeoModel() {
 
         @Override
