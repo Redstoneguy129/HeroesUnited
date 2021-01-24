@@ -219,7 +219,7 @@ public abstract class Suit {
     }
 
     public static SuitItem getSuitItem(EquipmentSlotType slot, LivingEntity entity) {
-        if (slot.getSlotType() == EquipmentSlotType.Group.ARMOR && entity.getItemStackFromSlot(slot).getItem() instanceof SuitItem) {
+        if (entity.getItemStackFromSlot(slot).getItem() instanceof SuitItem) {
             SuitItem suitItem = (SuitItem) entity.getItemStackFromSlot(slot).getItem();
             if (suitItem.getEquipmentSlot().equals(slot)) {
                 return suitItem;
