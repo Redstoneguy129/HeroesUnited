@@ -42,7 +42,6 @@ public class ClientSyncHUData {
                     HUData data = cap.getDataList().get(this.key);
                     if (data != null) {
                         HUData.readValue(data, this.nbt, data.getValue());
-                        cap.sync();
                     }
                 });
             }

@@ -13,8 +13,8 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraftforge.fml.network.PacketDistributor;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.common.events.HUCancelSprinting;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilities;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncActiveAbilities;
@@ -70,11 +70,11 @@ public class HUPlayerEvent {
     @SubscribeEvent
     public void onJoinWorld(EntityJoinWorldEvent e) {
         e.getEntity().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
-            if (e.getEntity() instanceof ServerPlayerEntity) {
-                HUNetworking.INSTANCE.sendTo(new ClientSyncAbilities(e.getEntity().getEntityId(), a.getAbilities()), ((ServerPlayerEntity) e.getEntity()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
-                HUNetworking.INSTANCE.sendTo(new ClientSyncActiveAbilities(e.getEntity().getEntityId(), a.getActiveAbilities()), ((ServerPlayerEntity) e.getEntity()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
-                a.getDataList().values().stream().filter(HUData::canBeSaved).forEachOrdered(data -> HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(e.getEntity().getEntityId(), data.getKey(), a.serializeNBT()), ((ServerPlayerEntity) e.getEntity()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT));
-                a.sync();
+            if (e.getEntity() instanceof ServerPlayerEntity && !e.getWorld().isRemote) {
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> e.getEntity()), new ClientSyncAbilities(e.getEntity().getEntityId(), a.getAbilities()));
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> e.getEntity()), new ClientSyncActiveAbilities(e.getEntity().getEntityId(), a.getActiveAbilities()));
+                a.getDataList().values().stream().filter(HUData::canBeSaved).forEachOrdered(data -> HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> e.getEntity()), new ClientSyncHUData(e.getEntity().getEntityId(), data.getKey(), a.serializeNBT())));
+                a.syncToAll();
             }
         });
     }

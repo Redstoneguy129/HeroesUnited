@@ -6,10 +6,18 @@ import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.NonNullList;
+import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 
 public class AccessoriesInventory implements IInventory {
 
-    private NonNullList<ItemStack> inventory = NonNullList.withSize(8, ItemStack.EMPTY);
+    private NonNullList<ItemStack> inventory;
+    private PlayerEntity player;
+
+    public AccessoriesInventory(PlayerEntity player) {
+        this.player = player;
+        this.inventory = NonNullList.withSize(8, ItemStack.EMPTY);
+    }
 
     @Override
     public int getSizeInventory() {
@@ -18,7 +26,7 @@ public class AccessoriesInventory implements IInventory {
 
     @Override
     public ItemStack getStackInSlot(int index) {
-        return index >= 0 && index < this.inventory.size() ? this.inventory.get(index) : ItemStack.EMPTY;
+        return index >= getSizeInventory() ? ItemStack.EMPTY : this.inventory.get(index);
     }
 
     public boolean haveStack(EquipmentAccessoriesSlot slot) {
@@ -31,33 +39,33 @@ public class AccessoriesInventory implements IInventory {
 
     @Override
     public ItemStack decrStackSize(int index, int count) {
-        ItemStack itemstack = ItemStackHelper.getAndSplit(this.inventory, index, count);
+        ItemStack itemstack = this.inventory.get(index);
         if (!itemstack.isEmpty()) {
-            this.markDirty();
-        }
-        return itemstack;
+            if (itemstack.getCount() > count) {
+                itemstack = ItemStackHelper.getAndSplit(this.inventory, index, count);
+            } else setInventorySlotContents(index, ItemStack.EMPTY);
+            markDirty();
+            return itemstack;
+        } else return ItemStack.EMPTY;
     }
 
     @Override
     public ItemStack removeStackFromSlot(int index) {
         if (!this.inventory.get(index).isEmpty()) {
             ItemStack itemstack = this.inventory.get(index);
-            this.inventory.set(index, ItemStack.EMPTY);
+            setInventorySlotContents(index, ItemStack.EMPTY);
+            markDirty();
             return itemstack;
         } else {
             return ItemStack.EMPTY;
         }
+
     }
 
     @Override
     public void setInventorySlotContents(int index, ItemStack stack) {
-        if (this.inventory != null) {
-            this.inventory.set(index, stack);
-        }
-        if (!stack.isEmpty() && stack.getCount() > this.getInventoryStackLimit()) {
-            stack.setCount(this.getInventoryStackLimit());
-        }
-        this.markDirty();
+        this.inventory.set(index, stack);
+        markDirty();
     }
 
     @Override
@@ -77,6 +85,7 @@ public class AccessoriesInventory implements IInventory {
 
     @Override
     public void markDirty() {
+        player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(IHUPlayer::syncToAll);
     }
 
     @Override
@@ -91,11 +100,15 @@ public class AccessoriesInventory implements IInventory {
 
     @Override
     public void clear() {
-        this.inventory.clear();
+        for (int i = 0; i < inventory.size(); i++) {
+            inventory.set(i, ItemStack.EMPTY);
+        }
+        markDirty();
     }
 
-    public void write(CompoundNBT compound) {
+    public CompoundNBT write(CompoundNBT compound) {
         ItemStackHelper.saveAllItems(compound, this.inventory);
+        return compound;
     }
 
     public void read(CompoundNBT compound) {
@@ -104,9 +117,8 @@ public class AccessoriesInventory implements IInventory {
     }
 
     public void copy(AccessoriesInventory inv) {
-        for (int i = 0; i < inv.getSizeInventory(); ++i) {
-            ItemStack stack = inv.getStackInSlot(i);
-            inventory.set(i, stack.copy());
+        for(int i = 0; i < this.getSizeInventory(); ++i) {
+            this.setInventorySlotContents(i, inv.getStackInSlot(i));
         }
     }
 }

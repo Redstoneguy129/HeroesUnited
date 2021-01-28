@@ -15,8 +15,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
-import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 
 import javax.annotation.Nullable;
@@ -126,12 +124,6 @@ public class AccessoriesContainer extends Container {
             slot.onTake(playerIn, itemstack1);
         }
         return itemstack;
-    }
-
-    @Override
-    public void onContainerClosed(PlayerEntity playerIn) {
-        super.onContainerClosed(playerIn);
-        playerIn.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(IHUPlayer::sync);
     }
 
     @Override

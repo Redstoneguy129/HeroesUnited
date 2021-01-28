@@ -120,4 +120,6 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable {
     IHUPlayer copy(IHUPlayer ihuPlayer);
 
     IHUPlayer sync();
+
+    IHUPlayer syncToAll();
 }
