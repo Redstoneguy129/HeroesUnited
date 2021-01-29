@@ -72,6 +72,12 @@ public class HUEventHandler {
                     }
                 }
 
+                for (int i = 0; i < a.getInventory().getInventory().size(); ++i) {
+                    if (!a.getInventory().getInventory().get(i).isEmpty()) {
+                        a.getInventory().getInventory().get(i).inventoryTick(pl.world, pl, i, false);
+                    }
+                }
+
                 if (Suit.getSuit(pl) != null) {
                     Suit.getSuit(pl).onUpdate(pl);
                 }

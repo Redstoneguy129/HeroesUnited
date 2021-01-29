@@ -31,10 +31,7 @@ public class ServerToggleKey {
         ctx.get().enqueueWork(() -> {
             PlayerEntity player = ctx.get().getSender();
             if (player != null) {
-                player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                    cap.toggle(Math.min(32767, Math.max(1, this.id)), this.pressed);
-                    cap.sync();
-                });
+                player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> cap.toggle(Math.min(32767, Math.max(1, this.id)), this.pressed));
             }
         });
         ctx.get().setPacketHandled(true);
