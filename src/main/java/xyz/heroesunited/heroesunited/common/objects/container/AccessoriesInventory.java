@@ -118,7 +118,7 @@ public class AccessoriesInventory implements IInventory {
 
     public void copy(AccessoriesInventory inv) {
         for(int i = 0; i < this.getSizeInventory(); ++i) {
-            this.setInventorySlotContents(i, inv.getStackInSlot(i));
+            inventory.set(i, inv.getStackInSlot(i));
         }
     }
 }
