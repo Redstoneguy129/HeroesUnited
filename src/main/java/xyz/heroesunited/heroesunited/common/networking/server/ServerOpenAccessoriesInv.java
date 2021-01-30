@@ -27,9 +27,11 @@ public class ServerOpenAccessoriesInv {
         ctx.get().enqueueWork(() -> {
             ServerPlayerEntity player = ctx.get().getSender();
             if (player != null) {
-                player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap ->
-                        NetworkHooks.openGui(player, new SimpleNamedContainerProvider((id, playerInventory, entity) ->
-                                new AccessoriesContainer(id, playerInventory, cap.getInventory()), TRANSLATION)));
+                player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+                    NetworkHooks.openGui(player, new SimpleNamedContainerProvider((id, playerInventory, entity) ->
+                            new AccessoriesContainer(id, playerInventory, cap.getInventory()), TRANSLATION));
+                    cap.sync();
+                });
             }
         });
         ctx.get().setPacketHandled(true);
