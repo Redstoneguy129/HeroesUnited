@@ -7,8 +7,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.PacketDistributor;
 import software.bernie.geckolib3.core.AnimationState;
@@ -35,7 +33,7 @@ public class HUPlayer implements IHUPlayer {
     private final PlayerEntity player;
     private boolean flying, slowMo, intangible, isInTimer;
     private int theme, type, cooldown, timer, animationTimer;
-    public final AccessoriesInventory inventory = new AccessoriesInventory();
+    public final AccessoriesInventory inventory;
     private AnimationFactory factory = new AnimationFactory(this);
     private ResourceLocation animationFile;
     protected Map<String, Ability> activeAbilities, containedAbilities;
@@ -66,6 +64,7 @@ public class HUPlayer implements IHUPlayer {
         this.containedAbilities = Maps.newHashMap();
         this.dataList = Maps.newHashMap();
         this.superpowerLevels = Maps.newHashMap();
+        this.inventory = new AccessoriesInventory(player);
     }
 
     @Override
@@ -204,7 +203,7 @@ public class HUPlayer implements IHUPlayer {
         if (!containedAbilities.containsKey(id)) {
             containedAbilities.put(id, ability);
             ability.name = id;
-            sync();
+            syncToAll();
             if (!player.world.isRemote)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getEntityId(), this.getAbilities()));
         }
@@ -225,7 +224,7 @@ public class HUPlayer implements IHUPlayer {
         if (containedAbilities.containsKey(id)) {
             containedAbilities.remove(id);
             disable(id);
-            sync();
+            syncToAll();
             if (!player.world.isRemote)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getEntityId(), this.getAbilities()));
         }
@@ -276,9 +275,17 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public IHUPlayer sync() {
         player.recalculateSize();
-        if (!player.world.isRemote) {
+        if (player instanceof ServerPlayerEntity) {
             HUNetworking.INSTANCE.sendTo(new ClientSyncCap(player.getEntityId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
         }
+        return this;
+    }
+
+    @Override
+    public IHUPlayer syncToAll() {
+        this.sync();
+        if (!player.world.isRemote)
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncCap(player.getEntityId(), HUPlayer.getCap(player).serializeNBT()));
         return this;
     }
 

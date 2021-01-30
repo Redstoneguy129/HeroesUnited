@@ -64,7 +64,6 @@ public class ClientSyncActiveAbilities {
                 entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((a) -> {
                     ImmutableList.copyOf(a.getActiveAbilities().keySet()).forEach(a::disable);
                     this.abilities.forEach((key, value) -> a.enable(key, value));
-                    a.sync();
                 });
             }
         });

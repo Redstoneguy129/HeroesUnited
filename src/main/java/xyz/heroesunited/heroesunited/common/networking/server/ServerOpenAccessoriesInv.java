@@ -6,6 +6,7 @@ import net.minecraft.inventory.container.SimpleNamedContainerProvider;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.NetworkHooks;
+import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesContainer;
 
 import java.util.function.Supplier;
@@ -26,8 +27,11 @@ public class ServerOpenAccessoriesInv {
         ctx.get().enqueueWork(() -> {
             ServerPlayerEntity player = ctx.get().getSender();
             if (player != null) {
-                NetworkHooks.openGui(player, new SimpleNamedContainerProvider((id, playerInventory, entity) ->
-                        new AccessoriesContainer(id, playerInventory), TRANSLATION));
+                player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+                    NetworkHooks.openGui(player, new SimpleNamedContainerProvider((id, playerInventory, entity) ->
+                            new AccessoriesContainer(id, playerInventory, cap.getInventory()), TRANSLATION));
+                    cap.sync();
+                });
             }
         });
         ctx.get().setPacketHandled(true);

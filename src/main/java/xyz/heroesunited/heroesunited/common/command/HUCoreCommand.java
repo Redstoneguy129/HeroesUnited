@@ -55,7 +55,7 @@ public class HUCoreCommand {
             PlayerEntity pl = (PlayerEntity) iterator.next();
             pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((k) -> {
                 HUPackSuperpowers.setSuperpower(pl, superpower);
-                k.sync();
+                k.syncToAll();
             });
             if (pl.getCapability(HUPlayerProvider.CAPABILITY).isPresent())
                 i++;
@@ -74,7 +74,7 @@ public class HUCoreCommand {
             PlayerEntity pl = (PlayerEntity) iterator.next();
             pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((k) -> {
                 HUPackSuperpowers.removeSuperpower(pl);
-                k.sync();
+                k.syncToAll();
             });
             if (pl.getCapability(HUPlayerProvider.CAPABILITY).isPresent())
                 i++;
@@ -103,7 +103,7 @@ public class HUCoreCommand {
             PlayerEntity pl = (PlayerEntity) iterator.next();
             pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((a) -> {
                 AbilityHelper.disable(pl);
-                a.sync();
+                a.syncToAll();
             });
         }
         commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.ability.disabled"), true);
