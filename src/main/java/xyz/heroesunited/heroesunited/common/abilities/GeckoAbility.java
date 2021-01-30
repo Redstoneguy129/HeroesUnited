@@ -74,7 +74,7 @@ public class GeckoAbility extends Ability implements IGeoAbility {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public GeoAbilityRenderer getGeoRenderer() {
-        return abilityRenderer;
+    public <T extends GeoAbilityRenderer> T getGeoRenderer() {
+        return (T) abilityRenderer;
     }
 }

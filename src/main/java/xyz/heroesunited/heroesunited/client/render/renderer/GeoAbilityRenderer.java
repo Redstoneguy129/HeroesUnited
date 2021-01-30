@@ -31,14 +31,14 @@ import java.util.Objects;
 
 public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implements IGeoRenderer<T> {
 
-    private T currentAbility;
-    private LivingEntity entityLiving;
-    private String name;
+    protected T currentAbility;
+    protected LivingEntity entityLiving;
+    protected String name;
 
     // Set these to the names of your abilities bones
     public List<String> armorBones = Arrays.asList("armorHead", "armorBody", "armorRightArm", "armorLeftArm", "armorRightLeg", "armorLeftLeg", "armorRightBoot", "armorLeftBoot");
 
-    private final AnimatedGeoModel<T> modelProvider;
+    protected final AnimatedGeoModel<T> modelProvider;
 
     public GeoAbilityRenderer() {
         super(1);

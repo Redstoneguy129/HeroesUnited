@@ -22,5 +22,5 @@ public interface IGeoAbility extends IAnimatable {
     @OnlyIn(Dist.CLIENT)
     ResourceLocation getAnimationFile();
     @OnlyIn(Dist.CLIENT)
-    GeoAbilityRenderer getGeoRenderer();
+    <T extends GeoAbilityRenderer> T getGeoRenderer();
 }
