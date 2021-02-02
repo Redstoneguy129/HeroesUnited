@@ -79,16 +79,16 @@ public abstract class Suit {
         return null;
     }
 
-    public void onActivated(PlayerEntity player) {
+    public void onActivated(PlayerEntity player, EquipmentSlotType slot) {
     }
 
-    public void onUpdate(PlayerEntity player) {
+    public void onUpdate(PlayerEntity player, EquipmentSlotType slot) {
     }
 
-    public void onDeactivated(PlayerEntity player) {
+    public void onDeactivated(PlayerEntity player, EquipmentSlotType slot) {
     }
 
-    public void toggle(PlayerEntity player, int id, boolean pressed) {
+    public void toggle(PlayerEntity player, EquipmentSlotType slot, int id, boolean pressed) {
     }
 
     public boolean canCombineWithAbility(Ability type, PlayerEntity player) {

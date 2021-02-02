@@ -78,8 +78,10 @@ public class HUEventHandler {
                     }
                 }
 
-                if (Suit.getSuit(pl) != null) {
-                    Suit.getSuit(pl).onUpdate(pl);
+                for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
+                    if (Suit.getSuitItem(equipmentSlot, pl) != null) {
+                        Suit.getSuitItem(equipmentSlot, pl).getSuit().onUpdate(pl, equipmentSlot);
+                    }
                 }
 
                 if (a.getCooldown() > 0) {
@@ -148,17 +150,15 @@ public class HUEventHandler {
             PlayerEntity player = (PlayerEntity) event.getEntityLiving();
             if (event.getTo().getItem() instanceof SuitItem) {
                 SuitItem suitItem = (SuitItem) event.getTo().getItem();
-                if (Suit.getSuit(player) != null) {
-                    suitItem.getSuit().onActivated(player);
-                    for (Ability ability : AbilityHelper.getAbilities(player)) {
-                        if (ability != null && !suitItem.getSuit().canCombineWithAbility(ability, player)) {
-                            AbilityHelper.disable(player);
-                        }
+                suitItem.getSuit().onActivated(player, suitItem.getEquipmentSlot());
+                for (Ability ability : AbilityHelper.getAbilities(player)) {
+                    if (ability != null && suitItem.getSuit().hasArmorOn(player) && !suitItem.getSuit().canCombineWithAbility(ability, player)) {
+                        AbilityHelper.disable(player);
                     }
                 }
             } else if (event.getFrom().getItem() instanceof SuitItem) {
                 SuitItem suitItem = (SuitItem) event.getFrom().getItem();
-                suitItem.getSuit().onDeactivated(player);
+                suitItem.getSuit().onDeactivated(player, suitItem.getEquipmentSlot());
             }
         }
     }

@@ -5,6 +5,7 @@ import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkDirection;
@@ -237,8 +238,10 @@ public class HUPlayer implements IHUPlayer {
                 ability.toggle(player, id, pressed);
             }
         });
-        if (Suit.getSuit(player) != null) {
-            Suit.getSuit(player).toggle(player, id, pressed);
+        for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
+            if (Suit.getSuitItem(equipmentSlot, player) != null) {
+                Suit.getSuitItem(equipmentSlot, player).getSuit().toggle(player, equipmentSlot, id, pressed);
+            }
         }
     }
 
