@@ -139,3 +139,22 @@ jar {
 mixin {
     add sourceSets.main, "heroesunited.refmap.json"
 }
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact shadowJar
+            artifact deobfJar
+            artifactId = "hu-core"
+        }
+    }
+    repositories {
+        maven {
+            url = System.getenv("repsyURL")
+            credentials {
+                username = System.getenv("repsyUser")
+                password = System.getenv("repsyPassword")
+            }
+        }
+    }
+}
