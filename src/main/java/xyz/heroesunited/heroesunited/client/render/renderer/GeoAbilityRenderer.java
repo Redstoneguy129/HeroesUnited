@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.ResourceLocation;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
@@ -32,7 +31,7 @@ import java.util.Objects;
 public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implements IGeoRenderer<T> {
 
     protected T currentAbility;
-    protected LivingEntity entityLiving;
+    protected AbstractClientPlayerEntity player;
     protected String name;
 
     // Set these to the names of your abilities bones
@@ -47,20 +46,25 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
 
     @Override
     public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        matrixStackIn.translate(0.0D, 1.5F, 0.0D);
-        matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
 
         GeoModel model = modelProvider.getModel(modelProvider.getModelLocation(currentAbility));
-        AnimationEvent itemEvent = new AnimationEvent(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.entityLiving));
+        AnimationEvent itemEvent = new AnimationEvent(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.player));
         modelProvider.setLivingAnimations(currentAbility, this.getUniqueID(this.currentAbility), itemEvent);
-        matrixStackIn.push();
-        Minecraft.getInstance().textureManager.bindTexture(getTextureLocation(currentAbility));
-        Color renderColor = getRenderColor(currentAbility, 0, matrixStackIn, null, bufferIn, packedLightIn);
-        RenderType renderType = getRenderType(currentAbility, 0, matrixStackIn, null, bufferIn, packedLightIn, getTextureLocation(currentAbility));
-        render(model, currentAbility, 0, renderType, matrixStackIn, null, bufferIn, packedLightIn, OverlayTexture.NO_OVERLAY, (float) renderColor.getRed() / 255f, (float) renderColor.getGreen() / 255f, (float) renderColor.getBlue() / 255f, (float) renderColor.getAlpha() / 255);
-        matrixStackIn.pop();
-        matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
-        matrixStackIn.translate(0.0D, -1.5F, 0.0D);
+
+        if (!currentAbility.renderAsDefault()) {
+            currentAbility.renderGeoAbilityRenderer(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha, model, itemEvent, this.player);
+        } else {
+            matrixStackIn.translate(0.0D, 1.5F, 0.0D);
+            matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
+            matrixStackIn.push();
+            Minecraft.getInstance().textureManager.bindTexture(getTextureLocation(currentAbility));
+            Color renderColor = getRenderColor(currentAbility, 0, matrixStackIn, null, bufferIn, packedLightIn);
+            RenderType renderType = getRenderType(currentAbility, 0, matrixStackIn, null, bufferIn, packedLightIn, getTextureLocation(currentAbility));
+            render(model, currentAbility, 0, renderType, matrixStackIn, null, bufferIn, packedLightIn, OverlayTexture.NO_OVERLAY, (float) renderColor.getRed() / 255f, (float) renderColor.getGreen() / 255f, (float) renderColor.getBlue() / 255f, (float) renderColor.getAlpha() / 255);
+            matrixStackIn.pop();
+            matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
+            matrixStackIn.translate(0.0D, -1.5F, 0.0D);
+        }
     }
 
     @Override
@@ -142,7 +146,7 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
         this.swimAnimation = 0.0F;
         matrix.translate(0.0D, 1.5F, 0.0D);
         matrix.scale(-1.0F, -1.0F, 1.0F);
-        AnimationEvent itemEvent = new AnimationEvent(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.entityLiving));
+        AnimationEvent itemEvent = new AnimationEvent(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.player));
         modelProvider.setLivingAnimations(currentAbility, this.getUniqueID(this.currentAbility), itemEvent);
         matrix.push();
         Minecraft.getInstance().textureManager.bindTexture(getTextureLocation(currentAbility));
@@ -165,8 +169,8 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
         return this.modelProvider.getTextureLocation(instance);
     }
 
-    public void setCurrentAbility(LivingEntity entityLiving, T ability, BipedModel from, String name) {
-        this.entityLiving = entityLiving;
+    public void setCurrentAbility(AbstractClientPlayerEntity player, T ability, BipedModel from, String name) {
+        this.player = player;
         this.currentAbility = ability;
         this.name = name;
         from.setModelAttributes(this);
@@ -179,6 +183,6 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
 
     @Override
     public Integer getUniqueID(T animatable) {
-        return Objects.hash(currentAbility instanceof Ability ? ((Ability)currentAbility).type : 1, name, this.entityLiving.getUniqueID().toString());
+        return Objects.hash(currentAbility instanceof Ability ? ((Ability)currentAbility).type : 1, name, this.player.getUniqueID().toString());
     }
 }
