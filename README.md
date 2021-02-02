@@ -93,13 +93,11 @@ This includes (but not limited to):
 ## Developers
 To use the api in your mod:
 ```
-allprojects {
-	repositories {
-		maven { url 'https://jitpack.io' }
-	}
+repositories {
+    maven { url 'https://repo.repsy.io/mvn/grillo78/default' }
 }
 
 dependencies {
-	compile 'com.github.heroes-united:heroes-united:VERSION'
+    compile 'xyz.heroesunited:hu-core:2.4'
 }
 ```
