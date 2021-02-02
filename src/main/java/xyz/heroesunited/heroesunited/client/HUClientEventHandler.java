@@ -36,6 +36,7 @@ import software.bernie.geckolib3.core.keyframe.BoneAnimation;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.HURenderLayerEvent;
+import xyz.heroesunited.heroesunited.client.events.HURenderPlayerHandEvent;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.client.render.HULayerRenderer;
@@ -46,7 +47,6 @@ import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccessoriesInv;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerToggleKey;
-import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
@@ -256,6 +256,12 @@ public class HUClientEventHandler {
         }
 
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+            for (Ability ability : cap.getAbilities().values()) {
+                if (ability instanceof IAbilityAlwaysRenderer) {
+                    ((IAbilityAlwaysRenderer) ability).setAlwaysRotationAngles(event);
+                }
+            }
+
             for (String s : playerBones) {
                 GeoBone bone = cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap)).getBone(s).get();
                 ModelRenderer renderer = HUClientUtil.getModelRendererById(event.getPlayerModel(), s);
@@ -295,6 +301,28 @@ public class HUClientEventHandler {
                                     model.bipedRightLeg.rotateAngleX = model.bipedLeftLeg.rotateAngleX = (float) Math.toRadians(0F);
                 }
                 HUClientUtil.copyAnglesToWear(model);
+            }
+        });
+    }
+
+    @SubscribeEvent
+    public void renderPlayerHand(HURenderPlayerHandEvent event) {
+        event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
+            for (Ability ability : a.getAbilities().values()) {
+                if (ability instanceof IAbilityAlwaysRenderer) {
+                    ((IAbilityAlwaysRenderer) ability).renderAlwaysFirstPersonArm(event.getRenderer(), event.getMatrixStack(), event.getBuffers(), event.getLight(), event.getPlayer(), event.getSide());
+                }
+            }
+        });
+    }
+
+    @SubscribeEvent
+    public void renderPlayerLayers(HURenderLayerEvent.Player event) {
+        event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
+            for (Ability ability : a.getAbilities().values()) {
+                if (ability instanceof IAbilityAlwaysRenderer) {
+                    ((IAbilityAlwaysRenderer) ability).renderAlways(event.getRenderer(), event.getMatrixStack(), event.getBuffers(), event.getLight(), event.getPlayer(), event.getLimbSwing(), event.getLimbSwingAmount(), event.getPartialTicks(), event.getAgeInTicks(), event.getNetHeadYaw(), event.getHeadPitch());
+                }
             }
         });
     }
