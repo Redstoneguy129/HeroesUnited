@@ -37,6 +37,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
     public String name;
     public final AbilityType type;
+    protected int cooldownTicks = 0;
     private ResourceLocation superpower;
     private JsonObject jsonObject;
 
@@ -57,6 +58,9 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     public void onUpdate(PlayerEntity player) {
+        if(cooldownTicks > 0) {
+            --cooldownTicks;
+        }
     }
 
     public void onDeactivated(PlayerEntity player) {
@@ -65,7 +69,6 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     public void toggle(PlayerEntity player, int id, boolean pressed) {
     }
 
-    //Client Stuff
     @OnlyIn(Dist.CLIENT)
     public void render(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
     }
@@ -117,20 +120,11 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         }
     }
 
-
-    public ResourceLocation getSuperpower() {
-        return superpower;
-    }
-
-    public Ability setSuperpower(ResourceLocation superpower) {
-        this.superpower = superpower;
-        return this;
-    }
-
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT nbt = new CompoundNBT();
         nbt.putString("AbilityType", this.type.getRegistryName().toString());
+        nbt.putInt("cooldown", cooldownTicks);
         if (this.superpower != null) {
             nbt.putString("Superpower", this.superpower.toString());
         }
@@ -142,6 +136,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
+        this.cooldownTicks = nbt.getInt("cooldown");
         if (nbt.contains("Superpower")) {
             this.superpower = new ResourceLocation(nbt.getString("Superpower"));
         }
@@ -158,6 +153,14 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         }
     }
 
+    public int getCooldownTicks() {
+        return cooldownTicks;
+    }
+
+    public ResourceLocation getSuperpower() {
+        return superpower;
+    }
+
     public boolean isHidden() {
         return jsonObject != null && JSONUtils.getBoolean(getJsonObject(), "hidden", false);
     }
@@ -166,15 +169,25 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         return getJsonObject() != null && JSONUtils.getBoolean(getJsonObject(), "active", false);
     }
 
+    public JsonObject getJsonObject() {
+        return jsonObject;
+    }
+
     public Ability setJsonObject(Entity entity, JsonObject jsonObject) {
         this.jsonObject = jsonObject;
-        if (entity != null && entity instanceof ServerPlayerEntity) {
+        if (entity != null && jsonObject != null && entity instanceof ServerPlayerEntity) {
             HUNetworking.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) entity), new ClientSyncAbilityCreators(entity.getEntityId(), name, jsonObject));
         }
         return this;
     }
 
-    public JsonObject getJsonObject() {
-        return jsonObject;
+    public Ability setSuperpower(ResourceLocation superpower) {
+        this.superpower = superpower;
+        return this;
+    }
+
+    public Ability setCooldownTicks(int cooldownTicks) {
+        this.cooldownTicks = cooldownTicks;
+        return this;
     }
 }

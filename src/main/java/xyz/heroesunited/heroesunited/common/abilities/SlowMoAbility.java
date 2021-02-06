@@ -16,7 +16,7 @@ public class SlowMoAbility extends Ability {
             HUPlayer.getCap(player).setSlowMo(true);
         } else {
             JsonObject key = JSONUtils.getJsonObject(this.getJsonObject(), "key");
-            if (JSONUtils.getString(key, "pressType").equals("action") && HUPlayer.getCap(player).getCooldown() == 0) {
+            if (JSONUtils.getString(key, "pressType").equals("action") && cooldownTicks <= 0) {
                 HUPlayer.getCap(player).setSlowMo(false);
             }
         }
@@ -36,7 +36,7 @@ public class SlowMoAbility extends Ability {
                 } else if (pressType.equals("action")) {
                     if (pressed) {
                         HUPlayer.getCap(player).setSlowMo(true);
-                        HUPlayer.getCap(player).setCooldown(JSONUtils.getInt(key, "cooldown", 2));
+                        this.cooldownTicks = JSONUtils.getInt(key, "cooldown", 2);
                     }
                     HUPlayer.getCap(player).setSlowMo(false);
                 } else if (pressType.equals("held")) {

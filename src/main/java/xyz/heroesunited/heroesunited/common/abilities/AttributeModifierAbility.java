@@ -7,7 +7,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 
 import java.util.UUID;
 
@@ -22,7 +21,7 @@ public class AttributeModifierAbility extends Ability {
             setAttribute(player, false);
         } else {
             JsonObject key = JSONUtils.getJsonObject(this.getJsonObject(), "key");
-            if (JSONUtils.getString(key, "pressType").equals("action") && HUPlayer.getCap(player).getCooldown() == 0) {
+            if (JSONUtils.getString(key, "pressType").equals("action") && cooldownTicks <= 0) {
                 setAttribute(player, true);
             }
         }
@@ -46,7 +45,7 @@ public class AttributeModifierAbility extends Ability {
                 } else if (pressType.equals("action")) {
                     if (pressed) {
                         setAttribute(player, false);
-                        HUPlayer.getCap(player).setCooldown(JSONUtils.getInt(key, "cooldown", 2));
+                        this.cooldownTicks = JSONUtils.getInt(key, "cooldown", 2);
                     }
                 } else if (pressType.equals("held")) {
                     if (pressed && getModifier(player) == null) {

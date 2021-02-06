@@ -84,13 +84,6 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable {
     void setType(int type);
 
     /**
-     * Cooldown for abilities - For using look at any HU Mods
-     **/
-    int getCooldown();
-
-    void setCooldown(int cooldown);
-
-    /**
      * Timer for abilities - For using look at any HU Mods
      **/
     boolean isInTimer();

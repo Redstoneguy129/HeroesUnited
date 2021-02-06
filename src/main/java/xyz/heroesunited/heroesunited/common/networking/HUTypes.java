@@ -4,16 +4,12 @@ import net.minecraft.entity.Entity;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
 public enum HUTypes {
-    COOLDOWN, TYPE, TIMER, ANIMATION_TIMER, FLYING, INTAGIBLE, IN_TIMER;
+    TYPE, TIMER, ANIMATION_TIMER, FLYING, INTAGIBLE, IN_TIMER;
 
     public static void set(Entity entity, HUTypes data, int value) {
         entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((a) -> {
             boolean booleans = value == 1;
             switch (data) {
-                case COOLDOWN: {
-                    a.setCooldown(value);
-                    break;
-                }
                 case TYPE: {
                     a.setType(value);
                     break;

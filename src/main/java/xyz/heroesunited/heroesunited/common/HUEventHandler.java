@@ -84,10 +84,6 @@ public class HUEventHandler {
                     }
                 }
 
-                if (a.getCooldown() > 0) {
-                    a.setCooldown(a.getCooldown() - 1);
-                }
-
                 if (a.getAnimationTimer() > 0) a.setAnimationTimer(a.getAnimationTimer() + 1);
                 if (a.getAnimationTimer() >= 3600) a.setAnimationTimer(3600);
 

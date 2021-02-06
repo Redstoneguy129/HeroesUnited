@@ -9,7 +9,6 @@ import net.minecraft.util.JSONUtils;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.server.ServerWorld;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 
 import java.util.UUID;
 
@@ -37,9 +36,9 @@ public class CommandAbility extends Ability implements ICommandSource {
                 if (pressType.equals("toggle")) {
                     if (pressed) toggled = !toggled;
                 } else if (pressType.equals("action")) {
-                    if (pressed &&  HUPlayer.getCap(player).getCooldown() == 0) {
+                    if (pressed && cooldownTicks <= 0) {
                         sendCommand(player);
-                        HUPlayer.getCap(player).setCooldown(JSONUtils.getInt(key, "cooldown", 2));
+                        this.cooldownTicks = JSONUtils.getInt(key, "cooldown", 2);
                     }
                 } else if (pressType.equals("held") && pressed) {
                     sendCommand(player);

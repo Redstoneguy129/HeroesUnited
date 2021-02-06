@@ -40,14 +40,6 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
         if (MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Pre(entityRendererIn, entity, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch)) && entity.isChild() == true)
             return;
 
-        for (EquipmentSlotType slot : EquipmentSlotType.values()) {
-            if (slot.getSlotType() == EquipmentSlotType.Group.ARMOR) {
-                renderSuit(matrixStack, buffer, entity, slot, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
-            }
-        }
-
-        MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent(entityRendererIn, entity, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch));
-
         if (entityRendererIn instanceof PlayerRenderer && entity instanceof AbstractClientPlayerEntity) {
             PlayerRenderer playerRenderer = (PlayerRenderer) entityRendererIn;
             AbstractClientPlayerEntity player = (AbstractClientPlayerEntity) entity;
@@ -79,6 +71,14 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
             });
             MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Player(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch));
         }
+
+        for (EquipmentSlotType slot : EquipmentSlotType.values()) {
+            if (slot.getSlotType() == EquipmentSlotType.Group.ARMOR) {
+                renderSuit(matrixStack, buffer, entity, slot, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+            }
+        }
+
+        MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent(entityRendererIn, entity, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch));
     }
 
     private void renderAccessories(ModelSuit suitModel, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, PlayerEntity player, PlayerRenderer playerRenderer, IAccessory accessoire, ItemStack stack, IHUPlayer cap, EquipmentAccessoriesSlot slot) {

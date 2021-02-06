@@ -33,7 +33,7 @@ import java.util.Map;
 public class HUPlayer implements IHUPlayer {
     private final PlayerEntity player;
     private boolean flying, slowMo, intangible, isInTimer;
-    private int theme, type, cooldown, timer, animationTimer;
+    private int theme, type, timer, animationTimer;
     public final AccessoriesInventory inventory;
     private AnimationFactory factory = new AnimationFactory(this);
     private ResourceLocation animationFile;
@@ -123,18 +123,6 @@ public class HUPlayer implements IHUPlayer {
         this.type = type;
         if (!player.world.isRemote)
             HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getEntityId(), HUTypes.TYPE, type));
-    }
-
-    @Override
-    public int getCooldown() {
-        return cooldown;
-    }
-
-    @Override
-    public void setCooldown(int cooldown) {
-        this.cooldown = cooldown;
-        if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getEntityId(), HUTypes.COOLDOWN, cooldown));
     }
 
     @Override
@@ -262,7 +250,7 @@ public class HUPlayer implements IHUPlayer {
         this.activeAbilities = cap.getActiveAbilities();
         this.containedAbilities = cap.getAbilities();
         this.flying = this.slowMo = this.isInTimer = false;
-        this.timer = this.animationTimer = this.cooldown = 0;
+        this.timer = this.animationTimer = 0;
         this.animationFile = cap.getAnimationFile();
         for (HUData data : this.dataList.values()) {
             for (HUData oldData : cap.getDataList().values()) {
@@ -388,7 +376,6 @@ public class HUPlayer implements IHUPlayer {
         nbt.putBoolean("Intangible", this.intangible);
         nbt.putInt("Theme", this.theme);
         nbt.putInt("Type", this.type);
-        nbt.putInt("Cooldown", this.cooldown);
         nbt.putInt("AnimationTimer", this.animationTimer);
         nbt.putInt("Timer", this.timer);
         nbt.putBoolean("isInTimer", this.isInTimer);
@@ -440,9 +427,6 @@ public class HUPlayer implements IHUPlayer {
         }
         if (nbt.contains("Type")) {
             this.type = nbt.getInt("Type");
-        }
-        if (nbt.contains("Cooldown")) {
-            this.cooldown = nbt.getInt("Cooldown");
         }
         if (nbt.contains("AnimationTimer")) {
             this.animationTimer = nbt.getInt("AnimationTimer");

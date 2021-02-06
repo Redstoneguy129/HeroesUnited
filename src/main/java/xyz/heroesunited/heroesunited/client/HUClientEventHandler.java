@@ -110,7 +110,7 @@ public class HUClientEventHandler {
         for (AbilityKeyBinding key : ABILITY_KEYS) {
             sendToggleKey(e.getKey(), e.getAction(), key, key.index);
         }
-        sendToggleKey(e.getKey(), e.getAction(), mc.gameSettings.keyBindJump, 10);
+        sendToggleKey(e.getKey(), e.getAction(), mc.gameSettings.keyBindJump, 7);
     }
 
     @SubscribeEvent
