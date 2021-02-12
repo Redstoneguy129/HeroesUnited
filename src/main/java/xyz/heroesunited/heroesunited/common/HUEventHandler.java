@@ -1,9 +1,12 @@
 package xyz.heroesunited.heroesunited.common;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntitySize;
+import net.minecraft.entity.Pose;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.shapes.VoxelShapes;
@@ -16,6 +19,7 @@ import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
@@ -40,6 +44,28 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HUEventHandler {
+
+    @SubscribeEvent
+    public void playerSize(EntityEvent.Size event) {
+        if (event.getEntity().isAddedToWorld() && event.getEntity() instanceof PlayerEntity) {
+            PlayerEntity player = (PlayerEntity) event.getEntity();
+            player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+                if (cap.isFlying() && !player.isOnGround() && player.isSprinting()) {
+                    if (event.getOldSize().fixed) {
+                        event.setNewSize(EntitySize.fixed(0.6F, 0.6F));
+                    } else {
+                        event.setNewSize(EntitySize.flexible(0.6F, 0.6F));
+                    }
+                    event.setNewEyeHeight(0.4F);
+                }
+                for (Ability ability : cap.getActiveAbilities().values()) {
+                    if (ability instanceof EyeHeightAbility) {
+                        event.setNewEyeHeight(event.getOldEyeHeight() * JSONUtils.getFloat(ability.getJsonObject(), "amount", 1));
+                    }
+                }
+            });
+        }
+    }
 
     @SubscribeEvent
     public void onWorldTick(TickEvent.PlayerTickEvent event) {

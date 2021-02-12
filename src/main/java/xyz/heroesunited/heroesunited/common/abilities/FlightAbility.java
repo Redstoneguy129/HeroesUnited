@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.SoundEvent;
+import software.bernie.geckolib3.core.builder.AnimationBuilder;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 
 public class FlightAbility extends Ability implements IFlyingAbility {
@@ -32,7 +33,7 @@ public class FlightAbility extends Ability implements IFlyingAbility {
             if (id == JSONUtils.getInt(key, "id")) {
                 if (pressType.equals("toggle")) {
                     if (pressed) {
-                        HUPlayer.getCap(player).setFlying(!HUPlayer.getCap(player).isFlying());
+                        HUPlayer.getCap(player).getController().setAnimation(new AnimationBuilder().addAnimation("dab", true));
                     }
                 } else if (pressType.equals("action")) {
                     if (pressed) {

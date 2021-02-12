@@ -5,7 +5,8 @@
   "client": [
     "client.MixinArmorLayerRenderer",
     "client.MixinPlayerModel",
-    "client.MixinServerWorldInfo"
+    "client.MixinServerWorldInfo",
+    "client.MixinPlayerRenderer"
   ],
   "mixins": [
     "MixinMinecraftServer",

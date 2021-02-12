@@ -85,7 +85,7 @@ public class HeroesUnited {
         });
         AnimationController.addModelFetcher((IAnimatable object) -> {
             if (object instanceof IGeoAbility) {
-                return ((IGeoAbility) object).getGeoRenderer().getGeoModelProvider();
+                return ((IGeoAbility) object).getGeoModel();
             }
             return null;
         });

@@ -9,6 +9,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
+import software.bernie.geckolib3.model.AnimatedGeoModel;
 
 public interface IGeoAbility extends IAnimatable {
 
@@ -29,15 +30,31 @@ public interface IGeoAbility extends IAnimatable {
     @OnlyIn(Dist.CLIENT)
     ResourceLocation getAnimationFile();
 
-    @OnlyIn(Dist.CLIENT)
-    <T extends GeoAbilityRenderer> T getGeoRenderer();
+    default <A extends IGeoAbility> AnimatedGeoModel<A> getGeoModel() {
+        return new AnimatedGeoModel<A>() {
+            @Override
+            public ResourceLocation getModelLocation(A ability) {
+                return ability.getModelPath();
+            }
+
+            @Override
+            public ResourceLocation getTextureLocation(A ability) {
+                return ability.getTexture();
+            }
+
+            @Override
+            public ResourceLocation getAnimationFileLocation(A ability) {
+                return ability.getAnimationFile();
+            }
+        };
+    }
 
     @OnlyIn(Dist.CLIENT)
     default boolean renderAsDefault() {
         return true;
     }
 
-    default void renderGeoAbilityRenderer(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, GeoModel model, AnimationEvent event, AbstractClientPlayerEntity player) {
+    default void renderGeoAbilityRenderer(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, GeoModel model, AnimationEvent event, AbstractClientPlayerEntity player, GeoAbilityRenderer renderer) {
 
     }
 }

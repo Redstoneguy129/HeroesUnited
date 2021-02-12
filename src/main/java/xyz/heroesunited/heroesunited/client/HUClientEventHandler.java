@@ -43,6 +43,7 @@ import xyz.heroesunited.heroesunited.client.render.HULayerRenderer;
 import xyz.heroesunited.heroesunited.common.HUConfig;
 import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
+import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccessoriesInv;
@@ -86,14 +87,6 @@ public class HUClientEventHandler {
         if (entitiesWithLayer.contains(e.getRenderer())) return;
         e.getRenderer().addLayer(new HULayerRenderer(e.getRenderer()));
         entitiesWithLayer.add(e.getRenderer());
-    }
-
-    @SubscribeEvent
-    public void playerSize(EntityEvent.Size event) {
-        if (event.getEntity().isAddedToWorld() && event.getEntity() instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) event.getEntity();
-            AbilityHelper.getAbilities(player).stream().filter(ability -> ability instanceof EyeHeightAbility).forEach(ability -> event.setNewEyeHeight(event.getOldEyeHeight() * JSONUtils.getFloat(ability.getJsonObject(), "amount", 1)));
-        }
     }
 
     @SubscribeEvent
@@ -198,17 +191,17 @@ public class HUClientEventHandler {
             AnimationEvent animationEvent = new AnimationEvent(cap, 0.0F, 0.0F, 0.0F, false, Arrays.asList(event.getPlayer().getUniqueID()));
             animationEvent.setController(cap.getController());
             cap.getAnimatedModel().setLivingAnimations(cap, event.getPlayer().getUniqueID().hashCode(), animationEvent);
-
-            if (cap.isFlying() && !event.getPlayer().isOnGround() && !event.getPlayer().isSwimming() && event.getPlayer().isSprinting()) {
-                boolean renderFlying = IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).renderFlying(event.getPlayer());
-                if (renderFlying) {
-                    event.getMatrixStack().push();
-                    event.getMatrixStack().rotate(new Quaternion(0, -event.getPlayer().rotationYaw, 0, true));
-                    event.getMatrixStack().rotate(new Quaternion(event.getPlayer().rotationPitch, 0, 0, true));
-                    event.getMatrixStack().rotate(new Quaternion(0, event.getPlayer().rotationYaw, 0, true));
-                }
-            }
         });
+
+        if (HUPlayer.getCap(event.getPlayer()).isFlying() && !event.getPlayer().isOnGround() && !event.getPlayer().isSwimming() && event.getPlayer().isSprinting()) {
+            boolean renderFlying = IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).renderFlying(event.getPlayer());
+            if (renderFlying && !(event.getPlayer().getTicksElytraFlying() > 4) && !event.getPlayer().isActualySwimming()) {
+                event.getMatrixStack().push();
+                event.getMatrixStack().rotate(new Quaternion(0, -event.getPlayer().rotationYaw, 0, true));
+                event.getMatrixStack().rotate(new Quaternion(90F + event.getPlayer().rotationPitch, 0, 0, true));
+                event.getMatrixStack().rotate(new Quaternion(0, event.getPlayer().rotationYaw, 0, true));
+            }
+        }
     }
 
     @SubscribeEvent
@@ -217,23 +210,11 @@ public class HUClientEventHandler {
         event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             if (cap.isFlying() && !event.getPlayer().isOnGround() && !event.getPlayer().isSwimming() && event.getPlayer().isSprinting()) {
                 boolean renderFlying = IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).renderFlying(event.getPlayer());
-                if (renderFlying) {
+                if (renderFlying && !(event.getPlayer().getTicksElytraFlying() > 4) && !event.getPlayer().isActualySwimming()) {
                     event.getMatrixStack().pop();
                 }
             }
         });
-    }
-
-    @SubscribeEvent
-    public void onTick(TickEvent.PlayerTickEvent event) {
-        PlayerEntity pl = event.player;
-        if (event.phase == TickEvent.Phase.END && pl != null) {
-            pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                if (cap.isFlying() && !pl.isOnGround() && pl.isSprinting() && !pl.getPose().equals(Pose.SWIMMING)) {
-                    pl.setPose(Pose.SWIMMING);
-                }
-            });
-        }
     }
 
     @SubscribeEvent
@@ -294,6 +275,7 @@ public class HUClientEventHandler {
                 PlayerModel model = event.getPlayerModel();
                 boolean renderFlying = IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).setDefaultRotationAngles(event.getPlayer());
                 if (renderFlying) {
+                    model.bipedHead.rotateAngleX = (-(float)Math.PI / 4F);
                     model.bipedRightArm.rotateAngleX = IFlyingAbility.getFlyingAbility(event.getPlayer()) != null && IFlyingAbility.getFlyingAbility(event.getPlayer()).rotateArms(event.getPlayer()) ? (float) Math.toRadians(180F) : (float) Math.toRadians(0F);
                     model.bipedLeftArm.rotateAngleX = model.bipedRightArm.rotateAngleX;
                     model.bipedRightArm.rotateAngleY = model.bipedRightArm.rotateAngleZ =

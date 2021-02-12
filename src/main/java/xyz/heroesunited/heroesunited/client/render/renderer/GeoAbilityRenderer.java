@@ -39,9 +39,9 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
 
     protected final AnimatedGeoModel<T> modelProvider;
 
-    public GeoAbilityRenderer() {
+    public GeoAbilityRenderer(AnimatedGeoModel<T> modelProvider) {
         super(1);
-        this.modelProvider = new GeckoAbilityModel();
+        this.modelProvider = modelProvider;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
         modelProvider.setLivingAnimations(currentAbility, this.getUniqueID(this.currentAbility), itemEvent);
 
         if (!currentAbility.renderAsDefault()) {
-            currentAbility.renderGeoAbilityRenderer(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha, model, itemEvent, this.player);
+            currentAbility.renderGeoAbilityRenderer(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha, model, itemEvent, this.player, this);
         } else {
             matrixStackIn.translate(0.0D, 1.5F, 0.0D);
             matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
@@ -179,6 +179,10 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
     @Override
     public RenderType getRenderType(T animatable, float partialTicks, MatrixStack stack, IRenderTypeBuffer renderTypeBuffer, IVertexBuilder vertexBuilder, int packedLightIn, ResourceLocation textureLocation) {
         return RenderType.getEntityTranslucent(getTextureLocation(animatable));
+    }
+
+    public AbstractClientPlayerEntity getPlayer() {
+        return player;
     }
 
     @Override
