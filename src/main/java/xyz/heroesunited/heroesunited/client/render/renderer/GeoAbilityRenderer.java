@@ -20,7 +20,6 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 import software.bernie.geckolib3.util.GeoUtils;
 import software.bernie.geckolib3.util.RenderUtils;
-import xyz.heroesunited.heroesunited.client.render.model.GeckoAbilityModel;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 
 import java.awt.*;
