@@ -20,8 +20,7 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable {
     /**
      * Can be used for custom player animations
      */
-    void setAnimationFile(ResourceLocation animationFile);
-    ResourceLocation getAnimationFile();
+    void setAnimation(String name, ResourceLocation animationFile, boolean loop);
     AnimatedGeoModel getAnimatedModel();
     AnimationController getController();
 

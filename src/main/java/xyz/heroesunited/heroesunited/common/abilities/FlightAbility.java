@@ -33,7 +33,7 @@ public class FlightAbility extends Ability implements IFlyingAbility {
             if (id == JSONUtils.getInt(key, "id")) {
                 if (pressType.equals("toggle")) {
                     if (pressed) {
-                        HUPlayer.getCap(player).getController().setAnimation(new AnimationBuilder().addAnimation("dab", true));
+                        HUPlayer.getCap(player).setFlying(!HUPlayer.getCap(player).isFlying());
                     }
                 } else if (pressType.equals("action")) {
                     if (pressed) {

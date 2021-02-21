@@ -12,6 +12,7 @@ import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.PacketDistributor;
 import software.bernie.geckolib3.core.AnimationState;
 import software.bernie.geckolib3.core.PlayState;
+import software.bernie.geckolib3.core.builder.AnimationBuilder;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
@@ -71,6 +72,17 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public Map<ResourceLocation, Level> getSuperpowerLevels() {
         return superpowerLevels;
+    }
+
+    @Override
+    public void setAnimation(String name, ResourceLocation animationFile, boolean loop) {
+        this.animationFile = animationFile;
+        getController().markNeedsReload();
+        getController().setAnimation(new AnimationBuilder().addAnimation(name, loop));
+        this.animationFile = null;
+        if (!player.world.isRemote) {
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSetAnimation(player.getEntityId(), name, animationFile, loop));
+        }
     }
 
     @Nonnull
@@ -251,7 +263,6 @@ public class HUPlayer implements IHUPlayer {
         this.containedAbilities = cap.getAbilities();
         this.flying = this.slowMo = this.isInTimer = false;
         this.timer = this.animationTimer = 0;
-        this.animationFile = cap.getAnimationFile();
         for (HUData data : this.dataList.values()) {
             for (HUData oldData : cap.getDataList().values()) {
                 if (data.canBeSaved() && oldData.canBeSaved() && data.getKey().equals(oldData.getKey())) {
@@ -300,16 +311,6 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public Map<String, HUData> getDataList() {
         return this.dataList;
-    }
-
-    @Override
-    public void setAnimationFile(ResourceLocation animationFile) {
-        this.animationFile = animationFile;
-    }
-
-    @Override
-    public ResourceLocation getAnimationFile() {
-        return animationFile;
     }
 
     @Override
