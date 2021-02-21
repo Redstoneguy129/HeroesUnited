@@ -1,6 +1,7 @@
 package xyz.heroesunited.heroesunited.common.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
@@ -10,6 +11,7 @@ import net.minecraft.command.Commands;
 import net.minecraft.command.ISuggestionProvider;
 import net.minecraft.command.arguments.EntityArgument;
 import net.minecraft.command.arguments.ResourceLocationArgument;
+import net.minecraft.command.impl.BossBarCommand;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
@@ -24,6 +26,7 @@ import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 public class HUCoreCommand {
     private static final SuggestionProvider<CommandSource> SUGGEST_SUPERPOWERS = (context, builder) -> ISuggestionProvider.func_212476_a(HUPackSuperpowers.getSuperpowers().values().stream().map(Superpower::getRegistryName), builder);
@@ -32,6 +35,7 @@ public class HUCoreCommand {
 
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
         dispatcher.register(Commands.literal("heroesunited").requires((player) -> player.hasPermissionLevel(2))
+                .then(Commands.literal("slowmo").then(Commands.argument("enable", BoolArgumentType.bool()).executes((c) -> setSlowMotion(c.getSource(), BoolArgumentType.getBool(c, "enable")))))
                 .then(Commands.literal("suit")
                         .then(Commands.argument("players", EntityArgument.players())
                                 .then(Commands.argument("suit", ResourceLocationArgument.resourceLocation()).suggests(SUGGEST_SUITS)
@@ -46,6 +50,18 @@ public class HUCoreCommand {
                                 .then(Commands.literal("remove").executes(c -> removeSuperpower(c.getSource(), EntityArgument.getPlayers(c, "players"))))
                         ))
         );
+    }
+
+    private static int setSlowMotion(CommandSource commandSource, boolean enable) {
+        List<ServerPlayerEntity> players = commandSource.getWorld().getPlayers();
+        for (ServerPlayerEntity player : players) {
+            player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((k) -> {
+                k.setSlowMo(enable);
+                k.syncToAll();
+            });
+        }
+        commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.slow_mo", enable), true);
+        return players.size();
     }
 
     private static int setSuperpower(CommandSource commandSource, Collection<ServerPlayerEntity> players, Superpower superpower) {

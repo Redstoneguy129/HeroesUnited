@@ -38,6 +38,7 @@
   "commands.heroesunited.ability.disabled": "Abilities has been disabled",
   "commands.heroesunited.superpower.set.single": "%s superpower has been set to %s",
   "commands.heroesunited.superpower.set.multiple": "%s entities Superpower has been set to %s",
+  "commands.heroesunited.slow_mo": "Slow-mo for all players has been set to %s",
 
   "heroesunited.jumpBoost": "JumpBoost",
   "heroesunited.fallResistance": "FallResistance",
