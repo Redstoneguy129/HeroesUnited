@@ -28,6 +28,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Quaternion;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -47,6 +48,21 @@ import static net.minecraft.inventory.EquipmentSlotType.*;
 public class HUClientUtil {
 
     public static final ResourceLocation null_texture = new ResourceLocation(HeroesUnited.MODID + ":textures/null.png");
+
+    public static void renderAura(MatrixStack matrixStack, IVertexBuilder builder, AxisAlignedBB box, float shrinkValue, Color color, int packedLightIn, int ticksExisted) {
+        matrixStack.push();
+        for (int i = 0; i < 5; i++) {
+            float angle = ticksExisted * 4 + i * 180;
+            matrixStack.rotate(new Quaternion(angle, -angle, angle, true));
+            HUClientUtil.renderFilledBox(matrixStack, builder, box, color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F, packedLightIn);
+            for (int j = 0; j < 5; j++) {
+                float angleJ = ticksExisted * 4 + j * 180;
+                matrixStack.rotate(new Quaternion(angleJ, -angleJ, angleJ, true));
+                HUClientUtil.renderFilledBox(matrixStack, builder, box.shrink(shrinkValue), 1f, 1f, 1f, 1f, packedLightIn);
+            }
+        }
+        matrixStack.pop();
+    }
 
     public static void drawArmWithLightning(MatrixStack matrix, IRenderTypeBuffer bufferIn, PlayerRenderer renderer, AbstractClientPlayerEntity player, HandSide side, double y , int packedLightIn, Color color) {
         for (int i = 0; i < 3; i++) {
