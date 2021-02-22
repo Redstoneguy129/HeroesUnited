@@ -286,8 +286,11 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public IHUPlayer syncToAll() {
         this.sync();
-        if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncCap(player.getEntityId(), HUPlayer.getCap(player).serializeNBT()));
+        for (PlayerEntity player : this.player.getEntityWorld().getPlayers()) {
+            if (player instanceof ServerPlayerEntity) {
+                HUNetworking.INSTANCE.sendTo(new ClientSyncCap(this.player.getEntityId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            }
+        }
         return this;
     }
 

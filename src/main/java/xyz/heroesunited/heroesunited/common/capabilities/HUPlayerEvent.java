@@ -17,6 +17,7 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilities;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncActiveAbilities;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncCap;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUData;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 
@@ -61,7 +62,7 @@ public class HUPlayerEvent {
                 HUNetworking.INSTANCE.sendTo(new ClientSyncAbilities(e.getTarget().getEntityId(), a.getAbilities()), ((ServerPlayerEntity) e.getPlayer()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
                 HUNetworking.INSTANCE.sendTo(new ClientSyncActiveAbilities(e.getTarget().getEntityId(), a.getActiveAbilities()), ((ServerPlayerEntity) e.getPlayer()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
                 a.getDataList().values().stream().filter(HUData::canBeSaved).forEachOrdered(data -> HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(e.getTarget().getEntityId(), data.getKey(), a.serializeNBT()), ((ServerPlayerEntity) e.getPlayer()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT));
-                a.syncToAll();
+                HUNetworking.INSTANCE.sendTo(new ClientSyncCap(e.getTarget().getEntityId(), a.serializeNBT()), ((ServerPlayerEntity) e.getPlayer()).connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
             }
         });
     }
@@ -73,8 +74,8 @@ public class HUPlayerEvent {
                 HUNetworking.INSTANCE.sendTo(new ClientSyncAbilities(e.getEntity().getEntityId(), a.getAbilities()), ((ServerPlayerEntity) e.getEntity()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
                 HUNetworking.INSTANCE.sendTo(new ClientSyncActiveAbilities(e.getEntity().getEntityId(), a.getActiveAbilities()), ((ServerPlayerEntity) e.getEntity()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
                 a.getDataList().values().stream().filter(HUData::canBeSaved).forEachOrdered(data -> HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(e.getEntity().getEntityId(), data.getKey(), a.serializeNBT()), ((ServerPlayerEntity) e.getEntity()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT));
-                a.sync();
             }
+            a.syncToAll();
         });
     }
 }
