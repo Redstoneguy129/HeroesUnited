@@ -27,37 +27,38 @@ public abstract class MixinPlayerRenderer {
 
     @Inject(method = "renderItem(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;ILnet/minecraft/client/entity/player/AbstractClientPlayerEntity;Lnet/minecraft/client/renderer/model/ModelRenderer;Lnet/minecraft/client/renderer/model/ModelRenderer;)V", at = @At("HEAD"), cancellable = true)
     private void renderItem(MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn, AbstractClientPlayerEntity player, ModelRenderer rendererArmIn, ModelRenderer rendererArmwearIn, CallbackInfo ci) {
-        PlayerRenderer playerRenderer = ((PlayerRenderer)(Object)this);
+        PlayerRenderer playerRenderer = ((PlayerRenderer) (Object) this);
         PlayerModel<AbstractClientPlayerEntity> model = playerRenderer.getEntityModel();
         HandSide side = rendererArmIn == model.bipedRightArm ? HandSide.RIGHT : HandSide.LEFT;
         boolean renderArm = true;
-        if (MinecraftForge.EVENT_BUS.post(new HURenderPlayerHandEvent.Pre(player, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, side))) return;
-        this.setModelVisibilities(player);
-        model.swingProgress = 0.0F;
-        model.isSneak = false;
-        model.swimAnimation = 0.0F;
-        model.setRotationAngles(player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
-        rendererArmIn.rotateAngleX = 0.0F;
-        rendererArmwearIn.rotateAngleX = 0.0F;
-        for (Ability ability : AbilityHelper.getAbilities(player)) {
-            ability.renderFirstPersonArm(playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side);
-            if (!ability.renderFirstPersonArm(player)) {
-                renderArm = false;
-                break;
+        if (!MinecraftForge.EVENT_BUS.post(new HURenderPlayerHandEvent.Pre(player, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, side))) {
+            this.setModelVisibilities(player);
+            model.swingProgress = 0.0F;
+            model.isSneak = false;
+            model.swimAnimation = 0.0F;
+            model.setRotationAngles(player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+            rendererArmIn.rotateAngleX = 0.0F;
+            rendererArmwearIn.rotateAngleX = 0.0F;
+            for (Ability ability : AbilityHelper.getAbilities(player)) {
+                ability.renderFirstPersonArm(playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side);
+                if (!ability.renderFirstPersonArm(player)) {
+                    renderArm = false;
+                    break;
+                }
             }
-        }
-        if (!renderArm) {
-            rendererArmIn.showModel = false;
-            rendererArmwearIn.showModel = false;
-        }
-        if (Suit.getSuit(player) != null && (rendererArmIn.showModel && rendererArmIn.showModel)) {
-            Suit.getSuit(player).renderFirstPersonArm(playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side);
-        }
+            if (!renderArm) {
+                rendererArmIn.showModel = false;
+                rendererArmwearIn.showModel = false;
+            }
+            if (Suit.getSuit(player) != null && (rendererArmIn.showModel && rendererArmIn.showModel)) {
+                Suit.getSuit(player).renderFirstPersonArm(playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side);
+            }
 
-        rendererArmIn.render(matrixStackIn, bufferIn.getBuffer(RenderType.getEntitySolid(player.getLocationSkin())), combinedLightIn, OverlayTexture.NO_OVERLAY);
-        rendererArmwearIn.render(matrixStackIn, bufferIn.getBuffer(RenderType.getEntityTranslucent(player.getLocationSkin())), combinedLightIn, OverlayTexture.NO_OVERLAY);
+            rendererArmIn.render(matrixStackIn, bufferIn.getBuffer(RenderType.getEntitySolid(player.getLocationSkin())), combinedLightIn, OverlayTexture.NO_OVERLAY);
+            rendererArmwearIn.render(matrixStackIn, bufferIn.getBuffer(RenderType.getEntityTranslucent(player.getLocationSkin())), combinedLightIn, OverlayTexture.NO_OVERLAY);
 
-        MinecraftForge.EVENT_BUS.post(new HURenderPlayerHandEvent.Post(player, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, side));
+            MinecraftForge.EVENT_BUS.post(new HURenderPlayerHandEvent.Post(player, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, side));
+        }
         ci.cancel();
     }
 }
