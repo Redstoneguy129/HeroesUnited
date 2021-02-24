@@ -5,7 +5,6 @@ import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.util.JSONUtils;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.shapes.VoxelShapes;
@@ -57,9 +56,16 @@ public class HUEventHandler {
                     }
                     event.setNewEyeHeight(0.4F);
                 }
-                for (Ability ability : cap.getActiveAbilities().values()) {
-                    if (ability instanceof EyeHeightAbility) {
-                        event.setNewEyeHeight(event.getOldEyeHeight() * JSONUtils.getFloat(ability.getJsonObject(), "amount", 1));
+                for (Ability a : cap.getActiveAbilities().values()) {
+                    if (a instanceof SizeChangeAbility) {
+                        SizeChangeAbility ability = (SizeChangeAbility) a;
+                        EntitySize size = event.getOldSize();
+                        if (event.getOldSize().fixed) {
+                            event.setNewSize(EntitySize.fixed(size.width * ability.getSize(), size.height * ability.getSize()));
+                        } else {
+                            event.setNewSize(EntitySize.flexible(size.width * ability.getSize(), size.height * ability.getSize()));
+                        }
+                        event.setNewEyeHeight(event.getOldEyeHeight() * ability.getSize());
                     }
                 }
             });

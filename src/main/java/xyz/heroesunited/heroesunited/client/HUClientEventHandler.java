@@ -87,6 +87,32 @@ public class HUClientEventHandler {
     }
 
     @SubscribeEvent
+    public void renderPlayer(RenderPlayerEvent event) {
+        for (Ability a : AbilityHelper.getAbilities(event.getPlayer())) {
+            if (a instanceof SizeChangeAbility && ((SizeChangeAbility) a).changeSizeInRender()) {
+                if (event instanceof RenderPlayerEvent.Pre) {
+                    event.getMatrixStack().push();
+                    float size = ((SizeChangeAbility) a).getSize();
+                    event.getMatrixStack().scale(size, size, size);
+                    event.getRenderer().shadowSize = 0.5F * size;
+                }
+                if (event instanceof RenderPlayerEvent.Post) {
+                    event.getMatrixStack().pop();
+                }
+            } else {
+                if (event.getRenderer().shadowSize != 0.5F) {
+                    event.getRenderer().shadowSize = 0.5F;
+                }
+            }
+        }
+        if (AbilityHelper.getAbilities(event.getPlayer()).isEmpty()) {
+            if (event.getRenderer().shadowSize != 0.5F) {
+                event.getRenderer().shadowSize = 0.5F;
+            }
+        }
+    }
+
+    @SubscribeEvent
     public void keyInput(InputEvent.KeyInputEvent e) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc == null || mc.currentScreen != null) return;

@@ -1,6 +1,7 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.common.collect.ImmutableMap;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -40,9 +41,9 @@ public class AbilityHelper {
         return ability.canActivate(player) && suit;
     }
 
-    public static List<Ability> getAbilities(PlayerEntity player) {
+    public static List<Ability> getAbilities(Entity entity) {
         List<Ability> list = new ArrayList<>();
-        player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((f) -> list.addAll(f.getActiveAbilities().values()));
+        entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((f) -> list.addAll(f.getActiveAbilities().values()));
         return list;
     }
 
