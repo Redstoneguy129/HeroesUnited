@@ -98,9 +98,6 @@ repositories {
 }
 
 dependencies {
-    compile 'xyz.heroesunited:hu-core:2.5-alpha-2:deobf'
-    implementation 'com.github.Vatuu:discord-rpc:1.6.2'
-    compile fg.deobf('software.bernie.geckolib:geckolib-forge-1.16.5:3.0.13')
-}
+    compile 'xyz.heroesunited:hu-core:2.5-alpha-2'
 }
 ```
