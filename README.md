@@ -94,10 +94,13 @@ This includes (but not limited to):
 To use the api in your mod:
 ```
 repositories {
-    maven { url 'https://repo.repsy.io/mvn/grillo78/default' }
+    maven { url 'https://repo.repsy.io/mvn/heroesunited/default' }
 }
 
 dependencies {
-    compile 'xyz.heroesunited:hu-core:2.4'
+    compile 'xyz.heroesunited:hu-core:2.5-alpha-2:deobf'
+    implementation 'com.github.Vatuu:discord-rpc:1.6.2'
+    compile fg.deobf('software.bernie.geckolib:geckolib-forge-1.16.5:3.0.13')
+}
 }
 ```
