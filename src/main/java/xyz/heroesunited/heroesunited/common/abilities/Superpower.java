@@ -7,10 +7,11 @@ import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class Superpower {
+public class Superpower implements IAbilityProvider {
 
     private final ResourceLocation name;
     private List<AbilityCreator> containedAbilities;
@@ -24,24 +25,26 @@ public class Superpower {
         this.containedAbilities = containedAbilities;
     }
 
-    public List<AbilityCreator> getContainedAbilities(PlayerEntity player) {
-        return containedAbilities;
-    }
-
-    public Map<String, Ability> getAbilities(PlayerEntity player) {
-        Map<String, Ability> map = Maps.newHashMap();
-        this.getContainedAbilities(player).forEach(a -> {
-            Ability ability = a.getAbilityType().create(a.getKey()).setSuperpower(this.getRegistryName());
-            map.put(ability.name, ability);
-        });
-        return map;
-    }
-
     public ITextComponent getDisplayName() {
         return new TranslationTextComponent(Util.makeTranslationKey("superpowers", name));
     }
 
+    @Nullable
     public ResourceLocation getRegistryName() {
         return name;
+    }
+
+    @Override
+    public Map<String, Ability> getAbilities(PlayerEntity player) {
+        Map<String, Ability> map = Maps.newHashMap();
+        containedAbilities.forEach(a -> {
+            Ability ability = a.getAbilityType().create(a.getKey());
+            ability.getAdditionalData().putString("Superpower", this.getRegistryName().toString());
+            if (a.getJsonObject() != null) {
+                ability.setJsonObject(player, a.getJsonObject());
+            }
+            map.put(ability.name, ability);
+        });
+        return map;
     }
 }

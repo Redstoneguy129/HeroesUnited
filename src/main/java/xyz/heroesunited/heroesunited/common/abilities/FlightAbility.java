@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.SoundEvent;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 
 public class FlightAbility extends Ability implements IFlyingAbility {
@@ -14,6 +13,7 @@ public class FlightAbility extends Ability implements IFlyingAbility {
 
     @Override
     public void onUpdate(PlayerEntity player) {
+        super.onUpdate(player);
         if (!JSONUtils.hasField(this.getJsonObject(), "key")) {
             HUPlayer.getCap(player).setFlying(true);
         } else {

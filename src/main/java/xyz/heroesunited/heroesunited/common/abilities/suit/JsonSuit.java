@@ -1,6 +1,7 @@
 package xyz.heroesunited.heroesunited.common.abilities.suit;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -19,6 +20,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.IForgeRegistry;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
+import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
@@ -61,6 +63,19 @@ public class JsonSuit extends Suit {
 
     protected SuitItem createItem(Suit suit, EquipmentSlotType slot, JsonObject slots) {
         return (SuitItem) new SuitItem(suit.getSuitMaterial(), slot, new Item.Properties().maxStackSize(1).group(suit.getItemGroup()), suit).setRegistryName(suit.getRegistryName().getNamespace(), suit.getRegistryName().getPath() + "_" + JSONUtils.getString(slots, slot.getName().toLowerCase()));
+    }
+
+    @Override
+    public Map<String, Ability> getAbilities(PlayerEntity player) {
+        Map<String, Ability> map = Maps.newHashMap();
+        AbilityHelper.parseAbilityCreators(jsonObject, getRegistryName()).forEach(a -> {
+            Ability ability = a.getAbilityType().create(a.getKey());
+            if (a.getJsonObject() != null) {
+                ability.setJsonObject(player, a.getJsonObject());
+            }
+            map.put(ability.name, ability);
+        });
+        return map;
     }
 
     @Override

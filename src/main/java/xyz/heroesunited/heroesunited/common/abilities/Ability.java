@@ -38,8 +38,8 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     public String name;
     public final AbilityType type;
     protected int cooldownTicks = 0;
-    private ResourceLocation superpower;
-    private JsonObject jsonObject;
+    protected CompoundNBT additionalData = new CompoundNBT();
+    protected JsonObject jsonObject;
 
     public Ability(AbilityType type) {
         this.type = type;
@@ -124,10 +124,8 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     public CompoundNBT serializeNBT() {
         CompoundNBT nbt = new CompoundNBT();
         nbt.putString("AbilityType", this.type.getRegistryName().toString());
-        nbt.putInt("cooldown", cooldownTicks);
-        if (this.superpower != null) {
-            nbt.putString("Superpower", this.superpower.toString());
-        }
+        nbt.putInt("Cooldown", cooldownTicks);
+        nbt.put("AdditionalData", additionalData);
         if (this.jsonObject != null) {
             nbt.putString("JsonObject", this.jsonObject.toString());
         }
@@ -136,10 +134,8 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
-        this.cooldownTicks = nbt.getInt("cooldown");
-        if (nbt.contains("Superpower")) {
-            this.superpower = new ResourceLocation(nbt.getString("Superpower"));
-        }
+        this.cooldownTicks = nbt.getInt("Cooldown");
+        this.additionalData = nbt.getCompound("AdditionalData");
         if (nbt.contains("JsonObject")) {
             this.jsonObject = new JsonParser().parse(nbt.getString("JsonObject")).getAsJsonObject();
         }
@@ -157,8 +153,8 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         return cooldownTicks;
     }
 
-    public ResourceLocation getSuperpower() {
-        return superpower;
+    public CompoundNBT getAdditionalData() {
+        return additionalData;
     }
 
     public boolean isHidden() {
@@ -181,13 +177,13 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         return this;
     }
 
-    public Ability setSuperpower(ResourceLocation superpower) {
-        this.superpower = superpower;
+    public Ability setCooldownTicks(int cooldownTicks) {
+        this.cooldownTicks = cooldownTicks;
         return this;
     }
 
-    public Ability setCooldownTicks(int cooldownTicks) {
-        this.cooldownTicks = cooldownTicks;
+    public Ability setAdditionalData(CompoundNBT nbt) {
+        this.additionalData = nbt;
         return this;
     }
 }

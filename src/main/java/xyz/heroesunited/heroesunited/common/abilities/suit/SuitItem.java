@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.common.abilities.suit;
 
+import com.google.common.collect.Maps;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
@@ -11,18 +12,22 @@ import net.minecraft.item.IArmorMaterial;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import xyz.heroesunited.heroesunited.common.abilities.Ability;
+import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 
 import static net.minecraft.inventory.EquipmentSlotType.Group;
 import static net.minecraft.inventory.EquipmentSlotType.values;
 
-public class SuitItem extends ArmorItem {
+public class SuitItem extends ArmorItem implements IAbilityProvider {
 
     protected final Suit suit;
 
@@ -33,6 +38,19 @@ public class SuitItem extends ArmorItem {
 
     public Suit getSuit() {
         return suit;
+    }
+
+    @Override
+    public Map<String, Ability> getAbilities(PlayerEntity player) {
+        Map<String, Ability> map = Maps.newHashMap();
+        suit.getAbilities(player).forEach((id, a) -> {
+            a.getAdditionalData().putString("Suit", this.getRegistryName().toString());
+            if (suit instanceof JsonSuit && a.getJsonObject().has("slot")) {
+                a.getAdditionalData().putString("Slot", JSONUtils.getString(a.getJsonObject(), "slot"));
+            }
+            map.put(id, a);
+        });
+        return map;
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -1,13 +1,17 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.gson.JsonObject;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
+import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
@@ -18,10 +22,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class AbilityHelper {
-
-    public static boolean getEnabled(Ability ability, PlayerEntity player) {
-        return HUPlayer.getCap(player).getActiveAbilities().containsKey(ability.name);
-    }
 
     public static boolean getEnabled(String name, PlayerEntity player) {
         return HUPlayer.getCap(player).getActiveAbilities().containsKey(name);
@@ -78,5 +78,23 @@ public class AbilityHelper {
             modifier = new AttributeModifier(uuid, name, amount, operation);
             instance.applyNonPersistentModifier(modifier);
         }
+    }
+
+    public static List<AbilityCreator> parseAbilityCreators(JsonObject json, ResourceLocation resourceLocation) {
+        List<AbilityCreator> abilityList = Lists.newArrayList();
+        if (JSONUtils.hasField(json, "abilities")) {
+            JsonObject abilities = JSONUtils.getJsonObject(json, "abilities");
+            abilities.entrySet().forEach((e) -> {
+                if (e.getValue() instanceof JsonObject) {
+                    JsonObject o = (JsonObject) e.getValue();
+                    AbilityType ability = AbilityType.ABILITIES.getValue(new ResourceLocation(JSONUtils.getString(o, "ability")));
+                    if (ability != null) {
+                        abilityList.add(new AbilityCreator(e.getKey(), ability).setJsonObject(o));
+                    } else
+                        HeroesUnited.LOGGER.error("Couldn't read ability {} in {}", JSONUtils.getString(o, "ability"), resourceLocation);
+                }
+            });
+        }
+        return abilityList;
     }
 }

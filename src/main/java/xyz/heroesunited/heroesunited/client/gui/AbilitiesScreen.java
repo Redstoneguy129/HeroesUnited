@@ -215,7 +215,7 @@ public class AbilitiesScreen extends Screen {
         public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
             Minecraft mc = Minecraft.getInstance();
             boolean hovered = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
-            Color color = AbilityHelper.getEnabled(this.ability, mc.player) ? hovered ? Color.ORANGE : Color.YELLOW :
+            Color color = AbilityHelper.getEnabled(this.ability.name, mc.player) ? hovered ? Color.ORANGE : Color.YELLOW :
                     hovered ? AbilityHelper.canActiveAbility(this.ability, mc.player) ? Color.GREEN : Color.RED : Color.WHITE;
             Tessellator tessellator = Tessellator.getInstance();
             BufferBuilder builder = tessellator.getBuffer();
@@ -239,7 +239,7 @@ public class AbilitiesScreen extends Screen {
         private static void onPressed(Button button) {
             AbilityButton btn = (AbilityButton) button;
             if (!btn.ability.alwaysActive()) {
-                if (AbilityHelper.getEnabled(btn.ability, btn.parent.minecraft.player)) {
+                if (AbilityHelper.getEnabled(btn.ability.name, btn.parent.minecraft.player)) {
                     HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerDisableAbility(btn.ability.name));
                 } else {
                     HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerEnableAbility(btn.ability.name, btn.ability.serializeNBT()));

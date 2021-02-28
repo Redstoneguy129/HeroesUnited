@@ -5,6 +5,7 @@ import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.shapes.VoxelShapes;
@@ -40,6 +41,7 @@ import xyz.heroesunited.heroesunited.util.HUTickrate;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 public class HUEventHandler {
 
@@ -56,7 +58,7 @@ public class HUEventHandler {
                     }
                     event.setNewEyeHeight(0.4F);
                 }
-                for (Ability a : cap.getActiveAbilities().values()) {
+                for (Ability a : AbilityHelper.getAbilities(player)) {
                     if (a instanceof SizeChangeAbility) {
                         SizeChangeAbility ability = (SizeChangeAbility) a;
                         EntitySize size = event.getOldSize();
@@ -114,7 +116,6 @@ public class HUEventHandler {
                         Suit.getSuitItem(equipmentSlot, pl).getSuit().onUpdate(pl, equipmentSlot);
                     }
                 }
-
                 if (a.getAnimationTimer() > 0) a.setAnimationTimer(a.getAnimationTimer() + 1);
                 if (a.getAnimationTimer() >= 3600) a.setAnimationTimer(3600);
 
@@ -177,6 +178,17 @@ public class HUEventHandler {
             PlayerEntity player = (PlayerEntity) event.getEntityLiving();
             if (event.getTo().getItem() instanceof SuitItem) {
                 SuitItem suitItem = (SuitItem) event.getTo().getItem();
+                player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+                    if (!suitItem.getAbilities(player).isEmpty()) {
+                        for (Map.Entry<String, Ability> entry : suitItem.getAbilities(player).entrySet()) {
+                            Ability a = entry.getValue();
+                            boolean canAdd = a.getJsonObject() != null && a.getJsonObject().has("slot") && suitItem.getEquipmentSlot().getName().toLowerCase().equals(JSONUtils.getString(a.getJsonObject(), "slot"));
+                            if (canAdd || Suit.getSuit(player) != null) {
+                                cap.addAbility(entry.getKey(), a);
+                            }
+                        }
+                    }
+                });
                 suitItem.getSuit().onActivated(player, suitItem.getEquipmentSlot());
                 for (Ability ability : AbilityHelper.getAbilities(player)) {
                     if (ability != null && suitItem.getSuit().hasArmorOn(player) && !suitItem.getSuit().canCombineWithAbility(ability, player)) {
@@ -185,6 +197,24 @@ public class HUEventHandler {
                 }
             } else if (event.getFrom().getItem() instanceof SuitItem) {
                 SuitItem suitItem = (SuitItem) event.getFrom().getItem();
+                player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+                    for (Ability ab1 : suitItem.getAbilities(player).values()) {
+                        for (Ability a : cap.getAbilities().values().stream().collect(Collectors.toList())) {
+                            if (a.name.equals(ab1.name)) {
+                                a.setAdditionalData(ab1.getAdditionalData());
+                                boolean all = a.getAdditionalData().equals(ab1.getAdditionalData()) && a.getAdditionalData().contains("Suit");
+                                if (a.getAdditionalData().contains("Slot")) {
+                                    String slot = a.getAdditionalData().getString("Slot");
+                                    if (slot == "all" ? all : all && suitItem.getEquipmentSlot().getName().toLowerCase().equals(slot)) {
+                                        cap.removeAbility(a.name);
+                                    }
+                                } else if (all) {
+                                    cap.removeAbility(a.name);
+                                }
+                            }
+                        }
+                    }
+                });
                 suitItem.getSuit().onDeactivated(player, suitItem.getEquipmentSlot());
             }
         }

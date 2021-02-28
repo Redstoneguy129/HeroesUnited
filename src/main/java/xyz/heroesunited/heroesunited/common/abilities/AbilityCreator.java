@@ -1,19 +1,12 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
-import net.minecraft.util.ResourceLocation;
-
-import java.util.Map;
 
 public class AbilityCreator {
 
-    //Only for Server dist, so dont use in client
-    public static Map<String, JsonObject> createdJsons = Maps.newHashMap();
-
-    private final String key;
-    private String creatorKey;
-    private final AbilityType abilityType;
+    private String key;
+    private AbilityType abilityType;
+    private JsonObject jsonObject;
 
     public AbilityCreator(String key, AbilityType abilityType) {
         this.key = key;
@@ -28,10 +21,12 @@ public class AbilityCreator {
         return abilityType;
     }
 
-    public AbilityCreator setAdditional(ResourceLocation key, JsonObject jsonObject) {
-        this.creatorKey = key.toString() + "_" + this.getKey();
-        if (createdJsons.containsKey(this.creatorKey)) createdJsons.remove(this.creatorKey, jsonObject);
-        createdJsons.put(this.creatorKey, jsonObject);
+    public AbilityCreator setJsonObject(JsonObject jsonObject) {
+        this.jsonObject = jsonObject;
         return this;
+    }
+
+    public JsonObject getJsonObject() {
+        return jsonObject;
     }
 }

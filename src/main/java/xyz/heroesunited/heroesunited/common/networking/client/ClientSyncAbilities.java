@@ -35,11 +35,9 @@ public class ClientSyncAbilities {
             String id = buf.readString(32767);
             CompoundNBT nbt = buf.readCompoundTag();
             Ability ability = AbilityType.ABILITIES.getValue(new ResourceLocation(nbt.getString("AbilityType"))).create(id);
+            ability.deserializeNBT(nbt);
             if (nbt.contains("JsonObject")) {
                 ability.setJsonObject(null, new JsonParser().parse(nbt.getString("JsonObject")).getAsJsonObject());
-            }
-            if (nbt.contains("Superpower")) {
-                ability.setSuperpower(new ResourceLocation(nbt.getString("Superpower")));
             }
             this.abilities.put(id, ability);
         }

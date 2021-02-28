@@ -79,6 +79,15 @@ public abstract class Suit {
         return null;
     }
 
+    @Nullable
+    public final ResourceLocation getRegistryName() {
+        return registryName;
+    }
+
+    public Map<String, Ability> getAbilities(PlayerEntity player) {
+        return Maps.newHashMap();
+    }
+
     public void onActivated(PlayerEntity player, EquipmentSlotType slot) {
     }
 
@@ -164,11 +173,6 @@ public abstract class Suit {
 
         this.registryName = GameData.checkPrefix(name.toString(), true);
         return this;
-    }
-
-    @Nullable
-    public final ResourceLocation getRegistryName() {
-        return registryName;
     }
 
     public Item getHelmet() {

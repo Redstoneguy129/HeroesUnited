@@ -7,10 +7,11 @@ import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
-import xyz.heroesunited.heroesunited.common.abilities.Superpower;
+import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesInventory;
 
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable {
@@ -45,11 +46,19 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable {
 
     Map<String, Ability> getAbilities();
 
-    void addAbilities(Superpower superpower);
+    void addAbilities(IAbilityProvider provider);
+
+    default void clearAbilities(Predicate<Ability> predicate) {
+        for (Ability a : getAbilities().values().stream().collect(Collectors.toList())) {
+            if (predicate.test(a)) {
+                removeAbility(a.name);
+            }
+        }
+    }
 
     default void clearAbilities() {
-        for (Ability ab : getAbilities().values().stream().collect(Collectors.toList())) {
-            removeAbility(ab.name);
+        for (Ability a : getAbilities().values().stream().collect(Collectors.toList())) {
+            removeAbility(a.name);
         }
     }
 

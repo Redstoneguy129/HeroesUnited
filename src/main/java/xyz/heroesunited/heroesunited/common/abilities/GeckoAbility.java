@@ -50,25 +50,31 @@ public class GeckoAbility extends Ability implements IGeoAbility {
     @OnlyIn(Dist.CLIENT)
     @Override
     public ResourceLocation getTexture() {
+        ResourceLocation r = new ResourceLocation(name);
         if (this.getJsonObject() != null && this.getJsonObject().has("texture")) {
             if (JSONUtils.getString(this.getJsonObject(), "texture").equals("player")) {
                 return Minecraft.getInstance().player.getLocationSkin();
             } else {
                 return new ResourceLocation(JSONUtils.getString(this.getJsonObject(), "texture"));
             }
-        } else return new ResourceLocation(this.getSuperpower().getNamespace(), "textures/ability/" + this.getSuperpower().getPath() + "_" + this.name + ".png");
+        } else return new ResourceLocation(getSuitOrSuperpowerName().getNamespace(), "textures/ability/" + getSuitOrSuperpowerName().getPath() + "_" + this.name + ".png");
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
     public ResourceLocation getModelPath() {
-        ResourceLocation res = new ResourceLocation(this.getSuperpower().getNamespace(), "geo/" + this.getSuperpower().getPath() + "_" + this.name + ".geo.json");
+        ResourceLocation res = new ResourceLocation(getSuitOrSuperpowerName().getNamespace(), "geo/" + getSuitOrSuperpowerName().getPath() + "_" + this.name + ".geo.json");
         return this.getJsonObject() != null ? new ResourceLocation(JSONUtils.getString(this.getJsonObject(), "model", res.toString())) : res;
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
     public ResourceLocation getAnimationFile() {
-        return new ResourceLocation(this.getSuperpower().getNamespace(), "animations/" + this.getSuperpower().getPath() + "_" + this.name + ".animation.json");
+        return new ResourceLocation(getSuitOrSuperpowerName().getNamespace(), "animations/" + getSuitOrSuperpowerName().getPath() + "_" + this.name + ".animation.json");
+    }
+
+    private ResourceLocation getSuitOrSuperpowerName() {
+        String str = getAdditionalData().contains("Suit") ? getAdditionalData().getString("Suit") : getAdditionalData().getString("Superpower");
+        return new ResourceLocation(str);
     }
 }

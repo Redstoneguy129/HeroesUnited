@@ -21,7 +21,7 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
-import xyz.heroesunited.heroesunited.common.abilities.Superpower;
+import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.HUTypes;
@@ -216,8 +216,10 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
-    public void addAbilities(Superpower superpower) {
-        superpower.getAbilities(player).forEach((id, a) -> addAbility(id, a));
+    public void addAbilities(IAbilityProvider provider) {
+        if (!provider.getAbilities(player).isEmpty()) {
+            provider.getAbilities(player).forEach((id, d) -> addAbility(id, d));
+        }
     }
 
     @Override
