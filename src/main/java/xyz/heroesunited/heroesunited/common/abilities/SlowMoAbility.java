@@ -13,11 +13,11 @@ public class SlowMoAbility extends Ability {
     @Override
     public void onUpdate(PlayerEntity player) {
         if (!JSONUtils.hasField(this.getJsonObject(), "key")) {
-            HUPlayer.getCap(player).setSlowMo(true);
+            HUPlayer.getCap(player).setSlowMoSpeed(6F);
         } else {
             JsonObject key = JSONUtils.getJsonObject(this.getJsonObject(), "key");
             if (JSONUtils.getString(key, "pressType").equals("action") && cooldownTicks <= 0) {
-                HUPlayer.getCap(player).setSlowMo(false);
+                HUPlayer.getCap(player).setSlowMoSpeed(20F);
             }
         }
     }
@@ -31,19 +31,19 @@ public class SlowMoAbility extends Ability {
             if (id == JSONUtils.getInt(key, "id")) {
                 if (pressType.equals("toggle")) {
                     if (pressed) {
-                        HUPlayer.getCap(player).setSlowMo(!HUPlayer.getCap(player).isInSlowMo());
+                        HUPlayer.getCap(player).setSlowMoSpeed(HUPlayer.getCap(player).getSlowMoSpeed() == 20F ? 6F : 20F);
                     }
                 } else if (pressType.equals("action")) {
                     if (pressed) {
-                        HUPlayer.getCap(player).setSlowMo(true);
+                        HUPlayer.getCap(player).setSlowMoSpeed(6F);
                         this.cooldownTicks = JSONUtils.getInt(key, "cooldown", 2);
                     }
-                    HUPlayer.getCap(player).setSlowMo(false);
+                    HUPlayer.getCap(player).setSlowMoSpeed(20F);
                 } else if (pressType.equals("held")) {
-                    if (pressed && !HUPlayer.getCap(player).isInSlowMo()) {
-                        HUPlayer.getCap(player).setSlowMo(true);
-                    } else if (!pressed && HUPlayer.getCap(player).isInSlowMo()) {
-                        HUPlayer.getCap(player).setSlowMo(false);
+                    if (pressed && HUPlayer.getCap(player).getSlowMoSpeed() != 6F) {
+                        HUPlayer.getCap(player).setSlowMoSpeed(6F);
+                    } else if (!pressed && HUPlayer.getCap(player).getSlowMoSpeed() != 20F) {
+                        HUPlayer.getCap(player).setSlowMoSpeed(20F);
                     }
                 }
             }
@@ -52,6 +52,6 @@ public class SlowMoAbility extends Ability {
 
     @Override
     public void onDeactivated(PlayerEntity player) {
-        HUPlayer.getCap(player).setSlowMo(false);
+        HUPlayer.getCap(player).setSlowMoSpeed(20F);
     }
 }

@@ -12,19 +12,11 @@ public class HUTickrate {
     public static long SERVER_TICK = 50;
     public static float CLIENT_TICK = 20;
 
-    public static boolean areAllPlayersSlowMotion(PlayerEntity player) {
-        if (player.isAlive() && HUPlayer.getCap(player) != null && HUPlayer.getCap(player).isInSlowMo()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     public static void tick(PlayerEntity player, LogicalSide side) {
         float tickrate = 20F;
         for (PlayerEntity player1 : player.world.getPlayers()) {
-            if (player1.isAlive() && HUPlayer.getCap(player1) != null && HUPlayer.getCap(player1).isInSlowMo()) {
-                tickrate = 6F;
+            if (player1.isAlive() && HUPlayer.getCap(player1) != null && HUPlayer.getCap(player1).getSlowMoSpeed() != 20) {
+                tickrate = HUPlayer.getCap(player1).getSlowMoSpeed();
             }
         }
 
