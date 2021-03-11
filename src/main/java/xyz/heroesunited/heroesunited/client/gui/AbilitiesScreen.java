@@ -126,7 +126,7 @@ public class AbilitiesScreen extends Screen {
 
         minecraft.getTextureManager().bindTexture(minecraft.player.getLocationSkin());
         blit(matrixStack, left + 5, top + 5, 32, 32, 32, 32, 256, 256);
-        font.func_238406_a_(matrixStack, minecraft.player.getName().getString(), left + 42, top + 7, 16777215, false);
+        font.drawStringWithTransparency(matrixStack, minecraft.player.getName().getString(), left + 42, top + 7, 16777215, false);
         matrixStack.pop();
 
         for (Level level : cap.getSuperpowerLevels().values()) {
@@ -166,7 +166,7 @@ public class AbilitiesScreen extends Screen {
     }
 
     public void renderAbilityDescription(MatrixStack matrix, int mx, int my, AbilityButton button) {
-        if (!(mx >= button.x && mx <= button.x + button.getWidth() && my >= button.y && my <= button.y + button.getHeightRealms()))
+        if (!(mx >= button.x && mx <= button.x + button.getWidth() && my >= button.y && my <= button.y + button.getHeight()))
             return;
         if (button.ability.getHoveredDescription() == null) return;
         int bgX = mx + button.descWidth > this.width ? mx - button.descWidth : mx + 15;

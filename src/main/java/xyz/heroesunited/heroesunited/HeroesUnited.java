@@ -15,6 +15,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,6 +47,7 @@ import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
+import xyz.heroesunited.heroesunited.util.data.HUEnglishProvider;
 
 @Mod(HeroesUnited.MODID)
 public class HeroesUnited {
@@ -55,6 +57,7 @@ public class HeroesUnited {
 
     public HeroesUnited() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::gatherData);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             GeckoLib.initialize();
             FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
@@ -77,24 +80,29 @@ public class HeroesUnited {
     }
 
     static {
-        AnimationController.addModelFetcher((IAnimatable object) -> {
-            if (object instanceof IHUPlayer) {
-                return ((IHUPlayer) object).getAnimatedModel();
+        AnimationController.addModelFetcher((IAnimatable o) -> {
+            if (o instanceof IHUPlayer) {
+                return ((IHUPlayer) o).getAnimatedModel();
             }
             return null;
         });
-        AnimationController.addModelFetcher((IAnimatable object) -> {
-            if (object instanceof IGeoAbility) {
-                return ((IGeoAbility) object).getGeoModel();
+        AnimationController.addModelFetcher((IAnimatable o) -> {
+            if (o instanceof IGeoAbility) {
+                return ((IGeoAbility) o).getGeoModel();
             }
             return null;
         });
     }
 
+    private void gatherData(GatherDataEvent e) {
+        e.getGenerator().addProvider(new HUEnglishProvider(e.getGenerator()));
+    }
+
     private void commonSetup(final FMLCommonSetupEvent event) {
         CapabilityManager.INSTANCE.register(IHUPlayer.class, new HUPlayerStorage(), () -> new HUPlayer(null));
-        HUNetworking.registerMessages();
         event.enqueueWork(HUAttributes::registerAttributes);
+        HUNetworking.registerMessages();
+
         LOGGER.info(MODID + ": common is ready!");
     }
 
@@ -106,10 +114,13 @@ public class HeroesUnited {
         RenderingRegistry.registerEntityRenderingHandler(HUEntities.HORAS, RendererHoras::new);
         GeoArmorRenderer.registerArmorRenderer(GeckoSuitItem.class, new GeckoSuitRenderer());
         ScreenManager.registerFactory(HUContainers.ACCESSORIES, AccessoriesScreen::new);
+
         new HorasInfo.DimensionInfo("Overworld", "Default      Dimension", new ResourceLocation("overworld"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/overworld.png"));
         new HorasInfo.DimensionInfo("Nether", "Default      Dimension", new ResourceLocation("the_nether"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/the_nether.png"));
         new HorasInfo.DimensionInfo("End", "Default      Dimension", new ResourceLocation("the_end"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/the_end.png"));
+
         HURichPresence.getPresence().setDiscordRichPresence("In the Menus", null, HURichPresence.MiniLogos.NONE, null);
+
         LOGGER.info(MODID + ": client is ready!");
     }
 }

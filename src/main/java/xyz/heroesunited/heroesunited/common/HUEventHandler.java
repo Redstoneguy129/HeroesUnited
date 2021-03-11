@@ -245,7 +245,7 @@ public class HUEventHandler {
     public void biomeLoading(BiomeLoadingEvent event) {
         if (BiomeDictionary.hasType(RegistryKey.getOrCreateKey(Registry.BIOME_KEY, Objects.requireNonNull(event.getName())), BiomeDictionary.Type.OVERWORLD)) {
             event.getGeneration().withFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Feature.ORE.withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.BASE_STONE_OVERWORLD,
-                    HUBlocks.TITANIUM_ORE.getDefaultState(), 4)).range(32).square().func_242731_b(2));
+                    HUBlocks.TITANIUM_ORE.getDefaultState(), 4)).range(32).square().count(2));
         }
     }
 }

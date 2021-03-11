@@ -50,25 +50,25 @@ public abstract class MixinArmorLayerRenderer<T extends LivingEntity, M extends 
     }
 
     @Inject(method = "Lnet/minecraft/client/renderer/entity/layers/BipedArmorLayer;func_241739_a_(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/inventory/EquipmentSlotType;ILnet/minecraft/client/renderer/entity/model/BipedModel;)V", at = @At("HEAD"), cancellable = true)
-    public void renderArmorPart(MatrixStack p_241739_1_, IRenderTypeBuffer p_241739_2_, T p_241739_3_, EquipmentSlotType p_241739_4_, int p_241739_5_, A p_241739_6_, CallbackInfo ci) {
+    public void renderArmorPart(MatrixStack matrix, IRenderTypeBuffer buffer, T entity, EquipmentSlotType slotType, int packedLight, A model, CallbackInfo ci) {
         BipedArmorLayer layer = (BipedArmorLayer) (Object) this;
-        ItemStack itemstack = p_241739_3_.getItemStackFromSlot(p_241739_4_);
+        ItemStack itemstack = entity.getItemStackFromSlot(slotType);
         if (itemstack.getItem() instanceof ArmorItem) {
             ArmorItem armoritem = (ArmorItem)itemstack.getItem();
-            if (armoritem.getEquipmentSlot() == p_241739_4_) {
-                p_241739_6_ = ForgeHooksClient.getArmorModel(p_241739_3_, itemstack, p_241739_4_, p_241739_6_);
-                this.getEntityModel().setModelAttributes(p_241739_6_);
-                this.setModelSlotVisible(p_241739_6_, p_241739_4_);
+            if (armoritem.getEquipmentSlot() == slotType) {
+                model = ForgeHooksClient.getArmorModel(entity, itemstack, slotType, model);
+                this.getEntityModel().setModelAttributes(model);
+                this.setModelSlotVisible(model, slotType);
                 boolean flag1 = itemstack.hasEffect();
                 if (armoritem instanceof net.minecraft.item.IDyeableArmorItem) {
                     int i = ((net.minecraft.item.IDyeableArmorItem)armoritem).getColor(itemstack);
                     float f = (float)(i >> 16 & 255) / 255.0F;
                     float f1 = (float)(i >> 8 & 255) / 255.0F;
                     float f2 = (float)(i & 255) / 255.0F;
-                    this.renderArmor(p_241739_1_, p_241739_2_, p_241739_5_, flag1, p_241739_6_, f, f1, f2, layer.getArmorResource(p_241739_3_, itemstack, p_241739_4_, null));
-                    this.renderArmor(p_241739_1_, p_241739_2_, p_241739_5_, flag1, p_241739_6_, 1.0F, 1.0F, 1.0F, layer.getArmorResource(p_241739_3_, itemstack, p_241739_4_, "overlay"));
+                    this.renderArmor(matrix, buffer, packedLight, flag1, model, f, f1, f2, layer.getArmorResource(entity, itemstack, slotType, null));
+                    this.renderArmor(matrix, buffer, packedLight, flag1, model, 1.0F, 1.0F, 1.0F, layer.getArmorResource(entity, itemstack, slotType, "overlay"));
                 } else {
-                    this.renderArmor(p_241739_1_, p_241739_2_, p_241739_5_, flag1, p_241739_6_, 1.0F, 1.0F, 1.0F, layer.getArmorResource(p_241739_3_, itemstack, p_241739_4_, null));
+                    this.renderArmor(matrix, buffer, packedLight, flag1, model, 1.0F, 1.0F, 1.0F, layer.getArmorResource(entity, itemstack, slotType, null));
                 }
             }
         }

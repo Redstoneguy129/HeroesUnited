@@ -40,8 +40,8 @@ public interface IRendererArmorLayer<T extends LivingEntity, M extends BipedMode
         MinecraftForge.EVENT_BUS.post(event);
     }
 
-    default void renderArmor(MatrixStack p_241738_1_, IRenderTypeBuffer p_241738_2_, int p_241738_3_, boolean p_241738_5_, A p_241738_6_, float p_241738_8_, float p_241738_9_, float p_241738_10_, ResourceLocation armorResource) {
-        IVertexBuilder ivertexbuilder = ItemRenderer.getArmorVertexBuilder(p_241738_2_, RenderType.getEntityTranslucent(armorResource), false, p_241738_5_);
-        p_241738_6_.render(p_241738_1_, ivertexbuilder, p_241738_3_, OverlayTexture.NO_OVERLAY, p_241738_8_, p_241738_9_, p_241738_10_, 1.0F);
+    default void renderArmor(MatrixStack matrix, IRenderTypeBuffer buffer, int packedlightIn, boolean withGlint, A model, float red, float green, float blue, ResourceLocation armorResource) {
+        IVertexBuilder ivertexbuilder = ItemRenderer.getArmorVertexBuilder(buffer, RenderType.getEntityTranslucent(armorResource), false, withGlint);
+        model.render(matrix, ivertexbuilder, packedlightIn, OverlayTexture.NO_OVERLAY, red, green, blue, 1.0F);
     }
 }
