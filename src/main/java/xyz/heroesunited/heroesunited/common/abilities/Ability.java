@@ -46,12 +46,12 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     public boolean canActivate(PlayerEntity player) {
-        return jsonObject != null && jsonObject.has("condition") ? AbilityHelper.getEnabled(JSONUtils.getString(jsonObject, "condition"), player) : true;
+        return jsonObject != null && jsonObject.has("condition") ? AbilityHelper.getEnabled(JSONUtils.getAsString(jsonObject, "condition"), player) : true;
     }
 
     @Nullable
     public List<ITextComponent> getHoveredDescription() {
-        return getJsonObject() != null && JSONUtils.hasField(getJsonObject(), "description") ? HUJsonUtils.parseDescriptionLines(jsonObject.get("description")) : null;
+        return getJsonObject() != null && getJsonObject().has("description") ? HUJsonUtils.parseDescriptionLines(jsonObject.get("description")) : null;
     }
 
     public void onActivated(PlayerEntity player) {
@@ -97,26 +97,26 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     @OnlyIn(Dist.CLIENT)
     public void drawIcon(MatrixStack stack, int x, int y) {
         if (getJsonObject() != null) {
-            JsonObject icon = JSONUtils.getJsonObject(getJsonObject(), "icon", null);
+            JsonObject icon = JSONUtils.getAsJsonObject(getJsonObject(), "icon", null);
             if (icon != null) {
-                String type = JSONUtils.getString(icon, "type");
+                String type = JSONUtils.getAsString(icon, "type");
                 if (type.equals("texture")) {
-                    ResourceLocation texture = new ResourceLocation(JSONUtils.getString(icon, "texture"));
-                    int width = JSONUtils.getInt(icon, "width", 16);
-                    int height = JSONUtils.getInt(icon, "height", 16);
-                    int textureWidth = JSONUtils.getInt(icon, "texture_width", 256);
-                    int textureHeight = JSONUtils.getInt(icon, "texture_height", 256);
-                    Minecraft.getInstance().getTextureManager().bindTexture(texture);
-                    AbstractGui.blit(stack, x, y, JSONUtils.getInt(icon, "u"), JSONUtils.getInt(icon, "v"), width, height, textureWidth, textureHeight);
+                    ResourceLocation texture = new ResourceLocation(JSONUtils.getAsString(icon, "texture"));
+                    int width = JSONUtils.getAsInt(icon, "width", 16);
+                    int height = JSONUtils.getAsInt(icon, "height", 16);
+                    int textureWidth = JSONUtils.getAsInt(icon, "texture_width", 256);
+                    int textureHeight = JSONUtils.getAsInt(icon, "texture_height", 256);
+                    Minecraft.getInstance().getTextureManager().bind(texture);
+                    AbstractGui.blit(stack, x, y, JSONUtils.getAsInt(icon, "u"), JSONUtils.getAsInt(icon, "v"), width, height, textureWidth, textureHeight);
                 } else if (type.equals("item")) {
-                    String item = JSONUtils.getString(icon, "item");
-                    Minecraft.getInstance().getItemRenderer().renderItemAndEffectIntoGuiWithoutEntity(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(item))), x, y);
+                    String item = JSONUtils.getAsString(icon, "item");
+                    Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(item))), x, y);
                 }
             } else {
-                Minecraft.getInstance().getItemRenderer().renderItemAndEffectIntoGuiWithoutEntity(new ItemStack(Items.APPLE), x, y);
+                Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(new ItemStack(Items.APPLE), x, y);
             }
         } else {
-            Minecraft.getInstance().getItemRenderer().renderItemAndEffectIntoGuiWithoutEntity(new ItemStack(Items.DIAMOND), x, y);
+            Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(new ItemStack(Items.DIAMOND), x, y);
         }
     }
 
@@ -142,8 +142,8 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     public ITextComponent getTitle() {
-        if (getJsonObject() != null && JSONUtils.hasField(getJsonObject(), "title")) {
-            return ITextComponent.Serializer.getComponentFromJson(JSONUtils.getJsonObject(getJsonObject(), "title"));
+        if (getJsonObject() != null && getJsonObject().has("title")) {
+            return ITextComponent.Serializer.fromJson(JSONUtils.getAsJsonObject(getJsonObject(), "title"));
         } else {
             return new TranslationTextComponent(name);
         }
@@ -158,11 +158,11 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     public boolean isHidden() {
-        return jsonObject != null && JSONUtils.getBoolean(getJsonObject(), "hidden", false);
+        return jsonObject != null && JSONUtils.getAsBoolean(getJsonObject(), "hidden", false);
     }
 
     public boolean alwaysActive() {
-        return getJsonObject() != null && JSONUtils.getBoolean(getJsonObject(), "active", false);
+        return getJsonObject() != null && JSONUtils.getAsBoolean(getJsonObject(), "active", false);
     }
 
     public JsonObject getJsonObject() {
@@ -172,7 +172,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     public Ability setJsonObject(Entity entity, JsonObject jsonObject) {
         this.jsonObject = jsonObject;
         if (entity != null && jsonObject != null && entity instanceof ServerPlayerEntity) {
-            HUNetworking.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) entity), new ClientSyncAbilityCreators(entity.getEntityId(), name, jsonObject));
+            HUNetworking.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) entity), new ClientSyncAbilityCreators(entity.getId(), name, jsonObject));
         }
         return this;
     }

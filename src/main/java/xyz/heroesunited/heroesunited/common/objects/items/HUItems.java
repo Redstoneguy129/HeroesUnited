@@ -12,9 +12,9 @@ public class HUItems {
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, HeroesUnited.MODID);
 
-    public static final Item TITANIUM_INGOT = register("titanium_ingot", new Item(new Item.Properties().group(ItemGroup.MATERIALS)));
-    public static final Item HEROES_UNITED = register("heroes_united", new Item(new Item.Properties().maxStackSize(1)));
-    public static final Item HORAS = register("horas", new HorasItem(new Item.Properties().maxStackSize(1).group(ItemGroup.MISC)));
+    public static final Item TITANIUM_INGOT = register("titanium_ingot", new Item(new Item.Properties().tab(ItemGroup.TAB_MATERIALS)));
+    public static final Item HEROES_UNITED = register("heroes_united", new Item(new Item.Properties().stacksTo(1)));
+    public static final Item HORAS = register("horas", new HorasItem(new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_MISC)));
     public static final ComicItem COMIC_ITEM = registerSpecial("comic", new ComicItem());
 
     private static <T extends Item> T register(String name, T item) {

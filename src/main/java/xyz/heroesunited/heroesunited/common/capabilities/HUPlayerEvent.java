@@ -40,14 +40,14 @@ public class HUPlayerEvent {
 
     @SubscribeEvent
     public void onPlayerDeath(LivingDeathEvent event) {
-        if (event.getEntityLiving() instanceof PlayerEntity && !event.getEntityLiving().world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
+        if (event.getEntityLiving() instanceof PlayerEntity && !event.getEntityLiving().level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
             PlayerEntity player = (PlayerEntity) event.getEntityLiving();
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
                 NonNullList<ItemStack> list = a.getInventory().getInventory();
                 for (int i = 0; i < list.size(); ++i) {
                     ItemStack stack = list.get(i);
-                    if (!stack.isEmpty() && stack.getItem() instanceof IAccessory && ((IAccessory) stack.getItem()).dropAfterDeath(player, stack) == true) {
-                        player.dropItem(stack, true, false);
+                    if (!stack.isEmpty() && stack.getItem() instanceof IAccessory && ((IAccessory) stack.getItem()).dropAfterDeath(player, stack)) {
+                        player.drop(stack, true, true);
                         list.set(i, ItemStack.EMPTY);
                     }
                 }
@@ -59,10 +59,10 @@ public class HUPlayerEvent {
     public void onStartTracking(PlayerEvent.StartTracking e) {
         e.getTarget().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
             if (e.getPlayer() instanceof ServerPlayerEntity) {
-                HUNetworking.INSTANCE.sendTo(new ClientSyncAbilities(e.getTarget().getEntityId(), a.getAbilities()), ((ServerPlayerEntity) e.getPlayer()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
-                HUNetworking.INSTANCE.sendTo(new ClientSyncActiveAbilities(e.getTarget().getEntityId(), a.getActiveAbilities()), ((ServerPlayerEntity) e.getPlayer()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
-                a.getDataList().values().stream().filter(HUData::canBeSaved).forEachOrdered(data -> HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(e.getTarget().getEntityId(), data.getKey(), a.serializeNBT()), ((ServerPlayerEntity) e.getPlayer()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT));
-                HUNetworking.INSTANCE.sendTo(new ClientSyncCap(e.getTarget().getEntityId(), a.serializeNBT()), ((ServerPlayerEntity) e.getPlayer()).connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+                HUNetworking.INSTANCE.sendTo(new ClientSyncAbilities(e.getTarget().getId(), a.getAbilities()), ((ServerPlayerEntity) e.getPlayer()).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                HUNetworking.INSTANCE.sendTo(new ClientSyncActiveAbilities(e.getTarget().getId(), a.getActiveAbilities()), ((ServerPlayerEntity) e.getPlayer()).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                a.getDataList().values().stream().filter(HUData::canBeSaved).forEachOrdered(data -> HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(e.getTarget().getId(), data.getKey(), a.serializeNBT()), ((ServerPlayerEntity) e.getPlayer()).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT));
+                HUNetworking.INSTANCE.sendTo(new ClientSyncCap(e.getTarget().getId(), a.serializeNBT()), ((ServerPlayerEntity) e.getPlayer()).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
             }
         });
     }
@@ -71,9 +71,9 @@ public class HUPlayerEvent {
     public void onJoinWorld(EntityJoinWorldEvent e) {
         e.getEntity().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
             if (e.getEntity() instanceof ServerPlayerEntity) {
-                HUNetworking.INSTANCE.sendTo(new ClientSyncAbilities(e.getEntity().getEntityId(), a.getAbilities()), ((ServerPlayerEntity) e.getEntity()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
-                HUNetworking.INSTANCE.sendTo(new ClientSyncActiveAbilities(e.getEntity().getEntityId(), a.getActiveAbilities()), ((ServerPlayerEntity) e.getEntity()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
-                a.getDataList().values().stream().filter(HUData::canBeSaved).forEachOrdered(data -> HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(e.getEntity().getEntityId(), data.getKey(), a.serializeNBT()), ((ServerPlayerEntity) e.getEntity()).connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT));
+                HUNetworking.INSTANCE.sendTo(new ClientSyncAbilities(e.getEntity().getId(), a.getAbilities()), ((ServerPlayerEntity) e.getEntity()).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                HUNetworking.INSTANCE.sendTo(new ClientSyncActiveAbilities(e.getEntity().getId(), a.getActiveAbilities()), ((ServerPlayerEntity) e.getEntity()).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                a.getDataList().values().stream().filter(HUData::canBeSaved).forEachOrdered(data -> HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(e.getEntity().getId(), data.getKey(), a.serializeNBT()), ((ServerPlayerEntity) e.getEntity()).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT));
             }
             a.syncToAll();
         });

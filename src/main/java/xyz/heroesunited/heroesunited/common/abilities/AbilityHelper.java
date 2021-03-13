@@ -61,7 +61,7 @@ public class AbilityHelper {
     public static void setAttribute(LivingEntity entity, String name, Attribute attribute, UUID uuid, double amount, AttributeModifier.Operation operation) {
         ModifiableAttributeInstance instance = entity.getAttribute(attribute);
 
-        if (instance == null || entity.world.isRemote) {
+        if (instance == null || entity.level.isClientSide) {
             return;
         }
 
@@ -76,22 +76,22 @@ public class AbilityHelper {
 
         if (modifier == null) {
             modifier = new AttributeModifier(uuid, name, amount, operation);
-            instance.applyNonPersistentModifier(modifier);
+            instance.addTransientModifier(modifier);
         }
     }
 
     public static List<AbilityCreator> parseAbilityCreators(JsonObject json, ResourceLocation resourceLocation) {
         List<AbilityCreator> abilityList = Lists.newArrayList();
-        if (JSONUtils.hasField(json, "abilities")) {
-            JsonObject abilities = JSONUtils.getJsonObject(json, "abilities");
+        if (json.has("abilities")) {
+            JsonObject abilities = JSONUtils.getAsJsonObject(json, "abilities");
             abilities.entrySet().forEach((e) -> {
                 if (e.getValue() instanceof JsonObject) {
                     JsonObject o = (JsonObject) e.getValue();
-                    AbilityType ability = AbilityType.ABILITIES.getValue(new ResourceLocation(JSONUtils.getString(o, "ability")));
+                    AbilityType ability = AbilityType.ABILITIES.getValue(new ResourceLocation(JSONUtils.getAsString(o, "ability")));
                     if (ability != null) {
                         abilityList.add(new AbilityCreator(e.getKey(), ability).setJsonObject(o));
                     } else
-                        HeroesUnited.LOGGER.error("Couldn't read ability {} in {}", JSONUtils.getString(o, "ability"), resourceLocation);
+                        HeroesUnited.LOGGER.error("Couldn't read ability {} in {}", JSONUtils.getAsString(o, "ability"), resourceLocation);
                 }
             });
         }

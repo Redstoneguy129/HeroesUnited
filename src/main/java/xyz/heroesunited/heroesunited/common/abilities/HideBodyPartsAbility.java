@@ -19,16 +19,16 @@ public class HideBodyPartsAbility extends Ability {
     @OnlyIn(Dist.CLIENT)
     @Override
     public void setRotationAngles(HUSetRotationAnglesEvent event) {
-        if (JSONUtils.hasField(getJsonObject(), "visibility_parts")) {
-            JsonObject overrides = JSONUtils.getJsonObject(getJsonObject(), "visibility_parts");
+        if (getJsonObject().has("visibility_parts")) {
+            JsonObject overrides = JSONUtils.getAsJsonObject(getJsonObject(), "visibility_parts");
 
             for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
                 PlayerPart part = PlayerPart.getByName(entry.getKey());
                 if (part != null) {
                     if (entry.getValue() instanceof JsonObject) {
-                        part.setVisibility(event.getPlayerModel(), JSONUtils.getBoolean((JsonObject) entry.getValue(), "show"));
+                        part.setVisibility(event.getPlayerModel(), JSONUtils.getAsBoolean((JsonObject) entry.getValue(), "show"));
                     } else {
-                        part.setVisibility(event.getPlayerModel(), JSONUtils.getBoolean(overrides, entry.getKey()));
+                        part.setVisibility(event.getPlayerModel(), JSONUtils.getAsBoolean(overrides, entry.getKey()));
                     }
                 }
             }

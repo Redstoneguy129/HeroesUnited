@@ -19,7 +19,7 @@ public abstract class MixinLivingEntity extends Entity {
         super(entityTypeIn, worldIn);
     }
 
-    @Inject(method = "Lnet/minecraft/entity/LivingEntity;setSprinting(Z)V", at = @At(value = "HEAD"), cancellable = true)
+    @Inject(method = "setSprinting(Z)V", at = @At(value = "HEAD"), cancellable = true)
     public void onSetSprint(boolean sprinting, CallbackInfo callbackInfoReturnable) {
         HUCancelSprinting event = new HUCancelSprinting(this);
         MinecraftForge.EVENT_BUS.post(event);

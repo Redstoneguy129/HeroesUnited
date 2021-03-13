@@ -19,18 +19,14 @@ import xyz.heroesunited.heroesunited.common.events.HUCancelBlockCollision;
 @Mixin(CactusBlock.class)
 public class MixinCactusBlock {
 
-    @Shadow
-    @Final
-    protected static VoxelShape COLLISION_SHAPE;
+    @Shadow @Final protected static VoxelShape COLLISION_SHAPE;
 
-    @Inject(method = "Lnet/minecraft/block/CactusBlock;getCollisionShape(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/IBlockReader;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/shapes/ISelectionContext;)Lnet/minecraft/util/math/shapes/VoxelShape;", at = @At(value = "RETURN"), cancellable = true)
+    @Inject(method = "getCollisionShape(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/IBlockReader;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/shapes/ISelectionContext;)Lnet/minecraft/util/math/shapes/VoxelShape;", at = @At(value = "RETURN"), cancellable = true)
     public void onGetCollisionShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context, CallbackInfoReturnable<VoxelShape> cir) {
         if (state != null && context != null && context.getEntity() != null) {
-            HUCancelBlockCollision event = new HUCancelBlockCollision(context.getEntity().world, pos, state, context.getEntity());
+            HUCancelBlockCollision event = new HUCancelBlockCollision(context.getEntity().level, pos, state, context.getEntity());
             MinecraftForge.EVENT_BUS.post(event);
             cir.setReturnValue(!event.isCanceled() ? COLLISION_SHAPE : VoxelShapes.empty());
         }
-
     }
-
 }

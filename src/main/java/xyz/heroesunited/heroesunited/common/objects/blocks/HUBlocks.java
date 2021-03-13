@@ -18,8 +18,8 @@ public class HUBlocks {
 
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, HeroesUnited.MODID);
 
-    public static final Block TITANIUM = register("titanium", new Block(AbstractBlock.Properties.create(Material.IRON).setRequiresTool().harvestLevel(2).harvestTool(ToolType.PICKAXE).hardnessAndResistance(5.0F, 6.0F).sound(SoundType.METAL)), new Item.Properties().group(ItemGroup.BUILDING_BLOCKS));
-    public static final Block TITANIUM_ORE = register("titanium_ore", new OreBlock(AbstractBlock.Properties.create(Material.ROCK).setRequiresTool().harvestLevel(2).harvestTool(ToolType.PICKAXE).hardnessAndResistance(3.0F, 3.0F)), new Item.Properties().group(ItemGroup.BUILDING_BLOCKS));
+    public static final Block TITANIUM = register("titanium", new Block(AbstractBlock.Properties.of(Material.METAL).harvestLevel(2).harvestTool(ToolType.PICKAXE).strength(5.0F, 6.0F).sound(SoundType.METAL)), new Item.Properties().tab(ItemGroup.TAB_BUILDING_BLOCKS));
+    public static final Block TITANIUM_ORE = register("titanium_ore", new OreBlock(AbstractBlock.Properties.of(Material.STONE).harvestLevel(2).harvestTool(ToolType.PICKAXE).strength(3.0F, 3.0F)), new Item.Properties().tab(ItemGroup.TAB_BUILDING_BLOCKS));
 
     private static Block register(String name, Block block, Item.Properties item) {
         BLOCKS.register(name, () -> block);

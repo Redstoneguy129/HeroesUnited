@@ -16,11 +16,11 @@ public class ServerDisableAbility {
     }
 
     public ServerDisableAbility(PacketBuffer buf) {
-        this.id = buf.readString(32767);
+        this.id = buf.readUtf(32767);
     }
 
     public void toBytes(PacketBuffer buf) {
-        buf.writeString(this.id);
+        buf.writeUtf(this.id);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {

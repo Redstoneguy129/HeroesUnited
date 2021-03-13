@@ -37,7 +37,7 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
 
     @Override
     public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        if (MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Pre(entityRendererIn, entity, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch)) && entity.isChild() == true)
+        if (MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Pre(entityRendererIn, entity, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch)) && entity.isBaby() == true)
             return;
 
         if (entityRendererIn instanceof PlayerRenderer && entity instanceof AbstractClientPlayerEntity) {
@@ -48,7 +48,7 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
             }
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                 for (int slot = 0; slot < 8; ++slot) {
-                    ItemStack stack = cap.getInventory().getStackInSlot(slot);
+                    ItemStack stack = cap.getInventory().getItem(slot);
                     if (stack != null && stack.getItem() instanceof IAccessory && !MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Accessories(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch))) {
                         IAccessory accessoire = ((IAccessory) stack.getItem());
                         ModelSuit suitModel = new ModelSuit(accessoire.getScale(stack), HUPlayerUtil.haveSmallArms(player));
@@ -73,7 +73,7 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
         }
 
         for (EquipmentSlotType slot : EquipmentSlotType.values()) {
-            if (slot.getSlotType() == EquipmentSlotType.Group.ARMOR) {
+            if (slot.getType() == EquipmentSlotType.Group.ARMOR) {
                 renderSuit(matrixStack, buffer, entity, slot, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
             }
         }
@@ -82,35 +82,35 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
     }
 
     private void renderAccessories(ModelSuit suitModel, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, PlayerEntity player, PlayerRenderer playerRenderer, IAccessory accessoire, ItemStack stack, IHUPlayer cap, EquipmentAccessoriesSlot slot) {
-        suitModel.setVisible(false);
+        suitModel.setAllVisible(false);
         if (slot == EquipmentAccessoriesSlot.HELMET) {
-            suitModel.bipedHeadwear.showModel = suitModel.bipedHead.showModel = cap.getInventory().haveStack(slot);
+            suitModel.hat.visible = suitModel.head.visible = cap.getInventory().haveStack(slot);
         } else if (slot == EquipmentAccessoriesSlot.JACKET) {
-            suitModel.bipedHeadwear.showModel = suitModel.bipedHead.showModel =
-                    suitModel.bipedBody.showModel = suitModel.bipedBodyWear.showModel =
-                            suitModel.bipedLeftArmwear.showModel = suitModel.bipedLeftArm.showModel =
-                                    suitModel.bipedRightArmwear.showModel = suitModel.bipedRightArm.showModel = cap.getInventory().haveStack(slot);
+            suitModel.hat.visible = suitModel.head.visible =
+                    suitModel.body.visible = suitModel.bipedBodyWear.visible =
+                            suitModel.bipedLeftArmwear.visible = suitModel.leftArm.visible =
+                                    suitModel.bipedRightArmwear.visible = suitModel.rightArm.visible = cap.getInventory().haveStack(slot);
         } else if (slot == EquipmentAccessoriesSlot.TSHIRT || slot == EquipmentAccessoriesSlot.RIGHT_WRIST ||
                 slot == EquipmentAccessoriesSlot.LEFT_WRIST || slot == EquipmentAccessoriesSlot.GLOVES) {
-            suitModel.bipedBody.showModel = suitModel.bipedBodyWear.showModel =
-                    suitModel.bipedLeftArmwear.showModel = suitModel.bipedLeftArm.showModel =
-                            suitModel.bipedRightArmwear.showModel = suitModel.bipedRightArm.showModel = cap.getInventory().haveStack(slot);
+            suitModel.body.visible = suitModel.bipedBodyWear.visible =
+                    suitModel.bipedLeftArmwear.visible = suitModel.leftArm.visible =
+                            suitModel.bipedRightArmwear.visible = suitModel.rightArm.visible = cap.getInventory().haveStack(slot);
         }
 
-        suitModel.bipedLeftLegwear.showModel = suitModel.bipedRightLegwear.showModel = suitModel.bipedLeftLeg.showModel =
-                suitModel.bipedRightLeg.showModel = slot == EquipmentAccessoriesSlot.PANTS && cap.getInventory().haveStack(slot)
+        suitModel.bipedLeftLegwear.visible = suitModel.bipedRightLegwear.visible = suitModel.leftLeg.visible =
+                suitModel.rightLeg.visible = slot == EquipmentAccessoriesSlot.PANTS && cap.getInventory().haveStack(slot)
                         || slot == EquipmentAccessoriesSlot.SHOES && cap.getInventory().haveStack(EquipmentAccessoriesSlot.SHOES);
 
-        playerRenderer.getEntityModel().setModelAttributes(suitModel);
+        playerRenderer.getModel().copyPropertiesTo(suitModel);
 
-        suitModel.render(matrixStack, buffer.getBuffer(RenderType.getEntityTranslucent(accessoire.getTexture(stack, player, slot))), packedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+        suitModel.renderToBuffer(matrixStack, buffer.getBuffer(RenderType.entityTranslucent(accessoire.getTexture(stack, player, slot))), packedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
     }
 
     private void renderSuit(MatrixStack stack, IRenderTypeBuffer buffer, T entity, EquipmentSlotType slot, int packedLight, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        ItemStack itemstack = entity.getItemStackFromSlot(slot);
+        ItemStack itemstack = entity.getItemBySlot(slot);
         if (itemstack.getItem() instanceof SuitItem) {
             SuitItem suitItem = (SuitItem) itemstack.getItem();
-            if (suitItem.getEquipmentSlot() == slot) {
+            if (itemstack.getEquipmentSlot() == slot) {
                 suitItem.getSuit().renderLayer(entityRendererIn, entity, slot, stack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
             }
         }

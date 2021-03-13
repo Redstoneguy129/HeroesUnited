@@ -2,6 +2,8 @@ package xyz.heroesunited.heroesunited.common;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -18,6 +20,8 @@ import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
@@ -34,6 +38,8 @@ import xyz.heroesunited.heroesunited.common.events.HUCancelBlockCollision;
 import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
 import xyz.heroesunited.heroesunited.common.objects.HUSounds;
 import xyz.heroesunited.heroesunited.common.objects.blocks.HUBlocks;
+import xyz.heroesunited.heroesunited.common.objects.entities.HUEntities;
+import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 import xyz.heroesunited.heroesunited.util.HUTickrate;
@@ -43,7 +49,27 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.FALL_RESISTANCE;
+import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOOST;
+
 public class HUEventHandler {
+
+    @SubscribeEvent
+    public void entityAttribute(EntityAttributeCreationEvent event) {
+        event.put(HUEntities.HORAS, Horas.createMobAttributes().build());
+    }
+
+    @SubscribeEvent
+    public void entityAttributeModification(EntityAttributeModificationEvent event) {
+        for (EntityType<? extends LivingEntity> type : event.getTypes()) {
+            if (!event.has(type, FALL_RESISTANCE)) {
+                event.add(type, FALL_RESISTANCE, 0);
+            }
+            if (!event.has(type, JUMP_BOOST)) {
+                event.add(type, JUMP_BOOST, 0);
+            }
+        }
+    }
 
     @SubscribeEvent
     public void playerSize(EntityEvent.Size event) {
@@ -54,7 +80,7 @@ public class HUEventHandler {
                     if (event.getOldSize().fixed) {
                         event.setNewSize(EntitySize.fixed(0.6F, 0.6F));
                     } else {
-                        event.setNewSize(EntitySize.flexible(0.6F, 0.6F));
+                        event.setNewSize(EntitySize.scalable(0.6F, 0.6F));
                     }
                     event.setNewEyeHeight(0.4F);
                 }
@@ -65,7 +91,7 @@ public class HUEventHandler {
                         if (event.getOldSize().fixed) {
                             event.setNewSize(EntitySize.fixed(size.width * ability.getSize(), size.height * ability.getSize()));
                         } else {
-                            event.setNewSize(EntitySize.flexible(size.width * ability.getSize(), size.height * ability.getSize()));
+                            event.setNewSize(EntitySize.scalable(size.width * ability.getSize(), size.height * ability.getSize()));
                         }
                         event.setNewEyeHeight(event.getOldEyeHeight() * ability.getSize());
                     }
@@ -107,7 +133,7 @@ public class HUEventHandler {
 
                 for (int i = 0; i < a.getInventory().getInventory().size(); ++i) {
                     if (!a.getInventory().getInventory().get(i).isEmpty()) {
-                        a.getInventory().getInventory().get(i).inventoryTick(pl.world, pl, i, false);
+                        a.getInventory().getInventory().get(i).inventoryTick(pl.level, pl, i, false);
                     }
                 }
 
@@ -120,15 +146,15 @@ public class HUEventHandler {
                 if (a.getAnimationTimer() >= 3600) a.setAnimationTimer(3600);
 
                 if (a.isFlying() && !pl.isOnGround()) {
-                    HUPlayerUtil.playSoundToAll(pl.world, HUPlayerUtil.getPlayerPos(pl), 10, IFlyingAbility.getFlyingAbility(pl) != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() : HUSounds.FLYING : HUSounds.FLYING, SoundCategory.PLAYERS, 0.05F, 0.5F);
+                    HUPlayerUtil.playSoundToAll(pl.level, HUPlayerUtil.getPlayerPos(pl), 10, IFlyingAbility.getFlyingAbility(pl) != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() : HUSounds.FLYING : HUSounds.FLYING, SoundCategory.PLAYERS, 0.05F, 0.5F);
                     if (pl.moveForward > 0F) {
-                        Vector3d vec = pl.getLookVec();
+                        Vector3d vec = pl.getLookAngle();
                         double speed = pl.isSprinting() ? 2.5f : 1f;
-                        pl.setMotion(vec.x * speed, vec.y * speed - (pl.isSneaking() ? pl.getHeight() * 0.2F : 0), vec.z * speed);
-                    } else if (pl.isSneaking())
-                        pl.setMotion(new Vector3d(pl.getMotion().x, pl.getHeight() * -0.2F, pl.getMotion().z));
+                        pl.setDeltaMovement(vec.x * speed, vec.y * speed - (pl.isCrouching() ? pl.getBbHeight() * 0.2F : 0), vec.z * speed);
+                    } else if (pl.isCrouching())
+                        pl.setDeltaMovement(new Vector3d(pl.getDeltaMovement().x, pl.getBbHeight() * -0.2F, pl.getDeltaMovement().z));
                     else
-                        pl.setMotion(new Vector3d(pl.getMotion().x, Math.sin(pl.ticksExisted / 10F) / 100F, pl.getMotion().z));
+                        pl.setDeltaMovement(new Vector3d(pl.getDeltaMovement().x, Math.sin(pl.tickCount / 10F) / 100F, pl.getDeltaMovement().z));
                 }
             });
         }
@@ -153,8 +179,8 @@ public class HUEventHandler {
             entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                 if (cap != null && cap.isIntangible()) {
                     if (event.getState().getShape(event.getWorld(), event.getPos()) != VoxelShapes.empty()) {
-                        if (entity.getPositionVec().y >= (event.getPos().getY() + event.getState().getShape(event.getWorld(), event.getPos()).getBoundingBox().getYSize())) {
-                            collidable.set(!cap.isFlying() && !entity.isSneaking());
+                        if (entity.position().y >= (event.getPos().getY() + event.getState().getShape(event.getWorld(), event.getPos()).bounds().getYsize())) {
+                            collidable.set(!cap.isFlying() && !entity.isCrouching());
                         } else {
                             collidable.set(false);
                         }
@@ -174,7 +200,7 @@ public class HUEventHandler {
 
     @SubscribeEvent
     public void onChangeEquipment(LivingEquipmentChangeEvent event) {
-        if (event.getEntityLiving() instanceof PlayerEntity && event.getSlot().getSlotType() == EquipmentSlotType.Group.ARMOR) {
+        if (event.getEntityLiving() instanceof PlayerEntity && event.getSlot().getType() == EquipmentSlotType.Group.ARMOR) {
             PlayerEntity player = (PlayerEntity) event.getEntityLiving();
             if (event.getTo().getItem() instanceof SuitItem) {
                 SuitItem suitItem = (SuitItem) event.getTo().getItem();
@@ -182,14 +208,14 @@ public class HUEventHandler {
                     if (!suitItem.getAbilities(player).isEmpty()) {
                         for (Map.Entry<String, Ability> entry : suitItem.getAbilities(player).entrySet()) {
                             Ability a = entry.getValue();
-                            boolean canAdd = a.getJsonObject() != null && a.getJsonObject().has("slot") && suitItem.getEquipmentSlot().getName().toLowerCase().equals(JSONUtils.getString(a.getJsonObject(), "slot"));
+                            boolean canAdd = a.getJsonObject() != null && a.getJsonObject().has("slot") && event.getTo().getEquipmentSlot().getName().toLowerCase().equals(JSONUtils.getAsString(a.getJsonObject(), "slot"));
                             if (canAdd || Suit.getSuit(player) != null) {
                                 cap.addAbility(entry.getKey(), a);
                             }
                         }
                     }
                 });
-                suitItem.getSuit().onActivated(player, suitItem.getEquipmentSlot());
+                suitItem.getSuit().onActivated(player, event.getTo().getEquipmentSlot());
                 for (Ability ability : AbilityHelper.getAbilities(player)) {
                     if (ability != null && suitItem.getSuit().hasArmorOn(player) && !suitItem.getSuit().canCombineWithAbility(ability, player)) {
                         AbilityHelper.disable(player);
@@ -205,7 +231,7 @@ public class HUEventHandler {
                                 boolean all = a.getAdditionalData().equals(ab1.getAdditionalData()) && a.getAdditionalData().contains("Suit");
                                 if (a.getAdditionalData().contains("Slot")) {
                                     String slot = a.getAdditionalData().getString("Slot");
-                                    if (slot == "all" ? all : all && suitItem.getEquipmentSlot().getName().toLowerCase().equals(slot)) {
+                                    if (slot == "all" ? all : all && event.getFrom().getEquipmentSlot().getName().toLowerCase().equals(slot)) {
                                         cap.removeAbility(a.name);
                                     }
                                 } else if (all) {
@@ -215,7 +241,7 @@ public class HUEventHandler {
                         }
                     }
                 });
-                suitItem.getSuit().onDeactivated(player, suitItem.getEquipmentSlot());
+                suitItem.getSuit().onDeactivated(player, event.getFrom().getEquipmentSlot());
             }
         }
     }
@@ -232,7 +258,7 @@ public class HUEventHandler {
     @SubscribeEvent
     public void LivingJumpEvent(LivingEvent.LivingJumpEvent event) {
         if (!event.getEntityLiving().isCrouching()) {
-            event.getEntityLiving().setMotion(event.getEntity().getMotion().x, event.getEntity().getMotion().y + 0.1F * event.getEntityLiving().getAttribute(HUAttributes.JUMP_BOOST).getValue(), event.getEntity().getMotion().z);
+            event.getEntityLiving().setDeltaMovement(event.getEntity().getDeltaMovement().x, event.getEntity().getDeltaMovement().y + 0.1F * event.getEntityLiving().getAttribute(JUMP_BOOST).getValue(), event.getEntity().getDeltaMovement().z);
         }
     }
 
@@ -243,9 +269,9 @@ public class HUEventHandler {
 
     @SubscribeEvent
     public void biomeLoading(BiomeLoadingEvent event) {
-        if (BiomeDictionary.hasType(RegistryKey.getOrCreateKey(Registry.BIOME_KEY, Objects.requireNonNull(event.getName())), BiomeDictionary.Type.OVERWORLD)) {
-            event.getGeneration().withFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Feature.ORE.withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.BASE_STONE_OVERWORLD,
-                    HUBlocks.TITANIUM_ORE.getDefaultState(), 4)).range(32).square().count(2));
+        if (BiomeDictionary.hasType(RegistryKey.create(Registry.BIOME_REGISTRY, Objects.requireNonNull(event.getName())), BiomeDictionary.Type.OVERWORLD)) {
+            event.getGeneration().addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Feature.ORE.configured(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.NATURAL_STONE,
+                    HUBlocks.TITANIUM_ORE.defaultBlockState(), 4)).range(32).squared().count(2));
         }
     }
 }

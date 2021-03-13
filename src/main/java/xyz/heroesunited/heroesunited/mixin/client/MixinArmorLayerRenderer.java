@@ -28,38 +28,38 @@ public abstract class MixinArmorLayerRenderer<T extends LivingEntity, M extends 
         super(entityRendererIn);
     }
 
-    @Inject(method = "Lnet/minecraft/client/renderer/entity/layers/BipedArmorLayer;render(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;ILnet/minecraft/entity/LivingEntity;FFFFFF)V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "render(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;ILnet/minecraft/entity/LivingEntity;FFFFFF)V", at = @At("HEAD"), cancellable = true)
     public void onPreRender(MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn, T entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
-        HURenderLayerEvent.Armor.Pre event = new HURenderLayerEvent.Armor.Pre(((LivingRenderer<LivingEntity, net.minecraft.client.renderer.entity.model.EntityModel<LivingEntity>>) Minecraft.getInstance().getRenderManager().getRenderer(entitylivingbaseIn)), entitylivingbaseIn, matrixStackIn, bufferIn, packedLightIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+        HURenderLayerEvent.Armor.Pre event = new HURenderLayerEvent.Armor.Pre(((LivingRenderer<LivingEntity, net.minecraft.client.renderer.entity.model.EntityModel<LivingEntity>>) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entitylivingbaseIn)), entitylivingbaseIn, matrixStackIn, bufferIn, packedLightIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {
             ci.cancel();
         }
     }
 
-    @Inject(method = "Lnet/minecraft/client/renderer/entity/layers/BipedArmorLayer;render(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;ILnet/minecraft/entity/LivingEntity;FFFFFF)V", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "render(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;ILnet/minecraft/entity/LivingEntity;FFFFFF)V", at = @At("RETURN"), cancellable = true)
     public void onPostRender(MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn, T entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
-        HURenderLayerEvent.Armor.Post event = new HURenderLayerEvent.Armor.Post(((LivingRenderer<LivingEntity, net.minecraft.client.renderer.entity.model.EntityModel<LivingEntity>>) Minecraft.getInstance().getRenderManager().getRenderer(entitylivingbaseIn)), entitylivingbaseIn, matrixStackIn, bufferIn, packedLightIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+        HURenderLayerEvent.Armor.Post event = new HURenderLayerEvent.Armor.Post(((LivingRenderer<LivingEntity, net.minecraft.client.renderer.entity.model.EntityModel<LivingEntity>>) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entitylivingbaseIn)), entitylivingbaseIn, matrixStackIn, bufferIn, packedLightIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
         MinecraftForge.EVENT_BUS.post(event);
     }
 
-    @Inject(method = "Lnet/minecraft/client/renderer/entity/layers/BipedArmorLayer;setModelSlotVisible(Lnet/minecraft/client/renderer/entity/model/BipedModel;Lnet/minecraft/inventory/EquipmentSlotType;)V", at = @At("RETURN"))
+    @Inject(method = "setPartVisibility(Lnet/minecraft/client/renderer/entity/model/BipedModel;Lnet/minecraft/inventory/EquipmentSlotType;)V", at = @At("RETURN"))
     public void onSetArmorVisibility(A modelIn, EquipmentSlotType slotIn, CallbackInfo ci) {
         HURenderLayerEvent.Armor.HUSetArmorPartVisibility event = new HURenderLayerEvent.Armor.HUSetArmorPartVisibility(modelIn, slotIn);
         MinecraftForge.EVENT_BUS.post(event);
     }
 
-    @Inject(method = "Lnet/minecraft/client/renderer/entity/layers/BipedArmorLayer;func_241739_a_(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/inventory/EquipmentSlotType;ILnet/minecraft/client/renderer/entity/model/BipedModel;)V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "renderArmorPiece(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/inventory/EquipmentSlotType;ILnet/minecraft/client/renderer/entity/model/BipedModel;)V", at = @At("HEAD"), cancellable = true)
     public void renderArmorPart(MatrixStack matrix, IRenderTypeBuffer buffer, T entity, EquipmentSlotType slotType, int packedLight, A model, CallbackInfo ci) {
         BipedArmorLayer layer = (BipedArmorLayer) (Object) this;
-        ItemStack itemstack = entity.getItemStackFromSlot(slotType);
+        ItemStack itemstack = entity.getItemBySlot(slotType);
         if (itemstack.getItem() instanceof ArmorItem) {
             ArmorItem armoritem = (ArmorItem)itemstack.getItem();
-            if (armoritem.getEquipmentSlot() == slotType) {
+            if (itemstack.getEquipmentSlot() == slotType) {
                 model = ForgeHooksClient.getArmorModel(entity, itemstack, slotType, model);
-                this.getEntityModel().setModelAttributes(model);
+                this.getParentModel().copyPropertiesTo(model);
                 this.setModelSlotVisible(model, slotType);
-                boolean flag1 = itemstack.hasEffect();
+                boolean flag1 = itemstack.hasFoil();
                 if (armoritem instanceof net.minecraft.item.IDyeableArmorItem) {
                     int i = ((net.minecraft.item.IDyeableArmorItem)armoritem).getColor(itemstack);
                     float f = (float)(i >> 16 & 255) / 255.0F;

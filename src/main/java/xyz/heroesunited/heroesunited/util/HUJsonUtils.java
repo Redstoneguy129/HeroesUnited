@@ -31,7 +31,7 @@ public class HUJsonUtils {
     }
 
     public static Color getColor(JsonObject json) {
-        JsonArray jsonColor = JSONUtils.getJsonArray(json, "color");
+        JsonArray jsonColor = JSONUtils.getAsJsonArray(json, "color");
         if (jsonColor.size() == 3) {
             return new Color(jsonColor.get(0).getAsFloat() / 255F, jsonColor.get(1).getAsFloat() / 255F, jsonColor.get(2).getAsFloat() / 255F, 1);
         } else {
@@ -50,7 +50,7 @@ public class HUJsonUtils {
                 lines.addAll(parseDescriptionLines(jsonArray.get(i)));
             }
         } else if (jsonElement.isJsonObject()) {
-            lines.add(ITextComponent.Serializer.getComponentFromJson(jsonElement));
+            lines.add(ITextComponent.Serializer.fromJson(jsonElement));
         } else if (jsonElement.isJsonPrimitive()) {
             lines.add(new StringTextComponent(jsonElement.getAsString()));
         }
@@ -69,14 +69,14 @@ public class HUJsonUtils {
     private static ItemGroup getItemGroup(JsonElement json, String memberName) {
         if (json.isJsonPrimitive()) {
             String name = json.getAsString();
-            for (ItemGroup itemGroup : ItemGroup.GROUPS) {
-                if (name.equalsIgnoreCase(itemGroup.getPath().toLowerCase())) {
+            for (ItemGroup itemGroup : ItemGroup.TABS) {
+                if (name.equalsIgnoreCase(itemGroup.getRecipeFolderName().toLowerCase())) {
                     return itemGroup;
                 }
             }
             return null;
         } else {
-            throw new JsonSyntaxException("Expected " + memberName + " to be an item, was " + JSONUtils.toString(json));
+            throw new JsonSyntaxException("Expected " + memberName + " to be an item, was " + json.toString());
         }
     }
 
@@ -90,16 +90,16 @@ public class HUJsonUtils {
     }
 
     public static IArmorMaterial parseArmorMaterial(JsonObject json, boolean requireName) {
-        String name = requireName ? JSONUtils.getString(json, "name") : "";
+        String name = requireName ? JSONUtils.getAsString(json, "name") : "";
         int[] damageReductionAmountArray = new int[4];
-        JsonArray dmgReduction = JSONUtils.getJsonArray(json, "damage_reduction");
+        JsonArray dmgReduction = JSONUtils.getAsJsonArray(json, "damage_reduction");
         if (dmgReduction.size() != 4)
             throw new JsonParseException("The damage_reduction must contain 4 entries, one for each armor part!");
         IntStream.range(0, dmgReduction.size()).forEach(i -> damageReductionAmountArray[i] = dmgReduction.get(i).getAsInt());
-        SoundEvent soundEvent = ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(JSONUtils.getString(json, "equip_sound", "")));
-        Ingredient repairMaterial = JSONUtils.hasField(json, "repair_material") ? Ingredient.deserialize(json.get("repair_material")) : Ingredient.EMPTY;
+        SoundEvent soundEvent = ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(JSONUtils.getAsString(json, "equip_sound", "")));
+        Ingredient repairMaterial = json.has("repair_material") ? Ingredient.fromJson(json.get("repair_material")) : Ingredient.EMPTY;
 
-        return new HUArmorMaterial(name, JSONUtils.getInt(json, "max_damage_factor", 0), damageReductionAmountArray, JSONUtils.getInt(json, "enchantibility", 0), soundEvent, JSONUtils.getFloat(json, "toughness", 0), JSONUtils.getFloat(json, "knockback_resistance", 0), repairMaterial);
+        return new HUArmorMaterial(name, JSONUtils.getAsInt(json, "max_damage_factor", 0), damageReductionAmountArray, JSONUtils.getAsInt(json, "enchantibility", 0), soundEvent, JSONUtils.getAsFloat(json, "toughness", 0), JSONUtils.getAsFloat(json, "knockback_resistance", 0), repairMaterial);
     }
 
     public static Suit getSuit(String modid, String name) {
@@ -113,13 +113,13 @@ public class HUJsonUtils {
     public static void rotatePartOfModel(ModelRenderer modelRenderer, String xyz, float angle) {
         switch (xyz) {
             case "x":
-                modelRenderer.rotateAngleX = (float) Math.toRadians(angle);
+                modelRenderer.xRot = (float) Math.toRadians(angle);
                 break;
             case "y":
-                modelRenderer.rotateAngleY = (float) Math.toRadians(angle);
+                modelRenderer.yRot = (float) Math.toRadians(angle);
                 break;
             case "z":
-                modelRenderer.rotateAngleZ = (float) Math.toRadians(angle);
+                modelRenderer.zRot = (float) Math.toRadians(angle);
                 break;
         }
     }

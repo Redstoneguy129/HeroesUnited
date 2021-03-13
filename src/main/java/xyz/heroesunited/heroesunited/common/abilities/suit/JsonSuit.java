@@ -39,18 +39,18 @@ public class JsonSuit extends Suit {
 
     @Override
     public void registerItems(IForgeRegistry<Item> e) {
-        JsonObject slots = JSONUtils.getJsonObject(jsonObject, "slots", null);
+        JsonObject slots = JSONUtils.getAsJsonObject(jsonObject, "slots", null);
         if (slots != null) {
-            if (JSONUtils.hasField(slots, "head")) {
+            if (slots.has("head")) {
                 e.register(helmet = createItem(this, EquipmentSlotType.HEAD, slots));
             }
-            if (JSONUtils.hasField(slots, "chest")) {
+            if (slots.has("chest")) {
                 e.register(chestplate = createItem(this, EquipmentSlotType.CHEST, slots));
             }
-            if (JSONUtils.hasField(slots, "legs")) {
+            if (slots.has("legs")) {
                 e.register(legs = createItem(this, EquipmentSlotType.LEGS, slots));
             }
-            if (JSONUtils.hasField(slots, "feet")) {
+            if (slots.has("feet")) {
                 e.register(boots = createItem(this, EquipmentSlotType.FEET, slots));
             }
         } else {
@@ -62,7 +62,7 @@ public class JsonSuit extends Suit {
     }
 
     protected SuitItem createItem(Suit suit, EquipmentSlotType slot, JsonObject slots) {
-        return (SuitItem) new SuitItem(suit.getSuitMaterial(), slot, new Item.Properties().maxStackSize(1).group(suit.getItemGroup()), suit).setRegistryName(suit.getRegistryName().getNamespace(), suit.getRegistryName().getPath() + "_" + JSONUtils.getString(slots, slot.getName().toLowerCase()));
+        return (SuitItem) new SuitItem(suit.getSuitMaterial(), slot, new Item.Properties().stacksTo(1).tab(suit.getItemGroup()), suit).setRegistryName(suit.getRegistryName().getNamespace(), suit.getRegistryName().getPath() + "_" + JSONUtils.getAsString(slots, slot.getName().toLowerCase()));
     }
 
     @Override
@@ -80,12 +80,12 @@ public class JsonSuit extends Suit {
 
     @Override
     public boolean canEquip(PlayerEntity player) {
-        return JSONUtils.hasField(jsonObject, "equip") ? JSONUtils.getBoolean(jsonObject, "equip") : super.canEquip(player);
+        return jsonObject.has("equip") ? JSONUtils.getAsBoolean(jsonObject, "equip") : super.canEquip(player);
     }
 
     @Override
     public IArmorMaterial getSuitMaterial() {
-        if (JSONUtils.hasField(jsonObject, "armor_material")) {
+        if (jsonObject.has("armor_material")) {
             JsonElement materialJson = jsonObject.get("armor_material");
             IArmorMaterial material = materialJson.isJsonPrimitive() ? HUJsonUtils.getArmorMaterial(materialJson.getAsString()) : HUJsonUtils.parseArmorMaterial(materialJson.getAsJsonObject(), false);
             if (material == null)
@@ -97,31 +97,31 @@ public class JsonSuit extends Suit {
 
     @Override
     public ItemGroup getItemGroup() {
-        return JSONUtils.hasField(jsonObject, "itemGroup") ? HUJsonUtils.getItemGroup(jsonObject, "itemGroup") : super.getItemGroup();
+        return jsonObject.has("itemGroup") ? HUJsonUtils.getItemGroup(jsonObject, "itemGroup") : super.getItemGroup();
     }
 
     @Override
     public List<ITextComponent> getDescription(ItemStack stack) {
-        return JSONUtils.hasField(jsonObject, "description") ? HUJsonUtils.parseDescriptionLines(jsonObject.get("description")) : super.getDescription(stack);
+        return jsonObject.has("description") ? HUJsonUtils.parseDescriptionLines(jsonObject.get("description")) : super.getDescription(stack);
     }
 
     @Override
     public boolean canCombineWithAbility(Ability type, PlayerEntity player) {
-        return JSONUtils.hasField(jsonObject, "combine") ? JSONUtils.getBoolean(jsonObject, "combine") : super.canCombineWithAbility(type, player);
+        return jsonObject.has("combine") ? JSONUtils.getAsBoolean(jsonObject, "combine") : super.canCombineWithAbility(type, player);
     }
 
     @Override
     public float getScale(EquipmentSlotType slot) {
-        return JSONUtils.hasField(jsonObject, "scale") ? JSONUtils.getFloat(jsonObject, "scale") : super.getScale(slot);
+        return jsonObject.has("scale") ? JSONUtils.getAsFloat(jsonObject, "scale") : super.getScale(slot);
     }
 
     @Override
     public List<EquipmentAccessoriesSlot> getSlotForHide(EquipmentSlotType slot) {
         List<EquipmentAccessoriesSlot> list = Lists.newArrayList();
-        if (JSONUtils.hasField(jsonObject, "hide_accessories")) {
-            JsonObject jsonObject = JSONUtils.getJsonObject(this.jsonObject, "hide_accessories");
+        if (jsonObject.has("hide_accessories")) {
+            JsonObject jsonObject = JSONUtils.getAsJsonObject(this.jsonObject, "hide_accessories");
             for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
-                if (e.getValue() instanceof JsonArray && slot.equals(EquipmentSlotType.fromString(e.getKey()))) {
+                if (e.getValue() instanceof JsonArray && slot.equals(EquipmentSlotType.byName(e.getKey()))) {
                     for (int i = 0; i < ((JsonArray) e.getValue()).size(); i++) {
                         list.add(EquipmentAccessoriesSlot.getFromSlotIndex(((JsonArray)e.getValue()).get(i).getAsInt()));
                     }
@@ -135,20 +135,20 @@ public class JsonSuit extends Suit {
     @Override
     public void setRotationAngles(HUSetRotationAnglesEvent event, EquipmentSlotType slot) {
         super.setRotationAngles(event, slot);
-        if (JSONUtils.hasField(jsonObject, "visibility_parts")) {
-            JsonObject overrides = JSONUtils.getJsonObject(jsonObject, "visibility_parts");
+        if (jsonObject.has("visibility_parts")) {
+            JsonObject overrides = JSONUtils.getAsJsonObject(jsonObject, "visibility_parts");
 
             for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
                 PlayerPart part = PlayerPart.getByName(entry.getKey());
                 if (part != null) {
                     if (entry.getValue() instanceof JsonObject) {
                         JsonObject json = (JsonObject) entry.getValue();
-                        if (slot.equals(EquipmentSlotType.fromString(JSONUtils.getString(json, "slot")))) {
-                            part.setVisibility(event.getPlayerModel(), JSONUtils.getBoolean(json, "show"));
+                        if (slot.equals(EquipmentSlotType.byName(JSONUtils.getAsString(json, "slot")))) {
+                            part.setVisibility(event.getPlayerModel(), JSONUtils.getAsBoolean(json, "show"));
                         }
                     } else {
                         if (hasArmorOn(event.getPlayer())) {
-                            part.setVisibility(event.getPlayerModel(), JSONUtils.getBoolean(overrides, entry.getKey()));
+                            part.setVisibility(event.getPlayerModel(), JSONUtils.getAsBoolean(overrides, entry.getKey()));
                         }
                     }
                 }

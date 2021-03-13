@@ -27,43 +27,43 @@ public enum PlayerPart {
     public void setVisibility(PlayerModel model, boolean visible) {
         switch (this) {
             case HEAD:
-                model.bipedHead.showModel = visible;
+                model.head.visible = visible;
                 return;
             case HEAD_WEAR:
-                model.bipedHeadwear.showModel = visible;
+                model.hat.visible = visible;
                 return;
             case CHEST:
-                model.bipedBody.showModel = visible;
+                model.body.visible = visible;
                 return;
             case CHEST_WEAR:
-                model.bipedBodyWear.showModel = visible;
+                model.jacket.visible = visible;
                 return;
             case RIGHT_ARM:
-                model.bipedRightArm.showModel = visible;
+                model.rightArm.visible = visible;
                 return;
             case RIGHT_ARM_WEAR:
-                model.bipedRightArmwear.showModel = visible;
+                model.rightSleeve.visible = visible;
                 return;
             case LEFT_ARM:
-                model.bipedLeftArm.showModel = visible;
+                model.leftArm.visible = visible;
                 return;
             case LEFT_ARM_WEAR:
-                model.bipedLeftArmwear.showModel = visible;
+                model.leftSleeve.visible = visible;
                 return;
             case RIGHT_LEG:
-                model.bipedRightLeg.showModel = visible;
+                model.rightLeg.visible = visible;
                 return;
             case RIGHT_LEG_WEAR:
-                model.bipedRightLegwear.showModel = visible;
+                model.rightPants.visible = visible;
                 return;
             case LEFT_LEG:
-                model.bipedLeftLeg.showModel = visible;
+                model.leftLeg.visible = visible;
                 return;
             case LEFT_LEG_WEAR:
-                model.bipedLeftLegwear.showModel = visible;
+                model.leftPants.visible = visible;
                 return;
             case ALL:
-                model.setVisible(visible);
+                model.setAllVisible(visible);
                 return;
         }
     }
@@ -71,40 +71,40 @@ public enum PlayerPart {
     public void rotatePart(PlayerModel model, String xyz, float angle) {
         switch (this) {
             case HEAD:
-                HUJsonUtils.rotatePartOfModel(model.bipedHead, xyz, angle);
+                HUJsonUtils.rotatePartOfModel(model.head, xyz, angle);
                 return;
             case HEAD_WEAR:
-                HUJsonUtils.rotatePartOfModel(model.bipedHeadwear, xyz, angle);
+                HUJsonUtils.rotatePartOfModel(model.hat, xyz, angle);
                 return;
             case CHEST:
-                HUJsonUtils.rotatePartOfModel(model.bipedBody, xyz, angle);
+                HUJsonUtils.rotatePartOfModel(model.body, xyz, angle);
                 return;
             case CHEST_WEAR:
-                HUJsonUtils.rotatePartOfModel(model.bipedBodyWear, xyz, angle);
+                HUJsonUtils.rotatePartOfModel(model.jacket, xyz, angle);
                 return;
             case RIGHT_ARM:
-                HUJsonUtils.rotatePartOfModel(model.bipedRightArm, xyz, angle);
+                HUJsonUtils.rotatePartOfModel(model.rightArm, xyz, angle);
                 return;
             case RIGHT_ARM_WEAR:
-                HUJsonUtils.rotatePartOfModel(model.bipedRightArmwear, xyz, angle);
+                HUJsonUtils.rotatePartOfModel(model.rightSleeve, xyz, angle);
                 return;
             case LEFT_ARM:
-                HUJsonUtils.rotatePartOfModel(model.bipedLeftArm, xyz, angle);
+                HUJsonUtils.rotatePartOfModel(model.leftArm, xyz, angle);
                 return;
             case LEFT_ARM_WEAR:
-                HUJsonUtils.rotatePartOfModel(model.bipedLeftArmwear, xyz, angle);
+                HUJsonUtils.rotatePartOfModel(model.leftSleeve, xyz, angle);
                 return;
             case RIGHT_LEG:
-                HUJsonUtils.rotatePartOfModel(model.bipedRightLeg, xyz, angle);
+                HUJsonUtils.rotatePartOfModel(model.rightLeg, xyz, angle);
                 return;
             case RIGHT_LEG_WEAR:
-                HUJsonUtils.rotatePartOfModel(model.bipedRightLegwear, xyz, angle);
+                HUJsonUtils.rotatePartOfModel(model.rightPants, xyz, angle);
                 return;
             case LEFT_LEG:
-                HUJsonUtils.rotatePartOfModel(model.bipedLeftLeg, xyz, angle);
+                HUJsonUtils.rotatePartOfModel(model.leftLeg, xyz, angle);
                 return;
             case LEFT_LEG_WEAR:
-                HUJsonUtils.rotatePartOfModel(model.bipedLeftLegwear, xyz, angle);
+                HUJsonUtils.rotatePartOfModel(model.leftPants, xyz, angle);
                 return;
         }
     }

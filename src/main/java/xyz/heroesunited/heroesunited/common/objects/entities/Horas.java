@@ -26,23 +26,22 @@ import java.util.List;
 import java.util.UUID;
 
 @SuppressWarnings("EntityConstructor")
-public class Horas extends CreatureEntity implements IFlyingAnimal, HUEntity {
-    private float flap, flapSpeed;
-    private float flapping = 1.0F;
+public class Horas extends CreatureEntity implements IFlyingAnimal {
+    private float flap, flapSpeed, flapping = 1.0F;
     private PlayerEntity playerEntity;
     private final PathNavigator navigator;
     private int timeToRecalcPath;
 
     public Horas(EntityType<? extends Horas> entityType, World world) {
         super(entityType, world);
-        this.moveController = new FlyingMovementController(this, 10, false);
-        this.navigator = this.getNavigator();
+        this.moveControl = new FlyingMovementController(this, 10, false);
+        this.navigator = this.getNavigation();
     }
 
     @Override
-    public ILivingEntityData onInitialSpawn(IServerWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, ILivingEntityData spawnDataIn, CompoundNBT dataTag) {
-        if (reason == SpawnReason.MOB_SUMMONED || reason == SpawnReason.SPAWN_EGG) this.playerEntity = worldIn.getClosestPlayer(this, 10D);
-        return super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
+    public ILivingEntityData finalizeSpawn(IServerWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, ILivingEntityData spawnDataIn, CompoundNBT dataTag) {
+        if (reason == SpawnReason.MOB_SUMMONED || reason == SpawnReason.SPAWN_EGG) this.playerEntity = worldIn.getNearestPlayer(this, 10D);
+        return super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
     }
 
     @Override
@@ -55,44 +54,44 @@ public class Horas extends CreatureEntity implements IFlyingAnimal, HUEntity {
     }
 
     @Override
-    public boolean onLivingFall(float distance, float damageMultiplier) {
+    public boolean causeFallDamage(float distance, float damageMultiplier) {
         return false;
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public ActionResultType applyPlayerInteraction(PlayerEntity player, Vector3d vec, Hand hand) {
-        if (!player.world.isRemote) return ActionResultType.PASS;
-        Minecraft.getInstance().displayGuiScreen(new HorasScreen(this));
+    public ActionResultType interactAt(PlayerEntity player, Vector3d vec, Hand hand) {
+        if (!player.level.isClientSide) return ActionResultType.PASS;
+        Minecraft.getInstance().forceSetScreen(new HorasScreen(this));
         return ActionResultType.SUCCESS;
     }
 
-    public static AttributeModifierMap.MutableAttribute func_234225_eI_() {
-        return MobEntity.func_233666_p_().createMutableAttribute(Attributes.MAX_HEALTH, 8D).createMutableAttribute(Attributes.MOVEMENT_SPEED, .23F).createMutableAttribute(Attributes.FLYING_SPEED, .23F);
+    public static AttributeModifierMap.MutableAttribute createMobAttributes() {
+        return MobEntity.createMobAttributes().add(Attributes.MAX_HEALTH, 8D).add(Attributes.MOVEMENT_SPEED, .23F).add(Attributes.FLYING_SPEED, .23F);
     }
 
     @Override
-    public void livingTick() {
+    public void baseTick() {
         if (this.playerEntity != null && !this.playerEntity.isSpectator()) {
-            List<PlayerEntity> playerEntities = this.getEntityWorld().getEntitiesWithinAABB(PlayerEntity.class, this.getBoundingBox().grow(10D));
+            List<PlayerEntity> playerEntities = this.getCommandSenderWorld().getEntitiesOfClass(PlayerEntity.class, this.getBoundingBox().inflate(10D));
             if (!playerEntities.contains(this.playerEntity)) {
-                if (this.playerEntity != null && !this.getLeashed()) {
-                    this.getLookController().setLookPositionWithEntity(this.playerEntity, 10.0F, (float) this.getVerticalFaceSpeed());
+                if (this.playerEntity != null && !this.isLeashed()) {
+                    this.lookControl.setLookAt(this.playerEntity, 10.0F, (float) this.getHeadRotSpeed());
                     if (--this.timeToRecalcPath <= 0) {
                         this.timeToRecalcPath = 10;
-                        double d0 = this.getPosX() - this.playerEntity.getPosX();
-                        double d1 = this.getPosY() - this.playerEntity.getPosY();
-                        double d2 = this.getPosZ() - this.playerEntity.getPosZ();
+                        double d0 = this.getX() - this.playerEntity.getX();
+                        double d1 = this.getY() - this.playerEntity.getY();
+                        double d2 = this.getZ() - this.playerEntity.getZ();
                         double d3 = d0 * d0 + d1 * d1 + d2 * d2;
                         if (!(d3 <= (2D * 2D))) {
-                            this.navigator.tryMoveToEntityLiving(this.playerEntity, 1.23D);
+                            this.navigator.moveTo(this.playerEntity, 1.23D);
                         } else {
-                            this.navigator.clearPath();
-                            LookController lookcontroller = this.getLookController();
-                            if (d3 <= 5D || lookcontroller.getLookPosX() == this.getPosX() && lookcontroller.getLookPosY() == this.getPosY() && lookcontroller.getLookPosZ() == this.getPosZ()) {
-                                double d4 = this.playerEntity.getPosX() - this.getPosX();
-                                double d5 = this.playerEntity.getPosZ() - this.getPosZ();
-                                this.navigator.tryMoveToXYZ(this.getPosX() - d4, this.getPosY(), this.getPosZ() - d5, 1.23D);
+                            this.navigator.stop();
+                            LookController lookcontroller = this.lookControl;
+                            if (d3 <= 5D || lookcontroller.getWantedX() == this.getX() && lookcontroller.getWantedY() == this.getY() && lookcontroller.getWantedZ() == this.getZ()) {
+                                double d4 = this.playerEntity.getX() - this.getX();
+                                double d5 = this.playerEntity.getZ() - this.getZ();
+                                this.navigator.moveTo(this.getX() - d4, this.getY(), this.getZ() - d5, 1.23D);
                             }
 
                         }
@@ -100,7 +99,7 @@ public class Horas extends CreatureEntity implements IFlyingAnimal, HUEntity {
                 }
             }
         }
-        super.livingTick();
+        super.baseTick();
         this.calculateFlapping();
     }
 
@@ -111,26 +110,26 @@ public class Horas extends CreatureEntity implements IFlyingAnimal, HUEntity {
             this.flapping = 1.0F;
         }
         this.flapping = (float) ((double) this.flapping * 0.9D);
-        Vector3d vector3d = this.getMotion();
+        Vector3d vector3d = this.getDeltaMovement();
         if (!this.onGround && vector3d.y < 0.0D) {
-            this.setMotion(vector3d.mul(1.0D, 0.6D, 1.0D));
+            this.setDeltaMovement(vector3d.multiply(1.0D, 0.6D, 1.0D));
         }
         this.flap += this.flapping * 2.0F;
     }
 
     @Override
-    public void readAdditional(CompoundNBT compound) {
-        super.readAdditional(compound);
+    public void readAdditionalSaveData(CompoundNBT compound) {
+        super.readAdditionalSaveData(compound);
         if (compound.contains("owner")) {
-            UUID uuid = compound.getUniqueId("owner");
-            this.playerEntity = this.world.getPlayerByUuid(uuid);
+            UUID uuid = compound.getUUID("owner");
+            this.playerEntity = this.level.getPlayerByUUID(uuid);
         }
     }
 
     @Override
-    public void writeAdditional(CompoundNBT compound) {
-        super.writeAdditional(compound);
+    public void addAdditionalSaveData(CompoundNBT compound) {
+        super.addAdditionalSaveData(compound);
         if (this.playerEntity != null)
-            compound.putUniqueId("owner", this.playerEntity.getUniqueID());
+            compound.putUUID("owner", this.playerEntity.getUUID());
     }
 }

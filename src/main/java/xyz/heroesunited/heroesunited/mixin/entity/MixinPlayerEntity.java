@@ -18,32 +18,32 @@ public abstract class MixinPlayerEntity extends LivingEntity {
         super(entityTypeIn, worldIn);
     }
 
-    @Inject(method = "updatePose()V", at = @At(value = "HEAD"), cancellable = true)
-    protected void updatePose(CallbackInfo ci) {
+    @Inject(method = "updatePlayerPose()V", at = @At(value = "HEAD"), cancellable = true)
+    protected void updatePlayerPose(CallbackInfo ci) {
         PlayerEntity player = (PlayerEntity) (Object)this;
         if(player.getForcedPose() != null) {
             this.setPose(player.getForcedPose());
             return;
         }
-        if (this.isPoseClear(Pose.SWIMMING)) {
+        if (this.canEnterPose(Pose.SWIMMING)) {
             Pose pose;
-            if (this.isElytraFlying()) {
+            if (this.isFallFlying()) {
                 pose = Pose.FALL_FLYING;
             } else if (this.isSleeping()) {
                 pose = Pose.SLEEPING;
             } else if (this.isSwimming()) {
                 pose = Pose.SWIMMING;
-            } else if (this.isSpinAttacking()) {
+            } else if (this.isAutoSpinAttack()) {
                 pose = Pose.SPIN_ATTACK;
-            } else if (this.isSneaking() && !player.abilities.isFlying) {
+            } else if (this.isShiftKeyDown() && !player.abilities.flying) {
                 pose = Pose.CROUCHING;
             } else {
                 pose = Pose.STANDING;
             }
 
             Pose pose1;
-            if (!this.isSpectator() && !this.isPassenger() && !this.isPoseClear(pose)) {
-                if (this.isPoseClear(Pose.CROUCHING)) {
+            if (!this.isSpectator() && !this.isPassenger() && !this.canEnterPose(pose)) {
+                if (this.canEnterPose(Pose.CROUCHING)) {
                     pose1 = Pose.CROUCHING;
                 } else {
                     if (!SizeChangeAbility.isSmall(player)) {

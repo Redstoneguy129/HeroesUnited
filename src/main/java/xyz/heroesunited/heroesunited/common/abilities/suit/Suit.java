@@ -60,7 +60,7 @@ public abstract class Suit {
     }
 
     protected SuitItem createItem(Suit suit, EquipmentSlotType slot, String name) {
-        return (SuitItem) new SuitItem(suit.getSuitMaterial(), slot, new Item.Properties().maxStackSize(1).group(suit.getItemGroup()), suit).setRegistryName(suit.getRegistryName().getNamespace(), suit.getRegistryName().getPath() + "_" + name);
+        return (SuitItem) new SuitItem(suit.getSuitMaterial(), slot, new Item.Properties().stacksTo(1).tab(suit.getItemGroup()), suit).setRegistryName(suit.getRegistryName().getNamespace(), suit.getRegistryName().getPath() + "_" + name);
     }
 
     public boolean canEquip(PlayerEntity player) {
@@ -72,7 +72,7 @@ public abstract class Suit {
     }
 
     public ItemGroup getItemGroup() {
-        return ItemGroup.COMBAT;
+        return ItemGroup.TAB_COMBAT;
     }
 
     public List<ITextComponent> getDescription(ItemStack stack) {
@@ -132,15 +132,15 @@ public abstract class Suit {
         ModelSuit suitModel = new ModelSuit(getScale(slot), isSmallArms(entity));
         switch (slot) {
             case HEAD:
-                suitModel.bipedHeadwear.showModel = suitModel.bipedHead.showModel = true;
+                suitModel.hat.visible = suitModel.head.visible = true;
             case CHEST:
-                suitModel.bipedBody.showModel = suitModel.bipedBodyWear.showModel = true;
-                suitModel.bipedLeftArmwear.showModel = suitModel.bipedLeftArm.showModel = true;
-                suitModel.bipedRightArmwear.showModel = suitModel.bipedRightArm.showModel = true;
+                suitModel.body.visible = suitModel.bipedBodyWear.visible = true;
+                suitModel.bipedLeftArmwear.visible = suitModel.leftArm.visible = true;
+                suitModel.bipedRightArmwear.visible = suitModel.rightArm.visible = true;
             case LEGS:
-                suitModel.bipedLeftLeg.showModel = suitModel.bipedRightLeg.showModel = true;
+                suitModel.leftLeg.visible = suitModel.rightLeg.visible = true;
             case FEET:
-                suitModel.bipedLeftLegwear.showModel = suitModel.bipedRightLegwear.showModel = true;
+                suitModel.bipedLeftLegwear.visible = suitModel.bipedRightLegwear.visible = true;
         }
         return suitModel;
     }
@@ -164,7 +164,7 @@ public abstract class Suit {
     @OnlyIn(Dist.CLIENT)
     public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side) {
         ModelSuit suitModel = new ModelSuit(getScale(EquipmentSlotType.CHEST), isSmallArms(player));
-        suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.getEntityTranslucent(new ResourceLocation(getSuitTexture(player.getItemStackFromSlot(EquipmentSlotType.CHEST), player, EquipmentSlotType.CHEST)))), packedLightIn, player);
+        suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(getSuitTexture(player.getItemBySlot(EquipmentSlotType.CHEST), player, EquipmentSlotType.CHEST)))), packedLightIn, player);
     }
 
     public final Suit setRegistryName(ResourceLocation name) {
@@ -194,16 +194,16 @@ public abstract class Suit {
     public boolean hasArmorOn(LivingEntity entity) {
         boolean hasArmorOn = true;
 
-        if (getHelmet() != null && (entity.getItemStackFromSlot(EquipmentSlotType.HEAD).isEmpty() || entity.getItemStackFromSlot(EquipmentSlotType.HEAD).getItem() != getHelmet()))
+        if (getHelmet() != null && (entity.getItemBySlot(EquipmentSlotType.HEAD).isEmpty() || entity.getItemBySlot(EquipmentSlotType.HEAD).getItem() != getHelmet()))
             hasArmorOn = false;
 
-        if (getChestplate() != null && (entity.getItemStackFromSlot(EquipmentSlotType.CHEST).isEmpty() || entity.getItemStackFromSlot(EquipmentSlotType.CHEST).getItem() != getChestplate()))
+        if (getChestplate() != null && (entity.getItemBySlot(EquipmentSlotType.CHEST).isEmpty() || entity.getItemBySlot(EquipmentSlotType.CHEST).getItem() != getChestplate()))
             hasArmorOn = false;
 
-        if (getLegs() != null && (entity.getItemStackFromSlot(EquipmentSlotType.LEGS).isEmpty() || entity.getItemStackFromSlot(EquipmentSlotType.LEGS).getItem() != getLegs()))
+        if (getLegs() != null && (entity.getItemBySlot(EquipmentSlotType.LEGS).isEmpty() || entity.getItemBySlot(EquipmentSlotType.LEGS).getItem() != getLegs()))
             hasArmorOn = false;
 
-        if (getBoots() != null && (entity.getItemStackFromSlot(EquipmentSlotType.FEET).isEmpty() || entity.getItemStackFromSlot(EquipmentSlotType.FEET).getItem() != getBoots()))
+        if (getBoots() != null && (entity.getItemBySlot(EquipmentSlotType.FEET).isEmpty() || entity.getItemBySlot(EquipmentSlotType.FEET).getItem() != getBoots()))
             hasArmorOn = false;
 
         return hasArmorOn;
@@ -223,9 +223,10 @@ public abstract class Suit {
     }
 
     public static SuitItem getSuitItem(EquipmentSlotType slot, LivingEntity entity) {
-        if (entity.getItemStackFromSlot(slot).getItem() instanceof SuitItem) {
-            SuitItem suitItem = (SuitItem) entity.getItemStackFromSlot(slot).getItem();
-            if (suitItem.getEquipmentSlot().equals(slot)) {
+        ItemStack stack = entity.getItemBySlot(slot);
+        if (stack.getItem() instanceof SuitItem) {
+            SuitItem suitItem = (SuitItem) stack.getItem();
+            if (stack.getEquipmentSlot().equals(slot)) {
                 return suitItem;
             }
         }
@@ -234,8 +235,8 @@ public abstract class Suit {
 
     public static Suit getSuit(LivingEntity entity) {
         for (EquipmentSlotType slot : EquipmentSlotType.values()) {
-            if (slot.getSlotType() == EquipmentSlotType.Group.ARMOR) {
-                Item item = entity.getItemStackFromSlot(slot).getItem();
+            if (slot.getType() == EquipmentSlotType.Group.ARMOR) {
+                Item item = entity.getItemBySlot(slot).getItem();
                 if (item instanceof SuitItem) {
                     SuitItem suitItem = (SuitItem) item;
                     if (suitItem.getSuit().hasArmorOn(entity)) {

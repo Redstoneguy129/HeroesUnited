@@ -19,18 +19,8 @@ public class AccessoriesInventory implements IInventory {
         this.inventory = NonNullList.withSize(8, ItemStack.EMPTY);
     }
 
-    @Override
-    public int getSizeInventory() {
-        return inventory.size();
-    }
-
-    @Override
-    public ItemStack getStackInSlot(int index) {
-        return index >= getSizeInventory() ? ItemStack.EMPTY : this.inventory.get(index);
-    }
-
     public boolean haveStack(EquipmentAccessoriesSlot slot) {
-        return getStackInSlot(slot.getSlot()) != null && !getStackInSlot(slot.getSlot()).isEmpty();
+        return getItem(slot.getSlot()) != null && !getItem(slot.getSlot()).isEmpty();
     }
 
     public NonNullList<ItemStack> getInventory() {
@@ -38,34 +28,8 @@ public class AccessoriesInventory implements IInventory {
     }
 
     @Override
-    public ItemStack decrStackSize(int index, int count) {
-        ItemStack itemstack = this.inventory.get(index);
-        if (!itemstack.isEmpty()) {
-            if (itemstack.getCount() > count) {
-                itemstack = ItemStackHelper.getAndSplit(this.inventory, index, count);
-            } else setInventorySlotContents(index, ItemStack.EMPTY);
-            markDirty();
-            return itemstack;
-        } else return ItemStack.EMPTY;
-    }
-
-    @Override
-    public ItemStack removeStackFromSlot(int index) {
-        if (!this.inventory.get(index).isEmpty()) {
-            ItemStack itemstack = this.inventory.get(index);
-            setInventorySlotContents(index, ItemStack.EMPTY);
-            markDirty();
-            return itemstack;
-        } else {
-            return ItemStack.EMPTY;
-        }
-
-    }
-
-    @Override
-    public void setInventorySlotContents(int index, ItemStack stack) {
-        this.inventory.set(index, stack);
-        markDirty();
+    public int getContainerSize() {
+        return inventory.size();
     }
 
     @Override
@@ -79,31 +43,48 @@ public class AccessoriesInventory implements IInventory {
     }
 
     @Override
-    public int getInventoryStackLimit() {
-        return 64;
+    public ItemStack getItem(int index) {
+        return index >= getContainerSize() ? ItemStack.EMPTY : this.inventory.get(index);
     }
 
     @Override
-    public void markDirty() {
+    public ItemStack removeItem(int index, int count) {
+        ItemStack itemstack = this.inventory.get(index);
+        if (!itemstack.isEmpty()) {
+            if (itemstack.getCount() > count) {
+                itemstack = ItemStackHelper.removeItem(this.inventory, index, count);
+            } else setItem(index, ItemStack.EMPTY);
+            setChanged();
+            return itemstack;
+        } else return ItemStack.EMPTY;
+    }
+
+    @Override
+    public ItemStack removeItemNoUpdate(int i) {
+        if (!this.inventory.get(i).isEmpty()) {
+            ItemStack itemstack = this.inventory.get(i);
+            setItem(i, ItemStack.EMPTY);
+            setChanged();
+            return itemstack;
+        } else {
+            return ItemStack.EMPTY;
+        }
+    }
+
+    @Override
+    public void setItem(int i, ItemStack itemStack) {
+        this.inventory.set(i, itemStack);
+        setChanged();
+    }
+
+    @Override
+    public void setChanged() {
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(IHUPlayer::syncToAll);
     }
 
     @Override
-    public boolean isUsableByPlayer(PlayerEntity player) {
+    public boolean stillValid(PlayerEntity playerEntity) {
         return true;
-    }
-
-    @Override
-    public boolean isItemValidForSlot(int index, ItemStack stack) {
-        return true;
-    }
-
-    @Override
-    public void clear() {
-        for (int i = 0; i < inventory.size(); i++) {
-            inventory.set(i, ItemStack.EMPTY);
-        }
-        markDirty();
     }
 
     public CompoundNBT write(CompoundNBT compound) {
@@ -112,13 +93,21 @@ public class AccessoriesInventory implements IInventory {
     }
 
     public void read(CompoundNBT compound) {
-        this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
+        this.inventory = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
         ItemStackHelper.loadAllItems(compound, this.inventory);
     }
 
     public void copy(AccessoriesInventory inv) {
-        for(int i = 0; i < this.getSizeInventory(); ++i) {
-            inventory.set(i, inv.getStackInSlot(i));
+        for(int i = 0; i < this.getContainerSize(); ++i) {
+            inventory.set(i, inv.getItem(i));
         }
+    }
+
+    @Override
+    public void clearContent() {
+        for (int i = 0; i < inventory.size(); i++) {
+            inventory.set(i, ItemStack.EMPTY);
+        }
+        setChanged();
     }
 }

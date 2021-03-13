@@ -11,7 +11,7 @@ public class HUEntities {
 
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITIES, HeroesUnited.MODID);
 
-    public static final EntityType<Horas> HORAS = register("horas", EntityType.Builder.create(Horas::new, EntityClassification.CREATURE).size(.9F, 2.15F));
+    public static final EntityType<Horas> HORAS = register("horas", EntityType.Builder.of(Horas::new, EntityClassification.CREATURE).sized(.9F, 2.15F));
 
     private static <T extends Entity> EntityType<T> register(String name, EntityType.Builder<T> builder) {
         EntityType<T> entityType = builder.build(HeroesUnited.MODID + ":" + name);

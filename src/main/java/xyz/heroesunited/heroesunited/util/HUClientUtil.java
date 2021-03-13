@@ -50,51 +50,51 @@ public class HUClientUtil {
     public static final ResourceLocation null_texture = new ResourceLocation(HeroesUnited.MODID + ":textures/null.png");
 
     public static void renderAura(MatrixStack matrixStack, IVertexBuilder builder, AxisAlignedBB box, float shrinkValue, Color color, int packedLightIn, int ticksExisted) {
-        matrixStack.push();
+        matrixStack.pushPose();
         for (int i = 0; i < 5; i++) {
             float angle = ticksExisted * 4 + i * 180;
-            matrixStack.rotate(new Quaternion(angle, -angle, angle, true));
-            HUClientUtil.renderFilledBox(matrixStack, builder, box, color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F, packedLightIn);
+            matrixStack.mulPose(new Quaternion(angle, -angle, angle, true));
+            HUClientUtil.renderFilledBox(matrixStack, builder, box.deflate(shrinkValue), 1f, 1f, 1f, 1f, packedLightIn);
             for (int j = 0; j < 5; j++) {
                 float angleJ = ticksExisted * 4 + j * 180;
-                matrixStack.rotate(new Quaternion(angleJ, -angleJ, angleJ, true));
-                HUClientUtil.renderFilledBox(matrixStack, builder, box.shrink(shrinkValue), 1f, 1f, 1f, 1f, packedLightIn);
+                matrixStack.mulPose(new Quaternion(angleJ, -angleJ, angleJ, true));
+                HUClientUtil.renderFilledBox(matrixStack, builder, box, color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F, packedLightIn);
             }
         }
-        matrixStack.pop();
+        matrixStack.popPose();
     }
 
     public static void drawArmWithLightning(MatrixStack matrix, IRenderTypeBuffer bufferIn, PlayerRenderer renderer, AbstractClientPlayerEntity player, HandSide side, double y , int packedLightIn, Color color) {
         for (int i = 0; i < 3; i++) {
-            matrix.push();
-            renderer.getEntityModel().translateHand(side, matrix);
+            matrix.pushPose();
+            renderer.getModel().translateToHand(side, matrix);
             matrix.scale(0.05F, 0.06F, 0.05F);
             matrix.translate(i * (side == HandSide.LEFT ? 1 : -1), 10, 0);
-            renderLightning(player.world.rand, matrix, bufferIn, packedLightIn, y, i, color);
-            matrix.pop();
+            renderLightning(player.level.random, matrix, bufferIn, packedLightIn, y, i, color);
+            matrix.popPose();
         }
     }
 
     public static void renderCape(LivingRenderer<? extends LivingEntity, ? extends BipedModel<?>> renderer, LivingEntity entity, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, float partialTicks, ResourceLocation texture) {
         if (renderer != null) {
-            if (entity.getItemStackFromSlot(EquipmentSlotType.CHEST).getItem() instanceof ElytraItem || entity instanceof ClientPlayerEntity && ((PlayerEntity) entity).isWearing(PlayerModelPart.CAPE) && ((ClientPlayerEntity) entity).getLocationCape() != null) {
+            if (entity.getItemBySlot(EquipmentSlotType.CHEST).getItem() instanceof ElytraItem || entity instanceof ClientPlayerEntity && ((PlayerEntity) entity).isModelPartShown(PlayerModelPart.CAPE) && ((ClientPlayerEntity) entity).getCloakTextureLocation() != null) {
                 return;
             }
             final ModelCape model = new ModelCape();
-            matrix.push();
-            renderer.getEntityModel().bipedBody.translateRotate(matrix);
+            matrix.pushPose();
+            renderer.getModel().body.translateAndRotate(matrix);
             matrix.translate(0, -0.04F, 0.05F);
             matrix.scale(0.9F, 0.9F, 0.9F);
-            if (entity.isElytraFlying() || HUPlayer.getCap(entity).isFlying() && !entity.isOnGround() && !entity.isSwimming() && entity.isSprinting()) {
-                model.cape.rotateAngleX = 0F;
-                model.cape.rotateAngleY = 0F;
-                model.cape.rotateAngleZ = 0F;
+            if (entity.isFallFlying() || HUPlayer.getCap(entity).isFlying() && !entity.isOnGround() && !entity.isSwimming() && entity.isSprinting()) {
+                model.cape.xRot = 0F;
+                model.cape.yRot = 0F;
+                model.cape.zRot = 0F;
             } else if (entity instanceof PlayerEntity) {
                 PlayerEntity player = (PlayerEntity) entity;
-                double d0 = MathHelper.lerp(partialTicks, player.prevChasingPosX, player.chasingPosX) - MathHelper.lerp(partialTicks, player.prevPosX, player.getPosX());
-                double d1 = MathHelper.lerp(partialTicks, player.prevChasingPosY, player.chasingPosY) - MathHelper.lerp(partialTicks, player.prevPosY, player.getPosY());
-                double d2 = MathHelper.lerp(partialTicks, player.prevChasingPosZ, player.chasingPosZ) - MathHelper.lerp(partialTicks, player.prevPosZ, player.getPosZ());
-                float f = player.prevRenderYawOffset + (player.renderYawOffset - player.prevRenderYawOffset);
+                double d0 = MathHelper.lerp(partialTicks, player.xCloakO, player.xCloak) - MathHelper.lerp(partialTicks, player.xo, player.getX());
+                double d1 = MathHelper.lerp(partialTicks, player.yCloakO, player.yCloak) - MathHelper.lerp(partialTicks, player.yo, player.getY());
+                double d2 = MathHelper.lerp(partialTicks, player.zCloakO, player.zCloak) - MathHelper.lerp(partialTicks, player.zo, player.getZ());
+                float f = player.yBodyRotO + (player.yBodyRot - player.yBodyRotO);
                 double d3 = MathHelper.sin(f * ((float) Math.PI / 180F));
                 double d4 = -MathHelper.cos(f * ((float) Math.PI / 180F));
                 float f1 = (float) d1 * 10.0F;
@@ -107,65 +107,67 @@ public class HUClientUtil {
                     f2 = 0.0F;
                 }
 
-                float f4 = MathHelper.lerp(partialTicks, player.prevCameraYaw, player.cameraYaw);
-                f1 = f1 + MathHelper.sin(MathHelper.lerp(partialTicks, player.prevDistanceWalkedModified, player.distanceWalkedModified) * 6.0F) * 32.0F * f4;
+                float f4 = MathHelper.lerp(partialTicks, player.oBob, player.bob);
+                f1 = f1 + MathHelper.sin(MathHelper.lerp(partialTicks, player.walkDistO, player.walkDist) * 6.0F) * 32.0F * f4;
 
-                model.cape.rotateAngleX = (float) -Math.toRadians(6.0F + f2 / 2.0F + f1);
-                model.cape.rotateAngleY = (float) Math.toRadians(180.0F - f3 / 2.0F);
-                model.cape.rotateAngleZ = (float) Math.toRadians(f3 / 2.0F);
+                model.cape.xRot = (float) -Math.toRadians(6.0F + f2 / 2.0F + f1);
+                model.cape.yRot = (float) Math.toRadians(180.0F - f3 / 2.0F);
+                model.cape.zRot = (float) Math.toRadians(f3 / 2.0F);
             }
-            model.render(matrix, bufferIn.getBuffer(RenderType.getEntitySolid(texture)), packedLightIn, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
-            matrix.pop();
+            model.render(matrix, bufferIn.getBuffer(RenderType.entitySolid(texture)), packedLightIn, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
+            matrix.popPose();
         }
     }
 
     public static void renderFilledBox(MatrixStack matrixStack, IVertexBuilder builder, AxisAlignedBB box, float red, float green, float blue, float alpha, int combinedLightIn) {
-        Matrix4f matrix = matrixStack.getLast().getMatrix();
-        builder.pos(matrix, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
-        builder.pos(matrix, (float) box.minX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
-        builder.pos(matrix, (float) box.maxX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
-        builder.pos(matrix, (float) box.maxX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
+        Matrix4f matrix = matrixStack.last().pose();
+        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
 
-        builder.pos(matrix, (float) box.minX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
-        builder.pos(matrix, (float) box.maxX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
-        builder.pos(matrix, (float) box.maxX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
-        builder.pos(matrix, (float) box.minX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
+        //uv2 = lightmap i think
 
-        builder.pos(matrix, (float) box.minX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
-        builder.pos(matrix, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
-        builder.pos(matrix, (float) box.maxX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
-        builder.pos(matrix, (float) box.maxX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
 
-        builder.pos(matrix, (float) box.minX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
-        builder.pos(matrix, (float) box.maxX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
-        builder.pos(matrix, (float) box.maxX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
-        builder.pos(matrix, (float) box.minX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
 
-        builder.pos(matrix, (float) box.maxX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
-        builder.pos(matrix, (float) box.maxX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
-        builder.pos(matrix, (float) box.maxX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
-        builder.pos(matrix, (float) box.maxX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
 
-        builder.pos(matrix, (float) box.minX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
-        builder.pos(matrix, (float) box.minX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
-        builder.pos(matrix, (float) box.minX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
-        builder.pos(matrix, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).lightmap(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+
+        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
     }
 
     public static void hideSuitPlayerWear(PlayerEntity player, PlayerModel model) {
-        if (player.getItemStackFromSlot(HEAD).getItem() instanceof SuitItem) {
-            model.bipedHeadwear.showModel = false;
+        if (player.getItemBySlot(HEAD).getItem() instanceof SuitItem) {
+            model.hat.visible = false;
         }
-        if (player.getItemStackFromSlot(CHEST).getItem() instanceof SuitItem) {
-            model.bipedBodyWear.showModel = false;
-            model.bipedRightArmwear.showModel = false;
-            model.bipedLeftArmwear.showModel = false;
+        if (player.getItemBySlot(CHEST).getItem() instanceof SuitItem) {
+            model.jacket.visible = false;
+            model.rightSleeve.visible = false;
+            model.leftSleeve.visible = false;
         }
 
-        if (player.getItemStackFromSlot(FEET).getItem() instanceof SuitItem
-                || player.getItemStackFromSlot(LEGS).getItem() instanceof SuitItem) {
-            model.bipedRightLegwear.showModel = false;
-            model.bipedLeftLegwear.showModel = false;
+        if (player.getItemBySlot(FEET).getItem() instanceof SuitItem
+                || player.getItemBySlot(LEGS).getItem() instanceof SuitItem) {
+            model.rightPants.visible = false;
+            model.leftPants.visible = false;
         }
     }
 
@@ -177,29 +179,29 @@ public class HUClientUtil {
 
     public static ModelRenderer getModelRendererById(PlayerModel model, String name) {
         switch (name) {
-            case "bipedHead": return model.bipedHead;
-            case "bipedBody": return model.bipedBody;
-            case "bipedRightArm": return model.bipedRightArm;
-            case "bipedLeftArm": return model.bipedLeftArm;
-            case "bipedRightLeg": return model.bipedRightLeg;
-            case "bipedLeftLeg": return model.bipedLeftLeg;
+            case "bipedHead": return model.head;
+            case "bipedBody": return model.body;
+            case "bipedRightArm": return model.rightArm;
+            case "bipedLeftArm": return model.leftArm;
+            case "bipedRightLeg": return model.rightLeg;
+            case "bipedLeftLeg": return model.leftLeg;
             default: return null;
         }
     }
 
     public static void copyAnglesToWear(PlayerModel model) {
-        model.bipedHeadwear.copyModelAngles(model.bipedHead);
-        model.bipedBodyWear.copyModelAngles(model.bipedBody);
-        model.bipedRightArmwear.copyModelAngles(model.bipedRightArm);
-        model.bipedLeftArmwear.copyModelAngles(model.bipedLeftArm);
-        model.bipedLeftLegwear.copyModelAngles(model.bipedLeftLeg);
-        model.bipedRightLegwear.copyModelAngles(model.bipedRightLeg);
+        model.hat.copyFrom(model.head);
+        model.jacket.copyFrom(model.body);
+        model.rightSleeve.copyFrom(model.rightArm);
+        model.leftSleeve.copyFrom(model.leftArm);
+        model.leftPants.copyFrom(model.leftLeg);
+        model.rightPants.copyFrom(model.rightLeg);
     }
 
     public static void copyModelRotations(ModelRenderer to, ModelRenderer from) {
-        to.rotateAngleX = from.rotateAngleX;
-        to.rotateAngleY = from.rotateAngleY;
-        to.rotateAngleZ = from.rotateAngleZ;
+        to.xRot = from.xRot;
+        to.yRot = from.yRot;
+        to.zRot = from.zRot;
     }
 
     public static void renderLightning(Random random, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn, double y, int j, Color color) {
@@ -207,7 +209,7 @@ public class HUClientUtil {
         float f = 0.0F;
         float f1 = 0.0F;
         IVertexBuilder builder = bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER);
-        Matrix4f m4f = matrixStackIn.getLast().getMatrix();
+        Matrix4f m4f = matrixStackIn.last().pose();
         long seed = random.nextLong();
         Random randPrev = new Random(seed), rand = new Random(seed);
 
@@ -247,10 +249,10 @@ public class HUClientUtil {
     }
 
     private static void renderLightningPart(Matrix4f matrix4f, IVertexBuilder builder, float x, float z, int y, float y2, float x2, float z2, float additional, boolean p_229116_12_, boolean p_229116_13_, boolean p_229116_14_, boolean p_229116_15_, int packedLight, Color color) {
-        builder.pos(matrix4f, x + (p_229116_12_ ? additional : -additional), y * y2, z + (p_229116_13_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).lightmap(packedLight).endVertex();
-        builder.pos(matrix4f, x2 + (p_229116_12_ ? additional : -additional), (y + 1) * y2, z2 + (p_229116_13_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).lightmap(packedLight).endVertex();
-        builder.pos(matrix4f, x2 + (p_229116_14_ ? additional : -additional), (y + 1) * y2, z2 + (p_229116_15_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).lightmap(packedLight).endVertex();
-        builder.pos(matrix4f, x + (p_229116_14_ ? additional : -additional), y * y2, z + (p_229116_15_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).lightmap(packedLight).endVertex();
+        builder.vertex(matrix4f, x + (p_229116_12_ ? additional : -additional), y * y2, z + (p_229116_13_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).uv2(packedLight).endVertex();
+        builder.vertex(matrix4f, x2 + (p_229116_12_ ? additional : -additional), (y + 1) * y2, z2 + (p_229116_13_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).uv2(packedLight).endVertex();
+        builder.vertex(matrix4f, x2 + (p_229116_14_ ? additional : -additional), (y + 1) * y2, z2 + (p_229116_15_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).uv2(packedLight).endVertex();
+        builder.vertex(matrix4f, x + (p_229116_14_ ? additional : -additional), y * y2, z + (p_229116_15_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).uv2(packedLight).endVertex();
     }
 
     public static class HURenderTypes extends RenderType {
@@ -259,24 +261,24 @@ public class HUClientUtil {
             super(nameIn, formatIn, drawModeIn, bufferSizeIn, useDelegateIn, needsSortingIn, setupTaskIn, clearTaskIn);
         }
 
-        public static final RenderType LASER = makeType(HeroesUnited.MODID + ":laser", DefaultVertexFormats.POSITION_COLOR_LIGHTMAP, 7, 256, State.getBuilder()
-                .texture(RenderState.NO_TEXTURE)
-                .cull(RenderState.CULL_ENABLED)
-                .alpha(DEFAULT_ALPHA)
-                .transparency(RenderState.LIGHTNING_TRANSPARENCY)
-                .build(true));
+        public static final RenderType LASER = create(HeroesUnited.MODID + ":laser", DefaultVertexFormats.POSITION_COLOR_LIGHTMAP, 7, 256, State.builder()
+                .setTextureState(RenderState.NO_TEXTURE)
+                .setCullState(RenderState.CULL)
+                .setAlphaState(DEFAULT_ALPHA)
+                .setTransparencyState(RenderState.LIGHTNING_TRANSPARENCY)
+                .createCompositeState(true));
 
         public static RenderType getLight(ResourceLocation texture) {
-            RenderType.State render = RenderType.State.getBuilder().texture(new RenderState.TextureState(texture, false, false))
-                    .transparency(LIGHTNING_TRANSPARENCY)
-                    .alpha(DEFAULT_ALPHA)
-                    .lightmap(LIGHTMAP_ENABLED).build(false);
-            return makeType(HeroesUnited.MODID + ":light", DefaultVertexFormats.ENTITY, 7, 256, true, true, render);
+            RenderType.State render = RenderType.State.builder().setTextureState(new RenderState.TextureState(texture, false, false))
+                    .setTransparencyState(LIGHTNING_TRANSPARENCY)
+                    .setAlphaState(DEFAULT_ALPHA)
+                    .setLightmapState(LIGHTMAP).createCompositeState(false);
+            return create(HeroesUnited.MODID + ":light", DefaultVertexFormats.NEW_ENTITY, 7, 256, true, true, render);
         }
 
         public static RenderType getEntityCutout(ResourceLocation locationIn, Runnable start, Runnable end) {
-            RenderType.State render = RenderType.State.getBuilder().texture(new RenderState.TextureState(locationIn, false, false)).texturing(new CustomRenderState(start, end)).transparency(NO_TRANSPARENCY).diffuseLighting(DIFFUSE_LIGHTING_ENABLED).alpha(DEFAULT_ALPHA).lightmap(LIGHTMAP_ENABLED).overlay(OVERLAY_ENABLED).build(true);
-            return makeType(HeroesUnited.MODID + ":entity_cutout", DefaultVertexFormats.ENTITY, 7, 256, false, true, render);
+            RenderType.State render = RenderType.State.builder().setTextureState(new RenderState.TextureState(locationIn, false, false)).setTexturingState(new CustomRenderState(start, end)).setTransparencyState(NO_TRANSPARENCY).setDiffuseLightingState(RenderState.DIFFUSE_LIGHTING).setAlphaState(DEFAULT_ALPHA).setLightmapState(LIGHTMAP).setOverlayState(OVERLAY).createCompositeState(true);
+            return create(HeroesUnited.MODID + ":entity_cutout", DefaultVertexFormats.NEW_ENTITY, 7, 256, false, true, render);
         }
     }
 
@@ -287,6 +289,6 @@ public class HUClientUtil {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return Minecraft.getInstance().getTextureManager().getDynamicTextureLocation("file_" + System.currentTimeMillis(), new DynamicTexture(nativeImage));
+        return Minecraft.getInstance().getTextureManager().register("file_" + System.currentTimeMillis(), new DynamicTexture(nativeImage));
     }
 }

@@ -24,19 +24,19 @@ public class ClientSyncAbilityCreators {
 
     public ClientSyncAbilityCreators(PacketBuffer buf) {
         this.entityId = buf.readInt();
-        this.id = buf.readString(32767);
-        this.jsonObject = new JsonParser().parse(buf.readString(999999)).getAsJsonObject();
+        this.id = buf.readUtf(32767);
+        this.jsonObject = new JsonParser().parse(buf.readUtf(999999)).getAsJsonObject();
     }
 
     public void toBytes(PacketBuffer buf) {
         buf.writeInt(this.entityId);
-        buf.writeString(this.id);
-        buf.writeString(this.jsonObject.toString());
+        buf.writeUtf(this.id);
+        buf.writeUtf(this.jsonObject.toString());
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            Entity entity = net.minecraft.client.Minecraft.getInstance().world.getEntityByID(this.entityId);
+            Entity entity = net.minecraft.client.Minecraft.getInstance().level.getEntity(this.entityId);
 
             if (entity instanceof AbstractClientPlayerEntity) {
                 entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {

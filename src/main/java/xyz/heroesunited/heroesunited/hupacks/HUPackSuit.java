@@ -31,7 +31,7 @@ public class HUPackSuit {
         IResourceManager resourceManager = HUPacks.getInstance().getResourceManager();
         LinkedHashMap<ResourceLocation, JsonObject> suits = Maps.newLinkedHashMap();
 
-        for (ResourceLocation resourcelocation : resourceManager.getAllResourceLocations("husuits", (name) -> name.endsWith(".json") && !name.startsWith("_"))) {
+        for (ResourceLocation resourcelocation : resourceManager.listResources("husuits", (name) -> name.endsWith(".json") && !name.startsWith("_"))) {
             String s = resourcelocation.getPath();
             ResourceLocation id = new ResourceLocation(resourcelocation.getNamespace(), s.substring("husuits/".length(), s.length() - ".json".length()));
 
@@ -62,10 +62,10 @@ public class HUPackSuit {
     }
 
     public static Suit parse(Map.Entry<ResourceLocation, JsonObject> map) {
-        Function<Map.Entry<ResourceLocation, JsonObject>, Suit> function = suitTypes.get(new ResourceLocation(JSONUtils.getString(map.getValue(), "type")));
+        Function<Map.Entry<ResourceLocation, JsonObject>, Suit> function = suitTypes.get(new ResourceLocation(JSONUtils.getAsString(map.getValue(), "type")));
 
         if (function == null) {
-            throw new JsonParseException("The type of a suit '" + JSONUtils.getString(map.getValue(), "type") + "' doesn't exist!");
+            throw new JsonParseException("The type of a suit '" + JSONUtils.getAsString(map.getValue(), "type") + "' doesn't exist!");
         }
 
         Suit suit = function.apply(map);

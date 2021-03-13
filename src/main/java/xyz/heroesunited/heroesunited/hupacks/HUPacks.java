@@ -37,14 +37,14 @@ public class HUPacks {
                 .map(mf -> new ModFileResourcePack(mf.getFile())).collect(Collectors.toMap(ModFileResourcePack::getModFile, Function.identity(), (u, v) -> {
                     throw new IllegalStateException(String.format("Duplicate key %s", u));
                     }, LinkedHashMap::new));
-        hupackFinder.reloadPacksFromFinders();
-        this.hupackFinder.getAllPacks().stream().map(ResourcePackInfo::getResourcePack).collect(Collectors.toList()).forEach(pack -> resourceManager.addResourcePack(pack));
-        modResourcePacks.forEach((file, pack) -> resourceManager.addResourcePack(pack));
+        hupackFinder.reload();
+        this.hupackFinder.getAvailablePacks().stream().map(ResourcePackInfo::open).collect(Collectors.toList()).forEach(pack -> resourceManager.add(pack));
+        modResourcePacks.forEach((file, pack) -> resourceManager.add(pack));
         HUPackSuit.init();
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             if(Minecraft.getInstance() != null){
-                ((IReloadableResourceManager) Minecraft.getInstance().getResourceManager()).addReloadListener(new HUPackLayers());
-                Minecraft.getInstance().getResourcePackList().addPackFinder(new HUPackFinder());
+                ((IReloadableResourceManager) Minecraft.getInstance().getResourceManager()).registerReloadListener(new HUPackLayers());
+                Minecraft.getInstance().getResourcePackRepository().addPackFinder(new HUPackFinder());
             }
         });
     }
@@ -65,7 +65,7 @@ public class HUPacks {
     public static class HUPackFinder implements IPackFinder {
 
         @Override
-        public void findPacks(Consumer<ResourcePackInfo> infoConsumer, ResourcePackInfo.IFactory infoFactory) {
+        public void loadPacks(Consumer<ResourcePackInfo> infoConsumer, ResourcePackInfo.IFactory infoFactory) {
             if (!HUPACKS_DIR.exists()) HUPACKS_DIR.mkdirs();
             File[] files = HUPACKS_DIR.listFiles((file) -> {
                 boolean isZip = file.isFile() && file.getName().endsWith(".zip");
@@ -74,9 +74,9 @@ public class HUPacks {
             });
 
             if (files != null) {
-                Arrays.stream(files).map(file -> ResourcePackInfo.createResourcePack("hupack:" + file.getName(), true,
+                Arrays.stream(files).map(file -> ResourcePackInfo.create("hupack:" + file.getName(), true,
                         file.isDirectory() ? () -> new FolderPack(file) : () -> new FilePack(file), infoFactory,
-                        ResourcePackInfo.Priority.TOP, IPackNameDecorator.PLAIN)).filter(Objects::nonNull).forEach(infoConsumer::accept);
+                        ResourcePackInfo.Priority.TOP, IPackNameDecorator.DEFAULT)).filter(Objects::nonNull).forEach(infoConsumer::accept);
             }
         }
 

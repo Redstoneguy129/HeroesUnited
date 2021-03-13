@@ -11,9 +11,9 @@ public class DamageImmunityAbility extends Ability {
     }
 
     public boolean haveImmuneTo(DamageSource source) {
-        JsonArray jsonArray = JSONUtils.getJsonArray(getJsonObject(), "damage_sources");
+        JsonArray jsonArray = JSONUtils.getAsJsonArray(getJsonObject(), "damage_sources");
         for (int i=0; i <jsonArray.size();i++) {
-            if (jsonArray.get(i).equals(source.getDamageType())) {
+            if (jsonArray.get(i).equals(source.getMsgId())) {
                 return true;
             }
         }

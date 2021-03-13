@@ -17,6 +17,6 @@ public class GeckoSuitRenderer extends GeoArmorRenderer<GeckoSuitItem> {
 
     @Override
     public RenderType getRenderType(GeckoSuitItem animatable, float partialTicks, MatrixStack stack, IRenderTypeBuffer renderTypeBuffer, IVertexBuilder vertexBuilder, int packedLightIn, ResourceLocation textureLocation) {
-        return RenderType.getEntityTranslucent(getTextureLocation(animatable));
+        return RenderType.entityTranslucent(getTextureLocation(animatable));
     }
 }

@@ -24,18 +24,18 @@ public class GeckoJsonSuit extends JsonSuit {
 
     @Override
     public void registerItems(IForgeRegistry<Item> e) {
-        JsonObject slots = JSONUtils.getJsonObject(jsonObject, "slots", null);
+        JsonObject slots = JSONUtils.getAsJsonObject(jsonObject, "slots", null);
         if (slots != null) {
-            if (JSONUtils.hasField(slots, "head")) {
+            if (slots.has("head")) {
                 e.register(helmet = createJsonItem(this, EquipmentSlotType.HEAD, slots));
             }
-            if (JSONUtils.hasField(slots, "chest")) {
+            if (slots.has("chest")) {
                 e.register(chestplate = createJsonItem(this, EquipmentSlotType.CHEST, slots));
             }
-            if (JSONUtils.hasField(slots, "legs")) {
+            if (slots.has("legs")) {
                 e.register(legs = createJsonItem(this, EquipmentSlotType.LEGS, slots));
             }
-            if (JSONUtils.hasField(slots, "feet")) {
+            if (slots.has("feet")) {
                 e.register(boots = createJsonItem(this, EquipmentSlotType.FEET, slots));
             }
         } else {
@@ -47,11 +47,11 @@ public class GeckoJsonSuit extends JsonSuit {
     }
 
     protected GeckoSuitItem createJsonItem(GeckoJsonSuit suit, EquipmentSlotType slot) {
-        return (GeckoSuitItem) new GeckoSuitItem(suit.getSuitMaterial(), slot, new Item.Properties().maxStackSize(1).group(suit.getItemGroup()), suit).setRegistryName(suit.getRegistryName().getNamespace(), suit.getRegistryName().getPath() + "_" + slot.getName().toLowerCase());
+        return (GeckoSuitItem) new GeckoSuitItem(suit.getSuitMaterial(), slot, new Item.Properties().stacksTo(1).tab(suit.getItemGroup()), suit).setRegistryName(suit.getRegistryName().getNamespace(), suit.getRegistryName().getPath() + "_" + slot.getName().toLowerCase());
     }
 
     protected GeckoSuitItem createJsonItem(GeckoJsonSuit suit, EquipmentSlotType slot, JsonObject slots) {
-        return (GeckoSuitItem) new GeckoSuitItem(suit.getSuitMaterial(), slot, new Item.Properties().maxStackSize(1).group(suit.getItemGroup()), suit).setRegistryName(suit.getRegistryName().getNamespace(), suit.getRegistryName().getPath() + "_" + JSONUtils.getString(slots, slot.getName().toLowerCase()));
+        return (GeckoSuitItem) new GeckoSuitItem(suit.getSuitMaterial(), slot, new Item.Properties().stacksTo(1).tab(suit.getItemGroup()), suit).setRegistryName(suit.getRegistryName().getNamespace(), suit.getRegistryName().getPath() + "_" + JSONUtils.getAsString(slots, slot.getName().toLowerCase()));
     }
 
 

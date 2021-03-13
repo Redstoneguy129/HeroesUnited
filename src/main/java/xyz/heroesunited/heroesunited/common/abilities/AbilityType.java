@@ -37,7 +37,7 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
     }
 
     public ITextComponent getDisplayName() {
-        return new TranslationTextComponent(Util.makeTranslationKey("ability", this.getRegistryName()));
+        return new TranslationTextComponent(Util.makeDescriptionId("ability", this.getRegistryName()));
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

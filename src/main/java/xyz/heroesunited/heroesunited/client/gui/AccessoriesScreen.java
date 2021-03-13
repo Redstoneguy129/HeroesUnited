@@ -25,22 +25,18 @@ public class AccessoriesScreen extends ContainerScreen<AccessoriesContainer> {
         SnowWidget.drawSnowOnScreen(matrix, this.width, this.height);
         this.renderBackground(matrix);
         super.render(matrix, mouseX, mouseY, partialTicks);
-        this.renderHoveredTooltip(matrix, mouseX, mouseY);
+        this.renderTooltip(matrix, mouseX, mouseY);
         this.oldMouseX = (float) mouseX;
         this.oldMouseY = (float) mouseY;
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) {
-    }
-
-    @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int x, int y) {
-        int i = this.guiLeft;
-        int j = this.guiTop;
+    protected void renderBg(MatrixStack matrixStack, float partialTicks, int x, int y) {
+        int i = this.getGuiLeft();
+        int j = this.getGuiTop();
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bindTexture(INVENTORY_GUI_TEXTURE);
-        this.blit(matrixStack, i, j, 0, 0, this.xSize, this.ySize);
-        InventoryScreen.drawEntityOnScreen(i + 51, j + 75, 30, (float) (i + 51) - this.oldMouseX, (float) (j + 75 - 50) - this.oldMouseY, this.minecraft.player);
+        this.minecraft.getTextureManager().bind(INVENTORY_GUI_TEXTURE);
+        this.blit(matrixStack, i, j, 0, 0, this.getXSize(), this.getYSize());
+        InventoryScreen.renderEntityInInventory(i + 51, j + 75, 30, (float) (i + 51) - this.oldMouseX, (float) (j + 75 - 50) - this.oldMouseY, this.minecraft.player);
     }
 }

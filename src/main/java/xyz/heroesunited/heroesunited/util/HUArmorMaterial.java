@@ -29,28 +29,28 @@ public class HUArmorMaterial implements IArmorMaterial {
     }
 
     @Override
-    public int getDurability(EquipmentSlotType slotIn) {
+    public int getDurabilityForSlot(EquipmentSlotType slotIn) {
         return MAX_DAMAGE_ARRAY[slotIn.getIndex()] * this.maxDamageFactor;
     }
 
     @Override
-    public int getDamageReductionAmount(EquipmentSlotType slotIn) {
+    public int getDefenseForSlot(EquipmentSlotType slotIn) {
         return this.damageReductionAmountArray[slotIn.getIndex()];
     }
 
     @Override
-    public int getEnchantability() {
-        return this.enchantability;
+    public int getEnchantmentValue() {
+        return enchantability;
     }
 
     @Override
-    public SoundEvent getSoundEvent() {
-        return this.soundEvent;
+    public SoundEvent getEquipSound() {
+        return soundEvent;
     }
 
     @Override
-    public Ingredient getRepairMaterial() {
-        return this.repairMaterial;
+    public Ingredient getRepairIngredient() {
+        return repairMaterial;
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -44,7 +44,7 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
     }
 
     @Override
-    public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
 
         GeoModel model = modelProvider.getModel(modelProvider.getModelLocation(currentAbility));
         AnimationEvent itemEvent = new AnimationEvent(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.player));
@@ -55,12 +55,12 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
         } else {
             matrixStackIn.translate(0.0D, 1.5F, 0.0D);
             matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
-            matrixStackIn.push();
-            Minecraft.getInstance().textureManager.bindTexture(getTextureLocation(currentAbility));
+            matrixStackIn.pushPose();
+            Minecraft.getInstance().textureManager.bind(getTextureLocation(currentAbility));
             Color renderColor = getRenderColor(currentAbility, 0, matrixStackIn, null, bufferIn, packedLightIn);
             RenderType renderType = getRenderType(currentAbility, 0, matrixStackIn, null, bufferIn, packedLightIn, getTextureLocation(currentAbility));
             render(model, currentAbility, 0, renderType, matrixStackIn, null, bufferIn, packedLightIn, OverlayTexture.NO_OVERLAY, (float) renderColor.getRed() / 255f, (float) renderColor.getGreen() / 255f, (float) renderColor.getBlue() / 255f, (float) renderColor.getAlpha() / 255);
-            matrixStackIn.pop();
+            matrixStackIn.popPose();
             matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
             matrixStackIn.translate(0.0D, -1.5F, 0.0D);
         }
@@ -68,7 +68,7 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
 
     @Override
     public void renderRecursively(GeoBone bone, MatrixStack stack, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        stack.push();
+        stack.pushPose();
         RenderUtils.translate(bone, stack);
         RenderUtils.moveToPivot(bone, stack);
         RenderUtils.rotate(bone, stack);
@@ -77,9 +77,9 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
 
         if (!bone.isHidden) {
             for (GeoCube cube : bone.childCubes) {
-                stack.push();
+                stack.pushPose();
                 renderCube(cube, stack, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
-                stack.pop();
+                stack.popPose();
             }
             for (GeoBone childBone : bone.childBones) {
                 if (armorBones.contains(childBone.name)) {
@@ -89,7 +89,7 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
                 }
             }
         }
-        stack.pop();
+        stack.popPose();
     }
 
     private void renderBone(String str, MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
@@ -99,20 +99,20 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
         matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
         matrixStackIn.translate(0.0D, -1.5F, 0.0D);
 
-        matrixStackIn.push();
-        if (currentAbility.copyPos()) matrixStackIn.translate(from.rotationPointX / 16.0F, from.rotationPointY / 16.0F, from.rotationPointZ / 16.0F);
+        matrixStackIn.pushPose();
+        if (currentAbility.copyPos()) matrixStackIn.translate(from.xRot / 16.0F, from.yRot / 16.0F, from.zRot / 16.0F);
         if (currentAbility.copyRotations()) GeoUtils.copyRotations(from, to);
 
         matrixStackIn.translate(0.0D, 1.5F, 0.0D);
         matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
         if (currentAbility.copyPos()) {
-            if (from == bipedRightArm) matrixStackIn.translate(-0.31, 0.13, 0);
-            if (from == bipedLeftArm) matrixStackIn.translate(0.31, 0.13, 0);
-            if (from == bipedRightLeg) matrixStackIn.translate(-0.12, 0.75, 0);
-            if (from == bipedLeftLeg) matrixStackIn.translate(0.12, 0.75, 0);
+            if (from == rightArm) matrixStackIn.translate(-0.31, 0.13, 0);
+            if (from == leftArm) matrixStackIn.translate(0.31, 0.13, 0);
+            if (from == rightLeg) matrixStackIn.translate(-0.12, 0.75, 0);
+            if (from == leftLeg) matrixStackIn.translate(0.12, 0.75, 0);
         }
         renderRecursively(to, matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
-        matrixStackIn.pop();
+        matrixStackIn.popPose();
 
         matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
         matrixStackIn.translate(0.0D, -1.5F, 0.0D);
@@ -121,39 +121,39 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
     public ModelRenderer getModelRendererById(String name) {
         switch (name) {
             case "armorHead":
-                return this.bipedHead;
+                return this.head;
             case "armorBody":
-                return this.bipedBody;
+                return this.body;
             case "armorRightArm":
-                return this.bipedRightArm;
+                return this.rightArm;
             case "armorLeftArm":
-                return this.bipedLeftArm;
+                return this.leftArm;
             case "armorRightLeg":
             case "armorRightBoot":
-                return this.bipedRightLeg;
+                return this.rightLeg;
             case "armorLeftLeg":
             case "armorLeftBoot":
-                return this.bipedLeftLeg;
+                return this.leftLeg;
             default:
                 return null;
         }
     }
 
     public void renderFirstPersonArm(T ability, PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side) {
-        this.swingProgress = 0.0F;
-        this.isSneak = false;
-        this.swimAnimation = 0.0F;
+        this.attackTime = 0.0F;
+        this.crouching = false;
+        this.swimAmount = 0.0F;
         matrix.translate(0.0D, 1.5F, 0.0D);
         matrix.scale(-1.0F, -1.0F, 1.0F);
         AnimationEvent itemEvent = new AnimationEvent(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.player));
         modelProvider.setLivingAnimations(currentAbility, this.getUniqueID(this.currentAbility), itemEvent);
-        matrix.push();
-        Minecraft.getInstance().textureManager.bindTexture(getTextureLocation(currentAbility));
+        matrix.pushPose();
+        Minecraft.getInstance().textureManager.bind(getTextureLocation(currentAbility));
         GeoBone bone = (GeoBone) this.getGeoModelProvider().getAnimationProcessor().getBone(side == HandSide.LEFT ? "armorLeftArm" : "armorRightArm");
         if (bone != null) {
-            this.renderRecursively(bone, matrix, bufferIn.getBuffer(RenderType.getEntityTranslucent(this.getTextureLocation(ability))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+            this.renderRecursively(bone, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(this.getTextureLocation(ability))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
         }
-        matrix.pop();
+        matrix.popPose();
         matrix.scale(-1.0F, -1.0F, 1.0F);
         matrix.translate(0.0D, -1.5F, 0.0D);
     }
@@ -172,12 +172,12 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
         this.player = player;
         this.currentAbility = ability;
         this.name = name;
-        from.setModelAttributes(this);
+        from.copyPropertiesTo(this);
     }
 
     @Override
     public RenderType getRenderType(T animatable, float partialTicks, MatrixStack stack, IRenderTypeBuffer renderTypeBuffer, IVertexBuilder vertexBuilder, int packedLightIn, ResourceLocation textureLocation) {
-        return RenderType.getEntityTranslucent(getTextureLocation(animatable));
+        return RenderType.entityTranslucent(getTextureLocation(animatable));
     }
 
     public AbstractClientPlayerEntity getPlayer() {
@@ -186,6 +186,6 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
 
     @Override
     public Integer getUniqueID(T animatable) {
-        return Objects.hash(currentAbility instanceof Ability ? ((Ability)currentAbility).type : 1, name, this.player.getUniqueID().toString());
+        return Objects.hash(currentAbility instanceof Ability ? ((Ability)currentAbility).type : 1, name, this.player.getStringUUID());
     }
 }

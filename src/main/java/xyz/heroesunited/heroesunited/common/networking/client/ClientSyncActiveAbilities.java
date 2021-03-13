@@ -32,8 +32,8 @@ public class ClientSyncActiveAbilities {
         int amount = buf.readInt();
         this.abilities = Maps.newHashMap();
         for (int i = 0; i < amount; i++) {
-            String id = buf.readString(32767);
-            CompoundNBT nbt = buf.readCompoundTag();
+            String id = buf.readUtf(32767);
+            CompoundNBT nbt = buf.readNbt();
             Ability ability = AbilityType.ABILITIES.getValue(new ResourceLocation(nbt.getString("AbilityType"))).create(id);
             ability.deserializeNBT(nbt);
             if (nbt.contains("JsonObject")) {
@@ -48,15 +48,15 @@ public class ClientSyncActiveAbilities {
         buf.writeInt(this.abilities.size());
 
         this.abilities.forEach((id, a) -> {
-            buf.writeString(id);
-            buf.writeCompoundTag(a.serializeNBT());
+            buf.writeUtf(id);
+            buf.writeNbt(a.serializeNBT());
         });
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             Minecraft mc = Minecraft.getInstance();
-            Entity entity = mc.world.getEntityByID(this.entityId);
+            Entity entity = mc.level.getEntity(this.entityId);
 
             if (entity instanceof AbstractClientPlayerEntity) {
                 entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((a) -> {

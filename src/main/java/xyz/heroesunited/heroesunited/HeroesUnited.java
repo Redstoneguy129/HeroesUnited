@@ -100,7 +100,6 @@ public class HeroesUnited {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         CapabilityManager.INSTANCE.register(IHUPlayer.class, new HUPlayerStorage(), () -> new HUPlayer(null));
-        event.enqueueWork(HUAttributes::registerAttributes);
         HUNetworking.registerMessages();
 
         LOGGER.info(MODID + ": common is ready!");
@@ -113,7 +112,7 @@ public class HeroesUnited {
         ClientRegistry.registerEntityShader(Horas.class, new ResourceLocation(MODID, "shaders/post/horas.json"));
         RenderingRegistry.registerEntityRenderingHandler(HUEntities.HORAS, RendererHoras::new);
         GeoArmorRenderer.registerArmorRenderer(GeckoSuitItem.class, new GeckoSuitRenderer());
-        ScreenManager.registerFactory(HUContainers.ACCESSORIES, AccessoriesScreen::new);
+        ScreenManager.register(HUContainers.ACCESSORIES, AccessoriesScreen::new);
 
         new HorasInfo.DimensionInfo("Overworld", "Default      Dimension", new ResourceLocation("overworld"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/overworld.png"));
         new HorasInfo.DimensionInfo("Nether", "Default      Dimension", new ResourceLocation("the_nether"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/the_nether.png"));

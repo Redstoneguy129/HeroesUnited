@@ -27,7 +27,7 @@ archivesBaseName = "heroesunited"
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
-    mappings channel: 'snapshot', version: "$project.mappings_version"
+    mappings channel: 'official', version: "$project.minecraft_version"
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     runs {
         client {

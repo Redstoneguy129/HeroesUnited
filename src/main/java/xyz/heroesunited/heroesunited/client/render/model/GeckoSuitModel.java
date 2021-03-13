@@ -10,16 +10,16 @@ public class GeckoSuitModel<T extends GeckoSuitItem> extends AnimatedGeoModel<T>
     @Override
     public ResourceLocation getModelLocation(T item) {
         ResourceLocation res = new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "geo/" + item.getSuit().getRegistryName().getPath() + ".geo.json");
-        return item.getSuit().getJsonObject() != null ? new ResourceLocation(JSONUtils.getString(item.getSuit().getJsonObject(), "model", res.toString())) : res;
+        return item.getSuit().getJsonObject() != null ? new ResourceLocation(JSONUtils.getAsString(item.getSuit().getJsonObject(), "model", res.toString())) : res;
     }
 
     @Override
     public ResourceLocation getTextureLocation(T item) {
         if (item.getSuit().getJsonObject() != null && item.getSuit().getJsonObject().has("texture")) {
-            if (JSONUtils.getString(item.getSuit().getJsonObject(), "texture").equals("player")) {
-                return Minecraft.getInstance().player.getLocationSkin();
+            if (JSONUtils.getAsString(item.getSuit().getJsonObject(), "texture").equals("player")) {
+                return Minecraft.getInstance().player.getSkinTextureLocation();
             } else {
-                return new ResourceLocation(JSONUtils.getString(item.getSuit().getJsonObject(), "texture"));
+                return new ResourceLocation(JSONUtils.getAsString(item.getSuit().getJsonObject(), "texture"));
             }
         } else return new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "textures/suits/" + item.getSuit().getRegistryName().getPath() + ".png");
     }

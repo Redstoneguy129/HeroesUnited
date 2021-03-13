@@ -16,32 +16,32 @@ import xyz.heroesunited.heroesunited.client.events.HURenderLayerEvent;
 public interface IRendererArmorLayer<T extends LivingEntity, M extends BipedModel<T>, A extends BipedModel<T>> {
 
     default void setModelSlotVisible(A modelIn, EquipmentSlotType slotIn) {
-        modelIn.setVisible(false);
+        modelIn.setAllVisible(false);
         switch(slotIn) {
             case HEAD:
-                modelIn.bipedHead.showModel = true;
-                modelIn.bipedHeadwear.showModel = true;
+                modelIn.head.visible = true;
+                modelIn.hat.visible = true;
                 break;
             case CHEST:
-                modelIn.bipedBody.showModel = true;
-                modelIn.bipedRightArm.showModel = true;
-                modelIn.bipedLeftArm.showModel = true;
+                modelIn.body.visible = true;
+                modelIn.rightArm.visible = true;
+                modelIn.leftArm.visible = true;
                 break;
             case LEGS:
-                modelIn.bipedBody.showModel = true;
-                modelIn.bipedRightLeg.showModel = true;
-                modelIn.bipedLeftLeg.showModel = true;
+                modelIn.leftArm.visible = true;
+                modelIn.rightLeg.visible = true;
+                modelIn.leftLeg.visible = true;
                 break;
             case FEET:
-                modelIn.bipedRightLeg.showModel = true;
-                modelIn.bipedLeftLeg.showModel = true;
+                modelIn.rightLeg.visible = true;
+                modelIn.leftLeg.visible = true;
         }
         HURenderLayerEvent.Armor.HUSetArmorPartVisibility event = new HURenderLayerEvent.Armor.HUSetArmorPartVisibility(modelIn, slotIn);
         MinecraftForge.EVENT_BUS.post(event);
     }
 
     default void renderArmor(MatrixStack matrix, IRenderTypeBuffer buffer, int packedlightIn, boolean withGlint, A model, float red, float green, float blue, ResourceLocation armorResource) {
-        IVertexBuilder ivertexbuilder = ItemRenderer.getArmorVertexBuilder(buffer, RenderType.getEntityTranslucent(armorResource), false, withGlint);
-        model.render(matrix, ivertexbuilder, packedlightIn, OverlayTexture.NO_OVERLAY, red, green, blue, 1.0F);
+        IVertexBuilder ivertexbuilder = ItemRenderer.getArmorFoilBuffer(buffer, RenderType.entityTranslucent(armorResource), false, withGlint);
+        model.renderToBuffer(matrix, ivertexbuilder, packedlightIn, OverlayTexture.NO_OVERLAY, red, green, blue, 1.0F);
     }
 }

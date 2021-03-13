@@ -18,7 +18,7 @@ public class RendererHoras extends BipedRenderer<Horas, ModelHoras> {
     }
 
     @Override
-    public ResourceLocation getEntityTexture(Horas entity) {
+    public ResourceLocation getTextureLocation(Horas entity) {
         return new ResourceLocation(HeroesUnited.MODID, "textures/entity/horas" + (HUCalendarHelper.isSnowTime() ? "_new_year.png" : ".png"));
     }
 }

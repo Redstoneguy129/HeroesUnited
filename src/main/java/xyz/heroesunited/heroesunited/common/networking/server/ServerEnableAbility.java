@@ -24,13 +24,13 @@ public class ServerEnableAbility {
     }
 
     public ServerEnableAbility(PacketBuffer buf) {
-        this.id = buf.readString(32767);
-        this.data = buf.readCompoundTag();
+        this.id = buf.readUtf(32767);
+        this.data = buf.readNbt();
     }
 
     public void toBytes(PacketBuffer buf) {
-        buf.writeString(this.id);
-        buf.writeCompoundTag(this.data);
+        buf.writeUtf(this.id);
+        buf.writeNbt(this.data);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {

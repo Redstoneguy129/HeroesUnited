@@ -24,21 +24,21 @@ public class ClientSetAnimation {
 
     public ClientSetAnimation(PacketBuffer buffer) {
         this.entityId = buffer.readInt();
-        this.name = buffer.readString(32767);
-        this.animationFile = new ResourceLocation(buffer.readString(32767));
+        this.name = buffer.readUtf(32767);
+        this.animationFile = new ResourceLocation(buffer.readUtf(32767));
         this.loop = buffer.readBoolean();
     }
 
     public void toBytes(PacketBuffer buffer) {
         buffer.writeInt(this.entityId);
-        buffer.writeString(this.name);
-        buffer.writeString(this.animationFile.toString());
+        buffer.writeUtf(this.name);
+        buffer.writeUtf(this.animationFile.toString());
         buffer.writeBoolean(this.loop);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() ->
-                Minecraft.getInstance().world.getEntityByID(this.entityId).getCapability(HUPlayerProvider.CAPABILITY)
+                Minecraft.getInstance().level.getEntity(this.entityId).getCapability(HUPlayerProvider.CAPABILITY)
                         .ifPresent(cap -> cap.setAnimation(this.name, this.animationFile, this.loop)));
         ctx.get().setPacketHandled(true);
     }

@@ -26,35 +26,35 @@ public class HorasItem extends Item {
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        ItemStack itemstack = playerIn.getHeldItem(handIn);
-        RayTraceResult rtr = rayTrace(worldIn, playerIn, RayTraceContext.FluidMode.SOURCE_ONLY);
-        if (rtr.getType() != RayTraceResult.Type.BLOCK && !worldIn.isRemote) {
-            BlockPos pos = ((BlockRayTraceResult) rtr).getPos();
-            if (worldIn.isBlockModifiable(playerIn, pos) && playerIn.canPlayerEdit(pos, ((BlockRayTraceResult) rtr).getFace(), itemstack)) {
+    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
+        ItemStack itemstack = playerIn.getItemInHand(handIn);
+        RayTraceResult rtr = getPlayerPOVHitResult(worldIn, playerIn, RayTraceContext.FluidMode.SOURCE_ONLY);
+        if (rtr.getType() != RayTraceResult.Type.BLOCK && !worldIn.isClientSide) {
+            BlockPos pos = ((BlockRayTraceResult) rtr).getBlockPos();
+            if (worldIn.mayInteract(playerIn, pos) && playerIn.mayUseItemAt(pos, ((BlockRayTraceResult) rtr).getDirection(), itemstack)) {
                 if (HUEntities.HORAS.spawn((ServerWorld) worldIn, itemstack, playerIn, pos, SpawnReason.SPAWN_EGG, false, false) == null) {
-                    return ActionResult.resultPass(itemstack);
+                    return ActionResult.pass(itemstack);
                 } else {
                     itemstack.shrink(1);
-                    playerIn.addStat(Stats.ITEM_USED.get(this));
-                    return ActionResult.resultConsume(itemstack);
+                    playerIn.awardStat(Stats.ITEM_USED.get(this));
+                    return ActionResult.consume(itemstack);
                 }
             } else {
-                return ActionResult.resultFail(itemstack);
+                return ActionResult.fail(itemstack);
             }
         } else {
-            return ActionResult.resultSuccess(itemstack);
+            return ActionResult.success(itemstack);
         }
     }
 
     @Override
-    public ActionResultType onItemUse(ItemUseContext context) {
-        World world = context.getWorld();
-        if (!world.isRemote) {
-            ItemStack itemstack = context.getItem();
-            BlockPos pos = context.getPos();
-            Direction direction = context.getFace();
-            BlockPos pos1 = world.getBlockState(pos).getCollisionShape(world, pos).isEmpty() ? pos : pos.offset(direction);
+    public ActionResultType useOn(ItemUseContext context) {
+        World world = context.getLevel();
+        if (!world.isClientSide) {
+            ItemStack itemstack = context.getItemInHand();
+            BlockPos pos = context.getClickedPos();
+            Direction direction = context.getClickedFace();
+            BlockPos pos1 = world.getBlockState(pos).getCollisionShape(world, pos).isEmpty() ? pos : pos.offset(direction.getNormal());
             if (HUEntities.HORAS.spawn((ServerWorld) world, itemstack, context.getPlayer(), pos1, SpawnReason.SPAWN_EGG, true, !Objects.equals(pos, pos1) && direction == Direction.UP) != null) {
                 itemstack.shrink(1);
             }

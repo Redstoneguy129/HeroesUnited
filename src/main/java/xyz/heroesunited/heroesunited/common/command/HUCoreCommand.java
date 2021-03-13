@@ -28,23 +28,23 @@ import java.util.Iterator;
 import java.util.List;
 
 public class HUCoreCommand {
-    private static final SuggestionProvider<CommandSource> SUGGEST_SUPERPOWERS = (context, builder) -> ISuggestionProvider.func_212476_a(HUPackSuperpowers.getSuperpowers().values().stream().map(Superpower::getRegistryName), builder);
-    private static final SuggestionProvider<CommandSource> SUGGEST_SUITS = (context, builder) -> ISuggestionProvider.func_212476_a(Suit.SUITS.values().stream().map(Suit::getRegistryName), builder);
+    private static final SuggestionProvider<CommandSource> SUGGEST_SUPERPOWERS = (context, builder) -> ISuggestionProvider.suggestResource(HUPackSuperpowers.getSuperpowers().values().stream().map(Superpower::getRegistryName), builder);
+    private static final SuggestionProvider<CommandSource> SUGGEST_SUITS = (context, builder) -> ISuggestionProvider.suggestResource(Suit.SUITS.values().stream().map(Suit::getRegistryName), builder);
     public static final DynamicCommandExceptionType DIDNT_EXIST = new DynamicCommandExceptionType((object) -> new TranslationTextComponent("commands.heroesunited.DidntExist", object));
 
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
-        dispatcher.register(Commands.literal("heroesunited").requires((player) -> player.hasPermissionLevel(2))
+        dispatcher.register(Commands.literal("heroesunited").requires((player) -> player.hasPermission(2))
                 .then(Commands.literal("slowmo").then(Commands.argument("enable", FloatArgumentType.floatArg()).executes((c) -> setSlowMotion(c.getSource(), FloatArgumentType.getFloat(c, "enable")))))
                 .then(Commands.literal("suit")
                         .then(Commands.argument("players", EntityArgument.players())
-                                .then(Commands.argument("suit", ResourceLocationArgument.resourceLocation()).suggests(SUGGEST_SUITS)
+                                .then(Commands.argument("suit", ResourceLocationArgument.id()).suggests(SUGGEST_SUITS)
                                         .executes((c) -> setSuit(c.getSource(), EntityArgument.getPlayers(c, "players"), getSuit(c, "suit"))))))
                 .then(Commands.literal("ability")
                         .then(Commands.argument("players", EntityArgument.players())
                                 .then(Commands.literal("disable").executes(c -> disableAbility(c.getSource(), EntityArgument.getPlayers(c, "players"))))))
                 .then(Commands.literal("superpower")
                         .then(Commands.argument("players", EntityArgument.players())
-                                .then(Commands.argument("superpower", ResourceLocationArgument.resourceLocation()).suggests(SUGGEST_SUPERPOWERS)
+                                .then(Commands.argument("superpower", ResourceLocationArgument.id()).suggests(SUGGEST_SUPERPOWERS)
                                         .executes((c) -> setSuperpower(c.getSource(), EntityArgument.getPlayers(c, "players"), getSuperpower(c, "superpower"))))
                                 .then(Commands.literal("remove").executes(c -> removeSuperpower(c.getSource(), EntityArgument.getPlayers(c, "players"))))
                         ))
@@ -52,14 +52,14 @@ public class HUCoreCommand {
     }
 
     private static int setSlowMotion(CommandSource commandSource, float speed) {
-        List<ServerPlayerEntity> players = commandSource.getWorld().getPlayers();
+        List<ServerPlayerEntity> players = commandSource.getLevel().getPlayers(s -> true);
         for (ServerPlayerEntity player : players) {
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((k) -> {
                 k.setSlowMoSpeed(speed);
                 k.syncToAll();
             });
         }
-        commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.slow_mo", speed), true);
+        commandSource.sendSuccess(new TranslationTextComponent("commands.heroesunited.slow_mo", speed), true);
         return players.size();
     }
 
@@ -76,9 +76,9 @@ public class HUCoreCommand {
                 i++;
         }
         if (i == 1)
-            commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.superpower.set.single", (players.iterator().next()).getDisplayName(), superpower.getDisplayName()), true);
+            commandSource.sendSuccess(new TranslationTextComponent("commands.heroesunited.superpower.set.single", (players.iterator().next()).getDisplayName(), superpower.getDisplayName()), true);
         else
-            commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.superpower.set.multiple", i, superpower.getDisplayName()), true);
+            commandSource.sendSuccess(new TranslationTextComponent("commands.heroesunited.superpower.set.multiple", i, superpower.getDisplayName()), true);
         return players.size();
     }
 
@@ -95,9 +95,9 @@ public class HUCoreCommand {
                 i++;
         }
         if (i == 1)
-            commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.superpower.removed", (players.iterator().next()).getDisplayName()), true);
+            commandSource.sendSuccess(new TranslationTextComponent("commands.heroesunited.superpower.removed", (players.iterator().next()).getDisplayName()), true);
         else
-            commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.superpower.removed.multiple", i), true);
+            commandSource.sendSuccess(new TranslationTextComponent("commands.heroesunited.superpower.removed.multiple", i), true);
         return players.size();
     }
 
@@ -121,7 +121,7 @@ public class HUCoreCommand {
                 a.syncToAll();
             });
         }
-        commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.ability.disabled"), true);
+        commandSource.sendSuccess(new TranslationTextComponent("commands.heroesunited.ability.disabled"), true);
 
         return players.size();
     }
@@ -142,12 +142,12 @@ public class HUCoreCommand {
             ServerPlayerEntity pl = (ServerPlayerEntity) iterator.next();
             HUPlayerUtil.setSuitForPlayer(pl, suit);
         }
-        TranslationTextComponent display = new TranslationTextComponent(Util.makeTranslationKey("suits", suit.getRegistryName()));
+        TranslationTextComponent display = new TranslationTextComponent(Util.makeDescriptionId("suits", suit.getRegistryName()));
 
         if (players.size() == 1)
-            commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.suit.set.single", (players.iterator().next()).getDisplayName(), display), true);
+            commandSource.sendSuccess(new TranslationTextComponent("commands.heroesunited.suit.set.single", (players.iterator().next()).getDisplayName(), display), true);
         else
-            commandSource.sendFeedback(new TranslationTextComponent("commands.heroesunited.suit.set.multiple", display), true);
+            commandSource.sendSuccess(new TranslationTextComponent("commands.heroesunited.suit.set.multiple", display), true);
         return players.size();
     }
 }

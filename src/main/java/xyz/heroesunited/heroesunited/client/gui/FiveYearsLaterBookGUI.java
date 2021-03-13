@@ -15,39 +15,8 @@ import java.net.URISyntaxException;
 
 public class FiveYearsLaterBookGUI extends Screen {
 
-    public enum Page {
-        COVER("cover"),
-        P1("p1"),
-        P2("p2"),
-        P3("p3"),
-        P4("p4"),
-        P5("p5"),
-        P6("p6"),
-        P7("p7");
-
-        private final ResourceLocation texture;
-
-        Page(String name) {
-            this.texture = new ResourceLocation(HeroesUnited.MODID, String.format("textures/gui/comic/5yl%s.png", name));
-        }
-
-        public ResourceLocation getTexture() {
-            return this.texture;
-        }
-
-        public static Page getPage(int page) {
-            Page foundPage;
-            try {
-                foundPage = Page.values()[page];
-            } catch (ArrayIndexOutOfBoundsException e) {
-                foundPage = COVER;
-            }
-            return foundPage;
-        }
-    }
-
-    private int xCanvas;
-    private int yCanvas;
+    private String[] pages = new String[]{"cover", "p1", "p2", "p3", "p4", "p5", "p6", "p7"};
+    private int xSize, ySize;
     private int pageNum = 0;
 
     public FiveYearsLaterBookGUI() {
@@ -62,37 +31,38 @@ public class FiveYearsLaterBookGUI extends Screen {
     @Override
     public void init() {
         super.init();
+        this.xSize = (width - 200) / 2;
+        this.ySize = (height - 260) / 2;
     }
 
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         SnowWidget.drawSnowOnScreen(matrixStack, this.width, this.height);
         this.renderBackground(matrixStack);
-        matrixStack.push();
-        Page page = Page.getPage(pageNum);
-        this.xCanvas = (width - 200) / 2;
-        this.yCanvas = (height - 260) / 2;
-        this.getMinecraft().getTextureManager().bindTexture(page.getTexture());
-        blit(matrixStack, xCanvas, yCanvas, 0, 0, 200, 260, 200, 260);
-        this.buttons.clear();
-        this.addButton(new Button(xCanvas - 20, yCanvas, 20, 20, new TranslationTextComponent("<"), p_onPress_1_ -> backPage()));
-        this.addButton(new Button(xCanvas + 200, yCanvas, 20, 20, new TranslationTextComponent(">"), p_onPress_1_ -> nextPage()));
-        if (pageNum == Page.values().length - 1) {
-            this.addButton(new Button(xCanvas + 25, yCanvas + (260 / 2) + 50, 150, 20, new TranslationTextComponent("Check Out The 5YL Comic!"), p_onPress_1_ -> goTo5YLPage()));
+        String page;
+        try {
+            page = pages[pageNum];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            page = pages[0];
         }
-        matrixStack.pop();
+        matrixStack.pushPose();
+        this.minecraft.getTextureManager().bind(new ResourceLocation(HeroesUnited.MODID, String.format("textures/gui/comic/5yl%s.png", page)));
+        blit(matrixStack, xSize, ySize, 0, 0, 200, 260, 200, 260);
+        this.buttons.clear();
+        this.addButton(new Button(xSize - 20, ySize, 20, 20, new TranslationTextComponent("<"), b -> backPage()));
+        this.addButton(new Button(xSize + 200, ySize, 20, 20, new TranslationTextComponent(">"), b -> nextPage()));
+        if (pageNum == pages.length - 1) {
+            this.addButton(new Button(xSize + 25, ySize + (260 / 2) + 50, 150, 20, new TranslationTextComponent("Check Out The 5YL Comic!"), b -> minecraft.setScreen(new ConfirmOpenLinkScreen(this::confirmCallback, "https://www.theinktank.co/5yearslater", true))));
+        }
+        matrixStack.popPose();
         super.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
-    private void goTo5YLPage() {
-        this.getMinecraft().displayGuiScreen(new ConfirmOpenLinkScreen(this::confirmCallback, "https://www.theinktank.co/5yearslater", true));
-    }
-
     private void confirmCallback(boolean will) {
-        this.getMinecraft().displayGuiScreen(null);
+        this.getMinecraft().setScreen(null);
         if (will) {
             try {
-                Util.getOSType().openURI(new URI("https://www.theinktank.co/5yearslater"));
+                Util.getPlatform().openUri(new URI("https://www.theinktank.co/5yearslater"));
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
@@ -101,7 +71,7 @@ public class FiveYearsLaterBookGUI extends Screen {
 
     private void nextPage() {
         pageNum++;
-        if (pageNum > Page.values().length - 1) {
+        if (pageNum > pages.length - 1) {
             pageNum = 0;
         }
     }
@@ -109,7 +79,7 @@ public class FiveYearsLaterBookGUI extends Screen {
     private void backPage() {
         pageNum -= 1;
         if (pageNum < 0) {
-            pageNum = Page.values().length - 1;
+            pageNum = pages.length - 1;
         }
     }
 }

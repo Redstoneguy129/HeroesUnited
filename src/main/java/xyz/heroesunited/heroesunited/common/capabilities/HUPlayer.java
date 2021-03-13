@@ -52,7 +52,7 @@ public class HUPlayer implements IHUPlayer {
 
         @Override
         public ResourceLocation getTextureLocation(Object o) {
-            return ((ClientPlayerEntity) player).getLocationSkin();
+            return ((ClientPlayerEntity) player).getSkinTextureLocation();
         }
 
         @Override
@@ -81,14 +81,14 @@ public class HUPlayer implements IHUPlayer {
         getController().markNeedsReload();
         getController().setAnimation(new AnimationBuilder().addAnimation(name, loop));
         this.animationFile = null;
-        if (!player.world.isRemote) {
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSetAnimation(player.getEntityId(), name, animationFile, loop));
+        if (!player.level.isClientSide) {
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSetAnimation(player.getId(), name, animationFile, loop));
         }
     }
 
     @Nonnull
     public static IHUPlayer getCap(Entity entity) {
-        entity.recalculateSize();
+        entity.refreshDimensions();
         return entity.getCapability(HUPlayerProvider.CAPABILITY).orElse(null);
     }
 
@@ -110,8 +110,8 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public void setFlying(boolean flying) {
         this.flying = flying;
-        if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getEntityId(), HUTypes.FLYING, flying ? 1 : 0));
+        if (!player.level.isClientSide)
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getId(), HUTypes.FLYING, flying ? 1 : 0));
     }
 
     @Override
@@ -122,8 +122,8 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public void setIntangible(boolean intangible) {
         this.intangible = intangible;
-        if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getEntityId(), HUTypes.INTAGIBLE, intangible ? 1 : 0));
+        if (!player.level.isClientSide)
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getId(), HUTypes.INTAGIBLE, intangible ? 1 : 0));
     }
 
     @Override
@@ -134,8 +134,8 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public void setType(int type) {
         this.type = type;
-        if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getEntityId(), HUTypes.TYPE, type));
+        if (!player.level.isClientSide)
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getId(), HUTypes.TYPE, type));
     }
 
     @Override
@@ -151,15 +151,15 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public void setInTimer(boolean isInTimer) {
         this.isInTimer = isInTimer;
-        if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getEntityId(), HUTypes.IN_TIMER, isInTimer ? 1 : 0));
+        if (!player.level.isClientSide)
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getId(), HUTypes.IN_TIMER, isInTimer ? 1 : 0));
     }
 
     @Override
     public void setTimer(int timer) {
         this.timer = timer;
-        if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getEntityId(), HUTypes.TIMER, timer));
+        if (!player.level.isClientSide)
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getId(), HUTypes.TIMER, timer));
     }
 
     @Override
@@ -170,8 +170,8 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public void setAnimationTimer(int animationTimer) {
         this.animationTimer = animationTimer;
-        if (!player.world.isRemote)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getEntityId(), HUTypes.ANIMATION_TIMER, animationTimer));
+        if (!player.level.isClientSide)
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getId(), HUTypes.ANIMATION_TIMER, animationTimer));
     }
 
     @Override
@@ -180,8 +180,8 @@ public class HUPlayer implements IHUPlayer {
             activeAbilities.put(id, ability);
             ability.name = id;
             ability.onActivated(player);
-            if (!player.world.isRemote)
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncActiveAbilities(player.getEntityId(), this.getActiveAbilities()));
+            if (!player.level.isClientSide)
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncActiveAbilities(player.getId(), this.getActiveAbilities()));
         }
     }
 
@@ -190,8 +190,8 @@ public class HUPlayer implements IHUPlayer {
         if (activeAbilities.containsKey(id)) {
             activeAbilities.get(id).onDeactivated(player);
             activeAbilities.remove(id);
-            if (!player.world.isRemote)
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncActiveAbilities(player.getEntityId(), this.getActiveAbilities()));
+            if (!player.level.isClientSide)
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncActiveAbilities(player.getId(), this.getActiveAbilities()));
         }
     }
 
@@ -206,8 +206,8 @@ public class HUPlayer implements IHUPlayer {
             containedAbilities.put(id, ability);
             ability.name = id;
             syncToAll();
-            if (!player.world.isRemote)
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getEntityId(), this.getAbilities()));
+            if (!player.level.isClientSide)
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getId(), this.getAbilities()));
         }
     }
 
@@ -229,8 +229,8 @@ public class HUPlayer implements IHUPlayer {
             containedAbilities.remove(id);
             disable(id);
             syncToAll();
-            if (!player.world.isRemote)
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getEntityId(), this.getAbilities()));
+            if (!player.level.isClientSide)
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getId(), this.getAbilities()));
         }
     }
 
@@ -280,9 +280,9 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public IHUPlayer sync() {
-        player.recalculateSize();
+        player.refreshDimensions();
         if (player instanceof ServerPlayerEntity) {
-            HUNetworking.INSTANCE.sendTo(new ClientSyncCap(player.getEntityId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            HUNetworking.INSTANCE.sendTo(new ClientSyncCap(player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
         }
         return this;
     }
@@ -290,9 +290,9 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public IHUPlayer syncToAll() {
         this.sync();
-        for (PlayerEntity player : this.player.getEntityWorld().getPlayers()) {
+        for (PlayerEntity player : this.player.level.players()) {
             if (player instanceof ServerPlayerEntity) {
-                HUNetworking.INSTANCE.sendTo(new ClientSyncCap(this.player.getEntityId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+                HUNetworking.INSTANCE.sendTo(new ClientSyncCap(this.player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
             }
         }
         return this;
@@ -309,8 +309,8 @@ public class HUPlayer implements IHUPlayer {
         HUData data = dataList.get(key);
         if (data != null && !data.getValue().equals(value)) {
             data.setValue(value);
-            if (!player.world.isRemote)
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getEntityId(), key, this.serializeNBT()));
+            if (!player.level.isClientSide)
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getId(), key, this.serializeNBT()));
         }
         return this;
     }
@@ -344,7 +344,7 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public AnimationController getController() {
-        return getFactory().getOrCreateAnimationData(player.getUniqueID().hashCode()).getAnimationControllers().get("controller");
+        return getFactory().getOrCreateAnimationData(player.getUUID().hashCode()).getAnimationControllers().get("controller");
     }
 
     @Override
@@ -400,7 +400,7 @@ public class HUPlayer implements IHUPlayer {
 
         CompoundNBT levels = nbt.getCompound("levels");
         superpowerLevels.clear();
-        for (String key: levels.keySet()) {
+        for (String key: levels.getAllKeys()) {
             superpowerLevels.put(new ResourceLocation(key),Level.readFromNBT(levels.getCompound(key)));
         }
 
@@ -450,7 +450,7 @@ public class HUPlayer implements IHUPlayer {
         }
 
         this.activeAbilities.clear();
-        for (String id : activeAbilities.keySet()) {
+        for (String id : activeAbilities.getAllKeys()) {
             CompoundNBT tag = activeAbilities.getCompound(id);
             AbilityType abilityType = AbilityType.ABILITIES.getValue(new ResourceLocation(tag.getString("AbilityType")));
             if (abilityType != null) {
@@ -460,7 +460,7 @@ public class HUPlayer implements IHUPlayer {
             }
         }
         this.containedAbilities.clear();
-        for (String id : abilities.keySet()) {
+        for (String id : abilities.getAllKeys()) {
             CompoundNBT tag = abilities.getCompound(id);
             AbilityType abilityType = AbilityType.ABILITIES.getValue(new ResourceLocation(tag.getString("AbilityType")));
             if (abilityType != null) {

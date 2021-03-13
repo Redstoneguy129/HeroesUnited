@@ -64,7 +64,7 @@ public class HorasInfo {
             this.name = name;
             this.description = description;
             this.entityType = entityType;
-            assert Minecraft.getInstance().world != null;
+            assert Minecraft.getInstance().level != null;
             aliens.add(this);
         }
 
@@ -91,7 +91,7 @@ public class HorasInfo {
             this.name = name;
             this.description = description;
             this.entityType = entityType;
-            assert Minecraft.getInstance().world != null;
+            assert Minecraft.getInstance().level != null;
             evos.add(this);
         }
 
@@ -118,7 +118,7 @@ public class HorasInfo {
             this.name = name;
             this.description = description;
             this.entityType = entityType;
-            assert Minecraft.getInstance().world != null;
+            assert Minecraft.getInstance().level != null;
             ghosts.add(this);
         }
 

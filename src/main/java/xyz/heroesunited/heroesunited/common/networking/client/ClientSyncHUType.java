@@ -22,19 +22,19 @@ public class ClientSyncHUType {
 
     public ClientSyncHUType(PacketBuffer buffer) {
         this.entityId = buffer.readInt();
-        this.data = buffer.readEnumValue(HUTypes.class);
+        this.data = buffer.readEnum(HUTypes.class);
         this.value = buffer.readInt();
     }
 
     public void toBytes(PacketBuffer buffer) {
         buffer.writeInt(this.entityId);
-        buffer.writeEnumValue(this.data);
+        buffer.writeEnum(this.data);
         buffer.writeInt(this.value);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            Entity entity = net.minecraft.client.Minecraft.getInstance().world.getEntityByID(this.entityId);
+            Entity entity = net.minecraft.client.Minecraft.getInstance().level.getEntity(this.entityId);
 
             if (entity instanceof AbstractClientPlayerEntity) {
                 HUTypes.set(entity, this.data, this.value);

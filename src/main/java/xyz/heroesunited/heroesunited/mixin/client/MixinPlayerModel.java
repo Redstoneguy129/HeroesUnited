@@ -16,7 +16,7 @@ import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 @Mixin(PlayerModel.class)
 public class MixinPlayerModel {
 
-    @Inject(at = @At("TAIL"), method = "setRotationAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V")
+    @Inject(at = @At("TAIL"), method = "setupAnim(Lnet/minecraft/entity/LivingEntity;FFFFF)V")
     private void setRotationAngles(LivingEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo callbackInfo) {
         if (entityIn == null || !(entityIn instanceof PlayerEntity)) return;
         MinecraftForge.EVENT_BUS.post(new HUSetRotationAnglesEvent((PlayerEntity) entityIn, (PlayerModel) (Object) this, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch));

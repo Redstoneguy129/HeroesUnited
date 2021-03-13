@@ -21,24 +21,24 @@ public class CommandAbility extends Ability implements ICommandSource {
 
     @Override
     public void onUpdate(PlayerEntity player) {
-        if (!JSONUtils.hasField(this.getJsonObject(), "key") || toggled) {
+        if (!this.getJsonObject().has("key") || toggled) {
             sendCommand(player);
         }
     }
 
     @Override
     public void toggle(PlayerEntity player, int id, boolean pressed) {
-        if (JSONUtils.hasField(this.getJsonObject(), "key")) {
-            JsonObject key = JSONUtils.getJsonObject(this.getJsonObject(), "key");
-            String pressType = JSONUtils.getString(key, "pressType", "toggle");
+        if (this.getJsonObject().has("key")) {
+            JsonObject key = JSONUtils.getAsJsonObject(this.getJsonObject(), "key");
+            String pressType = JSONUtils.getAsString(key, "pressType", "toggle");
 
-            if (id == JSONUtils.getInt(key, "id")) {
+            if (id == JSONUtils.getAsInt(key, "id")) {
                 if (pressType.equals("toggle")) {
                     if (pressed) toggled = !toggled;
                 } else if (pressType.equals("action")) {
                     if (pressed && cooldownTicks <= 0) {
                         sendCommand(player);
-                        this.cooldownTicks = JSONUtils.getInt(key, "cooldown", 2);
+                        this.cooldownTicks = JSONUtils.getAsInt(key, "cooldown", 2);
                     }
                 } else if (pressType.equals("held") && pressed) {
                     sendCommand(player);
@@ -48,8 +48,8 @@ public class CommandAbility extends Ability implements ICommandSource {
     }
 
     private void sendCommand(PlayerEntity player) {
-        if (player.world.getServer() != null) {
-            player.world.getServer().getCommandManager().handleCommand(new CommandSource(this, player.getPositionVec(), player.getPitchYaw(), player.world instanceof ServerWorld ? (ServerWorld) player.world : null, 4, player.getName().getString(), player.getDisplayName(), player.world.getServer(), player), JSONUtils.getString(getJsonObject(), "command", "/say Hello World"));
+        if (player.level.getServer() != null) {
+            player.level.getServer().getCommands().performCommand(new CommandSource(this, player.position(), player.getRotationVector(), player.level instanceof ServerWorld ? (ServerWorld) player.level : null, 4, player.getName().getString(), player.getDisplayName(), player.level.getServer(), player), JSONUtils.getAsString(getJsonObject(), "command", "/say Hello World"));
         }
     }
 
@@ -76,17 +76,17 @@ public class CommandAbility extends Ability implements ICommandSource {
     }
 
     @Override
-    public boolean shouldReceiveFeedback() {
+    public boolean acceptsSuccess() {
         return false;
     }
 
     @Override
-    public boolean shouldReceiveErrors() {
+    public boolean acceptsFailure() {
         return true;
     }
 
     @Override
-    public boolean allowLogging() {
+    public boolean shouldInformAdmins() {
         return false;
     }
 }

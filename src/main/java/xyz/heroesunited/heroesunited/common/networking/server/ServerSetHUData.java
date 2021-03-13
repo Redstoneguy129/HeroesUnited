@@ -20,13 +20,13 @@ public class ServerSetHUData {
     }
 
     public ServerSetHUData(PacketBuffer buf) {
-        this.key = buf.readString(32767);
-        this.nbt = buf.readCompoundTag();
+        this.key = buf.readUtf(32767);
+        this.nbt = buf.readNbt();
     }
 
     public void toBytes(PacketBuffer buf) {
-        buf.writeString(this.key);
-        buf.writeCompoundTag(this.nbt);
+        buf.writeUtf(this.key);
+        buf.writeNbt(this.nbt);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {

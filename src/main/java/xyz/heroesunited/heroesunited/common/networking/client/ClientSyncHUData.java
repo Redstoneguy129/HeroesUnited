@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.common.networking.client;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
@@ -23,19 +24,19 @@ public class ClientSyncHUData {
 
     public ClientSyncHUData(PacketBuffer buf) {
         this.entityId = buf.readInt();
-        this.key = buf.readString(32767);
-        this.nbt = buf.readCompoundTag();
+        this.key = buf.readUtf(32767);
+        this.nbt = buf.readNbt();
     }
 
     public void toBytes(PacketBuffer buf) {
         buf.writeInt(this.entityId);
-        buf.writeString(this.key);
-        buf.writeCompoundTag(this.nbt);
+        buf.writeUtf(this.key);
+        buf.writeNbt(this.nbt);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            Entity entity = net.minecraft.client.Minecraft.getInstance().world.getEntityByID(this.entityId);
+            Entity entity = Minecraft.getInstance().level.getEntity(this.entityId);
 
             if (entity != null) {
                 entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {

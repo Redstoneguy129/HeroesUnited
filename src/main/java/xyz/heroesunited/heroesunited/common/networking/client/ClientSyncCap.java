@@ -23,23 +23,22 @@ public class ClientSyncCap {
 
     public ClientSyncCap(PacketBuffer buf) {
         this.entityId = buf.readInt();
-        this.data = buf.readCompoundTag();
-
+        this.data = buf.readNbt();
     }
 
     public void toBytes(PacketBuffer buf) {
         buf.writeInt(this.entityId);
-        buf.writeCompoundTag(this.data);
+        buf.writeNbt(this.data);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             Minecraft mc = Minecraft.getInstance();
-            Entity entity = mc.world.getEntityByID(this.entityId);
+            Entity entity = mc.level.getEntity(this.entityId);
             if (entity instanceof AbstractClientPlayerEntity) {
                 entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(data -> data.deserializeNBT(this.data));
-                if (mc.currentScreen instanceof AbilitiesScreen) {
-                    mc.currentScreen.init(mc, mc.getMainWindow().getScaledWidth(), mc.getMainWindow().getScaledHeight());
+                if (mc.screen instanceof AbilitiesScreen) {
+                    mc.screen.init(mc, mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
                 }
             }
         });

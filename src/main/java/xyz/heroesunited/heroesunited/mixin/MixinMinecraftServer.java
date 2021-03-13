@@ -15,12 +15,12 @@ import xyz.heroesunited.heroesunited.util.HUTickrate;
 @Mixin(MinecraftServer.class)
 public class MixinMinecraftServer {
 
-    @Inject(at = @At("HEAD"), method = "func_240772_a_(Lnet/minecraft/resources/ResourcePackList;Lnet/minecraft/util/datafix/codec/DatapackCodec;Z)Lnet/minecraft/util/datafix/codec/DatapackCodec;")
-    private static void func_240772_a_(ResourcePackList resourcePacks, DatapackCodec codec, boolean p_240772_2_, CallbackInfoReturnable<DatapackCodec> callbackInfoReturnable) {
+    @Inject(at = @At("HEAD"), method = "configurePackRepository(Lnet/minecraft/resources/ResourcePackList;Lnet/minecraft/util/datafix/codec/DatapackCodec;Z)Lnet/minecraft/util/datafix/codec/DatapackCodec;")
+    private static void configurePackRepository(ResourcePackList resourcePacks, DatapackCodec codec, boolean p_240772_2_, CallbackInfoReturnable<DatapackCodec> callbackInfoReturnable) {
         resourcePacks.addPackFinder(new HUPacks.HUPackFinder());
     }
 
-    @ModifyConstant(method = "func_240802_v_()V", constant = @Constant(longValue = 50L))
+    @ModifyConstant(method = "runServer()V", constant = @Constant(longValue = 50L))
     private long modifyTickTime(long tickTime) {
         return HUTickrate.SERVER_TICK;
     }

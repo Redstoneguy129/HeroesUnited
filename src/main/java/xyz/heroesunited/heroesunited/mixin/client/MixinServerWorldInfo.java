@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ServerWorldInfo.class)
 public class MixinServerWorldInfo {
 
-    @Inject(at = @At("HEAD"), method = "Lnet/minecraft/world/storage/ServerWorldInfo;getLifecycle()Lcom/mojang/serialization/Lifecycle;", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "worldGenSettingsLifecycle()Lcom/mojang/serialization/Lifecycle;", cancellable = true)
     private void getLifecycle(CallbackInfoReturnable<Lifecycle> cir) {
         cir.setReturnValue(Lifecycle.stable());
     }

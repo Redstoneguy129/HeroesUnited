@@ -22,12 +22,12 @@ public class ServerSetHUType {
     }
 
     public ServerSetHUType(PacketBuffer buffer) {
-        this.type = buffer.readEnumValue(HUTypes.class);
+        this.type = buffer.readEnum(HUTypes.class);
         this.value = buffer.readInt();
     }
 
     public void toBytes(PacketBuffer buffer) {
-        buffer.writeEnumValue(this.type);
+        buffer.writeEnum(this.type);
         buffer.writeInt(this.value);
     }
 
@@ -37,8 +37,8 @@ public class ServerSetHUType {
 
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((a) -> {
                 HUTypes.set(player, this.type, this.value);
-                if (!player.world.isRemote)
-                    HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getEntityId(), type, value));
+                if (!player.level.isClientSide)
+                    HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getId(), type, value));
             });
         });
         ctx.get().setPacketHandled(true);

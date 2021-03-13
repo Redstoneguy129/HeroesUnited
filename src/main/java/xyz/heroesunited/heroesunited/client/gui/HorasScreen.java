@@ -2,13 +2,17 @@ package xyz.heroesunited.heroesunited.client.gui;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.ImageButton;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.LivingRenderer;
+import net.minecraft.client.renderer.entity.model.IHasHead;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.ResourceLocation;
@@ -18,7 +22,6 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
-import xyz.heroesunited.heroesunited.client.render.renderer.IHUModel;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerHorasPlayerSetDimension;
 import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
@@ -76,11 +79,11 @@ public class HorasScreen extends Screen {
         x = (this.width - xSize) / 2;
         y = (this.height - ySize) / 2;
         currentTab = TabEnum.MENU;
-        HorasInfo.getAliens().forEach(alienInfo -> alienInfoHUEntityHashMap.put(alienInfo, alienInfo.getEntityType().create(this.getMinecraft().world)));
+        HorasInfo.getAliens().forEach(alienInfo -> alienInfoHUEntityHashMap.put(alienInfo, alienInfo.getEntityType().create(this.getMinecraft().level)));
         alienMaxPages = alienInfoHUEntityHashMap.size() / 3;
-        HorasInfo.getEvos().forEach(evoInfo -> evoInfoHUEntityHashMap.put(evoInfo, evoInfo.getEntityType().create(this.getMinecraft().world)));
+        HorasInfo.getEvos().forEach(evoInfo -> evoInfoHUEntityHashMap.put(evoInfo, evoInfo.getEntityType().create(this.getMinecraft().level)));
         evoMaxPages = evoInfoHUEntityHashMap.size() / 3;
-        HorasInfo.getGhosts().forEach(ghostInfo -> ghostInfoHUEntityHashMap.put(ghostInfo, ghostInfo.getEntityType().create(this.getMinecraft().world)));
+        HorasInfo.getGhosts().forEach(ghostInfo -> ghostInfoHUEntityHashMap.put(ghostInfo, ghostInfo.getEntityType().create(this.getMinecraft().level)));
         ghostMaxPages = ghostInfoHUEntityHashMap.size() / 3;
         HorasInfo.getPlanets().forEach(planetInfo -> planetInfoHUEntityHashMap.put(planetInfo, planetInfo.getPlanetImage()));
         planetMaxPages = planetInfoHUEntityHashMap.size() / 3;
@@ -93,7 +96,7 @@ public class HorasScreen extends Screen {
         SnowWidget.drawSnowOnScreen(matrixStack, this.width, this.height);
         this.renderBackground(matrixStack);
         RenderSystem.enableBlend();
-        this.getMinecraft().getTextureManager().bindTexture(TabEnum.MENU.getLocation());
+        this.getMinecraft().getTextureManager().bind(TabEnum.MENU.getLocation());
         this.blit(matrixStack, x, y, 256, 256, xSize, ySize);
         this.buttons.forEach(button -> {
             button.active = false;
@@ -154,7 +157,7 @@ public class HorasScreen extends Screen {
         }
         if (alienInfoHUEntityHashMap.keySet().toArray().length - 1 >= alienPage * 3) {
             HorasInfo.AlienInfo alien1 = (HorasInfo.AlienInfo) alienInfoHUEntityHashMap.keySet().toArray()[alienPage * 3];
-            this.getMinecraft().getTextureManager().bindTexture(info);
+            this.getMinecraft().getTextureManager().bind(info);
             this.blit(matrixStack, x + 6, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new StringTextComponent(alien1.getName()), x + 6 + (75 / 2), y + 14, 16777215);
             this.drawEntity(x + 6 + (75 / 2), y + 114, 40, alienInfoHUEntityHashMap.get(alien1));
@@ -185,7 +188,7 @@ public class HorasScreen extends Screen {
         }
         if (alienInfoHUEntityHashMap.keySet().toArray().length - 1 >= alienPage * 3 + 1) {
             HorasInfo.AlienInfo alien2 = (HorasInfo.AlienInfo) alienInfoHUEntityHashMap.keySet().toArray()[alienPage * 3 + 1];
-            this.getMinecraft().getTextureManager().bindTexture(info);
+            this.getMinecraft().getTextureManager().bind(info);
             this.blit(matrixStack, x + 84, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new StringTextComponent(alien2.getName()), x + 84 + (75 / 2), y + 14, 16777215);
             this.drawEntity(x + 84 + (75 / 2), y + 114, 40, alienInfoHUEntityHashMap.get(alien2));
@@ -213,7 +216,7 @@ public class HorasScreen extends Screen {
         }
         if (alienInfoHUEntityHashMap.keySet().toArray().length - 1 >= alienPage * 3 + 2) {
             HorasInfo.AlienInfo alien3 = (HorasInfo.AlienInfo) alienInfoHUEntityHashMap.keySet().toArray()[alienPage * 3 + 2];
-            this.getMinecraft().getTextureManager().bindTexture(info);
+            this.getMinecraft().getTextureManager().bind(info);
             this.blit(matrixStack, x + 163, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new StringTextComponent(alien3.getName()), x + 163 + (75 / 2), y + 14, 16777215);
             this.drawEntity(x + 163 + (75 / 2), y + 114, 40, alienInfoHUEntityHashMap.get(alien3));
@@ -250,7 +253,7 @@ public class HorasScreen extends Screen {
         }
         if (evoInfoHUEntityHashMap.keySet().toArray().length - 1 >= evoPage * 3) {
             HorasInfo.EvoInfo evo1 = (HorasInfo.EvoInfo) evoInfoHUEntityHashMap.keySet().toArray()[evoPage * 3];
-            this.getMinecraft().getTextureManager().bindTexture(info);
+            this.getMinecraft().getTextureManager().bind(info);
             this.blit(matrixStack, x + 6, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new StringTextComponent(evo1.getName()), x + 6 + (75 / 2), y + 14, 16777215);
             this.drawEntity(x + 6 + (75 / 2), y + 114, 40, evoInfoHUEntityHashMap.get(evo1));
@@ -281,7 +284,7 @@ public class HorasScreen extends Screen {
         }
         if (evoInfoHUEntityHashMap.keySet().toArray().length - 1 >= evoPage * 3 + 1) {
             HorasInfo.EvoInfo evo2 = (HorasInfo.EvoInfo) evoInfoHUEntityHashMap.keySet().toArray()[evoPage * 3 + 1];
-            this.getMinecraft().getTextureManager().bindTexture(info);
+            this.getMinecraft().getTextureManager().bind(info);
             this.blit(matrixStack, x + 84, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new StringTextComponent(evo2.getName()), x + 84 + (75 / 2), y + 14, 16777215);
             this.drawEntity(x + 84 + (75 / 2), y + 114, 40, evoInfoHUEntityHashMap.get(evo2));
@@ -309,7 +312,7 @@ public class HorasScreen extends Screen {
         }
         if (evoInfoHUEntityHashMap.keySet().toArray().length - 1 >= evoPage * 3 + 2) {
             HorasInfo.EvoInfo evo3 = (HorasInfo.EvoInfo) evoInfoHUEntityHashMap.keySet().toArray()[evoPage * 3 + 2];
-            this.getMinecraft().getTextureManager().bindTexture(info);
+            this.getMinecraft().getTextureManager().bind(info);
             this.blit(matrixStack, x + 163, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new StringTextComponent(evo3.getName()), x + 163 + (75 / 2), y + 14, 16777215);
             this.drawEntity(x + 163 + (75 / 2), y + 114, 40, evoInfoHUEntityHashMap.get(evo3));
@@ -346,7 +349,7 @@ public class HorasScreen extends Screen {
         }
         if (ghostInfoHUEntityHashMap.keySet().toArray().length - 1 >= ghostPage * 3) {
             HorasInfo.GhostInfo ghost1 = (HorasInfo.GhostInfo) ghostInfoHUEntityHashMap.keySet().toArray()[ghostPage * 3];
-            this.getMinecraft().getTextureManager().bindTexture(info);
+            this.getMinecraft().getTextureManager().bind(info);
             this.blit(matrixStack, x + 6, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new StringTextComponent(ghost1.getName()), x + 6 + (75 / 2), y + 14, 16777215);
             this.drawEntity(x + 6 + (75 / 2), y + 114, 40, ghostInfoHUEntityHashMap.get(ghost1));
@@ -377,7 +380,7 @@ public class HorasScreen extends Screen {
         }
         if (ghostInfoHUEntityHashMap.keySet().toArray().length - 1 >= ghostPage * 3 + 1) {
             HorasInfo.GhostInfo ghost2 = (HorasInfo.GhostInfo) ghostInfoHUEntityHashMap.keySet().toArray()[ghostPage * 3 + 1];
-            this.getMinecraft().getTextureManager().bindTexture(info);
+            this.getMinecraft().getTextureManager().bind(info);
             this.blit(matrixStack, x + 84, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new StringTextComponent(ghost2.getName()), x + 84 + (75 / 2), y + 14, 16777215);
             this.drawEntity(x + 84 + (75 / 2), y + 114, 40, ghostInfoHUEntityHashMap.get(ghost2));
@@ -405,7 +408,7 @@ public class HorasScreen extends Screen {
         }
         if (ghostInfoHUEntityHashMap.keySet().toArray().length - 1 >= ghostPage * 3 + 2) {
             HorasInfo.GhostInfo ghost3 = (HorasInfo.GhostInfo) ghostInfoHUEntityHashMap.keySet().toArray()[ghostPage * 3 + 2];
-            this.getMinecraft().getTextureManager().bindTexture(info);
+            this.getMinecraft().getTextureManager().bind(info);
             this.blit(matrixStack, x + 163, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new StringTextComponent(ghost3.getName()), x + 163 + (75 / 2), y + 14, 16777215);
             this.drawEntity(x + 163 + (75 / 2), y + 114, 40, ghostInfoHUEntityHashMap.get(ghost3));
@@ -442,12 +445,12 @@ public class HorasScreen extends Screen {
         }
         if (planetInfoHUEntityHashMap.keySet().toArray().length - 1 >= planetPage * 3) {
             HorasInfo.PlanetInfo planet1 = (HorasInfo.PlanetInfo) planetInfoHUEntityHashMap.keySet().toArray()[planetPage * 3];
-            this.getMinecraft().getTextureManager().bindTexture(info);
+            this.getMinecraft().getTextureManager().bind(info);
             this.blit(matrixStack, x + 6, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new StringTextComponent(planet1.getName()), x + 6 + (75 / 2), y + 14, 16777215);
-            this.getMinecraft().getTextureManager().bindTexture(planetInfoHUEntityHashMap.get(planet1));
+            this.getMinecraft().getTextureManager().bind(planetInfoHUEntityHashMap.get(planet1));
             this.blit(matrixStack, x + 8, y + 25, 256, 256, 71, 45);
-            this.addButton(new ImageButton(x + 6 + 20, y + 127, 33, 11, 0, 0, 0, travel, (buttons) -> HUNetworking.INSTANCE.sendToServer(new ServerHorasPlayerSetDimension(planet1.getDimensionID(), this.horas.getEntityId()))));
+            this.addButton(new ImageButton(x + 6 + 20, y + 127, 33, 11, 0, 0, 0, travel, (buttons) -> HUNetworking.INSTANCE.sendToServer(new ServerHorasPlayerSetDimension(planet1.getDimensionID(), this.horas.getId()))));
             List<Character> planet1CharacterList = new ArrayList<>();
             for (char i : planet1.getDescription().toCharArray()) {
                 planet1CharacterList.add(i);
@@ -472,12 +475,12 @@ public class HorasScreen extends Screen {
         }
         if (planetInfoHUEntityHashMap.keySet().toArray().length - 1 >= planetPage * 3 + 1) {
             HorasInfo.PlanetInfo planet2 = (HorasInfo.PlanetInfo) planetInfoHUEntityHashMap.keySet().toArray()[planetPage * 3 + 1];
-            this.getMinecraft().getTextureManager().bindTexture(info);
+            this.getMinecraft().getTextureManager().bind(info);
             this.blit(matrixStack, x + 84, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new StringTextComponent(planet2.getName()), x + 84 + (75 / 2), y + 14, 16777215);
-            this.getMinecraft().getTextureManager().bindTexture(planetInfoHUEntityHashMap.get(planet2));
+            this.getMinecraft().getTextureManager().bind(planetInfoHUEntityHashMap.get(planet2));
             this.blit(matrixStack, x + 86, y + 25, 256, 256, 71, 45);
-            this.addButton(new ImageButton(x + 84 + 20, y + 127, 33, 11, 0, 0, 0, travel, (buttons) -> HUNetworking.INSTANCE.sendToServer(new ServerHorasPlayerSetDimension(planet2.getDimensionID(), this.horas.getEntityId()))));
+            this.addButton(new ImageButton(x + 84 + 20, y + 127, 33, 11, 0, 0, 0, travel, (buttons) -> HUNetworking.INSTANCE.sendToServer(new ServerHorasPlayerSetDimension(planet2.getDimensionID(), this.horas.getId()))));
             List<Character> planet2CharacterList = new ArrayList<>();
             for (char i : planet2.getDescription().toCharArray()) {
                 planet2CharacterList.add(i);
@@ -502,12 +505,12 @@ public class HorasScreen extends Screen {
         }
         if (planetInfoHUEntityHashMap.keySet().toArray().length - 1 >= planetPage * 3 + 2) {
             HorasInfo.PlanetInfo planet3 = (HorasInfo.PlanetInfo) planetInfoHUEntityHashMap.keySet().toArray()[planetPage * 3 + 2];
-            this.getMinecraft().getTextureManager().bindTexture(info);
+            this.getMinecraft().getTextureManager().bind(info);
             this.blit(matrixStack, x + 163, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new StringTextComponent(planet3.getName()), x + 163 + (75 / 2), y + 14, 16777215);
-            this.getMinecraft().getTextureManager().bindTexture(planetInfoHUEntityHashMap.get(planet3));
+            this.getMinecraft().getTextureManager().bind(planetInfoHUEntityHashMap.get(planet3));
             this.blit(matrixStack, x + 165, y + 25, 256, 256, 71, 45);
-            this.addButton(new ImageButton(x + 163 + 20, y + 127, 33, 11, 0, 0, 0, travel, (buttons) -> HUNetworking.INSTANCE.sendToServer(new ServerHorasPlayerSetDimension(planet3.getDimensionID(), this.horas.getEntityId()))));
+            this.addButton(new ImageButton(x + 163 + 20, y + 127, 33, 11, 0, 0, 0, travel, (buttons) -> HUNetworking.INSTANCE.sendToServer(new ServerHorasPlayerSetDimension(planet3.getDimensionID(), this.horas.getId()))));
             List<Character> planet3CharacterList = new ArrayList<>();
             for (char i : planet3.getDescription().toCharArray()) {
                 planet3CharacterList.add(i);
@@ -544,12 +547,12 @@ public class HorasScreen extends Screen {
         }
         if (dimensionInfoHUEntityHashMap.keySet().toArray().length - 1 >= dimensionPage * 3) {
             HorasInfo.DimensionInfo dimension1 = (HorasInfo.DimensionInfo) dimensionInfoHUEntityHashMap.keySet().toArray()[dimensionPage * 3];
-            this.getMinecraft().getTextureManager().bindTexture(info);
+            this.getMinecraft().getTextureManager().bind(info);
             this.blit(matrixStack, x + 6, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new StringTextComponent(dimension1.getName()), x + 6 + (75 / 2), y + 14, 16777215);
-            this.getMinecraft().getTextureManager().bindTexture(dimensionInfoHUEntityHashMap.get(dimension1));
+            this.getMinecraft().getTextureManager().bind(dimensionInfoHUEntityHashMap.get(dimension1));
             this.blit(matrixStack, x + 8, y + 25, 256, 256, 71, 45);
-            this.addButton(new ImageButton(x + 6 + 20, y + 127, 33, 11, 0, 0, 0, travel, (buttons) -> HUNetworking.INSTANCE.sendToServer(new ServerHorasPlayerSetDimension(dimension1.getDimensionID(), this.horas.getEntityId()))));
+            this.addButton(new ImageButton(x + 6 + 20, y + 127, 33, 11, 0, 0, 0, travel, (buttons) -> HUNetworking.INSTANCE.sendToServer(new ServerHorasPlayerSetDimension(dimension1.getDimensionID(), this.horas.getId()))));
             List<Character> dimension1CharacterList = new ArrayList<>();
             for (char i : dimension1.getDescription().toCharArray()) {
                 dimension1CharacterList.add(i);
@@ -574,12 +577,12 @@ public class HorasScreen extends Screen {
         }
         if (dimensionInfoHUEntityHashMap.keySet().toArray().length - 1 >= dimensionPage * 3 + 1) {
             HorasInfo.DimensionInfo dimension2 = (HorasInfo.DimensionInfo) dimensionInfoHUEntityHashMap.keySet().toArray()[dimensionPage * 3 + 1];
-            this.getMinecraft().getTextureManager().bindTexture(info);
+            this.getMinecraft().getTextureManager().bind(info);
             this.blit(matrixStack, x + 84, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new StringTextComponent(dimension2.getName()), x + 84 + (75 / 2), y + 14, 16777215);
-            this.getMinecraft().getTextureManager().bindTexture(dimensionInfoHUEntityHashMap.get(dimension2));
+            this.getMinecraft().getTextureManager().bind(dimensionInfoHUEntityHashMap.get(dimension2));
             this.blit(matrixStack, x + 86, y + 25, 256, 256, 71, 45);
-            this.addButton(new ImageButton(x + 84 + 20, y + 127, 33, 11, 0, 0, 0, travel, (buttons) -> HUNetworking.INSTANCE.sendToServer(new ServerHorasPlayerSetDimension(dimension2.getDimensionID(), this.horas.getEntityId()))));
+            this.addButton(new ImageButton(x + 84 + 20, y + 127, 33, 11, 0, 0, 0, travel, (buttons) -> HUNetworking.INSTANCE.sendToServer(new ServerHorasPlayerSetDimension(dimension2.getDimensionID(), this.horas.getId()))));
             List<Character> dimension2CharacterList = new ArrayList<>();
             for (char i : dimension2.getDescription().toCharArray()) {
                 dimension2CharacterList.add(i);
@@ -604,12 +607,12 @@ public class HorasScreen extends Screen {
         }
         if (dimensionInfoHUEntityHashMap.keySet().toArray().length - 1 >= dimensionPage * 3 + 2) {
             HorasInfo.DimensionInfo dimension3 = (HorasInfo.DimensionInfo) dimensionInfoHUEntityHashMap.keySet().toArray()[dimensionPage * 3 + 2];
-            this.getMinecraft().getTextureManager().bindTexture(info);
+            this.getMinecraft().getTextureManager().bind(info);
             this.blit(matrixStack, x + 163, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new StringTextComponent(dimension3.getName()), x + 163 + (75 / 2), y + 14, 16777215);
-            this.getMinecraft().getTextureManager().bindTexture(dimensionInfoHUEntityHashMap.get(dimension3));
+            this.getMinecraft().getTextureManager().bind(dimensionInfoHUEntityHashMap.get(dimension3));
             this.blit(matrixStack, x + 165, y + 25, 256, 256, 71, 45);
-            this.addButton(new ImageButton(x + 163 + 20, y + 127, 33, 11, 0, 0, 0, travel, (buttons) -> HUNetworking.INSTANCE.sendToServer(new ServerHorasPlayerSetDimension(dimension3.getDimensionID(), this.horas.getEntityId()))));
+            this.addButton(new ImageButton(x + 163 + 20, y + 127, 33, 11, 0, 0, 0, travel, (buttons) -> HUNetworking.INSTANCE.sendToServer(new ServerHorasPlayerSetDimension(dimension3.getDimensionID(), this.horas.getId()))));
             List<Character> dimension3CharacterList = new ArrayList<>();
             for (char i : dimension3.getDescription().toCharArray()) {
                 dimension3CharacterList.add(i);
@@ -635,14 +638,12 @@ public class HorasScreen extends Screen {
     }
 
 
-    private void drawEntity(int posX, int posY, int scale, LivingEntity huEntity) {
-        EntityRenderer<? super Entity> renderer = this.getMinecraft().getRenderManager().getRenderer(huEntity);
-        if (renderer instanceof LivingRenderer && ((LivingRenderer) renderer).getEntityModel() instanceof IHUModel) {
+    private void drawEntity(int posX, int posY, int scale, LivingEntity entity) {
+        EntityRenderer<? super Entity> renderer = this.getMinecraft().getEntityRenderDispatcher().getRenderer(entity);
+        if (renderer instanceof LivingRenderer && ((LivingRenderer) renderer).getModel() instanceof IHasHead) {
             LivingRenderer render = (LivingRenderer) renderer;
-            IHUModel model = (IHUModel) render.getEntityModel();
-
-            model.getModelRenderers().forEach(modelrenderers -> modelrenderers.showModel = false);
-            model.getModelHead().showModel = true;
+            IHasHead model = (IHasHead) render.getModel();
+            model.getHead().visible = true;
             float f = (float) Math.atan(-242 / 40.0F);
             float f1 = (float) Math.atan(-103 / 40.0F);
             RenderSystem.pushMatrix();
@@ -650,36 +651,34 @@ public class HorasScreen extends Screen {
             RenderSystem.scalef(1.0F, 1.0F, -1.0F);
             MatrixStack matrixstack = new MatrixStack();
             matrixstack.translate(0.0D, 0.0D, 1000.0D);
-            matrixstack.scale((float) scale, (float) scale, (float) scale);
+            matrixstack.scale(scale, scale, scale);
             Quaternion quaternion = Vector3f.ZP.rotationDegrees(180.0F);
             Quaternion quaternion1 = Vector3f.XP.rotationDegrees(f1 * 20.0F);
-            quaternion.multiply(quaternion1);
-            matrixstack.rotate(quaternion);
-            float f2 = huEntity.renderYawOffset;
-            float f3 = huEntity.rotationYaw;
-            float f4 = huEntity.rotationPitch;
-            float f5 = huEntity.prevRotationYawHead;
-            float f6 = huEntity.rotationYawHead;
-            huEntity.renderYawOffset = 180.0F + f * 20.0F;
-            huEntity.rotationYaw = 180.0F + f * 40.0F;
-            huEntity.rotationPitch = -f1 * 20.0F;
-            huEntity.rotationYawHead = huEntity.rotationYaw;
-            huEntity.prevRotationYawHead = huEntity.rotationYaw;
-            EntityRendererManager entityrenderermanager = Minecraft.getInstance().getRenderManager();
-            quaternion1.conjugate();
-            entityrenderermanager.setCameraOrientation(quaternion1);
-            entityrenderermanager.setRenderShadow(false);
-            IRenderTypeBuffer.Impl irendertypebuffer$impl = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
-            RenderSystem.runAsFancy(() -> entityrenderermanager.renderEntityStatic(huEntity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, matrixstack, irendertypebuffer$impl, 15728880));
-            irendertypebuffer$impl.finish();
-            entityrenderermanager.setRenderShadow(true);
-            huEntity.renderYawOffset = f2;
-            huEntity.rotationYaw = f3;
-            huEntity.rotationPitch = f4;
-            huEntity.prevRotationYawHead = f5;
-            huEntity.rotationYawHead = f6;
+            quaternion.mul(quaternion1);
+            matrixstack.mulPose(quaternion);
+            float f2 = entity.yBodyRot;
+            float f3 = entity.yRot;
+            float f4 = entity.xRot;
+            float f5 = entity.yHeadRotO;
+            float f6 = entity.yHeadRot;
+            entity.yBodyRot = 180.0F + f * 20.0F;
+            entity.yRot = 180.0F + f * 40.0F;
+            entity.xRot = -f1 * 20.0F;
+            entity.yHeadRot = entity.yRot;
+            entity.yHeadRotO = entity.yRot;
+            EntityRendererManager manager = Minecraft.getInstance().getEntityRenderDispatcher();
+            quaternion1.conj();
+            IRenderTypeBuffer.Impl buffer = Minecraft.getInstance().renderBuffers().bufferSource();
+            IVertexBuilder builder = buffer.getBuffer(RenderType.entityTranslucent(renderer.getTextureLocation(entity)));
+            RenderSystem.runAsFancy(() -> model.getHead().render(matrixstack, builder, OverlayTexture.NO_OVERLAY, 15728880));
+            buffer.endBatch();
+            manager.setRenderShadow(true);
+            entity.yBodyRot = f2;
+            entity.yRot = f3;
+            entity.xRot = f4;
+            entity.yHeadRotO = f5;
+            entity.yHeadRot = f6;
             RenderSystem.popMatrix();
-            model.getModelRenderers().forEach(modelrenderers -> modelrenderers.showModel = true);
         }
     }
 

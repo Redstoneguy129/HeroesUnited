@@ -46,7 +46,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider {
         suit.getAbilities(player).forEach((id, a) -> {
             a.getAdditionalData().putString("Suit", this.getRegistryName().toString());
             if (suit instanceof JsonSuit && a.getJsonObject().has("slot")) {
-                a.getAdditionalData().putString("Slot", JSONUtils.getString(a.getJsonObject(), "slot"));
+                a.getAdditionalData().putString("Slot", JSONUtils.getAsString(a.getJsonObject(), "slot"));
             }
             map.put(id, a);
         });
@@ -55,7 +55,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, @Nullable World p_77624_2_, List<ITextComponent> tooltip, ITooltipFlag p_77624_4_) {
         if (getSuit().getDescription(stack) != null) tooltip.addAll(getSuit().getDescription(stack));
     }
 
@@ -63,10 +63,10 @@ public class SuitItem extends ArmorItem implements IAbilityProvider {
     public void onArmorTick(ItemStack item, World world, PlayerEntity player) {
         if (!getSuit().canEquip(player)) {
             for (EquipmentSlotType slot : values()) {
-                ItemStack stack = player.getItemStackFromSlot(this.getEquipmentSlot());
-                if (slot.getSlotType() == Group.ARMOR && player.getItemStackFromSlot(slot).getItem() == stack.getItem()) {
-                    player.inventory.addItemStackToInventory(stack);
-                    player.setItemStackToSlot(this.getEquipmentSlot(), ItemStack.EMPTY);
+                ItemStack stack = player.getItemBySlot(item.getEquipmentSlot());
+                if (slot.getType() == Group.ARMOR && player.getItemBySlot(slot).getItem() == stack.getItem()) {
+                    player.inventory.add(stack);
+                    player.setItemSlot(item.getEquipmentSlot(), ItemStack.EMPTY);
                 }
             }
         }
@@ -78,7 +78,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider {
         if (stack != ItemStack.EMPTY) {
             if (stack.getItem() instanceof SuitItem) {
                 BipedModel model = getSuit().getArmorModel(entity, stack, armorSlot, _default);
-                model.setModelAttributes(_default);
+                model.copyPropertiesTo(_default);
                 return (A) model;
             }
         }
@@ -92,15 +92,15 @@ public class SuitItem extends ArmorItem implements IAbilityProvider {
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        ItemStack stack = playerIn.getHeldItem(handIn);
-        ItemStack armorStack = playerIn.getItemStackFromSlot(slot);
+    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
+        ItemStack stack = playerIn.getItemInHand(handIn);
+        ItemStack armorStack = playerIn.getItemBySlot(slot);
         if (getSuit().canEquip(playerIn) && armorStack.isEmpty()) {
-            playerIn.setItemStackToSlot(slot, stack.copy());
+            playerIn.setItemSlot(slot, stack.copy());
             stack.setCount(0);
-            return ActionResult.func_233538_a_(stack, worldIn.isRemote());
+            return ActionResult.sidedSuccess(stack, worldIn.isClientSide());
         } else {
-            return ActionResult.resultFail(stack);
+            return ActionResult.fail(stack);
         }
     }
 }
