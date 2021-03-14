@@ -226,7 +226,7 @@ public abstract class Suit {
         ItemStack stack = entity.getItemBySlot(slot);
         if (stack.getItem() instanceof SuitItem) {
             SuitItem suitItem = (SuitItem) stack.getItem();
-            if (stack.getEquipmentSlot().equals(slot)) {
+            if (suitItem.getSlot().equals(slot)) {
                 return suitItem;
             }
         }

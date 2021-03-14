@@ -184,14 +184,14 @@ public class HUEventHandler {
                     if (!suitItem.getAbilities(player).isEmpty()) {
                         for (Map.Entry<String, Ability> entry : suitItem.getAbilities(player).entrySet()) {
                             Ability a = entry.getValue();
-                            boolean canAdd = a.getJsonObject() != null && a.getJsonObject().has("slot") && event.getTo().getEquipmentSlot().getName().toLowerCase().equals(JSONUtils.getAsString(a.getJsonObject(), "slot"));
+                            boolean canAdd = a.getJsonObject() != null && a.getJsonObject().has("slot") && suitItem.getSlot().getName().toLowerCase().equals(JSONUtils.getAsString(a.getJsonObject(), "slot"));
                             if (canAdd || Suit.getSuit(player) != null) {
                                 cap.addAbility(entry.getKey(), a);
                             }
                         }
                     }
                 });
-                suitItem.getSuit().onActivated(player, event.getTo().getEquipmentSlot());
+                suitItem.getSuit().onActivated(player, suitItem.getSlot());
                 for (Ability ability : AbilityHelper.getAbilities(player)) {
                     if (ability != null && suitItem.getSuit().hasArmorOn(player) && !suitItem.getSuit().canCombineWithAbility(ability, player)) {
                         AbilityHelper.disable(player);
@@ -207,7 +207,7 @@ public class HUEventHandler {
                                 boolean all = a.getAdditionalData().equals(ab1.getAdditionalData()) && a.getAdditionalData().contains("Suit");
                                 if (a.getAdditionalData().contains("Slot")) {
                                     String slot = a.getAdditionalData().getString("Slot");
-                                    if (slot == "all" ? all : all && event.getFrom().getEquipmentSlot().getName().toLowerCase().equals(slot)) {
+                                    if (slot == "all" ? all : all && suitItem.getSlot().getName().toLowerCase().equals(slot)) {
                                         cap.removeAbility(a.name);
                                     }
                                 } else if (all) {
@@ -217,7 +217,7 @@ public class HUEventHandler {
                         }
                     }
                 });
-                suitItem.getSuit().onDeactivated(player, event.getFrom().getEquipmentSlot());
+                suitItem.getSuit().onDeactivated(player, suitItem.getSlot());
             }
         }
     }

@@ -55,7 +55,7 @@ public abstract class MixinArmorLayerRenderer<T extends LivingEntity, M extends 
         ItemStack itemstack = entity.getItemBySlot(slotType);
         if (itemstack.getItem() instanceof ArmorItem) {
             ArmorItem armoritem = (ArmorItem)itemstack.getItem();
-            if (itemstack.getEquipmentSlot() == slotType) {
+            if (armoritem.getSlot() == slotType) {
                 model = ForgeHooksClient.getArmorModel(entity, itemstack, slotType, model);
                 this.getParentModel().copyPropertiesTo(model);
                 this.setModelSlotVisible(model, slotType);
