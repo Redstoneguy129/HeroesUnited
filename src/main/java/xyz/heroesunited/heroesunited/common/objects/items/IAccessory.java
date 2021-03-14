@@ -47,4 +47,11 @@ public interface IAccessory {
     default float getScale(ItemStack stack) {
         return 0.08F;
     }
+
+    static EquipmentAccessoriesSlot getEquipmentSlotForItem(ItemStack stack) {
+        if (stack.getItem() instanceof IAccessory) {
+            return ((IAccessory) stack.getItem()).getSlot();
+        }
+        return null;
+    }
 }

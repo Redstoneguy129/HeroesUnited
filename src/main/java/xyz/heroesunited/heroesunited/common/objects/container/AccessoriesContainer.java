@@ -2,6 +2,7 @@ package xyz.heroesunited.heroesunited.common.objects.container;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -9,7 +10,6 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -31,23 +31,21 @@ public class AccessoriesContainer extends Container {
     public AccessoriesContainer(int id, PlayerInventory playerInventory, AccessoriesInventory inventory) {
         super(HUContainers.ACCESSORIES, id);
 
-        for (int k = 0; k < 4; ++k) {
-            this.addSlot(new AccessorySlot(inventory, k, 110, 8 + k * 18));
-            if (4 + k == EquipmentAccessoriesSlot.RIGHT_WRIST.getSlot()) {
-                this.addSlot(new WristSlot(inventory, 4 + k, 141, 8 + k * 18, EquipmentAccessoriesSlot.RIGHT_WRIST));
+        for (int i = 0; i < 9; ++i) {
+            if (i == EquipmentAccessoriesSlot.RIGHT_WRIST.getSlot()) {
+                this.addSlot(new WristSlot(inventory, i, 141, 8 + (i - 4) * 18, EquipmentAccessoriesSlot.RIGHT_WRIST));
+            } else if(i == EquipmentAccessoriesSlot.LEFT_WRIST.getSlot()) {
+                this.addSlot(new WristSlot(inventory, 4 + i, 141, 8 + (i - 4) * 18, EquipmentAccessoriesSlot.LEFT_WRIST));
             } else {
-                if( 4 + k == EquipmentAccessoriesSlot.LEFT_WRIST.getSlot()){
-                    this.addSlot(new WristSlot(inventory, 4 + k, 141, 8 + k * 18, EquipmentAccessoriesSlot.LEFT_WRIST));
-                }else{
-                    this.addSlot(new AccessorySlot(inventory, 4 + k, 141, 8 + k * 18));
-                }
+                this.addSlot(new AccessorySlot(inventory, i, i > 3 ? 141 : 110, i > 3 ? 8 + (i - 4) * 18 : 8 + i * 18));
             }
         }
 
         for (int k = 0; k < 4; ++k) {
             final EquipmentSlotType type = VALID_EQUIPMENT_SLOTS[k];
             this.addSlot(new Slot(playerInventory, 36 + (3 - k), 8, 8 + k * 18) {
-                public int getSlotStackLimit() {
+                @Override
+                public int getMaxStackSize() {
                     return 1;
                 }
 
@@ -90,42 +88,68 @@ public class AccessoriesContainer extends Container {
 
     @Nullable
     @Override
-    public ItemStack quickMoveStack(PlayerEntity playerIn, int index) {
+    public ItemStack quickMoveStack(PlayerEntity player, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
         if (slot != null && slot.hasItem()) {
             ItemStack itemstack1 = slot.getItem();
             itemstack = itemstack1.copy();
-
-            if (index < 12) {
-                if (!this.moveItemStackTo(itemstack1, 12, 48, true)) {
+            EquipmentAccessoriesSlot accessorySlot = IAccessory.getEquipmentSlotForItem(itemstack);
+            EquipmentSlotType equipmentSlot = MobEntity.getEquipmentSlotForItem(itemstack);
+            if (index == 0) {
+                if (!this.moveItemStackTo(itemstack1, 9, 45, true)) {
                     return ItemStack.EMPTY;
                 }
                 slot.onQuickCraft(itemstack1, itemstack);
-            } else if (index > 11) {
-                if (itemstack1.getItem() instanceof ArmorItem) {
-                    if (!this.moveItemStackTo(itemstack1, 8, 12, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (index >= 12 && index < 39) {
-
-                    if (!this.moveItemStackTo(itemstack1, 39, 48, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (index >= 39 && index < 48 && !this.moveItemStackTo(itemstack1, 12, 39, false)) {
+            } else if (index >= 1 && index < 5) {
+                if (!this.moveItemStackTo(itemstack1, 9, 45, false)) {
                     return ItemStack.EMPTY;
                 }
+            } else if (index >= 5 && index < 9) {
+                if (!this.moveItemStackTo(itemstack1, 9, 45, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (equipmentSlot.getType() == EquipmentSlotType.Group.ARMOR && !this.slots.get(8 - equipmentSlot.getIndex()).hasItem()) {
+                int i = 8 - equipmentSlot.getIndex();
+                if (!this.moveItemStackTo(itemstack1, i, i + 1, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (equipmentSlot == EquipmentSlotType.OFFHAND && !this.slots.get(45).hasItem()) {
+                if (!this.moveItemStackTo(itemstack1, 45, 46, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (accessorySlot != null && !this.slots.get(accessorySlot.getSlot()).hasItem()) {
+                if (!this.moveItemStackTo(itemstack1, accessorySlot.getSlot(), accessorySlot.getSlot() + 1, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (index >= 9 && index < 36) {
+                if (!this.moveItemStackTo(itemstack1, 36, 45, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (index >= 36 && index < 45) {
+                if (!this.moveItemStackTo(itemstack1, 9, 36, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (!this.moveItemStackTo(itemstack1, 9, 45, false)) {
+                return ItemStack.EMPTY;
             }
-            if (itemstack1.getCount() == 0) {
+
+            if (itemstack1.isEmpty()) {
                 slot.set(ItemStack.EMPTY);
             } else {
                 slot.setChanged();
             }
+
             if (itemstack1.getCount() == itemstack.getCount()) {
                 return ItemStack.EMPTY;
             }
-            slot.onTake(playerIn, itemstack1);
+
+            ItemStack itemstack2 = slot.onTake(player, itemstack1);
+            if (index == 0) {
+                player.drop(itemstack2, false);
+            }
         }
+
         return itemstack;
     }
 

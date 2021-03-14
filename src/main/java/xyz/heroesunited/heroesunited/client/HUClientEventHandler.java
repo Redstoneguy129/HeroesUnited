@@ -3,7 +3,6 @@ package xyz.heroesunited.heroesunited.client;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.CustomizeSkinScreen;
 import net.minecraft.client.gui.widget.button.Button;
@@ -169,8 +168,8 @@ public class HUClientEventHandler {
             for (Ability ability : AbilityHelper.getAbilities((PlayerEntity) entity)) {
                 if (ability instanceof HideBodyPartsAbility && ability.getJsonObject().has("visibility_parts")) {
                     for (Map.Entry<String, JsonElement> yep : JSONUtils.getAsJsonObject(ability.getJsonObject(), "visibility_parts").entrySet()) {
-                        if (yep.getKey().equals("all") && yep.getValue() instanceof JsonObject) {
-                            event.setCanceled(!JSONUtils.getAsBoolean((JsonObject) yep.getValue(), yep.getKey()));
+                        if (yep.getKey().equals("all")) {
+                            event.setCanceled(!JSONUtils.convertToBoolean(yep.getValue(), yep.getKey()));
                         }
                     }
                 }
