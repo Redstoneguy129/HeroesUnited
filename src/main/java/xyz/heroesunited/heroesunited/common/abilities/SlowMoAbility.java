@@ -12,11 +12,11 @@ public class SlowMoAbility extends Ability {
 
     @Override
     public void onUpdate(PlayerEntity player) {
-        if (!JSONUtils.hasField(this.getJsonObject(), "key")) {
+        if (!this.getJsonObject().has("key")) {
             HUPlayer.getCap(player).setSlowMoSpeed(6F);
         } else {
-            JsonObject key = JSONUtils.getJsonObject(this.getJsonObject(), "key");
-            if (JSONUtils.getString(key, "pressType").equals("action") && cooldownTicks <= 0) {
+            JsonObject key = JSONUtils.getAsJsonObject(this.getJsonObject(), "key");
+            if (JSONUtils.getAsString(key, "pressType").equals("action") && cooldownTicks <= 0) {
                 HUPlayer.getCap(player).setSlowMoSpeed(20F);
             }
         }
@@ -24,11 +24,11 @@ public class SlowMoAbility extends Ability {
 
     @Override
     public void toggle(PlayerEntity player, int id, boolean pressed) {
-        if (JSONUtils.hasField(this.getJsonObject(), "key")) {
-            JsonObject key = JSONUtils.getJsonObject(this.getJsonObject(), "key");
-            String pressType = JSONUtils.getString(key, "pressType", "toggle");
+        if (this.getJsonObject().has("key")) {
+            JsonObject key = JSONUtils.getAsJsonObject(this.getJsonObject(), "key");
+            String pressType = JSONUtils.getAsString(key, "pressType", "toggle");
 
-            if (id == JSONUtils.getInt(key, "id")) {
+            if (id == JSONUtils.getAsInt(key, "id")) {
                 if (pressType.equals("toggle")) {
                     if (pressed) {
                         HUPlayer.getCap(player).setSlowMoSpeed(HUPlayer.getCap(player).getSlowMoSpeed() == 20F ? 6F : 20F);
@@ -36,7 +36,7 @@ public class SlowMoAbility extends Ability {
                 } else if (pressType.equals("action")) {
                     if (pressed) {
                         HUPlayer.getCap(player).setSlowMoSpeed(6F);
-                        this.cooldownTicks = JSONUtils.getInt(key, "cooldown", 2);
+                        this.cooldownTicks = JSONUtils.getAsInt(key, "cooldown", 2);
                     }
                     HUPlayer.getCap(player).setSlowMoSpeed(20F);
                 } else if (pressType.equals("held")) {

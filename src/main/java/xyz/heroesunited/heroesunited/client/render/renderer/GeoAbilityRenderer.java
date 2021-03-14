@@ -100,7 +100,7 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
         matrixStackIn.translate(0.0D, -1.5F, 0.0D);
 
         matrixStackIn.pushPose();
-        if (currentAbility.copyPos()) matrixStackIn.translate(from.xRot / 16.0F, from.yRot / 16.0F, from.zRot / 16.0F);
+        if (currentAbility.copyPos()) matrixStackIn.translate(from.x / 16.0F, from.y / 16.0F, from.z / 16.0F);
         if (currentAbility.copyRotations()) GeoUtils.copyRotations(from, to);
 
         matrixStackIn.translate(0.0D, 1.5F, 0.0D);

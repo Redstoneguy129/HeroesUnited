@@ -34,7 +34,7 @@ public class HUCoreCommand {
 
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
         dispatcher.register(Commands.literal("heroesunited").requires((player) -> player.hasPermission(2))
-                .then(Commands.literal("slowmo").then(Commands.argument("enable", FloatArgumentType.floatArg()).executes((c) -> setSlowMotion(c.getSource(), FloatArgumentType.getFloat(c, "enable")))))
+                .then(Commands.literal("slowmo").then(Commands.argument("enable", FloatArgumentType.floatArg()).executes((c) -> setSlowMotion(c.getSource(), FloatArgumentType.getFloat(c, "amount")))))
                 .then(Commands.literal("suit")
                         .then(Commands.argument("players", EntityArgument.players())
                                 .then(Commands.argument("suit", ResourceLocationArgument.id()).suggests(SUGGEST_SUITS)

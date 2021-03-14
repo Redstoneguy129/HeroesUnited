@@ -2,11 +2,17 @@ package xyz.heroesunited.heroesunited;
 
 import net.arikia.dev.drpc.DiscordRPC;
 import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -49,6 +55,9 @@ import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
 import xyz.heroesunited.heroesunited.util.data.HUEnglishProvider;
 
+import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.FALL_RESISTANCE;
+import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOOST;
+
 @Mod(HeroesUnited.MODID)
 public class HeroesUnited {
 
@@ -56,23 +65,23 @@ public class HeroesUnited {
     public static final Logger LOGGER = LogManager.getLogger();
 
     public HeroesUnited() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::gatherData);
+        final IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+        bus.register(this);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             GeckoLib.initialize();
-            FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
+            bus.addListener(this::clientSetup);
             MinecraftForge.EVENT_BUS.register(new HUClientEventHandler());
         });
 
         HUPacks.init();
 
-        HUAttributes.ATTRIBUTES.register(FMLJavaModLoadingContext.get().getModEventBus());
-        HUSounds.SOUNDS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        HUEntities.ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
-        HUBlocks.BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        HUItems.ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        HUPaintings.PAINTINGS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        HUContainers.CONTAINERS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        HUAttributes.ATTRIBUTES.register(bus);
+        HUSounds.SOUNDS.register(bus);
+        HUEntities.ENTITIES.register(bus);
+        HUBlocks.BLOCKS.register(bus);
+        HUItems.ITEMS.register(bus);
+        HUPaintings.PAINTINGS.register(bus);
+        HUContainers.CONTAINERS.register(bus);
 
         MinecraftForge.EVENT_BUS.register(new HUEventHandler());
         MinecraftForge.EVENT_BUS.register(new HUPlayerEvent());
@@ -94,11 +103,13 @@ public class HeroesUnited {
         });
     }
 
-    private void gatherData(GatherDataEvent e) {
+    @SubscribeEvent
+    public void gatherData(final GatherDataEvent e) {
         e.getGenerator().addProvider(new HUEnglishProvider(e.getGenerator()));
     }
 
-    private void commonSetup(final FMLCommonSetupEvent event) {
+    @SubscribeEvent
+    public void commonSetup(final FMLCommonSetupEvent event) {
         CapabilityManager.INSTANCE.register(IHUPlayer.class, new HUPlayerStorage(), () -> new HUPlayer(null));
         HUNetworking.registerMessages();
 
@@ -121,5 +132,22 @@ public class HeroesUnited {
         HURichPresence.getPresence().setDiscordRichPresence("In the Menus", null, HURichPresence.MiniLogos.NONE, null);
 
         LOGGER.info(MODID + ": client is ready!");
+    }
+
+    @SubscribeEvent
+    public void entityAttribute(final EntityAttributeCreationEvent event) {
+        event.put(HUEntities.HORAS, Horas.createMobAttributes().build());
+    }
+
+    @SubscribeEvent
+    public void entityAttributeModification(final EntityAttributeModificationEvent event) {
+        for (EntityType<? extends LivingEntity> type : event.getTypes()) {
+            if (!event.has(type, FALL_RESISTANCE)) {
+                event.add(type, FALL_RESISTANCE, 0);
+            }
+            if (!event.has(type, JUMP_BOOST)) {
+                event.add(type, JUMP_BOOST, 0);
+            }
+        }
     }
 }

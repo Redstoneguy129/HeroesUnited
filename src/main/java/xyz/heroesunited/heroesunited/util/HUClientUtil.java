@@ -114,7 +114,7 @@ public class HUClientUtil {
                 model.cape.yRot = (float) Math.toRadians(180.0F - f3 / 2.0F);
                 model.cape.zRot = (float) Math.toRadians(f3 / 2.0F);
             }
-            model.render(matrix, bufferIn.getBuffer(RenderType.entitySolid(texture)), packedLightIn, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
+            model.renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entitySolid(texture)), packedLightIn, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
             matrix.popPose();
         }
     }

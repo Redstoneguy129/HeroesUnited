@@ -17,11 +17,11 @@ public class AttributeModifierAbility extends Ability {
 
     @Override
     public void onUpdate(PlayerEntity player) {
-        if (!JSONUtils.hasField(this.getJsonObject(), "key")) {
+        if (!this.getJsonObject().has("key")) {
             setAttribute(player, false);
         } else {
-            JsonObject key = JSONUtils.getJsonObject(this.getJsonObject(), "key");
-            if (JSONUtils.getString(key, "pressType").equals("action") && cooldownTicks <= 0) {
+            JsonObject key = JSONUtils.getAsJsonObject(this.getJsonObject(), "key");
+            if (JSONUtils.getAsString(key, "pressType").equals("action") && cooldownTicks <= 0) {
                 setAttribute(player, true);
             }
         }
@@ -29,11 +29,11 @@ public class AttributeModifierAbility extends Ability {
 
     @Override
     public void toggle(PlayerEntity player, int id, boolean pressed) {
-        if (JSONUtils.hasField(this.getJsonObject(), "key")) {
-            JsonObject key = JSONUtils.getJsonObject(this.getJsonObject(), "key");
-            String pressType = JSONUtils.getString(key, "pressType", "toggle");
+        if (this.getJsonObject().has("key")) {
+            JsonObject key = JSONUtils.getAsJsonObject(this.getJsonObject(), "key");
+            String pressType = JSONUtils.getAsString(key, "pressType", "toggle");
 
-            if (id == JSONUtils.getInt(key, "id")) {
+            if (id == JSONUtils.getAsInt(key, "id")) {
                 if (pressType.equals("toggle")) {
                     if (pressed) {
                         if (getModifier(player) == null) {
@@ -45,7 +45,7 @@ public class AttributeModifierAbility extends Ability {
                 } else if (pressType.equals("action")) {
                     if (pressed) {
                         setAttribute(player, false);
-                        this.cooldownTicks = JSONUtils.getInt(key, "cooldown", 2);
+                        this.cooldownTicks = JSONUtils.getAsInt(key, "cooldown", 2);
                     }
                 } else if (pressType.equals("held")) {
                     if (pressed && getModifier(player) == null) {
@@ -65,18 +65,18 @@ public class AttributeModifierAbility extends Ability {
 
     public void setAttribute(PlayerEntity player, boolean disable) {
         if (this.getJsonObject() != null) {
-            JsonObject attribute = JSONUtils.getJsonObject(this.getJsonObject(), "attribute");
+            JsonObject attribute = JSONUtils.getAsJsonObject(this.getJsonObject(), "attribute");
             AbilityHelper.setAttribute(player, this.name,
-                    ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(JSONUtils.getString(attribute, "name"))),
-                    UUID.fromString(JSONUtils.getString(attribute, "uuid", "16c0c8f6-565e-4175-94f5-029986f3cc2c")),
-                    disable ? 0D : JSONUtils.getFloat(attribute, "amount", 1f),
-                    AttributeModifier.Operation.byId(JSONUtils.getInt(attribute, "operation", 0)));
+                    ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(JSONUtils.getAsString(attribute, "name"))),
+                    UUID.fromString(JSONUtils.getAsString(attribute, "uuid", "16c0c8f6-565e-4175-94f5-029986f3cc2c")),
+                    disable ? 0D : JSONUtils.getAsFloat(attribute, "amount", 1f),
+                    AttributeModifier.Operation.fromValue(JSONUtils.getAsInt(attribute, "operation", 0)));
         }
     }
 
     public AttributeModifier getModifier(PlayerEntity player) {
-        JsonObject attribute = JSONUtils.getJsonObject(this.getJsonObject(), "attribute");
-        ModifiableAttributeInstance instance = player.getAttribute(ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(JSONUtils.getString(attribute, "name"))));
-        return instance.getModifier(UUID.fromString(JSONUtils.getString(attribute, "uuid", "16c0c8f6-565e-4175-94f5-029986f3cc2c")));
+        JsonObject attribute = JSONUtils.getAsJsonObject(this.getJsonObject(), "attribute");
+        ModifiableAttributeInstance instance = player.getAttribute(ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(JSONUtils.getAsString(attribute, "name"))));
+        return instance.getModifier(UUID.fromString(JSONUtils.getAsString(attribute, "uuid", "16c0c8f6-565e-4175-94f5-029986f3cc2c")));
     }
 }

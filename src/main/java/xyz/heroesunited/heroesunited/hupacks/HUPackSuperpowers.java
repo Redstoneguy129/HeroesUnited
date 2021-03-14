@@ -83,7 +83,7 @@ public class HUPackSuperpowers extends JsonReloadListener {
 
     public static boolean hasSuperpower(PlayerEntity player, ResourceLocation location) {
         for (Ability ability : HUPlayer.getCap(player).getAbilities().values()) {
-            if (ability.getAdditionalData() != null && ability.getAdditionalData().getString("Superpower").equals(location)) {
+            if (ability.getAdditionalData() != null && ability.getAdditionalData().getString("Superpower").equals(location.toString())) {
                 return true;
             }
         }

@@ -17,11 +17,11 @@ public class SizeChangeAbility extends Ability {
 
     @Override
     public void onUpdate(PlayerEntity player) {
-        if (!JSONUtils.hasField(this.getJsonObject(), "key")) {
+        if (!this.getJsonObject().has("key")) {
             setSize(player, getRightSize(player));
         } else {
-            JsonObject key = JSONUtils.getJsonObject(this.getJsonObject(), "key");
-            if (JSONUtils.getString(key, "pressType").equals("action") && cooldownTicks <= 0) {
+            JsonObject key = JSONUtils.getAsJsonObject(this.getJsonObject(), "key");
+            if (JSONUtils.getAsString(key, "pressType").equals("action") && cooldownTicks <= 0) {
                 setSize(player, 1F);
             }
         }
@@ -29,11 +29,11 @@ public class SizeChangeAbility extends Ability {
 
     @Override
     public void toggle(PlayerEntity player, int id, boolean pressed) {
-        if (JSONUtils.hasField(this.getJsonObject(), "key")) {
-            JsonObject key = JSONUtils.getJsonObject(this.getJsonObject(), "key");
-            String pressType = JSONUtils.getString(key, "pressType", "toggle");
+        if (this.getJsonObject().has("key")) {
+            JsonObject key = JSONUtils.getAsJsonObject(this.getJsonObject(), "key");
+            String pressType = JSONUtils.getAsString(key, "pressType", "toggle");
 
-            if (id == JSONUtils.getInt(key, "id")) {
+            if (id == JSONUtils.getAsInt(key, "id")) {
                 if (pressType.equals("toggle")) {
                     if (pressed) {
                         setSize(player, this.size == 1F ? getRightSize(player) : 1F);
@@ -41,7 +41,7 @@ public class SizeChangeAbility extends Ability {
                 } else if (pressType.equals("action")) {
                     if (pressed) {
                         setSize(player, getRightSize(player));
-                        this.cooldownTicks = JSONUtils.getInt(key, "cooldown", 2);
+                        this.cooldownTicks = JSONUtils.getAsInt(key, "cooldown", 2);
                     }
                     setSize(player, 1F);
                 } else if (pressType.equals("held")) {
@@ -69,7 +69,7 @@ public class SizeChangeAbility extends Ability {
 
     public float getRightSize(PlayerEntity player) {
         if (getJsonObject() != null && getJsonObject().has("size")) {
-            return JSONUtils.getFloat(getJsonObject(), "size");
+            return JSONUtils.getAsFloat(getJsonObject(), "size");
         }
         return 0.25f;
     }
@@ -80,7 +80,7 @@ public class SizeChangeAbility extends Ability {
 
     public boolean changeSizeInRender() {
         if (getJsonObject() != null && getJsonObject().has("sizeInRenderer")) {
-            return JSONUtils.getBoolean(getJsonObject(), "sizeInRenderer");
+            return JSONUtils.getAsBoolean(getJsonObject(), "sizeInRenderer");
         }
         return true;
     }

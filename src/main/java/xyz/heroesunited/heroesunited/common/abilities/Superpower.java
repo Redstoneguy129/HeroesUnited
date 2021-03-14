@@ -26,7 +26,7 @@ public class Superpower implements IAbilityProvider {
     }
 
     public ITextComponent getDisplayName() {
-        return new TranslationTextComponent(Util.makeTranslationKey("superpowers", name));
+        return new TranslationTextComponent(Util.makeDescriptionId("superpowers", name));
     }
 
     @Nullable

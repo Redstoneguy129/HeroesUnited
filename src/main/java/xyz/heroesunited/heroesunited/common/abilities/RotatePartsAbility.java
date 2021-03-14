@@ -19,13 +19,13 @@ public class RotatePartsAbility extends Ability {
     @OnlyIn(Dist.CLIENT)
     @Override
     public void setRotationAngles(HUSetRotationAnglesEvent event) {
-        if (JSONUtils.hasField(getJsonObject(), "parts")) {
-            JsonObject overrides = JSONUtils.getJsonObject(getJsonObject(), "parts");
+        if (this.getJsonObject().has("parts")) {
+            JsonObject overrides = JSONUtils.getAsJsonObject(getJsonObject(), "parts");
 
             for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
                 PlayerPart part = PlayerPart.getByName(entry.getKey());
                 if (part != null && entry.getValue() instanceof JsonObject) {
-                    part.rotatePart(event.getPlayerModel(), JSONUtils.getString((JsonObject) entry.getValue(), "xyz"), JSONUtils.getFloat((JsonObject) entry.getValue(), "angle"));
+                    part.rotatePart(event.getPlayerModel(), JSONUtils.getAsString((JsonObject) entry.getValue(), "xyz"), JSONUtils.getAsFloat((JsonObject) entry.getValue(), "angle"));
                 }
             }
         }

@@ -2,8 +2,6 @@ package xyz.heroesunited.heroesunited.common;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -20,8 +18,6 @@ import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
-import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
@@ -38,8 +34,6 @@ import xyz.heroesunited.heroesunited.common.events.HUCancelBlockCollision;
 import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
 import xyz.heroesunited.heroesunited.common.objects.HUSounds;
 import xyz.heroesunited.heroesunited.common.objects.blocks.HUBlocks;
-import xyz.heroesunited.heroesunited.common.objects.entities.HUEntities;
-import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 import xyz.heroesunited.heroesunited.util.HUTickrate;
@@ -49,27 +43,9 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.FALL_RESISTANCE;
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOOST;
 
 public class HUEventHandler {
-
-    @SubscribeEvent
-    public void entityAttribute(EntityAttributeCreationEvent event) {
-        event.put(HUEntities.HORAS, Horas.createMobAttributes().build());
-    }
-
-    @SubscribeEvent
-    public void entityAttributeModification(EntityAttributeModificationEvent event) {
-        for (EntityType<? extends LivingEntity> type : event.getTypes()) {
-            if (!event.has(type, FALL_RESISTANCE)) {
-                event.add(type, FALL_RESISTANCE, 0);
-            }
-            if (!event.has(type, JUMP_BOOST)) {
-                event.add(type, JUMP_BOOST, 0);
-            }
-        }
-    }
 
     @SubscribeEvent
     public void playerSize(EntityEvent.Size event) {
@@ -147,7 +123,7 @@ public class HUEventHandler {
 
                 if (a.isFlying() && !pl.isOnGround()) {
                     HUPlayerUtil.playSoundToAll(pl.level, HUPlayerUtil.getPlayerPos(pl), 10, IFlyingAbility.getFlyingAbility(pl) != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() : HUSounds.FLYING : HUSounds.FLYING, SoundCategory.PLAYERS, 0.05F, 0.5F);
-                    if (pl.moveForward > 0F) {
+                    if (pl.zza > 0F) {
                         Vector3d vec = pl.getLookAngle();
                         double speed = pl.isSprinting() ? 2.5f : 1f;
                         pl.setDeltaMovement(vec.x * speed, vec.y * speed - (pl.isCrouching() ? pl.getBbHeight() * 0.2F : 0), vec.z * speed);

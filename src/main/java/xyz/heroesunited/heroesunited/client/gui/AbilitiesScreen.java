@@ -149,9 +149,8 @@ public class AbilitiesScreen extends Screen {
         mc.getTextureManager().bind(AbstractGui.GUI_ICONS_LOCATION);
         int height = top + 160;
         int width = left + 8;
-        int k = (int) (level.getExperience() / (level.getExpForNextLevel() + level.getExperience()));
         this.blit(matrixStack, width, height, 0, 64, 182, 5);
-        this.blit(matrixStack, width, height, 0, 69, Math.min(k, 182), 5);
+        this.blit(matrixStack, width, height, 0, 69, (int) Math.min(level.getExperience(), 182), 5);
         RenderSystem.enableBlend();
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         matrixStack.popPose();

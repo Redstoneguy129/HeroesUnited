@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
@@ -25,6 +26,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import org.lwjgl.glfw.GLFW;
@@ -95,17 +97,19 @@ public class HUClientEventHandler {
                     event.getMatrixStack().pushPose();
                     float size = ((SizeChangeAbility) a).getSize();
                     event.getMatrixStack().scale(size, size, size);
-                    event.getRenderer().getDispatcher().setRenderShadow(false);
+                    event.getRenderer().shadowRadius = 0.5F * size;
                 }
                 if (event instanceof RenderPlayerEvent.Post) {
                     event.getMatrixStack().popPose();
                 }
             } else {
+                if (event.getRenderer().shadowRadius != 0.5F) {
+                    event.getRenderer().shadowRadius = 0.5F;
+                }
+            }
+            if (AbilityHelper.getAbilities(event.getPlayer()).isEmpty()) {
                 event.getRenderer().getDispatcher().setRenderShadow(true);
             }
-        }
-        if (AbilityHelper.getAbilities(event.getPlayer()).isEmpty()) {
-            event.getRenderer().getDispatcher().setRenderShadow(true);
         }
     }
 
@@ -147,41 +151,25 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void onRenderAccessories(HURenderLayerEvent.Accessories event) {
-        for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
-            if (ability instanceof HideBodyPartsAbility && ability.getJsonObject().has("visibility_parts")) {
-                for (Map.Entry<String, JsonElement> yep : JSONUtils.getAsJsonObject(ability.getJsonObject(), "visibility_parts").entrySet()) {
-                    if (yep.getKey().equals("all")) {
-                        event.setCanceled(!JSONUtils.getAsBoolean((JsonObject) yep.getValue(), yep.getKey()));
-                    }
-                }
-            }
-        }
+        hideAllBodyParts(event, event.getLivingEntity());
     }
 
     @SubscribeEvent
     public void onRenderHULayer(HURenderLayerEvent.Pre event) {
-        if (event.getLivingEntity() instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) event.getLivingEntity();
-            for (Ability ability : AbilityHelper.getAbilities(player)) {
-                if (ability instanceof HideBodyPartsAbility && ability.getJsonObject().has("visibility_parts")) {
-                    for (Map.Entry<String, JsonElement> yep : JSONUtils.getAsJsonObject(ability.getJsonObject(), "visibility_parts").entrySet()) {
-                        if (yep.getKey().equals("all")) {
-                            event.setCanceled(!JSONUtils.getAsBoolean((JsonObject) yep.getValue(), yep.getKey()));
-                        }
-                    }
-                }
-            }
-        }
+        hideAllBodyParts(event, event.getLivingEntity());
     }
 
     @SubscribeEvent
     public void onArmorLayer(HURenderLayerEvent.Armor.Pre event) {
-        if (event.getLivingEntity() instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) event.getLivingEntity();
-            for (Ability ability : AbilityHelper.getAbilities(player)) {
+        hideAllBodyParts(event, event.getLivingEntity());
+    }
+
+    public void hideAllBodyParts(Event event, LivingEntity entity) {
+        if (entity instanceof PlayerEntity) {
+            for (Ability ability : AbilityHelper.getAbilities((PlayerEntity) entity)) {
                 if (ability instanceof HideBodyPartsAbility && ability.getJsonObject().has("visibility_parts")) {
                     for (Map.Entry<String, JsonElement> yep : JSONUtils.getAsJsonObject(ability.getJsonObject(), "visibility_parts").entrySet()) {
-                        if (yep.getKey().equals("all")) {
+                        if (yep.getKey().equals("all") && yep.getValue() instanceof JsonObject) {
                             event.setCanceled(!JSONUtils.getAsBoolean((JsonObject) yep.getValue(), yep.getKey()));
                         }
                     }

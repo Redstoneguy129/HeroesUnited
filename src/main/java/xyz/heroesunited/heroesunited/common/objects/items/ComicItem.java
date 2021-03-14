@@ -14,15 +14,15 @@ import xyz.heroesunited.heroesunited.client.gui.FiveYearsLaterBookGUI;
 public class ComicItem extends Item {
 
     public ComicItem() {
-        super(new Item.Properties().maxStackSize(1));
+        super(new Item.Properties().stacksTo(1));
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        if (!playerIn.world.isRemote) return ActionResult.resultPass(playerIn.getHeldItem(handIn));
-        Minecraft.getInstance().displayGuiScreen(new FiveYearsLaterBookGUI());
+    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
+        if (!playerIn.level.isClientSide) return ActionResult.pass(playerIn.getItemInHand(handIn));
+        Minecraft.getInstance().setScreen(new FiveYearsLaterBookGUI());
 
-        return super.onItemRightClick(worldIn, playerIn, handIn);
+        return super.use(worldIn, playerIn, handIn);
     }
 }
