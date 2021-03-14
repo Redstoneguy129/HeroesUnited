@@ -139,7 +139,7 @@ public class HUEventHandler {
     @SubscribeEvent
     public void onLivingHurt(LivingAttackEvent event) {
         if (event.getEntityLiving() instanceof PlayerEntity) {
-            for (Ability ability : AbilityHelper.getAbilities((PlayerEntity) event.getEntityLiving())) {
+            for (Ability ability : AbilityHelper.getAbilities(event.getEntityLiving())) {
                 if (ability instanceof DamageImmunityAbility && ((DamageImmunityAbility) ability).haveImmuneTo(event.getSource())) {
                     event.setCanceled(true);
                 }

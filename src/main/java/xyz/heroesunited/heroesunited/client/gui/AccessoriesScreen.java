@@ -31,6 +31,10 @@ public class AccessoriesScreen extends ContainerScreen<AccessoriesContainer> {
     }
 
     @Override
+    protected void renderLabels(MatrixStack p_230451_1_, int p_230451_2_, int p_230451_3_) {
+    }
+
+    @Override
     protected void renderBg(MatrixStack matrixStack, float partialTicks, int x, int y) {
         int i = this.getGuiLeft();
         int j = this.getGuiTop();
