@@ -31,7 +31,7 @@ public class AccessoriesContainer extends Container {
     public AccessoriesContainer(int id, PlayerInventory playerInventory, AccessoriesInventory inventory) {
         super(HUContainers.ACCESSORIES, id);
 
-        for (int i = 0; i < 9; ++i) {
+        for (int i = 0; i < 8; ++i) {
             if (i == EquipmentAccessoriesSlot.RIGHT_WRIST.getSlot()) {
                 this.addSlot(new WristSlot(inventory, i, 141, 8 + (i - 4) * 18, EquipmentAccessoriesSlot.RIGHT_WRIST));
             } else if(i == EquipmentAccessoriesSlot.LEFT_WRIST.getSlot()) {
