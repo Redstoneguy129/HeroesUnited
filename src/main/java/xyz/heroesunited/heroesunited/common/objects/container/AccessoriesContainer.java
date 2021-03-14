@@ -35,7 +35,7 @@ public class AccessoriesContainer extends Container {
             if (i == EquipmentAccessoriesSlot.RIGHT_WRIST.getSlot()) {
                 this.addSlot(new WristSlot(inventory, i, 141, 8 + (i - 4) * 18, EquipmentAccessoriesSlot.RIGHT_WRIST));
             } else if(i == EquipmentAccessoriesSlot.LEFT_WRIST.getSlot()) {
-                this.addSlot(new WristSlot(inventory, 4 + i, 141, 8 + (i - 4) * 18, EquipmentAccessoriesSlot.LEFT_WRIST));
+                this.addSlot(new WristSlot(inventory, i, 141, 8 + (i - 4) * 18, EquipmentAccessoriesSlot.LEFT_WRIST));
             } else {
                 this.addSlot(new AccessorySlot(inventory, i, i > 3 ? 141 : 110, i > 3 ? 8 + (i - 4) * 18 : 8 + i * 18));
             }
