@@ -275,6 +275,10 @@ public class ModelHoras extends BipedModel<Horas> {
     }
 
     @Override
+    public void setupAnim(Horas entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    }
+
+    @Override
     public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         this.head.render(matrixStack, buffer, packedLight, packedOverlay);
         this.body.render(matrixStack, buffer, packedLight, packedOverlay);

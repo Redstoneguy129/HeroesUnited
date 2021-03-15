@@ -11,12 +11,11 @@ import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 
 public class AccessoriesInventory implements IInventory {
 
-    private NonNullList<ItemStack> inventory;
+    private NonNullList<ItemStack> inventory = NonNullList.withSize(8, ItemStack.EMPTY);
     private PlayerEntity player;
 
     public AccessoriesInventory(PlayerEntity player) {
         this.player = player;
-        this.inventory = NonNullList.withSize(8, ItemStack.EMPTY);
     }
 
     public boolean haveStack(EquipmentAccessoriesSlot slot) {
@@ -93,7 +92,7 @@ public class AccessoriesInventory implements IInventory {
     }
 
     public void read(CompoundNBT compound) {
-        this.inventory = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
+        this.inventory.clear();
         ItemStackHelper.loadAllItems(compound, this.inventory);
     }
 
