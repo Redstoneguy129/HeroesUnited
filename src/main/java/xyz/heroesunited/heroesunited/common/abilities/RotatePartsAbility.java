@@ -10,7 +10,7 @@ import xyz.heroesunited.heroesunited.util.PlayerPart;
 
 import java.util.Map;
 
-public class RotatePartsAbility extends Ability {
+public class RotatePartsAbility extends JSONAbility {
 
     public RotatePartsAbility() {
         super(AbilityType.ROTATE_PARTS);
@@ -19,7 +19,7 @@ public class RotatePartsAbility extends Ability {
     @OnlyIn(Dist.CLIENT)
     @Override
     public void setRotationAngles(HUSetRotationAnglesEvent event) {
-        if (this.getJsonObject().has("parts")) {
+        if (this.getJsonObject().has("parts") && enabled) {
             JsonObject overrides = JSONUtils.getAsJsonObject(getJsonObject(), "parts");
 
             for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {

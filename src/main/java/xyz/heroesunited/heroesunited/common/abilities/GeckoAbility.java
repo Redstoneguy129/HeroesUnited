@@ -17,7 +17,7 @@ import software.bernie.geckolib3.core.manager.AnimationFactory;
 import xyz.heroesunited.heroesunited.client.render.renderer.GeoAbilityRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.IGeoAbility;
 
-public class GeckoAbility extends Ability implements IGeoAbility {
+public class GeckoAbility extends JSONAbility implements IGeoAbility {
     private AnimationFactory factory = new AnimationFactory(this);
 
     public GeckoAbility() {
@@ -27,17 +27,21 @@ public class GeckoAbility extends Ability implements IGeoAbility {
     @OnlyIn(Dist.CLIENT)
     @Override
     public void render(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        GeoAbilityRenderer abilityRenderer = new GeoAbilityRenderer(getGeoModel());
-        abilityRenderer.setCurrentAbility(player, this, renderer.getModel(), name);
-        abilityRenderer.renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entityTranslucent(abilityRenderer.getTextureLocation(this))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+        if (enabled) {
+            GeoAbilityRenderer abilityRenderer = new GeoAbilityRenderer(getGeoModel());
+            abilityRenderer.setCurrentAbility(player, this, renderer.getModel(), name);
+            abilityRenderer.renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entityTranslucent(abilityRenderer.getTextureLocation(this))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
     public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side) {
-        GeoAbilityRenderer abilityRenderer = new GeoAbilityRenderer(getGeoModel());
-        abilityRenderer.setCurrentAbility(player, this, renderer.getModel(), name);
-        abilityRenderer.renderFirstPersonArm(this, renderer, matrix, bufferIn, packedLightIn, player, side);
+        if (enabled) {
+            GeoAbilityRenderer abilityRenderer = new GeoAbilityRenderer(getGeoModel());
+            abilityRenderer.setCurrentAbility(player, this, renderer.getModel(), name);
+            abilityRenderer.renderFirstPersonArm(this, renderer, matrix, bufferIn, packedLightIn, player, side);
+        }
     }
 
     public void registerControllers(AnimationData data) {

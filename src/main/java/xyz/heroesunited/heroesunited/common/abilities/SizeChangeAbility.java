@@ -1,13 +1,12 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import com.google.gson.JsonObject;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.math.MathHelper;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 
-public class SizeChangeAbility extends Ability {
+public class SizeChangeAbility extends JSONAbility {
 
     protected float size;
 
@@ -16,48 +15,8 @@ public class SizeChangeAbility extends Ability {
     }
 
     @Override
-    public void onUpdate(PlayerEntity player) {
-        if (!this.getJsonObject().has("key")) {
-            setSize(player, getRightSize(player));
-        } else {
-            JsonObject key = JSONUtils.getAsJsonObject(this.getJsonObject(), "key");
-            if (JSONUtils.getAsString(key, "pressType").equals("action") && cooldownTicks <= 0) {
-                setSize(player, 1F);
-            }
-        }
-    }
-
-    @Override
-    public void toggle(PlayerEntity player, int id, boolean pressed) {
-        if (this.getJsonObject().has("key")) {
-            JsonObject key = JSONUtils.getAsJsonObject(this.getJsonObject(), "key");
-            String pressType = JSONUtils.getAsString(key, "pressType", "toggle");
-
-            if (id == JSONUtils.getAsInt(key, "id")) {
-                if (pressType.equals("toggle")) {
-                    if (pressed) {
-                        setSize(player, this.size == 1F ? getRightSize(player) : 1F);
-                    }
-                } else if (pressType.equals("action")) {
-                    if (pressed) {
-                        setSize(player, getRightSize(player));
-                        this.cooldownTicks = JSONUtils.getAsInt(key, "cooldown", 2);
-                    }
-                    setSize(player, 1F);
-                } else if (pressType.equals("held")) {
-                    if (pressed && this.size == 1F) {
-                        setSize(player, getRightSize(player));
-                    } else if (!pressed && this.size != 1f) {
-                        setSize(player, 1F);
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onDeactivated(PlayerEntity player) {
-        setSize(player, 1F);
+    public void action(PlayerEntity player) {
+        setSize(player, enabled ? getRightSize(player) : 1F);
     }
 
     public void setSize(PlayerEntity player, float value) {

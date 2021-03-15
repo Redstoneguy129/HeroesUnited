@@ -10,7 +10,7 @@ import xyz.heroesunited.heroesunited.util.PlayerPart;
 
 import java.util.Map;
 
-public class HideBodyPartsAbility extends Ability {
+public class HideBodyPartsAbility extends JSONAbility {
 
     public HideBodyPartsAbility() {
         super(AbilityType.HIDE_BODY_PARTS);
@@ -19,7 +19,7 @@ public class HideBodyPartsAbility extends Ability {
     @OnlyIn(Dist.CLIENT)
     @Override
     public void setRotationAngles(HUSetRotationAnglesEvent event) {
-        if (getJsonObject().has("visibility_parts")) {
+        if (getJsonObject().has("visibility_parts") && enabled) {
             JsonObject overrides = JSONUtils.getAsJsonObject(getJsonObject(), "visibility_parts");
 
             for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
