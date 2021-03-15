@@ -6,7 +6,7 @@ buildscript {
         maven { url = 'https://repo.spongepowered.org/repository/sponge-legacy/' }
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1+', changing: true
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
         classpath "com.github.jengelman.gradle.plugins:shadow:4.0.4"

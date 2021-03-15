@@ -142,11 +142,13 @@ public class HeroesUnited {
     @SubscribeEvent
     public void entityAttributeModification(final EntityAttributeModificationEvent event) {
         for (EntityType<? extends LivingEntity> type : event.getTypes()) {
-            if (!event.has(type, FALL_RESISTANCE)) {
-                event.add(type, FALL_RESISTANCE, 0);
-            }
-            if (!event.has(type, JUMP_BOOST)) {
-                event.add(type, JUMP_BOOST, 0);
+            if (type == EntityType.PLAYER) {
+                if (!event.has(type, FALL_RESISTANCE)) {
+                    event.add(type, FALL_RESISTANCE, 0);
+                }
+                if (!event.has(type, JUMP_BOOST)) {
+                    event.add(type, JUMP_BOOST, 0);
+                }
             }
         }
     }
