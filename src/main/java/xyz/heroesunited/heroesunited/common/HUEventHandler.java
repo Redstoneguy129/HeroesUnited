@@ -225,7 +225,7 @@ public class HUEventHandler {
     @SubscribeEvent
     public void LivingFallEvent(LivingFallEvent event) {
         ModifiableAttributeInstance fallAttribute = event.getEntityLiving().getAttribute(HUAttributes.FALL_RESISTANCE);
-        if (fallAttribute != null) {
+        if (fallAttribute != null && event.getEntityLiving() instanceof PlayerEntity) {
             fallAttribute.setBaseValue(event.getDamageMultiplier());
             event.setDamageMultiplier((float) fallAttribute.getValue());
         }
@@ -233,7 +233,7 @@ public class HUEventHandler {
 
     @SubscribeEvent
     public void LivingJumpEvent(LivingEvent.LivingJumpEvent event) {
-        if (!event.getEntityLiving().isCrouching()) {
+        if (!event.getEntityLiving().isCrouching() && event.getEntityLiving() instanceof PlayerEntity) {
             event.getEntityLiving().setDeltaMovement(event.getEntity().getDeltaMovement().x, event.getEntity().getDeltaMovement().y + 0.1F * event.getEntityLiving().getAttribute(JUMP_BOOST).getValue(), event.getEntity().getDeltaMovement().z);
         }
     }
