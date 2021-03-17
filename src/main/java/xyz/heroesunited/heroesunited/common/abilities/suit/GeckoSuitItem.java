@@ -16,6 +16,8 @@ import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.item.Item.Properties;
+
 public class GeckoSuitItem extends SuitItem implements IAnimatable {
     private AnimationFactory factory = new AnimationFactory(this);
 

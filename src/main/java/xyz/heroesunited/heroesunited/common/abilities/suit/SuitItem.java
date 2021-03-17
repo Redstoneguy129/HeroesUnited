@@ -27,6 +27,9 @@ import java.util.Map;
 import static net.minecraft.inventory.EquipmentSlotType.Group;
 import static net.minecraft.inventory.EquipmentSlotType.values;
 
+import net.minecraft.inventory.EquipmentSlotType.Group;
+import net.minecraft.item.Item.Properties;
+
 public class SuitItem extends ArmorItem implements IAbilityProvider {
 
     protected final Suit suit;

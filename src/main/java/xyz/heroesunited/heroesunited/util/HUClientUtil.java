@@ -44,6 +44,8 @@ import java.util.Random;
 
 import static net.minecraft.inventory.EquipmentSlotType.*;
 
+import net.minecraft.client.renderer.RenderType.State;
+
 @OnlyIn(Dist.CLIENT)
 public class HUClientUtil {
 

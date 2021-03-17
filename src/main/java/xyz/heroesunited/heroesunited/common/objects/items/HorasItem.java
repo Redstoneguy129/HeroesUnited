@@ -20,6 +20,8 @@ import xyz.heroesunited.heroesunited.common.objects.entities.HUEntities;
 
 import java.util.Objects;
 
+import net.minecraft.item.Item.Properties;
+
 public class HorasItem extends Item {
     public HorasItem(Properties properties) {
         super(properties);
