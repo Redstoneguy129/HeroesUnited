@@ -109,8 +109,14 @@ task deobfJar(type: Jar) {
     classifier = 'deobf'
 }
 
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allJava
+}
+
 artifacts {
     archives deobfJar
+    archives sourcesJar
     archives tasks.shadowJar
 }
 
@@ -146,6 +152,7 @@ publishing {
         mavenJava(MavenPublication) {
             artifact shadowJar
             artifact deobfJar
+            artifact sourcesJar
             artifactId = "hu-core"
         }
     }
