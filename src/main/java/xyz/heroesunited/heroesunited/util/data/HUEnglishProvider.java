@@ -47,6 +47,8 @@ public class HUEnglishProvider extends HULanguageProvider {
         this.addCommand("ability.disabled", "Abilities has been disabled");
         this.addCommand("superpower.set.single", "%s superpower has been set to %s");
         this.addCommand("superpower.set.multiple", "%s entities Superpower has been set to %s");
+        this.addCommand("superpowerlevel.set.single", "%s has reached %s level");
+        this.addCommand("superpowerlevel.set.multiple", "%s entities has reached %s level");
         this.addCommand("slow_mo", "Slow-mo for all players has been set to %s");
 
         this.add("heroesunited.jumpBoost", "Jump Boost");

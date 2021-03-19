@@ -18,12 +18,12 @@ public class ModelCape extends Model {
         cape = new ModelRenderer(this);
         cape.setPos(0.0F, 0.0F, 2.0F);
         setRotationAngle(cape, 0.0F, 3.1416F, 0.0F);
-        cape.setTexSize(0, 4).addBox(-7.0F, 0.0F, 0.0F, 14.0F, 24.0F, 0.0F, 0.0F, false);
+        cape.texOffs(0, 4).addBox(-7.0F, 0.0F, 0.0F, 14.0F, 24.0F, 0.0F, 0.0F, false);
 
         startCape = new ModelRenderer(this);
         startCape.setPos(0.0F, 0.0F, 0.0F);
         setRotationAngle(startCape, 0.0F, 3.1416F, 0.0F);
-        startCape.setTexSize(0, 0).addBox(-5.0F, 0.0F, -2.0F, 10.0F, 0.0F, 4.0F, 0.0F, false);
+        startCape.texOffs(0, 0).addBox(-5.0F, 0.0F, -2.0F, 10.0F, 0.0F, 4.0F, 0.0F, false);
     }
 
     @Override

@@ -15,15 +15,11 @@ public abstract class BaseAbility extends Ability {
     @Override
     public void onUpdate(PlayerEntity player) {
         super.onUpdate(player);
-        if (enabled) {
-            action(player);
-            if (actionType == ActionType.ACTION) {
-                this.enabled = false;
-            }
-        } else {
-            if (actionType == ActionType.CONSTANT) {
-                this.enabled = true;
-            }
+        action(player);
+        if (enabled && actionType == ActionType.ACTION) {
+            this.enabled = false;
+        } else if (actionType == ActionType.CONSTANT) {
+            this.enabled = true;
         }
     }
 
@@ -32,6 +28,7 @@ public abstract class BaseAbility extends Ability {
         super.onDeactivated(player);
         if (enabled) {
             enabled = false;
+            action(player);
         }
     }
 

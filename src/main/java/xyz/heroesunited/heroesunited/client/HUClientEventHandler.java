@@ -165,7 +165,7 @@ public class HUClientEventHandler {
 
     public void hideAllBodyParts(Event event, LivingEntity entity) {
         if (entity instanceof PlayerEntity) {
-            for (Ability ability : AbilityHelper.getAbilities((PlayerEntity) entity)) {
+            for (Ability ability : AbilityHelper.getAbilities(entity)) {
                 if (ability instanceof HideBodyPartsAbility && ability.getJsonObject().has("visibility_parts")) {
                     for (Map.Entry<String, JsonElement> yep : JSONUtils.getAsJsonObject(ability.getJsonObject(), "visibility_parts").entrySet()) {
                         if (yep.getKey().equals("all")) {
@@ -204,9 +204,9 @@ public class HUClientEventHandler {
             boolean renderFlying = IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).renderFlying(event.getPlayer());
             if (renderFlying && !(event.getPlayer().getFallFlyingTicks() > 4) && !event.getPlayer().isVisuallySwimming()) {
                 event.getMatrixStack().pushPose();
-                event.getMatrixStack().mulPose(new Quaternion(0, -event.getPlayer().yHeadRot, 0, true));
+                event.getMatrixStack().mulPose(new Quaternion(0, -event.getPlayer().yRot, 0, true));
                 event.getMatrixStack().mulPose(new Quaternion(90F + event.getPlayer().xRot, 0, 0, true));
-                event.getMatrixStack().mulPose(new Quaternion(0, event.getPlayer().yHeadRot, 0, true));
+                event.getMatrixStack().mulPose(new Quaternion(0, event.getPlayer().yRot, 0, true));
             }
         }
     }

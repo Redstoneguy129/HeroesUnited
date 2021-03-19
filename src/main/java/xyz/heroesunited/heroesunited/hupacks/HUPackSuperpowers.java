@@ -102,4 +102,13 @@ public class HUPackSuperpowers extends JsonReloadListener {
         }
         return false;
     }
+
+    public static ResourceLocation getSuperpower(PlayerEntity player) {
+        for (Ability ability : HUPlayer.getCap(player).getAbilities().values()) {
+            if (ability.getAdditionalData().contains("Superpower")) {
+                return new ResourceLocation(ability.getAdditionalData().getString("Superpower"));
+            }
+        }
+        return null;
+    }
 }

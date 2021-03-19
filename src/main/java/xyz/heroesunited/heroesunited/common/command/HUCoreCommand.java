@@ -2,6 +2,7 @@ package xyz.heroesunited.heroesunited.common.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
@@ -43,6 +44,8 @@ public class HUCoreCommand {
                         .then(Commands.argument("players", EntityArgument.players())
                                 .then(Commands.literal("disable").executes(c -> disableAbility(c.getSource(), EntityArgument.getPlayers(c, "players"))))))
                 .then(Commands.literal("superpower")
+                        .then(Commands.literal("level")).then(Commands.argument("players", EntityArgument.players())
+                                .then(Commands.argument("level", IntegerArgumentType.integer())).executes(c -> setSuperpowerLevel(c.getSource(), EntityArgument.getPlayers(c, "players"), IntegerArgumentType.getInteger(c, "level"))))
                         .then(Commands.argument("players", EntityArgument.players())
                                 .then(Commands.argument("superpower", ResourceLocationArgument.id()).suggests(SUGGEST_SUPERPOWERS)
                                         .executes((c) -> setSuperpower(c.getSource(), EntityArgument.getPlayers(c, "players"), getSuperpower(c, "superpower"))))
@@ -79,6 +82,27 @@ public class HUCoreCommand {
             commandSource.sendSuccess(new TranslationTextComponent("commands.heroesunited.superpower.set.single", (players.iterator().next()).getDisplayName(), superpower.getDisplayName()), true);
         else
             commandSource.sendSuccess(new TranslationTextComponent("commands.heroesunited.superpower.set.multiple", i, superpower.getDisplayName()), true);
+        return players.size();
+    }
+
+    private static int setSuperpowerLevel(CommandSource commandSource, Collection<ServerPlayerEntity> players, int level) {
+        Iterator iterator = players.iterator();
+        int i = 0;
+        while (iterator.hasNext()) {
+            PlayerEntity pl = (PlayerEntity) iterator.next();
+            pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((k) -> {
+                if (HUPackSuperpowers.getSuperpower(pl) !=null) {
+                    k.getSuperpowerLevels().get(HUPackSuperpowers.getSuperpower(pl)).setLevel(level);
+                    k.syncToAll();
+                }
+            });
+            if (pl.getCapability(HUPlayerProvider.CAPABILITY).isPresent())
+                i++;
+        }
+        if (i == 1)
+            commandSource.sendSuccess(new TranslationTextComponent("commands.heroesunited.superpowerlevel.set.single", (players.iterator().next()).getDisplayName(), level), true);
+        else
+            commandSource.sendSuccess(new TranslationTextComponent("commands.heroesunited.superpowerlevel.set.multiple", i, level), true);
         return players.size();
     }
 
