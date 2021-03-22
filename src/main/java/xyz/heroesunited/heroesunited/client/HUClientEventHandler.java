@@ -106,9 +106,9 @@ public class HUClientEventHandler {
                     event.getRenderer().shadowRadius = 0.5F;
                 }
             }
-            if (AbilityHelper.getAbilities(event.getPlayer()).isEmpty()) {
-                event.getRenderer().getDispatcher().setRenderShadow(true);
-            }
+        }
+        if (AbilityHelper.getAbilities(event.getPlayer()).stream().noneMatch(ab -> ab instanceof SizeChangeAbility)) {
+            event.getRenderer().shadowRadius = 0.5F;
         }
     }
 
