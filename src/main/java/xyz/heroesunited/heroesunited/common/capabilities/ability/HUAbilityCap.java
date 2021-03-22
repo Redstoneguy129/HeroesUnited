@@ -15,6 +15,7 @@ import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
+import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilities;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityCap;
@@ -48,6 +49,7 @@ public class HUAbilityCap implements IHUAbilityCap {
             activeAbilities.put(id, ability);
             ability.name = id;
             ability.onActivated(player);
+            HUPlayer.getCap(player).syncToAll();
             if (!player.level.isClientSide)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncActiveAbilities(player.getId(), this.getActiveAbilities()));
         }
@@ -58,6 +60,7 @@ public class HUAbilityCap implements IHUAbilityCap {
         if (activeAbilities.containsKey(id)) {
             activeAbilities.get(id).onDeactivated(player);
             activeAbilities.remove(id);
+            HUPlayer.getCap(player).syncToAll();
             if (!player.level.isClientSide)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncActiveAbilities(player.getId(), this.getActiveAbilities()));
         }
@@ -74,6 +77,7 @@ public class HUAbilityCap implements IHUAbilityCap {
             containedAbilities.put(id, ability);
             ability.name = id;
             syncToAll();
+            HUPlayer.getCap(player).syncToAll();
             if (!player.level.isClientSide)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getId(), this.getAbilities()));
         }
@@ -97,6 +101,7 @@ public class HUAbilityCap implements IHUAbilityCap {
             containedAbilities.remove(id);
             disable(id);
             syncToAll();
+            HUPlayer.getCap(player).syncToAll();
             if (!player.level.isClientSide)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getId(), this.getAbilities()));
         }
