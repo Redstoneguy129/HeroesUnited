@@ -38,10 +38,12 @@ import xyz.heroesunited.heroesunited.client.render.renderer.RendererHoras;
 import xyz.heroesunited.heroesunited.common.HUConfig;
 import xyz.heroesunited.heroesunited.common.HUEventHandler;
 import xyz.heroesunited.heroesunited.common.abilities.suit.GeckoSuitItem;
+import xyz.heroesunited.heroesunited.common.capabilities.HUCapStorage;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerEvent;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerStorage;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
+import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
+import xyz.heroesunited.heroesunited.common.capabilities.ability.IHUAbilityCap;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
 import xyz.heroesunited.heroesunited.common.objects.HUPaintings;
@@ -110,9 +112,10 @@ public class HeroesUnited {
 
     @SubscribeEvent
     public void commonSetup(final FMLCommonSetupEvent event) {
-        CapabilityManager.INSTANCE.register(IHUPlayer.class, new HUPlayerStorage(), () -> new HUPlayer(null));
-        HUNetworking.registerMessages();
+        CapabilityManager.INSTANCE.register(IHUPlayer.class, new HUCapStorage(), () -> new HUPlayer(null));
+        CapabilityManager.INSTANCE.register(IHUAbilityCap.class, new HUCapStorage(), () -> new HUAbilityCap(null));
 
+        HUNetworking.registerMessages();
         LOGGER.info(MODID + ": common is ready!");
     }
 

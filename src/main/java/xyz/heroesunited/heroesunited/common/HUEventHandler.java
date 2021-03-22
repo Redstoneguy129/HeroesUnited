@@ -29,6 +29,7 @@ import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.command.HUCoreCommand;
 import xyz.heroesunited.heroesunited.common.events.HUCancelBlockCollision;
 import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
@@ -87,6 +88,14 @@ public class HUEventHandler {
     public void livingUpdate(LivingEvent.LivingUpdateEvent event) {
         if (event.getEntityLiving() instanceof PlayerEntity && event.getEntityLiving() != null) {
             PlayerEntity pl = (PlayerEntity) event.getEntityLiving();
+            pl.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
+                for (Map.Entry<String, Ability> e : a.getAbilities().entrySet()) {
+                    Ability ability = e.getValue();
+                    if (ability != null && ability.alwaysActive() && AbilityHelper.canActiveAbility(ability, pl)) {
+                        a.enable(e.getKey(), ability);
+                    }
+                }
+            });
             pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
                 AbilityHelper.getAbilities(pl).forEach(type -> {
                     type.onUpdate(pl);
@@ -99,13 +108,6 @@ public class HUEventHandler {
                         }
                     }
                 });
-
-                for (Map.Entry<String, Ability> e : a.getAbilities().entrySet()) {
-                    Ability ability = e.getValue();
-                    if (ability != null && ability.alwaysActive() && AbilityHelper.canActiveAbility(ability, pl)) {
-                        a.enable(e.getKey(), ability);
-                    }
-                }
 
                 for (int i = 0; i < a.getInventory().getInventory().size(); ++i) {
                     if (!a.getInventory().getInventory().get(i).isEmpty()) {
@@ -178,9 +180,10 @@ public class HUEventHandler {
     public void onChangeEquipment(LivingEquipmentChangeEvent event) {
         if (event.getEntityLiving() instanceof PlayerEntity && event.getSlot().getType() == EquipmentSlotType.Group.ARMOR) {
             PlayerEntity player = (PlayerEntity) event.getEntityLiving();
-            if (event.getTo().getItem() instanceof SuitItem) {
-                SuitItem suitItem = (SuitItem) event.getTo().getItem();
-                player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+            player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
+                if (event.getTo().getItem() instanceof SuitItem) {
+                    SuitItem suitItem = (SuitItem) event.getTo().getItem();
+
                     if (!suitItem.getAbilities(player).isEmpty()) {
                         for (Map.Entry<String, Ability> entry : suitItem.getAbilities(player).entrySet()) {
                             Ability a = entry.getValue();
@@ -190,16 +193,14 @@ public class HUEventHandler {
                             }
                         }
                     }
-                });
-                suitItem.getSuit().onActivated(player, suitItem.getSlot());
-                for (Ability ability : AbilityHelper.getAbilities(player)) {
-                    if (ability != null && suitItem.getSuit().hasArmorOn(player) && !suitItem.getSuit().canCombineWithAbility(ability, player)) {
-                        AbilityHelper.disable(player);
+                    suitItem.getSuit().onActivated(player, suitItem.getSlot());
+                    for (Ability ability : AbilityHelper.getAbilities(player)) {
+                        if (ability != null && suitItem.getSuit().hasArmorOn(player) && !suitItem.getSuit().canCombineWithAbility(ability, player)) {
+                            AbilityHelper.disable(player);
+                        }
                     }
-                }
-            } else if (event.getFrom().getItem() instanceof SuitItem) {
-                SuitItem suitItem = (SuitItem) event.getFrom().getItem();
-                player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+                } else if (event.getFrom().getItem() instanceof SuitItem) {
+                    SuitItem suitItem = (SuitItem) event.getFrom().getItem();
                     for (Ability ab1 : suitItem.getAbilities(player).values()) {
                         for (Ability a : cap.getAbilities().values().stream().collect(Collectors.toList())) {
                             if (a.name.equals(ab1.name)) {
@@ -216,9 +217,9 @@ public class HUEventHandler {
                             }
                         }
                     }
-                });
-                suitItem.getSuit().onDeactivated(player, suitItem.getSlot());
-            }
+                    suitItem.getSuit().onDeactivated(player, suitItem.getSlot());
+                }
+            });
         }
     }
 

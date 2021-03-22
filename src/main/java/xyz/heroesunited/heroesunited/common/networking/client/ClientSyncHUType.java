@@ -37,7 +37,7 @@ public class ClientSyncHUType {
             Entity entity = net.minecraft.client.Minecraft.getInstance().level.getEntity(this.entityId);
 
             if (entity instanceof AbstractClientPlayerEntity) {
-                HUTypes.set(entity, this.data, this.value);
+                HUTypes.set(entity, this.data, this.value, false);
             }
         });
         ctx.get().setPacketHandled(true);

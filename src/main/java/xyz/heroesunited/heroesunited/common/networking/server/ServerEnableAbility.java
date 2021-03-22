@@ -9,7 +9,7 @@ import net.minecraftforge.fml.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 
 import java.util.function.Supplier;
 
@@ -37,7 +37,7 @@ public class ServerEnableAbility {
         ctx.get().enqueueWork(() -> {
             PlayerEntity player = ctx.get().getSender();
             if (player != null) {
-                player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+                player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
                     Ability ability = AbilityType.ABILITIES.getValue(new ResourceLocation(this.data.getString("AbilityType"))).create(this.id);
                     if (ability != null && AbilityHelper.canActiveAbility(ability, player)) {
                         if (this.data.contains("JsonObject")) {

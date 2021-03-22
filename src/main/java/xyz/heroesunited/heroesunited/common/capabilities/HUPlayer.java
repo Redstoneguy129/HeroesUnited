@@ -5,7 +5,6 @@ import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkDirection;
@@ -19,13 +18,12 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.common.abilities.Ability;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
-import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
-import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.HUTypes;
-import xyz.heroesunited.heroesunited.common.networking.client.*;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSetAnimation;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUData;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUPlayer;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUType;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesInventory;
 
 import javax.annotation.Nonnull;
@@ -39,7 +37,6 @@ public class HUPlayer implements IHUPlayer {
     public final AccessoriesInventory inventory;
     private AnimationFactory factory = new AnimationFactory(this);
     private ResourceLocation animationFile;
-    protected Map<String, Ability> activeAbilities, containedAbilities;
     protected Map<ResourceLocation, Level> superpowerLevels;
     protected final Map<String, HUData> dataList;
 
@@ -63,8 +60,6 @@ public class HUPlayer implements IHUPlayer {
 
     public HUPlayer(PlayerEntity player) {
         this.player = player;
-        this.activeAbilities = Maps.newHashMap();
-        this.containedAbilities = Maps.newHashMap();
         this.dataList = Maps.newHashMap();
         this.superpowerLevels = Maps.newHashMap();
         this.inventory = new AccessoriesInventory(player);
@@ -175,80 +170,6 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
-    public void enable(String id, Ability ability) {
-        if (!activeAbilities.containsKey(id)) {
-            activeAbilities.put(id, ability);
-            ability.name = id;
-            ability.onActivated(player);
-            if (!player.level.isClientSide)
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncActiveAbilities(player.getId(), this.getActiveAbilities()));
-        }
-    }
-
-    @Override
-    public void disable(String id) {
-        if (activeAbilities.containsKey(id)) {
-            activeAbilities.get(id).onDeactivated(player);
-            activeAbilities.remove(id);
-            if (!player.level.isClientSide)
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncActiveAbilities(player.getId(), this.getActiveAbilities()));
-        }
-    }
-
-    @Override
-    public Map<String, Ability> getActiveAbilities() {
-        return activeAbilities;
-    }
-
-    @Override
-    public void addAbility(String id, Ability ability) {
-        if (!containedAbilities.containsKey(id)) {
-            containedAbilities.put(id, ability);
-            ability.name = id;
-            syncToAll();
-            if (!player.level.isClientSide)
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getId(), this.getAbilities()));
-        }
-    }
-
-    @Override
-    public Map<String, Ability> getAbilities() {
-        return containedAbilities;
-    }
-
-    @Override
-    public void addAbilities(IAbilityProvider provider) {
-        if (!provider.getAbilities(player).isEmpty()) {
-            provider.getAbilities(player).forEach((id, d) -> addAbility(id, d));
-        }
-    }
-
-    @Override
-    public void removeAbility(String id) {
-        if (containedAbilities.containsKey(id)) {
-            containedAbilities.remove(id);
-            disable(id);
-            syncToAll();
-            if (!player.level.isClientSide)
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getId(), this.getAbilities()));
-        }
-    }
-
-    @Override
-    public void toggle(int id, boolean pressed) {
-        activeAbilities.forEach((name, ability) -> {
-            if (ability != null) {
-                ability.toggle(player, id, pressed);
-            }
-        });
-        for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
-            if (Suit.getSuitItem(equipmentSlot, player) != null) {
-                Suit.getSuitItem(equipmentSlot, player).getSuit().toggle(player, equipmentSlot, id, pressed);
-            }
-        }
-    }
-
-    @Override
     public int getTheme() {
         return theme;
     }
@@ -262,8 +183,6 @@ public class HUPlayer implements IHUPlayer {
     public IHUPlayer copy(IHUPlayer cap) {
         this.theme = cap.getTheme();
         this.inventory.copy(cap.getInventory());
-        this.activeAbilities = cap.getActiveAbilities();
-        this.containedAbilities = cap.getAbilities();
         this.flying = this.isInTimer = false;
         this.slowMo = 20F;
         this.timer = this.animationTimer = 0;
@@ -282,7 +201,7 @@ public class HUPlayer implements IHUPlayer {
     public IHUPlayer sync() {
         player.refreshDimensions();
         if (player instanceof ServerPlayerEntity) {
-            HUNetworking.INSTANCE.sendTo(new ClientSyncCap(player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+            HUNetworking.INSTANCE.sendTo(new ClientSyncHUPlayer(player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
         }
         return this;
     }
@@ -292,7 +211,7 @@ public class HUPlayer implements IHUPlayer {
         this.sync();
         for (PlayerEntity player : this.player.level.players()) {
             if (player instanceof ServerPlayerEntity) {
-                HUNetworking.INSTANCE.sendTo(new ClientSyncCap(this.player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                HUNetworking.INSTANCE.sendTo(new ClientSyncHUPlayer(this.player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
             }
         }
         return this;
@@ -372,13 +291,6 @@ public class HUPlayer implements IHUPlayer {
             levels.put(resourceLocation.toString(),level.writeNBT());
         });
         nbt.put("levels",levels);
-
-        CompoundNBT activeAbilities = new CompoundNBT(), abilities = new CompoundNBT();
-        this.activeAbilities.forEach((id, ability) -> activeAbilities.put(id, ability.serializeNBT()));
-        this.containedAbilities.forEach((id, ability) -> abilities.put(id, ability.serializeNBT()));
-
-        nbt.put("ActiveAbilities", activeAbilities);
-        nbt.put("Abilities", abilities);
         nbt.putBoolean("Flying", this.flying);
         nbt.putFloat("SlowMo", this.slowMo);
         nbt.putBoolean("Intangible", this.intangible);
@@ -447,27 +359,6 @@ public class HUPlayer implements IHUPlayer {
         }
         if (nbt.contains("AnimationFile")) {
             this.animationFile = new ResourceLocation(nbt.getString("AnimationFile"));
-        }
-
-        this.activeAbilities.clear();
-        for (String id : activeAbilities.getAllKeys()) {
-            CompoundNBT tag = activeAbilities.getCompound(id);
-            AbilityType abilityType = AbilityType.ABILITIES.getValue(new ResourceLocation(tag.getString("AbilityType")));
-            if (abilityType != null) {
-                Ability ability = abilityType.create(id);
-                ability.deserializeNBT(tag);
-                this.activeAbilities.put(id, ability);
-            }
-        }
-        this.containedAbilities.clear();
-        for (String id : abilities.getAllKeys()) {
-            CompoundNBT tag = abilities.getCompound(id);
-            AbilityType abilityType = AbilityType.ABILITIES.getValue(new ResourceLocation(tag.getString("AbilityType")));
-            if (abilityType != null) {
-                Ability ability = abilityType.create(id);
-                ability.deserializeNBT(tag);
-                containedAbilities.put(id, ability);
-            }
         }
         inventory.read(nbt);
     }

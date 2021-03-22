@@ -6,7 +6,7 @@ import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 
 import java.util.function.Supplier;
 
@@ -39,7 +39,7 @@ public class ClientSyncAbilityCreators {
             Entity entity = net.minecraft.client.Minecraft.getInstance().level.getEntity(this.entityId);
 
             if (entity instanceof AbstractClientPlayerEntity) {
-                entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+                entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
                     if (cap.getAbilities().containsKey(this.id) && jsonObject != null) {
                         cap.getAbilities().get(this.id).setJsonObject(entity, jsonObject);
                     }

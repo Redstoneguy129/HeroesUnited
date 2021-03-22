@@ -20,7 +20,9 @@ import net.minecraft.util.text.TranslationTextComponent;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
+import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
@@ -71,10 +73,9 @@ public class HUCoreCommand {
         int i = 0;
         while (iterator.hasNext()) {
             PlayerEntity pl = (PlayerEntity) iterator.next();
-            pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((k) -> {
-                HUPackSuperpowers.setSuperpower(pl, superpower);
-                k.syncToAll();
-            });
+            HUPackSuperpowers.setSuperpower(pl, superpower);
+            HUPlayer.getCap(pl).syncToAll();
+            HUAbilityCap.getCap(pl).syncToAll();
             if (pl.getCapability(HUPlayerProvider.CAPABILITY).isPresent())
                 i++;
         }
@@ -111,10 +112,9 @@ public class HUCoreCommand {
         int i = 0;
         while (iterator.hasNext()) {
             PlayerEntity pl = (PlayerEntity) iterator.next();
-            pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((k) -> {
-                HUPackSuperpowers.removeSuperpower(pl);
-                k.syncToAll();
-            });
+            HUPackSuperpowers.removeSuperpower(pl);
+            HUPlayer.getCap(pl).syncToAll();
+            HUAbilityCap.getCap(pl).syncToAll();
             if (pl.getCapability(HUPlayerProvider.CAPABILITY).isPresent())
                 i++;
         }
@@ -135,15 +135,13 @@ public class HUCoreCommand {
         }
     }
 
-
     private static int disableAbility(CommandSource commandSource, Collection<ServerPlayerEntity> players) {
         Iterator iterator = players.iterator();
         while (iterator.hasNext()) {
             PlayerEntity pl = (PlayerEntity) iterator.next();
-            pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((a) -> {
-                AbilityHelper.disable(pl);
-                a.syncToAll();
-            });
+            AbilityHelper.disable(pl);
+            HUPlayer.getCap(pl).syncToAll();
+            HUAbilityCap.getCap(pl).syncToAll();
         }
         commandSource.sendSuccess(new TranslationTextComponent("commands.heroesunited.ability.disabled"), true);
 

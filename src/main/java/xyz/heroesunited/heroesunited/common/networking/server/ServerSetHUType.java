@@ -36,7 +36,7 @@ public class ServerSetHUType {
             PlayerEntity player = ctx.get().getSender();
 
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((a) -> {
-                HUTypes.set(player, this.type, this.value);
+                HUTypes.set(player, this.type, this.value, true);
                 if (!player.level.isClientSide)
                     HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getId(), type, value));
             });

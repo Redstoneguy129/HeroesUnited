@@ -7,21 +7,21 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 
 import java.util.function.Supplier;
 
-public class ClientSyncCap {
+public class ClientSyncAbilityCap {
 
     public int entityId;
     private CompoundNBT data;
 
-    public ClientSyncCap(int entityId, CompoundNBT data) {
+    public ClientSyncAbilityCap(int entityId, CompoundNBT data) {
         this.entityId = entityId;
         this.data = data;
     }
 
-    public ClientSyncCap(PacketBuffer buf) {
+    public ClientSyncAbilityCap(PacketBuffer buf) {
         this.entityId = buf.readInt();
         this.data = buf.readNbt();
     }
@@ -36,7 +36,7 @@ public class ClientSyncCap {
             Minecraft mc = Minecraft.getInstance();
             Entity entity = mc.level.getEntity(this.entityId);
             if (entity instanceof AbstractClientPlayerEntity) {
-                entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(data -> data.deserializeNBT(this.data));
+                entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent(data -> data.deserializeNBT(this.data));
                 if (mc.screen instanceof AbilitiesScreen) {
                     mc.screen.init(mc, mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
                 }

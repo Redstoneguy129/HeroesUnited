@@ -12,7 +12,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 
 import java.util.Map;
 import java.util.function.Supplier;
@@ -59,7 +59,7 @@ public class ClientSyncActiveAbilities {
             Entity entity = mc.level.getEntity(this.entityId);
 
             if (entity instanceof AbstractClientPlayerEntity) {
-                entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((a) -> {
+                entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent((a) -> {
                     ImmutableList.copyOf(a.getActiveAbilities().keySet()).forEach(a::disable);
                     this.abilities.forEach((key, value) -> a.enable(key, value));
                 });

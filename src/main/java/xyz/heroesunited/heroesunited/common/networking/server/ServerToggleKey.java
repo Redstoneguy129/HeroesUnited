@@ -3,7 +3,7 @@ package xyz.heroesunited.heroesunited.common.networking.server;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 
 import java.util.function.Supplier;
 
@@ -31,7 +31,7 @@ public class ServerToggleKey {
         ctx.get().enqueueWork(() -> {
             PlayerEntity player = ctx.get().getSender();
             if (player != null) {
-                player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> cap.toggle(Math.min(32767, Math.max(1, this.id)), this.pressed));
+                player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> cap.toggle(Math.min(32767, Math.max(1, this.id)), this.pressed));
             }
         });
         ctx.get().setPacketHandled(true);

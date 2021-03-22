@@ -6,7 +6,7 @@ import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 public enum HUTypes {
     TYPE, TIMER, ANIMATION_TIMER, FLYING, INTAGIBLE, IN_TIMER;
 
-    public static void set(Entity entity, HUTypes data, int value) {
+    public static void set(Entity entity, HUTypes data, int value, boolean server) {
         entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((a) -> {
             boolean booleans = value == 1;
             switch (data) {
@@ -34,6 +34,9 @@ public enum HUTypes {
                     a.setInTimer(booleans);
                     break;
                 }
+            }
+            if (!server) {
+                a.sync();
             }
         });
     }

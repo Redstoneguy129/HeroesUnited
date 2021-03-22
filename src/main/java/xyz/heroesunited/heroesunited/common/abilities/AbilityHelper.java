@@ -14,8 +14,7 @@ import net.minecraft.util.ResourceLocation;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,16 +23,14 @@ import java.util.UUID;
 public class AbilityHelper {
 
     public static boolean getEnabled(String name, PlayerEntity player) {
-        return HUPlayer.getCap(player).getActiveAbilities().containsKey(name);
+        return HUAbilityCap.getCap(player).getActiveAbilities().containsKey(name);
     }
 
     public static void disable(PlayerEntity player) {
-        player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
-            ImmutableMap.copyOf(a.getActiveAbilities()).forEach((id, ability) -> {
-                a.disable(id);
-                ability.onDeactivated(player);
-            });
-        });
+        player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> ImmutableMap.copyOf(a.getActiveAbilities()).forEach((id, ability) -> {
+            a.disable(id);
+            ability.onDeactivated(player);
+        }));
     }
 
     public static boolean canActiveAbility(Ability ability, PlayerEntity player) {
@@ -43,7 +40,7 @@ public class AbilityHelper {
 
     public static List<Ability> getAbilities(Entity entity) {
         List<Ability> list = new ArrayList<>();
-        entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((f) -> list.addAll(f.getActiveAbilities().values()));
+        entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent((f) -> list.addAll(f.getActiveAbilities().values()));
         return list;
     }
 

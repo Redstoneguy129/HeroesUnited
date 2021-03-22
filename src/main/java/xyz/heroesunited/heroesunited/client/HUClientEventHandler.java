@@ -44,6 +44,7 @@ import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccessoriesInv;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerToggleKey;
@@ -142,7 +143,7 @@ public class HUClientEventHandler {
             if (!KEY_STATE.containsKey(key)) KEY_STATE.put(key, false);
             if (KEY_STATE.get(key) != (action == GLFW.GLFW_PRESS)) {
                 HUNetworking.INSTANCE.sendToServer(new ServerToggleKey(index, action == GLFW.GLFW_PRESS));
-                Minecraft.getInstance().player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> cap.toggle(index, action == GLFW.GLFW_PRESS));
+                Minecraft.getInstance().player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> cap.toggle(index, action == GLFW.GLFW_PRESS));
             }
             KEY_STATE.put(key, action == GLFW.GLFW_PRESS);
         }
@@ -242,14 +243,16 @@ public class HUClientEventHandler {
                 Suit.getSuitItem(equipmentSlot, player).getSuit().setRotationAngles(event, equipmentSlot);
             }
         }
-
-        player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+        player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
             for (Ability ability : cap.getAbilities().values()) {
                 if (ability instanceof IAbilityAlwaysRenderer) {
                     ((IAbilityAlwaysRenderer) ability).setAlwaysRotationAngles(event);
                 }
             }
+        });
 
+
+        player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             for (String s : playerBones) {
                 GeoBone bone = cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap)).getBone(s).get();
                 ModelRenderer renderer = HUClientUtil.getModelRendererById(event.getPlayerModel(), s);
@@ -296,7 +299,7 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void renderPlayerHand(HURenderPlayerHandEvent event) {
-        event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
+        event.getPlayer().getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
             for (Ability ability : a.getAbilities().values()) {
                 if (ability instanceof IAbilityAlwaysRenderer) {
                     ((IAbilityAlwaysRenderer) ability).renderAlwaysFirstPersonArm(event.getRenderer(), event.getMatrixStack(), event.getBuffers(), event.getLight(), event.getPlayer(), event.getSide());
@@ -307,7 +310,7 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void renderPlayerLayers(HURenderLayerEvent.Player event) {
-        event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
+        event.getPlayer().getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
             for (Ability ability : a.getAbilities().values()) {
                 if (ability instanceof IAbilityAlwaysRenderer) {
                     ((IAbilityAlwaysRenderer) ability).renderAlways(event.getRenderer(), event.getMatrixStack(), event.getBuffers(), event.getLight(), event.getPlayer(), event.getLimbSwing(), event.getLimbSwingAmount(), event.getPartialTicks(), event.getAgeInTicks(), event.getNetHeadYaw(), event.getHeadPitch());
