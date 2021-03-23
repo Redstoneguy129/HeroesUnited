@@ -25,7 +25,12 @@ public class RotatePartsAbility extends JSONAbility {
             for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
                 PlayerPart part = PlayerPart.getByName(entry.getKey());
                 if (part != null && entry.getValue() instanceof JsonObject) {
-                    part.rotatePart(event.getPlayerModel(), JSONUtils.getAsString((JsonObject) entry.getValue(), "xyz"), JSONUtils.getAsFloat((JsonObject) entry.getValue(), "angle"));
+                    JsonObject jsonObject = (JsonObject) entry.getValue();
+                    if (jsonObject.has("value")) {
+                        part.translatePivot(event.getPlayerModel(), JSONUtils.getAsString(jsonObject, "xyz"), JSONUtils.getAsFloat(jsonObject, "value"));
+                    } else {
+                        part.rotatePart(event.getPlayerModel(), JSONUtils.getAsString(jsonObject, "xyz"), JSONUtils.getAsFloat(jsonObject, "angle"));
+                    }
                 }
             }
         }

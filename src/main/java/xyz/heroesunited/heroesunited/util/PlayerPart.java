@@ -109,6 +109,47 @@ public enum PlayerPart {
         }
     }
 
+    public void translatePivot(PlayerModel model, String xyz, float value) {
+        switch (this) {
+            case HEAD:
+                HUJsonUtils.translatePivotOfModel(model.head, xyz, value);
+                return;
+            case HEAD_WEAR:
+                HUJsonUtils.translatePivotOfModel(model.hat, xyz, value);
+                return;
+            case CHEST:
+                HUJsonUtils.translatePivotOfModel(model.body, xyz, value);
+                return;
+            case CHEST_WEAR:
+                HUJsonUtils.translatePivotOfModel(model.jacket, xyz, value);
+                return;
+            case RIGHT_ARM:
+                HUJsonUtils.translatePivotOfModel(model.rightArm, xyz, value);
+                return;
+            case RIGHT_ARM_WEAR:
+                HUJsonUtils.translatePivotOfModel(model.rightSleeve, xyz, value);
+                return;
+            case LEFT_ARM:
+                HUJsonUtils.translatePivotOfModel(model.leftArm, xyz, value);
+                return;
+            case LEFT_ARM_WEAR:
+                HUJsonUtils.translatePivotOfModel(model.leftSleeve, xyz, value);
+                return;
+            case RIGHT_LEG:
+                HUJsonUtils.translatePivotOfModel(model.rightLeg, xyz, value);
+                return;
+            case RIGHT_LEG_WEAR:
+                HUJsonUtils.translatePivotOfModel(model.rightPants, xyz, value);
+                return;
+            case LEFT_LEG:
+                HUJsonUtils.translatePivotOfModel(model.leftLeg, xyz, value);
+                return;
+            case LEFT_LEG_WEAR:
+                HUJsonUtils.translatePivotOfModel(model.leftPants, xyz, value);
+                return;
+        }
+    }
+
     public static PlayerPart getByName(String name) {
         for (PlayerPart playerPart : values()) {
             if (name.equalsIgnoreCase(playerPart.name)) {

@@ -123,4 +123,18 @@ public class HUJsonUtils {
                 break;
         }
     }
+
+    public static void translatePivotOfModel(ModelRenderer modelRenderer, String xyz, float value) {
+        switch (xyz) {
+            case "x":
+                modelRenderer.x = value;
+                break;
+            case "y":
+                modelRenderer.y = value;
+                break;
+            case "z":
+                modelRenderer.z = value;
+                break;
+        }
+    }
 }

@@ -54,6 +54,7 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
     public static final AbilityType SIZE_CHANGE = new AbilityType(SizeChangeAbility::new, HeroesUnited.MODID, "size_change");
     public static final AbilityType COMMAND = new AbilityType(CommandAbility::new, HeroesUnited.MODID, "command");
     public static final AbilityType DAMAGE_IMMUNITY = new AbilityType(DamageImmunityAbility::new, HeroesUnited.MODID, "damage_immunity");
+    public static final AbilityType POTION_EFFECT = new AbilityType(PotionEffectAbility::new, HeroesUnited.MODID, "potion_effect");
 
     @SubscribeEvent
     public static void registerAbilityTypes(RegistryEvent.Register<AbilityType> e) {
@@ -66,5 +67,6 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
         e.getRegistry().register(COMMAND);
         e.getRegistry().register(DAMAGE_IMMUNITY);
         e.getRegistry().register(ROTATE_PARTS);
+        e.getRegistry().register(POTION_EFFECT);
     }
 }
