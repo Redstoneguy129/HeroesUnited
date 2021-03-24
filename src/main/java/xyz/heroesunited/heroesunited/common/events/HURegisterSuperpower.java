@@ -20,7 +20,7 @@ public class HURegisterSuperpower extends Event {
 
     public void registerAll(Superpower... superpowers) {
         for (Superpower superpower : superpowers) {
-            map.put(superpower.getRegistryName(), superpower);
+            this.register(superpower);
         }
     }
 
