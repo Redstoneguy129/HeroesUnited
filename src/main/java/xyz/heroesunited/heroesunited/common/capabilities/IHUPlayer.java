@@ -51,17 +51,6 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable {
     void setType(int type);
 
     /**
-     * Timer for abilities - For using look at any HU Mods
-     **/
-    boolean isInTimer();
-
-    void setInTimer(boolean isInTimer);
-
-    int getTimer();
-
-    void setTimer(int timer);
-
-    /**
      * Default animation timer
      **/
     int getAnimationTimer();

@@ -97,17 +97,7 @@ public class HUEventHandler {
                 }
             });
             pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
-                AbilityHelper.getAbilities(pl).forEach(type -> {
-                    type.onUpdate(pl);
-                    if (type instanceof ITimerAbility) {
-                        ITimerAbility timer = (ITimerAbility) type;
-                        if (a.isInTimer() && a.getTimer() < timer.maxTimer()) {
-                            a.setTimer(a.getTimer() + 1);
-                        } else if (!a.isInTimer() & a.getTimer() > 0) {
-                            a.setTimer(a.getTimer() - 1);
-                        }
-                    }
-                });
+                AbilityHelper.getAbilities(pl).forEach(type -> type.onUpdate(pl));
 
                 for (int i = 0; i < a.getInventory().getInventory().size(); ++i) {
                     if (!a.getInventory().getInventory().get(i).isEmpty()) {

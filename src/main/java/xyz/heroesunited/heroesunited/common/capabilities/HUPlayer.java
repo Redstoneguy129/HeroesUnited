@@ -31,8 +31,8 @@ import java.util.Map;
 
 public class HUPlayer implements IHUPlayer {
     private final PlayerEntity player;
-    private boolean flying, intangible, isInTimer;
-    private int theme, type, timer, animationTimer;
+    private boolean flying, intangible;
+    private int theme, type, animationTimer;
     private float slowMo = 20F;
     public final AccessoriesInventory inventory;
     private AnimationFactory factory = new AnimationFactory(this);
@@ -134,30 +134,6 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
-    public boolean isInTimer() {
-        return isInTimer;
-    }
-
-    @Override
-    public int getTimer() {
-        return timer;
-    }
-
-    @Override
-    public void setInTimer(boolean isInTimer) {
-        this.isInTimer = isInTimer;
-        if (!player.level.isClientSide)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getId(), HUTypes.IN_TIMER, isInTimer ? 1 : 0));
-    }
-
-    @Override
-    public void setTimer(int timer) {
-        this.timer = timer;
-        if (!player.level.isClientSide)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getId(), HUTypes.TIMER, timer));
-    }
-
-    @Override
     public int getAnimationTimer() {
         return animationTimer;
     }
@@ -183,9 +159,9 @@ public class HUPlayer implements IHUPlayer {
     public IHUPlayer copy(IHUPlayer cap) {
         this.theme = cap.getTheme();
         this.inventory.copy(cap.getInventory());
-        this.flying = this.isInTimer = false;
+        this.flying = false;
         this.slowMo = 20F;
-        this.timer = this.animationTimer = 0;
+        this.animationTimer = 0;
         for (HUData data : this.dataList.values()) {
             for (HUData oldData : cap.getDataList().values()) {
                 if (data.canBeSaved() && oldData.canBeSaved() && data.getKey().equals(oldData.getKey())) {
@@ -297,8 +273,6 @@ public class HUPlayer implements IHUPlayer {
         nbt.putInt("Theme", this.theme);
         nbt.putInt("Type", this.type);
         nbt.putInt("AnimationTimer", this.animationTimer);
-        nbt.putInt("Timer", this.timer);
-        nbt.putBoolean("isInTimer", this.isInTimer);
         if (this.animationFile != null) {
             nbt.putString("AnimationFile", this.animationFile.toString());
         }
@@ -350,12 +324,6 @@ public class HUPlayer implements IHUPlayer {
         }
         if (nbt.contains("AnimationTimer")) {
             this.animationTimer = nbt.getInt("AnimationTimer");
-        }
-        if (nbt.contains("Timer")) {
-            this.timer = nbt.getInt("Timer");
-        }
-        if (nbt.contains("isInTimer")) {
-            this.isInTimer = nbt.getBoolean("isInTimer");
         }
         if (nbt.contains("AnimationFile")) {
             this.animationFile = new ResourceLocation(nbt.getString("AnimationFile"));

@@ -4,7 +4,7 @@ import net.minecraft.entity.Entity;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
 public enum HUTypes {
-    TYPE, TIMER, ANIMATION_TIMER, FLYING, INTAGIBLE, IN_TIMER;
+    TYPE, ANIMATION_TIMER, FLYING, INTAGIBLE;
 
     public static void set(Entity entity, HUTypes data, int value, boolean server) {
         entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((a) -> {
@@ -12,10 +12,6 @@ public enum HUTypes {
             switch (data) {
                 case TYPE: {
                     a.setType(value);
-                    break;
-                }
-                case TIMER: {
-                    a.setTimer(value);
                     break;
                 }
                 case ANIMATION_TIMER: {
@@ -28,10 +24,6 @@ public enum HUTypes {
                 }
                 case INTAGIBLE: {
                     a.setIntangible(booleans);
-                    break;
-                }
-                case IN_TIMER: {
-                    a.setInTimer(booleans);
                     break;
                 }
             }
