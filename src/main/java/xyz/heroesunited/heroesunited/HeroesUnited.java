@@ -32,9 +32,10 @@ import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
 import xyz.heroesunited.heroesunited.client.HUClientEventHandler;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
 import xyz.heroesunited.heroesunited.client.gui.AccessoriesScreen;
+import xyz.heroesunited.heroesunited.client.render.renderer.EnergyBlastRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.GeckoSuitRenderer;
+import xyz.heroesunited.heroesunited.client.render.renderer.HorasRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.IGeoAbility;
-import xyz.heroesunited.heroesunited.client.render.renderer.RendererHoras;
 import xyz.heroesunited.heroesunited.common.HUConfig;
 import xyz.heroesunited.heroesunited.common.HUEventHandler;
 import xyz.heroesunited.heroesunited.common.abilities.suit.GeckoSuitItem;
@@ -124,7 +125,8 @@ public class HeroesUnited {
         Runtime.getRuntime().addShutdownHook(new Thread(DiscordRPC::discordShutdown));
         HUPacks.HUPackFinder.createFoldersAndLoadThemes();
         ClientRegistry.registerEntityShader(Horas.class, new ResourceLocation(MODID, "shaders/post/horas.json"));
-        RenderingRegistry.registerEntityRenderingHandler(HUEntities.HORAS, RendererHoras::new);
+        RenderingRegistry.registerEntityRenderingHandler(HUEntities.HORAS, HorasRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(HUEntities.ENERGY_BLAST, EnergyBlastRenderer::new);
         GeoArmorRenderer.registerArmorRenderer(GeckoSuitItem.class, new GeckoSuitRenderer());
         ScreenManager.register(HUContainers.ACCESSORIES, AccessoriesScreen::new);
 

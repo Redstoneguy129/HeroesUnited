@@ -11,9 +11,9 @@ import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
 import xyz.heroesunited.heroesunited.util.HUCalendarHelper;
 
 @OnlyIn(Dist.CLIENT)
-public class RendererHoras extends BipedRenderer<Horas, ModelHoras> {
+public class HorasRenderer extends BipedRenderer<Horas, ModelHoras> {
 
-    public RendererHoras(EntityRendererManager manager) {
+    public HorasRenderer(EntityRendererManager manager) {
         super(manager, new ModelHoras(), 0.0F);
     }
 
