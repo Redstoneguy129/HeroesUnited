@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.gui.screen.CustomizeSkinScreen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.entity.LivingRenderer;
@@ -15,9 +16,11 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.HandSide;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -50,9 +53,11 @@ import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccessor
 import xyz.heroesunited.heroesunited.common.networking.server.ServerToggleKey;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
+import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -314,6 +319,30 @@ public class HUClientEventHandler {
             for (Ability ability : a.getAbilities().values()) {
                 if (ability instanceof IAbilityAlwaysRenderer) {
                     ((IAbilityAlwaysRenderer) ability).renderAlways(event.getRenderer(), event.getMatrixStack(), event.getBuffers(), event.getLight(), event.getPlayer(), event.getLimbSwing(), event.getLimbSwingAmount(), event.getPartialTicks(), event.getAgeInTicks(), event.getNetHeadYaw(), event.getHeadPitch());
+                }
+            }
+        });
+    }
+
+    @SubscribeEvent
+    public void renderHand(RenderHandEvent event) {
+        if (Minecraft.getInstance().player == null) return;
+        AbstractClientPlayerEntity player = Minecraft.getInstance().player;
+
+        player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
+            for (Ability ability : a.getActiveAbilities().values()) {
+                if (ability instanceof EnergyLaserAbility && ((EnergyLaserAbility) ability).getEnabled() && Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+                    double distance = Minecraft.getInstance().hitResult.getLocation().distanceTo(player.position().add(0, player.getEyeHeight(), 0));
+                    AxisAlignedBB box = new AxisAlignedBB(0.1F, -0.25, 0, 0, -0.25, -distance).inflate(0.03125D);
+                    Color color = HUJsonUtils.getColor(ability.getJsonObject());
+
+                    event.getMatrixStack().pushPose();
+                    event.getMatrixStack().translate(player.getMainArm() == HandSide.RIGHT ? 0.3F : -0.3F, 0, 0);
+                    HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, 1, event.getLight());
+                    HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.03125D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, event.getLight());
+                    event.setCanceled(true);
+                    event.getMatrixStack().popPose();
+                    return;
                 }
             }
         });
