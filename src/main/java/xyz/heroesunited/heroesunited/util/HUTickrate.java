@@ -21,7 +21,7 @@ public class HUTickrate {
         }
 
         if (side.isClient() && CLIENT_TICK != tickrate) {
-            ObfuscationReflectionHelper.setPrivateValue(Minecraft.class, Minecraft.getInstance(), new Timer(tickrate, 0l), "timer");
+            ObfuscationReflectionHelper.setPrivateValue(Minecraft.class, Minecraft.getInstance(), new Timer(tickrate, 0l), "field_71428_T");
             CLIENT_TICK = tickrate;
         }
         if (side.isServer() && HUTickrate.SERVER_TICK != (long) (1000L / tickrate)) {

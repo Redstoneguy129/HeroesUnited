@@ -37,9 +37,11 @@ public class AccessoriesContainer extends Container {
             } else if(i == EquipmentAccessoriesSlot.LEFT_WRIST.getSlot()) {
                 this.addSlot(new WristSlot(inventory, i, 141, 8 + (i - 4) * 18, EquipmentAccessoriesSlot.LEFT_WRIST));
             } else {
-                this.addSlot(new AccessorySlot(inventory, i, i > 3 ? 141 : 110, i > 3 ? 8 + (i - 4) * 18 : 8 + i * 18));
+                this.addSlot(new AccessorySlot(inventory, i, i > 3 ? 141 : 109, i > 3 ? 8 + (i - 4) * 18 : 8 + i * 18));
             }
         }
+
+        this.addSlot(new AccessorySlot(inventory, 8, 77, 44));
 
         for (int k = 0; k < 4; ++k) {
             final EquipmentSlotType type = VALID_EQUIPMENT_SLOTS[k];
@@ -160,11 +162,11 @@ public class AccessoriesContainer extends Container {
 
     public class AccessorySlot extends Slot {
 
-        private final EquipmentAccessoriesSlot equipmentSlot;
+        protected final EquipmentAccessoriesSlot accessoriesSlot;
 
         public AccessorySlot(IInventory inventoryIn, int index, int xPosition, int yPosition) {
             super(inventoryIn, index, xPosition, yPosition);
-            this.equipmentSlot = EquipmentAccessoriesSlot.getFromSlotIndex(index);
+            this.accessoriesSlot = EquipmentAccessoriesSlot.getFromSlotIndex(index);
         }
 
         @Override
@@ -180,7 +182,7 @@ public class AccessoriesContainer extends Container {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            return stack.getItem() instanceof IAccessory && equipmentSlot == ((IAccessory) stack.getItem()).getSlot();
+            return stack.getItem() instanceof IAccessory && accessoriesSlot == ((IAccessory) stack.getItem()).getSlot();
         }
     }
 

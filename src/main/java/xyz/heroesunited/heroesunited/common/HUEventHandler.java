@@ -91,8 +91,12 @@ public class HUEventHandler {
             pl.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
                 for (Map.Entry<String, Ability> e : a.getAbilities().entrySet()) {
                     Ability ability = e.getValue();
-                    if (ability != null && ability.alwaysActive() && AbilityHelper.canActiveAbility(ability, pl)) {
-                        a.enable(e.getKey(), ability);
+                    if (ability != null && ability.alwaysActive()) {
+                        if (AbilityHelper.canActiveAbility(ability, pl)) {
+                            a.enable(e.getKey(), ability);
+                        } else {
+                            a.disable(e.getKey());
+                        }
                     }
                 }
             });

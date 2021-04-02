@@ -6,10 +6,11 @@ public enum EquipmentAccessoriesSlot {
     PANTS(2),
     SHOES(3),
     JACKET(4),
-    RIGHT_WRIST(5),
-    LEFT_WRIST(6),
-    GLOVES(7),
-    WRIST(8);
+    BELT(5),
+    RIGHT_WRIST(6),
+    LEFT_WRIST(7),
+    GLOVES(8),
+    WRIST(9);
 
     private final int slot;
 

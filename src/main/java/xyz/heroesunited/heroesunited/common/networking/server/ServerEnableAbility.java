@@ -39,14 +39,12 @@ public class ServerEnableAbility {
             if (player != null) {
                 player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
                     Ability ability = AbilityType.ABILITIES.getValue(new ResourceLocation(this.data.getString("AbilityType"))).create(this.id);
-                    if (ability != null && AbilityHelper.canActiveAbility(ability, player)) {
-                        if (this.data.contains("JsonObject")) {
+                    if (ability != null) {
+                        if (this.data.contains("JsonObject"))
                             ability.setJsonObject(null, new JsonParser().parse(this.data.getString("JsonObject")).getAsJsonObject());
+                        if (AbilityHelper.canActiveAbility(ability, player)) {
+                            cap.enable(this.id, ability);
                         }
-                        if (this.data.contains("Superpower")) {
-                            ability.getAdditionalData().putString("Superpower", this.data.getString("Superpower"));
-                        }
-                        cap.enable(this.id, ability);
                     }
                 });
             }
