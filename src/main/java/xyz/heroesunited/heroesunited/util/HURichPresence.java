@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class HURichPresence {
 
     private static HURichPresence RPC = new HURichPresence("778269026874163230");
+    private static boolean hiddenRPC = false;
 
     public static HURichPresence getPresence() {
         return RPC;
@@ -34,19 +35,8 @@ public class HURichPresence {
     private List<String> list = Lists.newArrayList();
 
     public HURichPresence(String clientID) {
-        if (HUCalendarHelper.isSnowTime()) {
-            list.add("Happy New-Year!");
-            list.add("Merry Christmas");
-            list.add("Uhuhuhu, Santa, where are my gifts?!");
-            list.add("This is what Santa Claus loves!");
-        } else if (HUCalendarHelper.isAprilFoolsDay()) {
-            list.add("You trolled!");
-        } else if (HUCalendarHelper.isHalloween()) {
-            list.add("OOoooOOOoooo! Spooky!");
-        } else {
-            list.addAll(getListFromTXT(new ResourceLocation(HeroesUnited.MODID, "splash.txt")));
-            list.addAll(getListFromTXT(new ResourceLocation("texts/splashes.txt")));
-        }
+        this.list.addAll(getListFromTXT(new ResourceLocation(HeroesUnited.MODID, "splash.txt")));
+        this.list.addAll(getListFromTXT(new ResourceLocation("texts/splashes.txt")));
         DiscordEventHandlers handlers = new DiscordEventHandlers.Builder().setReadyEventHandler(user -> HeroesUnited.LOGGER.info(String.format("Logged into Discord as %s!", user.username + "#" + user.discriminator))).build();
         DiscordRPC.discordInitialize(clientID, handlers, true);
         DiscordRPC.discordClearPresence();
@@ -70,6 +60,14 @@ public class HURichPresence {
     private String getQuote(String notNull) {
         if (notNull != null) return notNull;
         return list.get(random.nextInt(list.size()));
+    }
+
+    public static void hideDiscordRPC() {
+        hiddenRPC = true;
+    }
+
+    public static boolean isHiddenRPC() {
+        return hiddenRPC;
     }
 
     public enum MiniLogos {

@@ -187,7 +187,9 @@ public class HUClientEventHandler {
     public void setDiscordPresence(EntityJoinWorldEvent event) {
         if (!(event.getEntity() instanceof PlayerEntity) || Minecraft.getInstance().player == null || Minecraft.getInstance().player.getUUID() != event.getEntity().getUUID())
             return;
-        HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United", null, HURichPresence.MiniLogos.NONE, null);
+        if (!HURichPresence.isHiddenRPC()) {
+            HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United", null, HURichPresence.MiniLogos.NONE, null);
+        }
     }
 
     @SubscribeEvent
