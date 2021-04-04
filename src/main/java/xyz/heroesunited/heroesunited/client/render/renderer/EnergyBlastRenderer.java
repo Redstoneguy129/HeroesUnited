@@ -23,14 +23,16 @@ public class EnergyBlastRenderer extends EntityRenderer<EnergyBlastEntity> {
 
     @Override
     public void render(EnergyBlastEntity entity, float entityYaw, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn) {
-        if (this.entityRenderDispatcher.camera.getEntity().distanceToSqr(entity) < 6.125D) return;
-        AxisAlignedBB box = new AxisAlignedBB(-0.025F, 0, -0.025F, 0.025F, 1, 0.025F);
-        matrixStack.pushPose();
-        matrixStack.mulPose(Vector3f.YP.rotationDegrees(MathHelper.lerp(partialTicks, entity.yRotO, entity.yRot) - 90.0F));
-        matrixStack.mulPose(Vector3f.ZP.rotationDegrees(MathHelper.lerp(partialTicks, entity.xRotO, entity.xRot) + 90.0F));
-        HUClientUtil.renderFilledBox(matrixStack, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1f, 1f, 1f, 1F, packedLightIn);
-        HUClientUtil.renderFilledBox(matrixStack, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.0312D), entity.getColor().getRed() / 255F, entity.getColor().getGreen() / 255F, entity.getColor().getBlue() / 255F, 0.5F, packedLightIn);
-        matrixStack.popPose();
+        if (entity.tickCount >= 2 || !(this.entityRenderDispatcher.camera.getEntity().distanceToSqr(entity) < 6.125D)) {
+            AxisAlignedBB box = new AxisAlignedBB(-0.025F, 0, -0.025F, 0.025F, 1, 0.025F);
+            matrixStack.pushPose();
+            matrixStack.mulPose(Vector3f.YP.rotationDegrees(MathHelper.lerp(partialTicks, entity.yRotO, entity.yRot) - 90.0F));
+            matrixStack.mulPose(Vector3f.ZP.rotationDegrees(MathHelper.lerp(partialTicks, entity.xRotO, entity.xRot) + 90.0F));
+            matrixStack.translate(0.25, -0.5, 0);
+            HUClientUtil.renderFilledBox(matrixStack, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1f, 1f, 1f, 1F, packedLightIn);
+            HUClientUtil.renderFilledBox(matrixStack, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.0312D), entity.getColor().getRed() / 255F, entity.getColor().getGreen() / 255F, entity.getColor().getBlue() / 255F, 0.5F, packedLightIn);
+            matrixStack.popPose();
+        }
     }
 
     @Override

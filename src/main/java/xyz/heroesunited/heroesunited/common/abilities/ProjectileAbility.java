@@ -32,7 +32,7 @@ public class ProjectileAbility extends JSONAbility {
             EntityType.loadEntityRecursive(compound, world, (entity) -> {
                 if (entity instanceof ProjectileEntity) {
                     ProjectileEntity projectile = (ProjectileEntity) entity;
-                    projectile.moveTo(player.getX(), player.getY() + player.getEyeHeight() - 0.1D, player.getZ(), projectile.yRot, projectile.xRot);
+                    projectile.moveTo(player.getX(), (player.getY() + player.getEyeHeight()) - 0.25D, player.getZ(), projectile.yRot, projectile.xRot);
                     float velocity = JSONUtils.getAsFloat(getJsonObject(), "velocity", 1.5F);
                     float inaccuracy = JSONUtils.getAsFloat(getJsonObject(), "inaccuracy", 0F);
                     projectile.shootFromRotation(player, player.xRot, player.yRot, 0, velocity, inaccuracy);
