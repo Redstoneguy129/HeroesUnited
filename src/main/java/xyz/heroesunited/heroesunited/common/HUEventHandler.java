@@ -25,7 +25,10 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import xyz.heroesunited.heroesunited.common.abilities.*;
+import xyz.heroesunited.heroesunited.common.abilities.Ability;
+import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
+import xyz.heroesunited.heroesunited.common.abilities.DamageImmunityAbility;
+import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
@@ -60,18 +63,6 @@ public class HUEventHandler {
                         event.setNewSize(EntitySize.scalable(0.6F, 0.6F));
                     }
                     event.setNewEyeHeight(0.4F);
-                }
-                for (Ability a : AbilityHelper.getAbilities(player)) {
-                    if (a instanceof SizeChangeAbility) {
-                        SizeChangeAbility ability = (SizeChangeAbility) a;
-                        EntitySize size = event.getOldSize();
-                        if (event.getOldSize().fixed) {
-                            event.setNewSize(EntitySize.fixed(size.width * ability.getSize(), size.height * ability.getSize()));
-                        } else {
-                            event.setNewSize(EntitySize.scalable(size.width * ability.getSize(), size.height * ability.getSize()));
-                        }
-                        event.setNewEyeHeight(event.getOldEyeHeight() * ability.getSize());
-                    }
                 }
             });
         }

@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.mixin.entity;
 
+import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Pose;
@@ -9,6 +10,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import xyz.heroesunited.heroesunited.common.abilities.Ability;
+import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.SizeChangeAbility;
 
 @Mixin(PlayerEntity.class)
@@ -16,6 +20,16 @@ public abstract class MixinPlayerEntity extends LivingEntity {
 
     public MixinPlayerEntity(EntityType<? extends PlayerEntity> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
+    }
+
+    @Inject(at = @At("RETURN"), method = "getDimensions", cancellable = true)
+    private void onGetDimensions(Pose pose, CallbackInfoReturnable<EntitySize> info) {
+        for (Ability ability : AbilityHelper.getAbilities(this)) {
+            if (ability instanceof SizeChangeAbility) {
+                float size = ((SizeChangeAbility) ability).getSize();
+                info.setReturnValue(info.getReturnValue().scale(size, size));
+            }
+        }
     }
 
     @Inject(method = "updatePlayerPose()V", at = @At(value = "HEAD"), cancellable = true)
@@ -49,7 +63,7 @@ public abstract class MixinPlayerEntity extends LivingEntity {
                     if (!SizeChangeAbility.isSmall(player)) {
                         pose1 = Pose.SWIMMING;
                     } else {
-                        pose1 = Pose.CROUCHING;
+                        pose1 = pose;
                     }
                 }
             } else {

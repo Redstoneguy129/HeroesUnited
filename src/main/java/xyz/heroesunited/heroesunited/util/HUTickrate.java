@@ -6,6 +6,7 @@ import net.minecraft.util.Timer;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
+import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
 public class HUTickrate {
 
@@ -15,7 +16,7 @@ public class HUTickrate {
     public static void tick(PlayerEntity player, LogicalSide side) {
         float tickrate = 20F;
         for (PlayerEntity player1 : player.level.players()) {
-            if (player1.isAlive() && HUPlayer.getCap(player1) != null && HUPlayer.getCap(player1).getSlowMoSpeed() != 20) {
+            if (player1.isAlive() && player1.getCapability(HUPlayerProvider.CAPABILITY).isPresent() && player1.getCapability(HUPlayerProvider.CAPABILITY).orElse(null).getSlowMoSpeed() != 20) {
                 tickrate = HUPlayer.getCap(player1).getSlowMoSpeed();
             }
         }

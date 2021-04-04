@@ -4,11 +4,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.math.MathHelper;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 
 public class SizeChangeAbility extends JSONAbility {
 
-    protected float size;
+    protected float size = 1f;
 
     public SizeChangeAbility() {
         super(AbilityType.SIZE_CHANGE);
@@ -22,7 +21,7 @@ public class SizeChangeAbility extends JSONAbility {
     public void setSize(PlayerEntity player, float value) {
         if (this.size != value) {
             this.size = value;
-            HUPlayer.getCap(player).sync();
+            player.refreshDimensions();
         }
     }
 
