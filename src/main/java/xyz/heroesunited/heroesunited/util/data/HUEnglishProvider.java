@@ -25,12 +25,14 @@ public class HUEnglishProvider extends HULanguageProvider {
         this.add(HUBlocks.TITANIUM_ORE, "titanium_ore");
 
         this.add(HUEntities.HORAS, "HORAS");
+        this.add(HUEntities.ENERGY_BLAST, "Energy Blast");
         this.add("subtitles.flying", "Flight");
 
         this.add("item.heroesunited.comic", "5YL Comic");
         this.add(HUItems.TITANIUM_INGOT, "Titanium Ingot");
         this.add(HUItems.HEROES_UNITED, "Heroes United");
         this.add(HUItems.HORAS, "HORAS");
+        this.add(HUItems.THE_ONE_RING, "The One Ring");
 
         this.add("advancements.heroesunited.root.title", "Heroes United");
         this.add("advancements.heroesunited.root.description", "Download Heroes United!");
