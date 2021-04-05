@@ -90,8 +90,12 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
                     suitModel.body.visible = suitModel.bipedBodyWear.visible =
                             suitModel.bipedLeftArmwear.visible = suitModel.leftArm.visible =
                                     suitModel.bipedRightArmwear.visible = suitModel.rightArm.visible = cap.getInventory().haveStack(slot);
-        } else if (slot == EquipmentAccessoriesSlot.TSHIRT || slot == EquipmentAccessoriesSlot.RIGHT_WRIST ||
-                slot == EquipmentAccessoriesSlot.LEFT_WRIST || slot == EquipmentAccessoriesSlot.GLOVES) {
+        } else if (slot == EquipmentAccessoriesSlot.TSHIRT) {
+            suitModel.hat.visible = suitModel.head.visible =
+                    suitModel.body.visible = suitModel.bipedBodyWear.visible =
+                            suitModel.bipedLeftArmwear.visible = suitModel.leftArm.visible =
+                                    suitModel.bipedRightArmwear.visible = suitModel.rightArm.visible = cap.getInventory().haveStack(slot);
+        } else if (slot == EquipmentAccessoriesSlot.RIGHT_WRIST || slot == EquipmentAccessoriesSlot.LEFT_WRIST || slot == EquipmentAccessoriesSlot.GLOVES) {
             suitModel.body.visible = suitModel.bipedBodyWear.visible =
                     suitModel.bipedLeftArmwear.visible = suitModel.leftArm.visible =
                             suitModel.bipedRightArmwear.visible = suitModel.rightArm.visible = cap.getInventory().haveStack(slot);
