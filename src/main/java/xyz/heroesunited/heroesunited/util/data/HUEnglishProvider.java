@@ -21,8 +21,8 @@ public class HUEnglishProvider extends HULanguageProvider {
             this.addKeyBinding("ability_" + key, "Ability Key " + key);
         }
 
-        this.add(HUBlocks.TITANIUM, "titanium");
-        this.add(HUBlocks.TITANIUM_ORE, "titanium_ore");
+        this.add(HUBlocks.TITANIUM, "Titanium");
+        this.add(HUBlocks.TITANIUM_ORE, "Titanium ore");
 
         this.add(HUEntities.HORAS, "HORAS");
         this.add(HUEntities.ENERGY_BLAST, "Energy Blast");
@@ -33,6 +33,7 @@ public class HUEnglishProvider extends HULanguageProvider {
         this.add(HUItems.HEROES_UNITED, "Heroes United");
         this.add(HUItems.HORAS, "HORAS");
         this.add(HUItems.THE_ONE_RING, "The One Ring");
+        this.add(HUItems.ARC_REACTOR, "Arc Reactor");
 
         this.add("advancements.heroesunited.root.title", "Heroes United");
         this.add("advancements.heroesunited.root.description", "Download Heroes United!");

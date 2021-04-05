@@ -113,8 +113,8 @@ public class HeroesUnited {
 
     @SubscribeEvent
     public void commonSetup(final FMLCommonSetupEvent event) {
-        CapabilityManager.INSTANCE.register(IHUPlayer.class, new HUCapStorage(), () -> new HUPlayer(null));
-        CapabilityManager.INSTANCE.register(IHUAbilityCap.class, new HUCapStorage(), () -> new HUAbilityCap(null));
+        CapabilityManager.INSTANCE.register(IHUPlayer.class, new HUCapStorage<>(), () -> new HUPlayer(null));
+        CapabilityManager.INSTANCE.register(IHUAbilityCap.class, new HUCapStorage<>(), () -> new HUAbilityCap(null));
 
         HUNetworking.registerMessages();
         LOGGER.info(MODID + ": common is ready!");

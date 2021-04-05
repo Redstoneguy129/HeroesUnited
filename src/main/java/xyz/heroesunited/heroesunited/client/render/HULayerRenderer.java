@@ -47,7 +47,7 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
                 ability.render(playerRenderer, matrixStack, buffer, packedLight, player, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
             }
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                for (int slot = 0; slot < 8; ++slot) {
+                for (int slot = 0; slot < cap.getInventory().getContainerSize(); ++slot) {
                     ItemStack stack = cap.getInventory().getItem(slot);
                     if (stack != null && stack.getItem() instanceof IAccessory && !MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Accessories(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch))) {
                         IAccessory accessoire = ((IAccessory) stack.getItem());

@@ -69,6 +69,10 @@ minecraft {
     }
 }
 
+sourceSets {
+    main.resources.srcDirs += 'src/generated/resources'
+}
+
 repositories {
     maven { url 'https://repo.repsy.io/mvn/gandiber/geckolib' }
     maven { url 'https://jitpack.io' }
@@ -91,8 +95,8 @@ shadowJar {
 
 dependencies {
     minecraft "net.minecraftforge:forge:$project.minecraft_version-$project.forge_version"
+    annotationProcessor 'org.spongepowered:mixin:0.8.2:processor'
 
-    compile 'org.spongepowered:mixin:0.8'
     compile 'com.github.Vatuu:discord-rpc:1.6.2'
     compile fg.deobf("software.bernie.geckolib:geckolib-forge-1.16.5:$project.geckolib_version")
 
