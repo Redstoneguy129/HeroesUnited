@@ -200,7 +200,7 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public IHUPlayer setHUData(String key, Object value, boolean save) {
-        if (!dataList.containsKey(key)) dataList.put(key, new HUData(key, value, false));
+        if (!dataList.containsKey(key)) dataList.put(key, new HUData(key, value, save));
         HUData data = dataList.get(key);
         if (data != null && !data.getValue().equals(value)) {
             data.setValue(value);

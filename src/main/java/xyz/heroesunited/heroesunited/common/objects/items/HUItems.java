@@ -17,8 +17,9 @@ public class HUItems {
     public static final Item HORAS = register("horas", new HorasItem(new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_MISC)));
     public static final ComicItem COMIC_ITEM = registerSpecial("comic", new ComicItem());
 
-    public static final TheOneRingAccessory THE_ONE_RING = register("the_one_ring", new TheOneRingAccessory());
-    public static final ArcReactorAccessory ARC_REACTOR = register("arc_reactor", new ArcReactorAccessory());
+    public static final TheOneRingAccessory THE_ONE_RING_ACCESSORY = register("the_one_ring", new TheOneRingAccessory());
+    public static final ArcReactorAccessory ARC_REACTOR_ACCESSORY = register("arc_reactor", new ArcReactorAccessory());
+    public static final BoboAccessory BOBO_ACCESSORY = register("bobo", new BoboAccessory());
 
     private static <T extends Item> T register(String name, T item) {
         ITEMS.register(name, () -> item);
