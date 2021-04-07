@@ -8,23 +8,20 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.ResourceLocation;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import software.bernie.geckolib3.core.processor.IBone;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
-import software.bernie.geckolib3.geo.render.built.GeoCube;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 import software.bernie.geckolib3.util.GeoUtils;
-import software.bernie.geckolib3.util.RenderUtils;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 
 import java.awt.*;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implements IGeoRenderer<T> {
@@ -33,8 +30,14 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
     protected AbstractClientPlayerEntity player;
     protected String name;
 
-    // Set these to the names of your abilities bones
-    public List<String> armorBones = Arrays.asList("armorHead", "armorBody", "armorRightArm", "armorLeftArm", "armorRightLeg", "armorLeftLeg", "armorRightBoot", "armorLeftBoot");
+    public String headBone = "armorHead";
+    public String bodyBone = "armorBody";
+    public String rightArmBone = "armorRightArm";
+    public String leftArmBone = "armorLeftArm";
+    public String rightLegBone = "armorRightLeg";
+    public String leftLegBone = "armorLeftLeg";
+    public String rightBootBone = "armorRightBoot";
+    public String leftBootBone = "armorLeftBoot";
 
     protected final AnimatedGeoModel<T> modelProvider;
 
@@ -53,89 +56,65 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
         if (!currentAbility.renderAsDefault()) {
             currentAbility.renderGeoAbilityRenderer(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha, model, itemEvent, this.player, this);
         } else {
-            matrixStackIn.translate(0.0D, 1.5F, 0.0D);
+            matrixStackIn.translate(0.0D, 1.5D, 0.0D);
             matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
+            this.fitToBiped();
             matrixStackIn.pushPose();
-            Minecraft.getInstance().textureManager.bind(getTextureLocation(currentAbility));
-            Color renderColor = getRenderColor(currentAbility, 0, matrixStackIn, null, bufferIn, packedLightIn);
-            RenderType renderType = getRenderType(currentAbility, 0, matrixStackIn, null, bufferIn, packedLightIn, getTextureLocation(currentAbility));
-            render(model, currentAbility, 0, renderType, matrixStackIn, null, bufferIn, packedLightIn, OverlayTexture.NO_OVERLAY, (float) renderColor.getRed() / 255f, (float) renderColor.getGreen() / 255f, (float) renderColor.getBlue() / 255f, (float) renderColor.getAlpha() / 255);
+            Minecraft.getInstance().textureManager.bind(this.getTextureLocation(this.currentAbility));
+            Color renderColor = this.getRenderColor(this.currentAbility, 0, matrixStackIn, null, bufferIn, packedLightIn);
+            RenderType renderType = this.getRenderType(this.currentAbility, 0, matrixStackIn, null, bufferIn, packedLightIn, this.getTextureLocation(this.currentAbility));
+            this.render(model, this.currentAbility, 0, renderType, matrixStackIn, null, bufferIn, packedLightIn, OverlayTexture.NO_OVERLAY, (float)renderColor.getRed() / 255.0F, (float)renderColor.getGreen() / 255.0F, (float)renderColor.getBlue() / 255.0F, (float)renderColor.getAlpha() / 255.0F);
             matrixStackIn.popPose();
             matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
-            matrixStackIn.translate(0.0D, -1.5F, 0.0D);
+            matrixStackIn.translate(0.0D, -1.5D, 0.0D);
         }
     }
 
-    @Override
-    public void renderRecursively(GeoBone bone, MatrixStack stack, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        stack.pushPose();
-        RenderUtils.translate(bone, stack);
-        RenderUtils.moveToPivot(bone, stack);
-        RenderUtils.rotate(bone, stack);
-        RenderUtils.scale(bone, stack);
-        RenderUtils.moveBackFromPivot(bone, stack);
+    private void fitToBiped() {
+        IBone headBone = this.modelProvider.getBone(this.headBone);
+        IBone bodyBone = this.modelProvider.getBone(this.bodyBone);
+        IBone rightArmBone = this.modelProvider.getBone(this.rightArmBone);
+        IBone leftArmBone = this.modelProvider.getBone(this.leftArmBone);
+        IBone rightLegBone = this.modelProvider.getBone(this.rightLegBone);
+        IBone leftLegBone = this.modelProvider.getBone(this.leftLegBone);
+        IBone rightBootBone = this.modelProvider.getBone(this.rightBootBone);
+        IBone leftBootBone = this.modelProvider.getBone(this.leftBootBone);
 
-        if (!bone.isHidden) {
-            for (GeoCube cube : bone.childCubes) {
-                stack.pushPose();
-                renderCube(cube, stack, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
-                stack.popPose();
-            }
-            for (GeoBone childBone : bone.childBones) {
-                if (armorBones.contains(childBone.name)) {
-                    armorBones.stream().filter(name -> childBone.name.equals(name)).forEachOrdered(name -> renderBone(name, stack, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha));
-                } else {
-                    renderRecursively(childBone, stack, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
-                }
-            }
-        }
-        stack.popPose();
-    }
-
-    private void renderBone(String str, MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        ModelRenderer from = getModelRendererById(str);
-        GeoBone to = (GeoBone) this.modelProvider.getBone(str);
-
-        matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
-        matrixStackIn.translate(0.0D, -1.5F, 0.0D);
-
-        matrixStackIn.pushPose();
-        if (currentAbility.copyPos()) matrixStackIn.translate(from.x / 16.0F, from.y / 16.0F, from.z / 16.0F);
-        if (currentAbility.copyRotations()) GeoUtils.copyRotations(from, to);
-
-        matrixStackIn.translate(0.0D, 1.5F, 0.0D);
-        matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
-        if (currentAbility.copyPos()) {
-            if (from == rightArm) matrixStackIn.translate(-0.31, 0.13, 0);
-            if (from == leftArm) matrixStackIn.translate(0.31, 0.13, 0);
-            if (from == rightLeg) matrixStackIn.translate(-0.12, 0.75, 0);
-            if (from == leftLeg) matrixStackIn.translate(0.12, 0.75, 0);
-        }
-        renderRecursively(to, matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
-        matrixStackIn.popPose();
-
-        matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
-        matrixStackIn.translate(0.0D, -1.5F, 0.0D);
-    }
-
-    public ModelRenderer getModelRendererById(String name) {
-        switch (name) {
-            case "armorHead":
-                return this.head;
-            case "armorBody":
-                return this.body;
-            case "armorRightArm":
-                return this.rightArm;
-            case "armorLeftArm":
-                return this.leftArm;
-            case "armorRightLeg":
-            case "armorRightBoot":
-                return this.rightLeg;
-            case "armorLeftLeg":
-            case "armorLeftBoot":
-                return this.leftLeg;
-            default:
-                return null;
+        try {
+            GeoUtils.copyRotations(this.head, headBone);
+            GeoUtils.copyRotations(this.body, bodyBone);
+            GeoUtils.copyRotations(this.rightArm, rightArmBone);
+            GeoUtils.copyRotations(this.leftArm, leftArmBone);
+            GeoUtils.copyRotations(this.rightLeg, rightLegBone);
+            GeoUtils.copyRotations(this.leftLeg, leftLegBone);
+            GeoUtils.copyRotations(this.rightLeg, rightBootBone);
+            GeoUtils.copyRotations(this.leftLeg, leftBootBone);
+            headBone.setPositionX(this.head.x);
+            headBone.setPositionY(-this.head.y);
+            headBone.setPositionZ(this.head.z);
+            bodyBone.setPositionX(this.body.x);
+            bodyBone.setPositionY(-this.body.y);
+            bodyBone.setPositionZ(this.body.z);
+            rightArmBone.setPositionX(this.rightArm.x + 5.0F);
+            rightArmBone.setPositionY(2.0F - this.rightArm.y);
+            rightArmBone.setPositionZ(this.rightArm.z);
+            leftArmBone.setPositionX(this.leftArm.x - 5.0F);
+            leftArmBone.setPositionY(2.0F - this.leftArm.y);
+            leftArmBone.setPositionZ(this.leftArm.z);
+            rightLegBone.setPositionX(this.rightLeg.x + 2.0F);
+            rightLegBone.setPositionY(12.0F - this.rightLeg.y);
+            rightLegBone.setPositionZ(this.rightLeg.z);
+            leftLegBone.setPositionX(this.leftLeg.x - 2.0F);
+            leftLegBone.setPositionY(12.0F - this.leftLeg.y);
+            leftLegBone.setPositionZ(this.leftLeg.z);
+            rightBootBone.setPositionX(this.rightLeg.x + 2.0F);
+            rightBootBone.setPositionY(12.0F - this.rightLeg.y);
+            rightBootBone.setPositionZ(this.rightLeg.z);
+            leftBootBone.setPositionX(this.leftLeg.x - 2.0F);
+            leftBootBone.setPositionY(12.0F - this.leftLeg.y);
+            leftBootBone.setPositionZ(this.leftLeg.z);
+        } catch (Exception var10) {
+            throw new RuntimeException("Could not find an armor bone.", var10);
         }
     }
 

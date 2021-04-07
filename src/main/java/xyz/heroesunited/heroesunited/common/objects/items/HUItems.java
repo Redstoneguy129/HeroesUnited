@@ -2,11 +2,13 @@ package xyz.heroesunited.heroesunited.common.objects.items;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 
 public class HUItems {
 
@@ -18,8 +20,14 @@ public class HUItems {
     public static final ComicItem COMIC_ITEM = registerSpecial("comic", new ComicItem());
 
     public static final TheOneRingAccessory THE_ONE_RING_ACCESSORY = register("the_one_ring", new TheOneRingAccessory());
-    public static final ArcReactorAccessory ARC_REACTOR_ACCESSORY = register("arc_reactor", new ArcReactorAccessory());
-    public static final BoboAccessory BOBO_ACCESSORY = register("bobo", new BoboAccessory());
+    public static final GeckoAccessory ARC_REACTOR_ACCESSORY = register("arc_reactor", new GeckoAccessory(EquipmentAccessoriesSlot.TSHIRT, "CandyFreak"));
+    public static final GeckoAccessory BOBO_ACCESSORY = register("bobo", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "Chappie"));
+    public static final GeckoAccessory GREEN_GOGGLES = register("green_goggles", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "artman") {
+        @Override
+        public ResourceLocation getModelFile() {
+            return new ResourceLocation(HeroesUnited.MODID, "geo/rex_glasses.geo.json");
+        }
+    });
 
     private static <T extends Item> T register(String name, T item) {
         ITEMS.register(name, () -> item);

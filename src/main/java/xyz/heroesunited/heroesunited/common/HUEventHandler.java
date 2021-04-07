@@ -5,6 +5,7 @@ import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.SoundCategory;
@@ -25,6 +26,11 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import software.bernie.geckolib3.core.AnimationState;
+import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.builder.AnimationBuilder;
+import software.bernie.geckolib3.core.controller.AnimationController;
+import software.bernie.geckolib3.util.GeckoLibUtil;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.DamageImmunityAbility;
@@ -38,6 +44,8 @@ import xyz.heroesunited.heroesunited.common.events.HUCancelBlockCollision;
 import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
 import xyz.heroesunited.heroesunited.common.objects.HUSounds;
 import xyz.heroesunited.heroesunited.common.objects.blocks.HUBlocks;
+import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
+import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 import xyz.heroesunited.heroesunited.util.HUTickrate;
@@ -97,6 +105,14 @@ public class HUEventHandler {
                 for (int i = 0; i < a.getInventory().getInventory().size(); ++i) {
                     if (!a.getInventory().getInventory().get(i).isEmpty()) {
                         a.getInventory().getInventory().get(i).inventoryTick(pl.level, pl, i, false);
+                    }
+                }
+                ItemStack stack = a.getInventory().getItem(EquipmentAccessoriesSlot.HELMET.getSlot());
+                if (!stack.isEmpty() && stack.getItem() == HUItems.BOBO_ACCESSORY) {
+                    AnimationController controller = GeckoLibUtil.getControllerForStack(((IAnimatable)stack.getItem()).getFactory(), stack, "controller");
+                    if (controller.getAnimationState() == AnimationState.Stopped) {
+                        controller.markNeedsReload();
+                        controller.setAnimation((new AnimationBuilder()).addAnimation("animation.bobo", true));
                     }
                 }
 

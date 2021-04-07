@@ -1,5 +1,9 @@
 package xyz.heroesunited.heroesunited.common.objects.container;
 
+import com.google.common.collect.Lists;
+
+import java.util.List;
+
 public enum EquipmentAccessoriesSlot {
     HELMET(0),
     TSHIRT(1),
@@ -29,5 +33,13 @@ public enum EquipmentAccessoriesSlot {
             }
         }
         return null;
+    }
+
+    public static List<EquipmentAccessoriesSlot> getAccessoriesForChest() {
+        return Lists.newArrayList(TSHIRT, JACKET, RIGHT_WRIST, LEFT_WRIST, WRIST, GLOVES);
+    }
+
+    public static List<EquipmentAccessoriesSlot> getWristAccessories() {
+        return Lists.newArrayList(RIGHT_WRIST, LEFT_WRIST, WRIST);
     }
 }
