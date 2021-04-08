@@ -22,6 +22,7 @@ public class HUItems {
     public static final TheOneRingAccessory THE_ONE_RING_ACCESSORY = register("the_one_ring", new TheOneRingAccessory());
     public static final GeckoAccessory ARC_REACTOR_ACCESSORY = register("arc_reactor", new GeckoAccessory(EquipmentAccessoriesSlot.TSHIRT, "CandyFreak"));
     public static final GeckoAccessory BOBO_ACCESSORY = register("bobo", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "Chappie"));
+    public static final GeckoAccessory HEADBAND = register("headband", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "FatherKhimsky"));
     public static final GeckoAccessory GREEN_GOGGLES = register("green_goggles", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "artman") {
         @Override
         public ResourceLocation getModelFile() {
