@@ -155,11 +155,6 @@ public class HUClientEventHandler {
     }
 
     @SubscribeEvent
-    public void onRenderAccessories(HURenderLayerEvent.Accessories event) {
-        hideAllBodyParts(event, event.getLivingEntity());
-    }
-
-    @SubscribeEvent
     public void onRenderHULayer(HURenderLayerEvent.Pre event) {
         hideAllBodyParts(event, event.getLivingEntity());
     }

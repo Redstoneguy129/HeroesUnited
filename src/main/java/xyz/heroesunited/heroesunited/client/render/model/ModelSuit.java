@@ -121,17 +121,9 @@ public class ModelSuit<T extends LivingEntity> extends BipedModel<T> {
     }
 
     public void renderArm(HandSide handSide, MatrixStack matrixStack, IVertexBuilder vertexBuilder, int combinedLight, T entity) {
-        this.attackTime = 0.0F;
-        this.crouching = false;
-        this.swimAmount = 0.0F;
-        this.setupAnim(entity, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
         if (handSide == HandSide.RIGHT) {
-            this.rightArm.xRot = 0.0F;
-            this.bipedRightArmwear.xRot = 0.0F;
             this.rightArm.render(matrixStack, vertexBuilder, combinedLight, OverlayTexture.NO_OVERLAY);
         } else {
-            this.leftArm.xRot = 0.0F;
-            this.bipedLeftArmwear.xRot = 0.0F;
             this.leftArm.render(matrixStack, vertexBuilder, combinedLight, OverlayTexture.NO_OVERLAY);
         }
     }

@@ -44,12 +44,14 @@ import java.util.Random;
 
 import static net.minecraft.inventory.EquipmentSlotType.*;
 
-import net.minecraft.client.renderer.RenderType.State;
-
 @OnlyIn(Dist.CLIENT)
 public class HUClientUtil {
 
     public static final ResourceLocation null_texture = new ResourceLocation(HeroesUnited.MODID + ":textures/null.png");
+
+    public static int getLivingOverlay(LivingEntity entity) {
+        return LivingRenderer.getOverlayCoords(entity, 0.0F);
+    }
 
     public static void renderAura(MatrixStack matrixStack, IVertexBuilder builder, AxisAlignedBB box, float shrinkValue, Color color, int packedLightIn, int ticksExisted) {
         matrixStack.pushPose();
