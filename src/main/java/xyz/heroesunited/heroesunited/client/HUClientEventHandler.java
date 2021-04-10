@@ -51,6 +51,8 @@ import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccessoriesInv;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerToggleKey;
+import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
+import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
@@ -255,6 +257,10 @@ public class HUClientEventHandler {
 
 
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+            ItemStack itemStack = cap.getInventory().getItem(EquipmentAccessoriesSlot.HELMET.getSlot());
+            if (!itemStack.isEmpty() && itemStack.getItem() == HUItems.WALLE_HEAD) {
+                event.getPlayerModel().head.visible = event.getPlayerModel().hat.visible = false;
+            }
             for (String s : playerBones) {
                 GeoBone bone = cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap)).getBone(s).get();
                 ModelRenderer renderer = HUClientUtil.getModelRendererById(event.getPlayerModel(), s);

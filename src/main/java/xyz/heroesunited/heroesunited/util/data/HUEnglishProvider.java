@@ -37,6 +37,7 @@ public class HUEnglishProvider extends HULanguageProvider {
         this.add(HUItems.BOBO_ACCESSORY, "Bobo Accessory");
         this.add(HUItems.GREEN_GOGGLES, "Green Goggles");
         this.add(HUItems.HEADBAND, "Headband");
+        this.add(HUItems.WALLE_HEAD, "Wall-e head");
 
         this.add("advancements.heroesunited.root.title", "Heroes United");
         this.add("advancements.heroesunited.root.description", "Download Heroes United!");
