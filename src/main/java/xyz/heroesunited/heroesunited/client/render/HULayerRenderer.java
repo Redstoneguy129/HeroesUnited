@@ -87,26 +87,25 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
             suitModel.hat.visible = suitModel.head.visible = cap.getInventory().haveStack(slot);
         } else if (slot == EquipmentAccessoriesSlot.JACKET) {
             suitModel.hat.visible = suitModel.head.visible =
-                    suitModel.body.visible = suitModel.bipedBodyWear.visible =
-                            suitModel.bipedLeftArmwear.visible = suitModel.leftArm.visible =
-                                    suitModel.bipedRightArmwear.visible = suitModel.rightArm.visible = cap.getInventory().haveStack(slot);
+                    suitModel.body.visible = suitModel.jacket.visible =
+                            suitModel.leftSleeve.visible = suitModel.leftArm.visible =
+                                    suitModel.rightSleeve.visible = suitModel.rightArm.visible = cap.getInventory().haveStack(slot);
         } else if (slot == EquipmentAccessoriesSlot.TSHIRT) {
             suitModel.hat.visible = suitModel.head.visible =
-                    suitModel.body.visible = suitModel.bipedBodyWear.visible =
-                            suitModel.bipedLeftArmwear.visible = suitModel.leftArm.visible =
-                                    suitModel.bipedRightArmwear.visible = suitModel.rightArm.visible = cap.getInventory().haveStack(slot);
+                    suitModel.body.visible = suitModel.jacket.visible =
+                            suitModel.leftSleeve.visible = suitModel.leftArm.visible =
+                                    suitModel.rightSleeve.visible = suitModel.rightArm.visible = cap.getInventory().haveStack(slot);
         } else if (slot == EquipmentAccessoriesSlot.RIGHT_WRIST || slot == EquipmentAccessoriesSlot.LEFT_WRIST || slot == EquipmentAccessoriesSlot.GLOVES) {
-            suitModel.body.visible = suitModel.bipedBodyWear.visible =
-                    suitModel.bipedLeftArmwear.visible = suitModel.leftArm.visible =
-                            suitModel.bipedRightArmwear.visible = suitModel.rightArm.visible = cap.getInventory().haveStack(slot);
+            suitModel.body.visible = suitModel.jacket.visible =
+                    suitModel.leftSleeve.visible = suitModel.leftArm.visible =
+                            suitModel.rightSleeve.visible = suitModel.rightArm.visible = cap.getInventory().haveStack(slot);
         }
 
-        suitModel.bipedLeftLegwear.visible = suitModel.bipedRightLegwear.visible = suitModel.leftLeg.visible =
+        suitModel.leftPants.visible = suitModel.rightPants.visible = suitModel.leftLeg.visible =
                 suitModel.rightLeg.visible = slot == EquipmentAccessoriesSlot.PANTS && cap.getInventory().haveStack(slot)
                         || slot == EquipmentAccessoriesSlot.SHOES && cap.getInventory().haveStack(EquipmentAccessoriesSlot.SHOES);
 
-        playerRenderer.getModel().copyPropertiesTo(suitModel);
-
+        suitModel.copyPropertiesFrom(playerRenderer.getModel());
         suitModel.renderToBuffer(matrixStack, buffer.getBuffer(RenderType.entityTranslucent(accessoire.getTexture(stack, player, slot))), packedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
     }
 

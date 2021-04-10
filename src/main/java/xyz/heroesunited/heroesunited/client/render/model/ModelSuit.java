@@ -1,98 +1,85 @@
 package xyz.heroesunited.heroesunited.client.render.model;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.util.HandSide;
+import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 public class ModelSuit<T extends LivingEntity> extends BipedModel<T> {
 
-    public final ModelRenderer bipedLeftArmwear;
-    public final ModelRenderer bipedRightArmwear;
-    public final ModelRenderer bipedLeftLegwear;
-    public final ModelRenderer bipedRightLegwear;
-    public final ModelRenderer bipedBodyWear;
+    public final ModelRenderer leftSleeve;
+    public final ModelRenderer rightSleeve;
+    public final ModelRenderer leftPants;
+    public final ModelRenderer rightPants;
+    public final ModelRenderer jacket;
 
-    public ModelSuit(float scale, boolean smallArms) {
-        this(scale, smallArms, 64, 64);
+    public ModelSuit(Entity entity) {
+        this(0, HUPlayerUtil.haveSmallArms(entity));
     }
 
-    public ModelSuit(float scale, boolean smallArms, int textureWidth, int textureHeight) {
-        super(0F, 0.0F, textureWidth, textureHeight);
-        this.head = new ModelRenderer(this, 0, 0);
-        this.head.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, scale);
-        this.head.setPos(0.0F, 0.0F, 0.0F);
-        this.hat = new ModelRenderer(this, 32, 0);
-        this.hat.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, scale + 0.5F);
-        this.hat.setPos(0.0F, 0.0F, 0.0F);
-        this.body = new ModelRenderer(this, 16, 16);
-        this.body.addBox(-4.0F, 0.0F, -2.0F, 8, 12, 4, scale);
-        this.body.setPos(0.0F, 0.0F, 0.0F);
-        this.rightLeg = new ModelRenderer(this, 0, 16);
-        this.rightLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, scale);
-        this.rightLeg.setPos(-1.9F, 12.0F, 0.0F);
-
-        if (smallArms) {
+    public ModelSuit(float scale, boolean slim) {
+        super(RenderType::entityTranslucent, scale, 0.0F, 64, 64);
+        if (slim) {
             this.leftArm = new ModelRenderer(this, 32, 48);
-            this.leftArm.addBox(-1.0F, -2.0F, -2.0F, 3, 12, 4, scale);
+            this.leftArm.addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, scale);
             this.leftArm.setPos(5.0F, 2.5F, 0.0F);
-
             this.rightArm = new ModelRenderer(this, 40, 16);
-            this.rightArm.addBox(-2.0F, -2.0F, -2.0F, 3, 12, 4, scale);
+            this.rightArm.addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, scale);
             this.rightArm.setPos(-5.0F, 2.5F, 0.0F);
-
-            this.bipedLeftArmwear = new ModelRenderer(this, 48, 48);
-            this.bipedLeftArmwear.addBox(-1.0F, -2.0F, -2.0F, 3, 12, 4, scale + 0.25F);
-            this.bipedLeftArmwear.setPos(0F, 0F, 0F);
-
-            this.bipedRightArmwear = new ModelRenderer(this, 40, 32);
-            this.bipedRightArmwear.addBox(-2.0F, -2.0F, -2.0F, 3, 12, 4, scale + 0.25F);
-            this.bipedRightArmwear.setPos(0F, 0F, 0F);
+            this.leftSleeve = new ModelRenderer(this, 48, 48);
+            this.leftSleeve.addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, scale + 0.25F);
+            this.leftSleeve.setPos(5.0F, 2.5F, 0.0F);
+            this.rightSleeve = new ModelRenderer(this, 40, 32);
+            this.rightSleeve.addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, scale + 0.25F);
+            this.rightSleeve.setPos(-5.0F, 2.5F, 10.0F);
         } else {
             this.leftArm = new ModelRenderer(this, 32, 48);
-            this.leftArm.addBox(-1.0F, -2.0F, -2.0F, 4, 12, 4, scale);
+            this.leftArm.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale);
             this.leftArm.setPos(5.0F, 2.0F, 0.0F);
-
-            this.rightArm = new ModelRenderer(this, 40, 16);
-            this.rightArm.addBox(-3.0F, -2.0F, -2.0F, 4, 12, 4, scale);
-            this.rightArm.setPos(-5.0F, 2.0F, 0.0F);
-
-            this.bipedLeftArmwear = new ModelRenderer(this, 48, 48);
-            this.bipedLeftArmwear.addBox(-1.0F, -2.0F, -2.0F, 4, 12, 4, scale + 0.25F);
-            this.bipedLeftArmwear.setPos(0F, 0F, 0F);
-
-            this.bipedRightArmwear = new ModelRenderer(this, 40, 32);
-            this.bipedRightArmwear.addBox(-3.0F, -2.0F, -2.0F, 4, 12, 4, scale + 0.25F);
-            this.bipedRightArmwear.setPos(0F, 0F, 0F);
+            this.leftSleeve = new ModelRenderer(this, 48, 48);
+            this.leftSleeve.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale + 0.25F);
+            this.leftSleeve.setPos(5.0F, 2.0F, 0.0F);
+            this.rightSleeve = new ModelRenderer(this, 40, 32);
+            this.rightSleeve.addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale + 0.25F);
+            this.rightSleeve.setPos(-5.0F, 2.0F, 10.0F);
         }
 
         this.leftLeg = new ModelRenderer(this, 16, 48);
-        this.leftLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, scale);
+        this.leftLeg.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale);
         this.leftLeg.setPos(1.9F, 12.0F, 0.0F);
-        this.bipedLeftLegwear = new ModelRenderer(this, 0, 48);
-        this.bipedLeftLegwear.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, scale + 0.25F);
-        this.bipedLeftLegwear.setPos(0F, 0F, 0F);
-        this.bipedRightLegwear = new ModelRenderer(this, 0, 32);
-        this.bipedRightLegwear.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, scale + 0.25F);
-        this.bipedRightLegwear.setPos(0F, 0F, 0F);
-        this.bipedBodyWear = new ModelRenderer(this, 16, 32);
-        this.bipedBodyWear.addBox(-4.0F, 0.0F, -2.0F, 8, 12, 4, scale + 0.25F);
-        this.bipedBodyWear.setPos(0.0F, 0.0F, 0.0F);
+        this.leftPants = new ModelRenderer(this, 0, 48);
+        this.leftPants.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale + 0.25F);
+        this.leftPants.setPos(1.9F, 12.0F, 0.0F);
+        this.rightPants = new ModelRenderer(this, 0, 32);
+        this.rightPants.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale + 0.25F);
+        this.rightPants.setPos(-1.9F, 12.0F, 0.0F);
+        this.jacket = new ModelRenderer(this, 16, 32);
+        this.jacket.addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, scale + 0.25F);
+        this.jacket.setPos(0.0F, 0.0F, 0.0F);
+    }
 
-        this.body.addChild(bipedBodyWear);
-        this.rightArm.addChild(bipedRightArmwear);
-        this.leftArm.addChild(bipedLeftArmwear);
-        this.rightLeg.addChild(bipedRightLegwear);
-        this.leftLeg.addChild(bipedLeftLegwear);
+    @Override
+    public Iterable<ModelRenderer> bodyParts() {
+        return Iterables.concat(super.bodyParts(), ImmutableList.of(this.leftPants, this.rightPants, this.leftSleeve, this.rightSleeve, this.jacket));
     }
 
     @Override
     public void setupAnim(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         super.setupAnim(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+        this.leftPants.copyFrom(this.leftLeg);
+        this.rightPants.copyFrom(this.rightLeg);
+        this.leftSleeve.copyFrom(this.leftArm);
+        this.rightSleeve.copyFrom(this.rightArm);
+        this.jacket.copyFrom(this.body);
         if (entityIn instanceof ArmorStandEntity) {
             ArmorStandEntity armorStand = (ArmorStandEntity) entityIn;
             this.head.xRot = 0.017453292F * armorStand.getHeadPose().getX();
@@ -120,11 +107,53 @@ public class ModelSuit<T extends LivingEntity> extends BipedModel<T> {
         }
     }
 
+    @Override
+    public void setAllVisible(boolean visible) {
+        super.setAllVisible(visible);
+        this.leftSleeve.visible = visible;
+        this.rightSleeve.visible = visible;
+        this.leftPants.visible = visible;
+        this.rightPants.visible = visible;
+        this.jacket.visible = visible;
+    }
+
+    public void copyPropertiesTo(ModelSuit<T> model) {
+        super.copyPropertiesTo(model);
+        model.leftPants.copyFrom(this.leftLeg);
+        model.rightPants.copyFrom(this.rightLeg);
+        model.leftSleeve.copyFrom(this.leftArm);
+        model.rightSleeve.copyFrom(this.rightArm);
+        model.jacket.copyFrom(this.body);
+    }
+
+    public void copyPropertiesFrom(BipedModel<T> model) {
+        this.attackTime = model.attackTime;
+        this.riding = model.riding;
+        this.young = model.young;
+        this.leftArmPose = model.leftArmPose;
+        this.rightArmPose = model.rightArmPose;
+        this.crouching = model.crouching;
+        this.head.copyFrom(model.head);
+        this.hat.copyFrom(model.hat);
+        this.body.copyFrom(model.body);
+        this.rightArm.copyFrom(model.rightArm);
+        this.leftArm.copyFrom(model.leftArm);
+        this.rightLeg.copyFrom(model.rightLeg);
+        this.leftLeg.copyFrom(model.leftLeg);
+        this.leftPants.copyFrom(model.leftLeg);
+        this.rightPants.copyFrom(model.rightLeg);
+        this.leftSleeve.copyFrom(model.leftArm);
+        this.rightSleeve.copyFrom(model.rightArm);
+        this.jacket.copyFrom(model.body);
+    }
+
     public void renderArm(HandSide handSide, MatrixStack matrixStack, IVertexBuilder vertexBuilder, int combinedLight, T entity) {
         if (handSide == HandSide.RIGHT) {
             this.rightArm.render(matrixStack, vertexBuilder, combinedLight, OverlayTexture.NO_OVERLAY);
+            this.rightSleeve.render(matrixStack, vertexBuilder, combinedLight, OverlayTexture.NO_OVERLAY);
         } else {
             this.leftArm.render(matrixStack, vertexBuilder, combinedLight, OverlayTexture.NO_OVERLAY);
+            this.leftSleeve.render(matrixStack, vertexBuilder, combinedLight, OverlayTexture.NO_OVERLAY);
         }
     }
 }
