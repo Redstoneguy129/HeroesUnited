@@ -37,6 +37,7 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.keyframe.BoneAnimation;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.client.events.HUChangeShadowSizeEvent;
 import xyz.heroesunited.heroesunited.client.events.HURenderLayerEvent;
 import xyz.heroesunited.heroesunited.client.events.HURenderPlayerHandEvent;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
@@ -97,6 +98,22 @@ public class HUClientEventHandler {
     }
 
     @SubscribeEvent
+    public void renderPlayer(HUChangeShadowSizeEvent event) {
+        for (Ability a : AbilityHelper.getAbilities(event.getEntity())) {
+            if (a instanceof SizeChangeAbility) {
+                if (((SizeChangeAbility) a).changeSizeInRender()) {
+                    event.setNewSize(event.getDefaultSize() * ((SizeChangeAbility) a).getSize());
+                } else {
+                    event.setNewSize(event.getDefaultSize());
+                }
+            }
+        }
+        if (AbilityHelper.getAbilities(event.getEntity()).stream().noneMatch(ab -> ab instanceof SizeChangeAbility)) {
+            event.setNewSize(event.getDefaultSize());
+        }
+    }
+
+    @SubscribeEvent
     public void renderPlayer(RenderPlayerEvent event) {
         for (Ability a : AbilityHelper.getAbilities(event.getPlayer())) {
             if (a instanceof SizeChangeAbility && ((SizeChangeAbility) a).changeSizeInRender()) {
@@ -104,19 +121,11 @@ public class HUClientEventHandler {
                     event.getMatrixStack().pushPose();
                     float size = ((SizeChangeAbility) a).getSize();
                     event.getMatrixStack().scale(size, size, size);
-                    event.getRenderer().shadowRadius = 0.5F * size;
                 }
                 if (event instanceof RenderPlayerEvent.Post) {
                     event.getMatrixStack().popPose();
                 }
-            } else {
-                if (event.getRenderer().shadowRadius != 0.5F) {
-                    event.getRenderer().shadowRadius = 0.5F;
-                }
             }
-        }
-        if (AbilityHelper.getAbilities(event.getPlayer()).stream().noneMatch(ab -> ab instanceof SizeChangeAbility)) {
-            event.getRenderer().shadowRadius = 0.5F;
         }
     }
 
