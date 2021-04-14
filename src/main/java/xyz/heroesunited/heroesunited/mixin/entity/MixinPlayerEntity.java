@@ -6,13 +6,13 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import xyz.heroesunited.heroesunited.common.abilities.Ability;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
+import xyz.heroesunited.heroesunited.client.events.HUBoundingBoxEvent;
 import xyz.heroesunited.heroesunited.common.abilities.SizeChangeAbility;
 
 @Mixin(PlayerEntity.class)
@@ -24,12 +24,9 @@ public abstract class MixinPlayerEntity extends LivingEntity {
 
     @Inject(at = @At("RETURN"), method = "getDimensions", cancellable = true)
     private void onGetDimensions(Pose pose, CallbackInfoReturnable<EntitySize> info) {
-        for (Ability ability : AbilityHelper.getAbilities(this)) {
-            if (ability instanceof SizeChangeAbility) {
-                float size = ((SizeChangeAbility) ability).getSize();
-                info.setReturnValue(info.getReturnValue().scale(size, size));
-            }
-        }
+        HUBoundingBoxEvent event = new HUBoundingBoxEvent((PlayerEntity) (Object) this, info.getReturnValue());
+        MinecraftForge.EVENT_BUS.post(event);
+        info.setReturnValue(event.getNewSize());
     }
 
     @Inject(method = "updatePlayerPose()V", at = @At(value = "HEAD"), cancellable = true)

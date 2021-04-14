@@ -15,7 +15,6 @@
   "mixins": [
     "MixinIBlockReader",
     "MixinMinecraftServer",
-    "MixinWorld",
     "block.MixinBlock",
     "block.MixinCactusBlock",
     "block.MixinFourWayBlock",

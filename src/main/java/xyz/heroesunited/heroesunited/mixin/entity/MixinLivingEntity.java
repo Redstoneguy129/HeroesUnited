@@ -8,9 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import xyz.heroesunited.heroesunited.common.abilities.Ability;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
-import xyz.heroesunited.heroesunited.common.abilities.SizeChangeAbility;
+import xyz.heroesunited.heroesunited.client.events.HUEyeHeightEvent;
 import xyz.heroesunited.heroesunited.common.events.HUCancelSprinting;
 
 
@@ -33,14 +31,9 @@ public abstract class MixinLivingEntity extends Entity {
     @Inject(method = "getEyeHeight", at = @At("RETURN"), cancellable = true)
     private void onGetEyeHeight(Pose pose, EntitySize size, CallbackInfoReturnable<Float> info) {
         if (pose != Pose.SLEEPING) {
-            for (Ability ability : AbilityHelper.getAbilities(this)) {
-                if (getType() == EntityType.PLAYER && ability instanceof SizeChangeAbility) {
-                    float height = ((SizeChangeAbility) ability).getSize();
-                    if (height != 1.0F) {
-                        info.setReturnValue(info.getReturnValueF() * height);
-                    }
-                }
-            }
+            HUEyeHeightEvent event = new HUEyeHeightEvent((LivingEntity) (Object) this, info.getReturnValueF());
+            MinecraftForge.EVENT_BUS.post(event);
+            info.setReturnValue(event.getNewEyeHeight());
         }
     }
 

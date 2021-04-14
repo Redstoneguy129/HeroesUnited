@@ -31,10 +31,9 @@ import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.util.GeckoLibUtil;
-import xyz.heroesunited.heroesunited.common.abilities.Ability;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
-import xyz.heroesunited.heroesunited.common.abilities.DamageImmunityAbility;
-import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
+import xyz.heroesunited.heroesunited.client.events.HUBoundingBoxEvent;
+import xyz.heroesunited.heroesunited.client.events.HUEyeHeightEvent;
+import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
@@ -73,6 +72,28 @@ public class HUEventHandler {
                     event.setNewEyeHeight(0.4F);
                 }
             });
+        }
+    }
+
+    @SubscribeEvent
+    public void changeEyeheight(HUEyeHeightEvent event) {
+        for (Ability ability : AbilityHelper.getAbilities(event.getEntityLiving())) {
+            if (event.getEntityLiving() instanceof PlayerEntity && ability instanceof SizeChangeAbility) {
+                float height = ((SizeChangeAbility) ability).getSize();
+                if (height != 1.0F) {
+                    event.setNewEyeHeight(event.getOldEyeHeight() * height);
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void changeBoundingBox(HUBoundingBoxEvent event) {
+        for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
+            if (ability instanceof SizeChangeAbility) {
+                float size = ((SizeChangeAbility) ability).getSize();
+                event.setNewSize(event.getOldSize().scale(size, size));
+            }
         }
     }
 

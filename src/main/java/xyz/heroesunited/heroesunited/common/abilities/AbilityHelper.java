@@ -2,6 +2,7 @@ package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -18,6 +19,7 @@ import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class AbilityHelper {
@@ -42,6 +44,18 @@ public class AbilityHelper {
         List<Ability> list = new ArrayList<>();
         entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent((f) -> list.addAll(f.getActiveAbilities().values()));
         return list;
+    }
+
+    public static Map<String, Ability> getActiveAbilityMap(Entity entity) {
+        Map<String, Ability> map = Maps.newHashMap();
+        entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent((f) -> map.putAll(f.getActiveAbilities()));
+        return map;
+    }
+
+    public static Map<String, Ability> getAbilityMap(Entity entity) {
+        Map<String, Ability> map = Maps.newHashMap();
+        entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent((f) -> map.putAll(f.getAbilities()));
+        return map;
     }
 
     public static void addTheme(ResourceLocation theme) {
