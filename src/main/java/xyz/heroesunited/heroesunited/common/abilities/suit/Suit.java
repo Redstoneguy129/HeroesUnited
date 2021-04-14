@@ -97,7 +97,7 @@ public abstract class Suit {
     public void onDeactivated(PlayerEntity player, EquipmentSlotType slot) {
     }
 
-    public void toggle(PlayerEntity player, EquipmentSlotType slot, int id, boolean pressed) {
+    public void onKeyInput(PlayerEntity player, EquipmentSlotType slot, Map<Integer, Boolean> map) {
     }
 
     public boolean canCombineWithAbility(Ability type, PlayerEntity player) {

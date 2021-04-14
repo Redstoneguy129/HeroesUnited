@@ -12,6 +12,7 @@ public interface MixinIBlockReader {
 
     /**
      * @author grillo78
+     * @reason because can
      */
     @Overwrite
     default int getLightEmission(BlockPos pos) {

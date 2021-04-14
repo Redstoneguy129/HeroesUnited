@@ -14,7 +14,7 @@ public interface IHUAbilityCap extends INBTSerializable<CompoundNBT> {
     /**
      * Using for toggle abilities in Suits or default abilities
      **/
-    void toggle(int id, boolean pressed);
+    void onKeyInput(Map<Integer, Boolean> map);
 
     /**
      * Ability - Gen Rex abilities, Aliens powers, Danny Phantom powers active, etc.

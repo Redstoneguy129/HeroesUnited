@@ -6,6 +6,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.JSONUtils;
 
+import java.util.Map;
+
 public abstract class JSONAbility extends Ability {
     protected ActionType actionType;
     protected boolean enabled = false;
@@ -40,10 +42,10 @@ public abstract class JSONAbility extends Ability {
     }
 
     @Override
-    public void toggle(PlayerEntity player, int id, boolean pressed) {
-        super.toggle(player, id, pressed);
-        if (pressed && cooldownTicks == 0) {
-            if (actionType == ActionType.CONSTANT || id != getKey()) return;
+    public void onKeyInput(PlayerEntity player, Map<Integer, Boolean> map) {
+        super.onKeyInput(player, map);
+        if (map.get(getKey()) && cooldownTicks == 0) {
+            if (actionType == ActionType.CONSTANT) return;
             if (actionType == ActionType.TOGGLE) {
                 enabled = !enabled;
             } else if (actionType == ActionType.ACTION || actionType == ActionType.HELD) {
@@ -60,7 +62,7 @@ public abstract class JSONAbility extends Ability {
         if (getJsonObject().has("key")) {
             return JSONUtils.getAsInt(JSONUtils.getAsJsonObject(this.getJsonObject(), "key"), "id");
         } else {
-            return -1;
+            return 7;
         }
     }
 

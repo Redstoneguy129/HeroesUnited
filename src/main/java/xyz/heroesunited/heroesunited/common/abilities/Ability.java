@@ -32,6 +32,7 @@ import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 
 public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
@@ -66,7 +67,12 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     public void onDeactivated(PlayerEntity player) {
     }
 
+    @Deprecated
     public void toggle(PlayerEntity player, int id, boolean pressed) {
+    }
+
+    public void onKeyInput(PlayerEntity player, Map<Integer, Boolean> map) {
+        map.forEach((i, b) -> toggle(player, i, b));
     }
 
     @OnlyIn(Dist.CLIENT)

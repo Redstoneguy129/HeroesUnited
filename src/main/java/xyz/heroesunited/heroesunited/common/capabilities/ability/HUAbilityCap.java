@@ -107,15 +107,15 @@ public class HUAbilityCap implements IHUAbilityCap {
     }
 
     @Override
-    public void toggle(int id, boolean pressed) {
+    public void onKeyInput(Map<Integer, Boolean> map) {
         activeAbilities.forEach((name, ability) -> {
             if (ability != null) {
-                ability.toggle(player, id, pressed);
+                ability.onKeyInput(player, map);
             }
         });
         for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
             if (Suit.getSuitItem(equipmentSlot, player) != null) {
-                Suit.getSuitItem(equipmentSlot, player).getSuit().toggle(player, equipmentSlot, id, pressed);
+                Suit.getSuitItem(equipmentSlot, player).getSuit().onKeyInput(player, equipmentSlot, map);
             }
         }
     }
