@@ -18,6 +18,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.HUTypes;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSetAnimation;
@@ -206,6 +207,7 @@ public class HUPlayer implements IHUPlayer {
             data.setValue(value);
             if (!player.level.isClientSide)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getId(), key, this.serializeNBT()));
+            HUAbilityCap.getCap(player).syncToAll();
         }
         return this;
     }
@@ -246,20 +248,21 @@ public class HUPlayer implements IHUPlayer {
     public CompoundNBT serializeNBT() {
         CompoundNBT nbt = new CompoundNBT();
         for (HUData data : dataList.values()) {
-            if (data.getValue() instanceof Boolean) {
-                nbt.putBoolean(data.getKey(), (Boolean) data.getValue());
-            } else if (data.getValue() instanceof Integer) {
-                nbt.putInt(data.getKey(), (Integer) data.getValue());
-            } else if (data.getValue() instanceof String) {
-                nbt.putString(data.getKey(), (String) data.getValue());
-            } else if (data.getValue() instanceof Float) {
-                nbt.putFloat(data.getKey(), (Float) data.getValue());
-            } else if (data.getValue() instanceof Double) {
-                nbt.putDouble(data.getKey(), (Double) data.getValue());
-            } else if (data.getValue() instanceof Long) {
-                nbt.putLong(data.getKey(), (Long) data.getValue());
+            if (data.canBeSaved()) {
+                if (data.getValue() instanceof Boolean) {
+                    nbt.putBoolean(data.getKey(), (Boolean) data.getValue());
+                } else if (data.getValue() instanceof Integer) {
+                    nbt.putInt(data.getKey(), (Integer) data.getValue());
+                } else if (data.getValue() instanceof String) {
+                    nbt.putString(data.getKey(), (String) data.getValue());
+                } else if (data.getValue() instanceof Float) {
+                    nbt.putFloat(data.getKey(), (Float) data.getValue());
+                } else if (data.getValue() instanceof Double) {
+                    nbt.putDouble(data.getKey(), (Double) data.getValue());
+                } else if (data.getValue() instanceof Long) {
+                    nbt.putLong(data.getKey(), (Long) data.getValue());
+                }
             }
-
         }
 
         CompoundNBT levels = new CompoundNBT();
@@ -282,8 +285,6 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
-        CompoundNBT activeAbilities = nbt.getCompound("ActiveAbilities"), abilities = nbt.getCompound("Abilities");
-
         CompoundNBT levels = nbt.getCompound("levels");
         superpowerLevels.clear();
         for (String key: levels.getAllKeys()) {
@@ -291,7 +292,7 @@ public class HUPlayer implements IHUPlayer {
         }
 
         for (HUData data : dataList.values()) {
-            if (nbt.contains(data.getKey())) {
+            if (data.canBeSaved()) {
                 if (data.getValue() instanceof Boolean) {
                     data.setValue(nbt.getBoolean(data.getKey()));
                 } else if (data.getValue() instanceof Integer) {

@@ -42,7 +42,10 @@ public class ClientSyncHUData {
                 entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                     HUData data = cap.getDataList().get(this.key);
                     if (data != null) {
-                        HUData.readValue(data, this.nbt, data.getValue());
+                        Object newValue = HUData.readValue(data, nbt);
+                        if (data.getValue() != newValue && newValue != null) {
+                            cap.setHUData(key, newValue, data.canBeSaved());
+                        }
                     }
                 });
             }

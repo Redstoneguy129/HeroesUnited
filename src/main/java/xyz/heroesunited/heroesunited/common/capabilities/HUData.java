@@ -33,22 +33,19 @@ public class HUData {
         return this.saving;
     }
 
-    public static <T> T readValue(HUData data, CompoundNBT nbt, T newValue) {
-        if (data != null && !data.getValue().equals(newValue)) {
-            if (data.getValue() instanceof Boolean) {
-                data.setValue(nbt.getBoolean(data.getKey()));
-            } else if (data.getValue() instanceof Integer) {
-                data.setValue(nbt.getInt(data.getKey()));
-            } else if (data.getValue() instanceof String) {
-                data.setValue(nbt.getString(data.getKey()));
-            } else if (data.getValue() instanceof Float) {
-                data.setValue(nbt.getFloat(data.getKey()));
-            } else if (data.getValue() instanceof Double) {
-                data.setValue(nbt.getDouble(data.getKey()));
-            } else if (data.getValue() instanceof Long) {
-                data.setValue(nbt.getLong(data.getKey()));
-            }
-            return newValue;
+    public static Object readValue(HUData data, CompoundNBT nbt) {
+        if (data.getValue() instanceof Boolean) {
+            return nbt.getBoolean(data.getKey());
+        } else if (data.getValue() instanceof Integer) {
+            return nbt.getInt(data.getKey());
+        } else if (data.getValue() instanceof String) {
+            return nbt.getString(data.getKey());
+        } else if (data.getValue() instanceof Float) {
+            return nbt.getFloat(data.getKey());
+        } else if (data.getValue() instanceof Double) {
+            return nbt.getDouble(data.getKey());
+        } else if (data.getValue() instanceof Long) {
+            return nbt.getLong(data.getKey());
         }
         return null;
     }
