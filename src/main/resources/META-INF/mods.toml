@@ -13,6 +13,6 @@ description="Heroes United is a Minecraft mod.\nThis mod helps developers create
 [[dependencies.heroesunited]]
     modId="forge"
     mandatory=true
-    versionRange="[34,)"
+    versionRange="[36,)"
     ordering="NONE"
     side="BOTH"

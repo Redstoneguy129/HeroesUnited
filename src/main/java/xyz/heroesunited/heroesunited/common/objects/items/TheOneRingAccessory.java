@@ -22,6 +22,7 @@ public class TheOneRingAccessory extends DefaultAccessoryItem {
         super(new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_COMBAT), EquipmentAccessoriesSlot.WRIST, "BlazeFire");
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public void render(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {
         HandSide side = slot == EquipmentAccessoriesSlot.LEFT_WRIST.getSlot() ? HandSide.LEFT : HandSide.RIGHT;

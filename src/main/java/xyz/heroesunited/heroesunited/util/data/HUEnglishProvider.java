@@ -39,6 +39,10 @@ public class HUEnglishProvider extends HULanguageProvider {
         this.add(HUItems.HEADBAND, "Headband");
         this.add(HUItems.WALLE_HEAD, "Wall-e head");
 
+        this.add(HUItems.KEY_VECTOR_SIGMA, "Key to vector sigma");
+        this.add(HUItems.FLASH_RING, "Flash ring");
+        this.add(HUItems.KEYBLADE, "Keyblade");
+
         this.add("advancements.heroesunited.root.title", "Heroes United");
         this.add("advancements.heroesunited.root.description", "Download Heroes United!");
 

@@ -4,6 +4,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.INBTSerializable;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
+import xyz.heroesunited.heroesunited.common.abilities.KeyMap;
 
 import java.util.Map;
 import java.util.function.Predicate;
@@ -14,7 +15,7 @@ public interface IHUAbilityCap extends INBTSerializable<CompoundNBT> {
     /**
      * Using for toggle abilities in Suits or default abilities
      **/
-    void onKeyInput(Map<Integer, Boolean> map);
+    void onKeyInput(KeyMap map);
 
     /**
      * Ability - Gen Rex abilities, Aliens powers, Danny Phantom powers active, etc.

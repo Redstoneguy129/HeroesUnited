@@ -1,25 +1,24 @@
 package xyz.heroesunited.heroesunited.common.networking.server;
 
-import com.google.common.collect.Maps;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
+import xyz.heroesunited.heroesunited.common.abilities.KeyMap;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 
-import java.util.Map;
 import java.util.function.Supplier;
 
 public class ServerKeyInput {
 
-    private Map<Integer, Boolean> map;
+    private KeyMap map;
 
-    public ServerKeyInput(Map<Integer, Boolean> map) {
+    public ServerKeyInput(KeyMap map) {
         this.map = map;
     }
 
     public ServerKeyInput(PacketBuffer buf) {
         int amount = buf.readInt();
-        this.map = Maps.newHashMap();
+        this.map = new KeyMap();
         for (int i = 0; i < amount; i++) {
             int id = buf.readInt();
             boolean pressed = buf.readBoolean();

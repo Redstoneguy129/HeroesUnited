@@ -60,8 +60,10 @@ import xyz.heroesunited.heroesunited.util.HURichPresence;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 
 @OnlyIn(Dist.CLIENT)
 public class HUClientEventHandler {
@@ -71,15 +73,7 @@ public class HUClientEventHandler {
     private final List<String> playerBones = Arrays.asList("bipedHead", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg");
     private final ArrayList<LivingRenderer> entitiesWithLayer = Lists.newArrayList();
     public static List<AbilityKeyBinding> ABILITY_KEYS = Lists.newArrayList();
-    public static Map<Integer, Boolean> MAP = new HashMap<Integer, Boolean>() {
-        @Override
-        public Boolean get(Object key) {
-            if (!this.containsKey(key)) {
-                this.put((int) key, false);
-            }
-            return super.get(key);
-        }
-    };
+    public static KeyMap MAP = new KeyMap();
 
     public HUClientEventHandler() {
         if (Minecraft.getInstance() != null) {

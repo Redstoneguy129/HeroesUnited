@@ -14,6 +14,7 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
+import xyz.heroesunited.heroesunited.common.abilities.KeyMap;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
@@ -107,7 +108,7 @@ public class HUAbilityCap implements IHUAbilityCap {
     }
 
     @Override
-    public void onKeyInput(Map<Integer, Boolean> map) {
+    public void onKeyInput(KeyMap map) {
         activeAbilities.forEach((name, ability) -> {
             if (ability != null) {
                 ability.onKeyInput(player, map);
