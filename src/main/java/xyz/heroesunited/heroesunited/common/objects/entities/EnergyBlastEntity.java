@@ -72,22 +72,21 @@ public class EnergyBlastEntity extends ThrowableEntity {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = super.serializeNBT();
-        nbt.putFloat("Damage", damage);
-        nbt.putFloat("Gravity", gravity);
-        nbt.putInt("Lifetime", lifetime);
+    public void addAdditionalSaveData(CompoundNBT compound) {
+        super.addAdditionalSaveData(compound);
+        compound.putFloat("Damage", damage);
+        compound.putFloat("Gravity", gravity);
+        compound.putInt("Lifetime", lifetime);
         ListNBT listNBT = new ListNBT();
         listNBT.add(IntNBT.valueOf(this.color.getRed()));
         listNBT.add(IntNBT.valueOf(this.color.getGreen()));
         listNBT.add(IntNBT.valueOf(this.color.getBlue()));
-        nbt.put("Color", listNBT);
-        return nbt;
+        compound.put("Color", listNBT);
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT compound) {
-        super.deserializeNBT(compound);
+    public void readAdditionalSaveData(CompoundNBT compound) {
+        super.readAdditionalSaveData(compound);
         ListNBT listNBT = compound.getList("Color", Constants.NBT.TAG_INT);
         this.damage = compound.getFloat("Damage");
         this.gravity = compound.getFloat("Gravity");

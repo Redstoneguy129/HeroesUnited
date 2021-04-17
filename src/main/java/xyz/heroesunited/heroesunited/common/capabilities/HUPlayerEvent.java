@@ -18,7 +18,10 @@ import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCapProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.IHUAbilityCap;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
-import xyz.heroesunited.heroesunited.common.networking.client.*;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilities;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityCap;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUData;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUPlayer;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 
 public class HUPlayerEvent {
@@ -65,7 +68,6 @@ public class HUPlayerEvent {
         if (e.getPlayer() instanceof ServerPlayerEntity) {
             e.getTarget().getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
                 HUNetworking.INSTANCE.sendTo(new ClientSyncAbilities(e.getTarget().getId(), a.getAbilities()), ((ServerPlayerEntity) e.getPlayer()).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
-                HUNetworking.INSTANCE.sendTo(new ClientSyncActiveAbilities(e.getTarget().getId(), a.getActiveAbilities()), ((ServerPlayerEntity) e.getPlayer()).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                 HUNetworking.INSTANCE.sendTo(new ClientSyncAbilityCap(e.getTarget().getId(), a.serializeNBT()), ((ServerPlayerEntity) e.getPlayer()).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
             });
             e.getTarget().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
@@ -80,7 +82,6 @@ public class HUPlayerEvent {
         if (e.getEntity() instanceof ServerPlayerEntity) {
             e.getEntity().getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
                 HUNetworking.INSTANCE.sendTo(new ClientSyncAbilities(e.getEntity().getId(), a.getAbilities()), ((ServerPlayerEntity) e.getEntity()).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
-                HUNetworking.INSTANCE.sendTo(new ClientSyncActiveAbilities(e.getEntity().getId(), a.getActiveAbilities()), ((ServerPlayerEntity) e.getEntity()).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                 a.syncToAll();
             });
             e.getEntity().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {

@@ -18,9 +18,10 @@ import xyz.heroesunited.heroesunited.common.abilities.KeyMap;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientDisableAbility;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientEnableAbility;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilities;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityCap;
-import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncActiveAbilities;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -49,10 +50,10 @@ public class HUAbilityCap implements IHUAbilityCap {
         if (!activeAbilities.containsKey(id)) {
             activeAbilities.put(id, ability);
             ability.name = id;
-            syncToAll();
             ability.onActivated(player);
+            syncToAll();
             if (!player.level.isClientSide)
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncActiveAbilities(player.getId(), this.getActiveAbilities()));
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientEnableAbility(player.getId(), id, ability.serializeNBT()));
         }
     }
 
@@ -61,9 +62,9 @@ public class HUAbilityCap implements IHUAbilityCap {
         if (activeAbilities.containsKey(id)) {
             activeAbilities.get(id).onDeactivated(player);
             activeAbilities.remove(id);
-            HUPlayer.getCap(player).syncToAll();
+            syncToAll();
             if (!player.level.isClientSide)
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncActiveAbilities(player.getId(), this.getActiveAbilities()));
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientDisableAbility(player.getId(), id));
         }
     }
 
