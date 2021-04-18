@@ -57,6 +57,7 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
     public static final AbilityType POTION_EFFECT = new AbilityType(PotionEffectAbility::new, HeroesUnited.MODID, "potion_effect");
     public static final AbilityType ENERGY_LASER = new AbilityType(EnergyLaserAbility::new, HeroesUnited.MODID, "energy_laser");
     public static final AbilityType PROJECTILE = new AbilityType(ProjectileAbility::new, HeroesUnited.MODID, "projectile");
+    public static final AbilityType HIDE_LAYER = new AbilityType(HideLayerAbility::new, HeroesUnited.MODID, "hide_layer");
 
     @SubscribeEvent
     public static void registerAbilityTypes(RegistryEvent.Register<AbilityType> e) {
@@ -72,5 +73,6 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
         e.getRegistry().register(POTION_EFFECT);
         e.getRegistry().register(ENERGY_LASER);
         e.getRegistry().register(PROJECTILE);
+        e.getRegistry().register(HIDE_LAYER);
     }
 }

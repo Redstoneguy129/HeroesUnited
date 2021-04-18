@@ -4,6 +4,7 @@ import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
@@ -45,7 +46,7 @@ public class ClientEnableAbility {
             if (entity instanceof AbstractClientPlayerEntity) {
                 entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
                     Ability ability = AbilityType.ABILITIES.getValue(new ResourceLocation(this.nbt.getString("AbilityType"))).create(this.name);
-                    if (ability != null && AbilityHelper.canActiveAbility(ability, (AbstractClientPlayerEntity) entity)) {
+                    if (ability != null && AbilityHelper.canActiveAbility(ability, (PlayerEntity) entity)) {
                         if (this.nbt.contains("JsonObject")) {
                             ability.setJsonObject(null, new JsonParser().parse(this.nbt.getString("JsonObject")).getAsJsonObject());
                         }

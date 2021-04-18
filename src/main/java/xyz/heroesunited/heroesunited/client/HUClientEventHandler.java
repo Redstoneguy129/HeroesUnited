@@ -1,7 +1,6 @@
 package xyz.heroesunited.heroesunited.client;
 
 import com.google.common.collect.Lists;
-import com.google.gson.JsonElement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.gui.screen.CustomizeSkinScreen;
@@ -63,7 +62,6 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 @OnlyIn(Dist.CLIENT)
 public class HUClientEventHandler {
@@ -167,22 +165,25 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void onRenderHULayer(HURenderLayerEvent.Pre event) {
-        hideAllBodyParts(event, event.getLivingEntity());
+        hideLayer(event, event.getLivingEntity(), "heroesunited");
+    }
+
+    @SubscribeEvent
+    public void onRenderHULayer(HURenderLayerEvent.Accessories event) {
+        hideLayer(event, event.getLivingEntity(), "accessories");
     }
 
     @SubscribeEvent
     public void onArmorLayer(HURenderLayerEvent.Armor.Pre event) {
-        hideAllBodyParts(event, event.getLivingEntity());
+        hideLayer(event, event.getLivingEntity(), "armor");
     }
 
-    public void hideAllBodyParts(Event event, LivingEntity entity) {
+    public void hideLayer(Event event, LivingEntity entity, String name) {
         if (entity instanceof PlayerEntity) {
             for (Ability ability : AbilityHelper.getAbilities(entity)) {
-                if (ability instanceof HideBodyPartsAbility && ability.getJsonObject().has("visibility_parts")) {
-                    for (Map.Entry<String, JsonElement> yep : JSONUtils.getAsJsonObject(ability.getJsonObject(), "visibility_parts").entrySet()) {
-                        if (yep.getKey().equals("all")) {
-                            event.setCanceled(!JSONUtils.convertToBoolean(yep.getValue(), yep.getKey()));
-                        }
+                if (ability instanceof HideLayerAbility) {
+                    if (((HideLayerAbility) ability).getEnabled() && JSONUtils.convertToString(ability.getJsonObject(), "layer").equals(name)) {
+                        event.setCanceled(true);
                     }
                 }
             }
