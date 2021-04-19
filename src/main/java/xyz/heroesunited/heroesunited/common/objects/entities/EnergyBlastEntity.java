@@ -87,11 +87,19 @@ public class EnergyBlastEntity extends ThrowableEntity {
     @Override
     public void readAdditionalSaveData(CompoundNBT compound) {
         super.readAdditionalSaveData(compound);
-        ListNBT listNBT = compound.getList("Color", Constants.NBT.TAG_INT);
-        this.damage = compound.getFloat("Damage");
-        this.gravity = compound.getFloat("Gravity");
-        this.lifetime = compound.getInt("Lifetime");
-        this.color = new Color(listNBT.getInt(0), listNBT.getInt(1), listNBT.getInt(2));
+        if (compound.contains("Damage")) {
+            this.damage = compound.getFloat("Damage");
+        }
+        if (compound.contains("Gravity")) {
+            this.gravity = compound.getFloat("Gravity");
+        }
+        if (compound.contains("Lifetime")) {
+            this.lifetime = compound.getInt("Lifetime");
+        }
+        if (compound.contains("Color")) {
+            ListNBT listNBT = compound.getList("Color", Constants.NBT.TAG_INT);
+            this.color = new Color(listNBT.getInt(0), listNBT.getInt(1), listNBT.getInt(2));
+        }
     }
 
     @Override

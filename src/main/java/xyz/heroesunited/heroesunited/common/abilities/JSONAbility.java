@@ -22,9 +22,9 @@ public abstract class JSONAbility extends Ability {
         super.onUpdate(player);
         action(player);
         if (enabled && actionType == ActionType.ACTION) {
-            this.enabled = false;
+            setEnabled(player, false);
         } else if (actionType == ActionType.CONSTANT) {
-            this.enabled = true;
+            setEnabled(player, true);
         }
     }
 
@@ -32,7 +32,7 @@ public abstract class JSONAbility extends Ability {
     public void onDeactivated(PlayerEntity player) {
         super.onDeactivated(player);
         if (enabled) {
-            enabled = false;
+            setEnabled(player, false);
             action(player);
         }
     }
@@ -47,13 +47,13 @@ public abstract class JSONAbility extends Ability {
         if (map.get(getKey()) && cooldownTicks == 0) {
             if (actionType == ActionType.CONSTANT) return;
             if (actionType == ActionType.TOGGLE) {
-                enabled = !enabled;
+                setEnabled(player, !enabled);
             } else if (actionType == ActionType.ACTION || actionType == ActionType.HELD) {
-                this.enabled = true;
+                setEnabled(player, true);
             }
         } else {
             if (actionType == ActionType.HELD) {
-                this.enabled = false;
+                setEnabled(player, false);
             }
         }
     }
@@ -63,6 +63,13 @@ public abstract class JSONAbility extends Ability {
             return JSONUtils.getAsInt(JSONUtils.getAsJsonObject(this.getJsonObject(), "key"), "id");
         } else {
             return 7;
+        }
+    }
+
+    protected void setEnabled(PlayerEntity player, boolean enabled) {
+        if (this.enabled != enabled) {
+            this.enabled = enabled;
+            syncToAll(player);
         }
     }
 

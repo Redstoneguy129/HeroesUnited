@@ -23,10 +23,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbility;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityCreators;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 
@@ -191,5 +193,20 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     public Ability setAdditionalData(CompoundNBT nbt) {
         this.additionalData = nbt;
         return this;
+    }
+
+    public void sync(PlayerEntity player) {
+        if (player instanceof ServerPlayerEntity) {
+            HUNetworking.INSTANCE.sendTo(new ClientSyncAbility(player.getId(), this.name, this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+        }
+    }
+
+    public void syncToAll(PlayerEntity player) {
+        this.sync(player);
+        for (PlayerEntity mpPlayer : player.level.players()) {
+            if (mpPlayer instanceof ServerPlayerEntity) {
+                HUNetworking.INSTANCE.sendTo(new ClientSyncAbility(player.getId(), this.name, this.serializeNBT()), ((ServerPlayerEntity) mpPlayer).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+            }
+        }
     }
 }
