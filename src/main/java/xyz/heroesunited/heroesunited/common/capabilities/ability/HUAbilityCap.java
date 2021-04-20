@@ -51,7 +51,6 @@ public class HUAbilityCap implements IHUAbilityCap {
             activeAbilities.put(id, ability);
             ability.name = id;
             ability.onActivated(player);
-            syncToAll();
             if (!player.level.isClientSide)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientEnableAbility(player.getId(), id, ability.serializeNBT()));
         }
@@ -62,7 +61,6 @@ public class HUAbilityCap implements IHUAbilityCap {
         if (activeAbilities.containsKey(id)) {
             activeAbilities.get(id).onDeactivated(player);
             activeAbilities.remove(id);
-            syncToAll();
             if (!player.level.isClientSide)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientDisableAbility(player.getId(), id));
         }

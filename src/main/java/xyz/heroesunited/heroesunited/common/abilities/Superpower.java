@@ -37,7 +37,7 @@ public class Superpower implements IAbilityProvider {
     @Override
     public Map<String, Ability> getAbilities(PlayerEntity player) {
         Map<String, Ability> map = Maps.newHashMap();
-        containedAbilities.forEach(a -> {
+        getContainedAbilities().forEach(a -> {
             Ability ability = a.getAbilityType().create(a.getKey());
             ability.getAdditionalData().putString("Superpower", this.getRegistryName().toString());
             if (a.getJsonObject() != null) {
@@ -46,5 +46,9 @@ public class Superpower implements IAbilityProvider {
             map.put(ability.name, ability);
         });
         return map;
+    }
+
+    public List<AbilityCreator> getContainedAbilities() {
+        return containedAbilities;
     }
 }

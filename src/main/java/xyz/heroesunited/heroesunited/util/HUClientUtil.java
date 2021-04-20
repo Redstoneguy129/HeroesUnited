@@ -193,6 +193,11 @@ public class HUClientUtil {
         }
     }
 
+    public static void resetModelRenderer(ModelRenderer renderer) {
+        renderer.xRot = renderer.yRot = renderer.zRot = 0.0F;
+        renderer.setPos(0, 0, 0);
+    }
+
     public static void copyAnglesToWear(PlayerModel model) {
         model.hat.copyFrom(model.head);
         model.jacket.copyFrom(model.body);
