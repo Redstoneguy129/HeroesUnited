@@ -21,7 +21,9 @@ public class SizeChangeAbility extends JSONAbility {
     public void setSize(PlayerEntity player, float value) {
         if (this.size != value) {
             this.size = value;
-            player.refreshDimensions();
+            if (player.level.isClientSide) {
+                player.refreshDimensions();
+            }
         }
     }
 

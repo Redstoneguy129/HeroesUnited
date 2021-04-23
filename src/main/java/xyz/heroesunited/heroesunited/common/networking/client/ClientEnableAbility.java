@@ -51,6 +51,7 @@ public class ClientEnableAbility {
                             ability.setJsonObject(null, new JsonParser().parse(this.nbt.getString("JsonObject")).getAsJsonObject());
                         }
                         cap.enable(this.name, ability);
+                        cap.getActiveAbilities().get(this.name).onActivated((PlayerEntity)entity);
                     }
                 });
             }

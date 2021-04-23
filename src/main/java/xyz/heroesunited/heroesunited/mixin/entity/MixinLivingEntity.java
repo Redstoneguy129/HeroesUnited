@@ -23,7 +23,7 @@ public abstract class MixinLivingEntity extends Entity {
     public void onSetSprint(boolean sprinting, CallbackInfo callbackInfoReturnable) {
         HUCancelSprinting event = new HUCancelSprinting(this);
         MinecraftForge.EVENT_BUS.post(event);
-        if (sprinting == true && event.isCanceled()) {
+        if (sprinting && event.isCanceled()) {
             callbackInfoReturnable.cancel();
         }
     }

@@ -1,6 +1,7 @@
 package xyz.heroesunited.heroesunited.client;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.gui.screen.CustomizeSkinScreen;
@@ -62,6 +63,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @OnlyIn(Dist.CLIENT)
 public class HUClientEventHandler {
@@ -71,6 +73,7 @@ public class HUClientEventHandler {
     private final List<String> playerBones = Arrays.asList("bipedHead", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg");
     private final ArrayList<LivingRenderer> entitiesWithLayer = Lists.newArrayList();
     public static List<AbilityKeyBinding> ABILITY_KEYS = Lists.newArrayList();
+    public static Map<Integer, Boolean> KEY_STATE = Maps.newHashMap();
     public static KeyMap MAP = new KeyMap();
 
     public HUClientEventHandler() {
@@ -114,12 +117,16 @@ public class HUClientEventHandler {
 
     public static void sendToggleKey(int key, int action, KeyBinding keyBind, int index) {
         if (action < GLFW.GLFW_REPEAT && key == keyBind.getKey().getValue()) {
-            if (MAP.containsKey(index)) MAP.remove(index);
-            if (!MAP.containsKey(index)) {
-                MAP.put(index, action == GLFW.GLFW_PRESS);
+            if (!KEY_STATE.containsKey(key)) {
+                KEY_STATE.put(key, false);
             }
-            HUNetworking.INSTANCE.sendToServer(new ServerKeyInput(MAP));
-            Minecraft.getInstance().player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> cap.onKeyInput(MAP));
+            MAP.put(index, action == GLFW.GLFW_PRESS && keyBind.isDown());
+
+            if (KEY_STATE.get(key) != (action == GLFW.GLFW_PRESS)) {
+                HUNetworking.INSTANCE.sendToServer(new ServerKeyInput(MAP));
+                Minecraft.getInstance().player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> cap.onKeyInput(MAP));
+            }
+            KEY_STATE.put(key, action == GLFW.GLFW_PRESS);
         }
     }
 
@@ -282,7 +289,6 @@ public class HUClientEventHandler {
                             renderer.zRot = bone.getRotationZ();
                         }
                     }
-                    HUClientUtil.copyAnglesToWear(event.getPlayerModel());
                 }
             }
 
@@ -296,7 +302,6 @@ public class HUClientEventHandler {
                         }
                     }
                 }
-
             }
 
             if (cap.isFlying() && !player.isOnGround() && !player.isSwimming() && player.isSprinting()) {
@@ -310,7 +315,6 @@ public class HUClientEventHandler {
                             model.leftArm.yRot = model.leftArm.zRot =
                                     model.rightLeg.xRot = model.leftLeg.xRot = (float) Math.toRadians(0F);
                 }
-                HUClientUtil.copyAnglesToWear(model);
             }
         });
     }

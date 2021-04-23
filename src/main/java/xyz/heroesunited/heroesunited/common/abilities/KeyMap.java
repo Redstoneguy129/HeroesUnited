@@ -7,7 +7,7 @@ public class KeyMap extends HashMap<Integer, Boolean> {
     @Override
     public Boolean get(Object key) {
         if (!this.containsKey(key)) {
-            this.put((int) key, false);
+            return false;
         }
         return super.get(key);
     }

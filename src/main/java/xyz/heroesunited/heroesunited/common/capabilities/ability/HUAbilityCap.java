@@ -41,7 +41,6 @@ public class HUAbilityCap implements IHUAbilityCap {
 
     @Nonnull
     public static IHUAbilityCap getCap(Entity entity) {
-        entity.refreshDimensions();
         return entity.getCapability(CAPABILITY).orElse(null);
     }
 
@@ -129,7 +128,6 @@ public class HUAbilityCap implements IHUAbilityCap {
 
     @Override
     public IHUAbilityCap sync() {
-        player.refreshDimensions();
         if (player instanceof ServerPlayerEntity) {
             HUNetworking.INSTANCE.sendTo(new ClientSyncAbilityCap(player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
         }

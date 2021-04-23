@@ -3,6 +3,7 @@ package xyz.heroesunited.heroesunited.common.networking.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
@@ -33,7 +34,12 @@ public class ClientDisableAbility {
         ctx.get().enqueueWork(() -> {
             Entity entity = Minecraft.getInstance().level.getEntity(this.entityId);
             if (entity instanceof AbstractClientPlayerEntity) {
-                entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> cap.disable(this.name));
+                entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
+                    if (cap.getActiveAbilities().containsKey(this.name)) {
+                        cap.getActiveAbilities().get(this.name).onDeactivated((PlayerEntity)entity);
+                    }
+                    cap.disable(this.name);
+                });
             }
         });
         ctx.get().setPacketHandled(true);

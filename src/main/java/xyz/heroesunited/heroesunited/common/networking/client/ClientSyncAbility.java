@@ -40,16 +40,14 @@ public class ClientSyncAbility {
             Minecraft mc = Minecraft.getInstance();
             Entity entity = mc.level.getEntity(this.entityId);
             if (entity instanceof AbstractClientPlayerEntity) {
-                entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
-                    cap.getActiveAbilities().forEach((id, a) -> {
-                        if (id.equals(this.name)) {
-                            a.deserializeNBT(this.nbt);
-                            if (mc.screen instanceof AbilitiesScreen) {
-                                mc.screen.init(mc, mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
-                            }
+                entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> cap.getActiveAbilities().forEach((id, a) -> {
+                    if (id.equals(this.name)) {
+                        a.deserializeNBT(this.nbt);
+                        if (mc.screen instanceof AbilitiesScreen) {
+                            mc.screen.init(mc, mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
                         }
-                    });
-                });
+                    }
+                }));
             }
         });
         ctx.get().setPacketHandled(true);

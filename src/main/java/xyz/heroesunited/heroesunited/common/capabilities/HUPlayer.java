@@ -84,7 +84,6 @@ public class HUPlayer implements IHUPlayer {
 
     @Nonnull
     public static IHUPlayer getCap(Entity entity) {
-        entity.refreshDimensions();
         return entity.getCapability(HUPlayerProvider.CAPABILITY).orElse(null);
     }
 
@@ -176,7 +175,6 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public IHUPlayer sync() {
-        player.refreshDimensions();
         if (player instanceof ServerPlayerEntity) {
             HUNetworking.INSTANCE.sendTo(new ClientSyncHUPlayer(player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
         }

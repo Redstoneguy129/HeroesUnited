@@ -31,10 +31,8 @@ public abstract class JSONAbility extends Ability {
     @Override
     public void onDeactivated(PlayerEntity player) {
         super.onDeactivated(player);
-        if (enabled) {
-            setEnabled(player, false);
-            action(player);
-        }
+        setEnabled(player, false);
+        action(player);
     }
 
     public void action(PlayerEntity player) {
@@ -44,7 +42,7 @@ public abstract class JSONAbility extends Ability {
     @Override
     public void onKeyInput(PlayerEntity player, Map<Integer, Boolean> map) {
         super.onKeyInput(player, map);
-        if (map.get(getKey()) && cooldownTicks == 0) {
+        if (getKey() != -1 && map.get(getKey()) && cooldownTicks == 0) {
             if (actionType == ActionType.CONSTANT) return;
             if (actionType == ActionType.TOGGLE) {
                 setEnabled(player, !enabled);
@@ -62,7 +60,7 @@ public abstract class JSONAbility extends Ability {
         if (getJsonObject().has("key")) {
             return JSONUtils.getAsInt(JSONUtils.getAsJsonObject(this.getJsonObject(), "key"), "id");
         } else {
-            return 7;
+            return -1;
         }
     }
 
