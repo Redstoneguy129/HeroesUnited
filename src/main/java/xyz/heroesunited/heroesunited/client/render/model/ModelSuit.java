@@ -29,28 +29,19 @@ public class ModelSuit<T extends LivingEntity> extends BipedModel<T> {
     public ModelSuit(float scale, boolean slim) {
         super(RenderType::entityTranslucent, scale, 0.0F, 64, 64);
         if (slim) {
-            this.leftArm = new ModelRenderer(this, 32, 48);
-            this.leftArm.addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, scale);
-            this.leftArm.setPos(5.0F, 2.5F, 0.0F);
-            this.rightArm = new ModelRenderer(this, 40, 16);
-            this.rightArm.addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, scale);
-            this.rightArm.setPos(-5.0F, 2.5F, 0.0F);
             this.leftSleeve = new ModelRenderer(this, 48, 48);
             this.leftSleeve.addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, scale + 0.25F);
-            this.leftSleeve.setPos(5.0F, 2.5F, 0.0F);
+            this.leftArm.addChild(leftSleeve);
             this.rightSleeve = new ModelRenderer(this, 40, 32);
             this.rightSleeve.addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, scale + 0.25F);
-            this.rightSleeve.setPos(-5.0F, 2.5F, 10.0F);
+            this.rightArm.addChild(rightSleeve);
         } else {
-            this.leftArm = new ModelRenderer(this, 32, 48);
-            this.leftArm.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale);
-            this.leftArm.setPos(5.0F, 2.0F, 0.0F);
             this.leftSleeve = new ModelRenderer(this, 48, 48);
             this.leftSleeve.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale + 0.25F);
-            this.leftSleeve.setPos(5.0F, 2.0F, 0.0F);
+            this.leftArm.addChild(leftSleeve);
             this.rightSleeve = new ModelRenderer(this, 40, 32);
             this.rightSleeve.addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale + 0.25F);
-            this.rightSleeve.setPos(-5.0F, 2.0F, 10.0F);
+            this.rightArm.addChild(rightSleeve);
         }
 
         this.leftLeg = new ModelRenderer(this, 16, 48);
@@ -58,21 +49,15 @@ public class ModelSuit<T extends LivingEntity> extends BipedModel<T> {
         this.leftLeg.setPos(1.9F, 12.0F, 0.0F);
         this.leftPants = new ModelRenderer(this, 0, 48);
         this.leftPants.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale + 0.25F);
-        this.leftPants.setPos(1.9F, 12.0F, 0.0F);
+        this.leftLeg.addChild(leftPants);
         this.rightPants = new ModelRenderer(this, 0, 32);
         this.rightPants.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale + 0.25F);
-        this.rightPants.setPos(-1.9F, 12.0F, 0.0F);
+        this.rightLeg.addChild(rightPants);
         this.jacket = new ModelRenderer(this, 16, 32);
         this.jacket.addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, scale + 0.25F);
-        this.jacket.setPos(0.0F, 0.0F, 0.0F);
+        this.body.addChild(jacket);
     }
 
-    @Override
-    public Iterable<ModelRenderer> bodyParts() {
-        return Iterables.concat(super.bodyParts(), ImmutableList.of(this.leftPants, this.rightPants, this.leftSleeve, this.rightSleeve, this.jacket));
-    }
-
-    @Override
     public void setupAnim(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         super.setupAnim(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
         this.leftPants.copyFrom(this.leftLeg);
@@ -81,7 +66,7 @@ public class ModelSuit<T extends LivingEntity> extends BipedModel<T> {
         this.rightSleeve.copyFrom(this.rightArm);
         this.jacket.copyFrom(this.body);
         if (entityIn instanceof ArmorStandEntity) {
-            ArmorStandEntity armorStand = (ArmorStandEntity) entityIn;
+            ArmorStandEntity armorStand = (ArmorStandEntity)entityIn;
             this.head.xRot = 0.017453292F * armorStand.getHeadPose().getX();
             this.head.yRot = 0.017453292F * armorStand.getHeadPose().getY();
             this.head.zRot = 0.017453292F * armorStand.getHeadPose().getZ();
@@ -105,9 +90,9 @@ public class ModelSuit<T extends LivingEntity> extends BipedModel<T> {
             this.rightLeg.setPos(-1.9F, 11.0F, 0.0F);
             this.hat.copyFrom(this.head);
         }
+
     }
 
-    @Override
     public void setAllVisible(boolean visible) {
         super.setAllVisible(visible);
         this.leftSleeve.visible = visible;
@@ -150,10 +135,9 @@ public class ModelSuit<T extends LivingEntity> extends BipedModel<T> {
     public void renderArm(HandSide handSide, MatrixStack matrixStack, IVertexBuilder vertexBuilder, int combinedLight, T entity) {
         if (handSide == HandSide.RIGHT) {
             this.rightArm.render(matrixStack, vertexBuilder, combinedLight, OverlayTexture.NO_OVERLAY);
-            this.rightSleeve.render(matrixStack, vertexBuilder, combinedLight, OverlayTexture.NO_OVERLAY);
         } else {
             this.leftArm.render(matrixStack, vertexBuilder, combinedLight, OverlayTexture.NO_OVERLAY);
-            this.leftSleeve.render(matrixStack, vertexBuilder, combinedLight, OverlayTexture.NO_OVERLAY);
         }
+
     }
 }
