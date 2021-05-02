@@ -93,15 +93,6 @@ public class ModelSuit<T extends LivingEntity> extends BipedModel<T> {
 
     }
 
-    public void setAllVisible(boolean visible) {
-        super.setAllVisible(visible);
-        this.leftSleeve.visible = visible;
-        this.rightSleeve.visible = visible;
-        this.leftPants.visible = visible;
-        this.rightPants.visible = visible;
-        this.jacket.visible = visible;
-    }
-
     public void copyPropertiesTo(ModelSuit<T> model) {
         super.copyPropertiesTo(model);
         model.leftPants.copyFrom(this.leftLeg);
