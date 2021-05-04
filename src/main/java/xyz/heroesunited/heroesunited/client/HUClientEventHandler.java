@@ -118,13 +118,14 @@ public class HUClientEventHandler {
 
             IRenderTypeBuffer.Impl buffers = Minecraft.getInstance().renderBuffers().bufferSource();
 
-            for (Planet planet: Planet.PLANETS.getValues()) {
-                planet.render(matrixStack, buffers);
-            }
 
             Vector3d view = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
             matrixStack.translate(-view.x(), -view.y(), -view.z());
             IVertexBuilder buffer = buffers.getBuffer(HUClientUtil.HURenderTypes.LASER);
+
+            for (Planet planet: Planet.PLANETS.getValues()) {
+                planet.render(matrixStack, buffers);
+            }
 
             HUClientUtil.renderFilledBox(matrixStack, buffer, new AxisAlignedBB(-100, -100, -100, 100, 100, 100), Color.ORANGE.getRed() / 255F, Color.ORANGE.getGreen() / 255F, Color.ORANGE.getBlue() / 255F, 1, Integer.MAX_VALUE);
             HUClientUtil.renderFilledBox(matrixStack, buffer, new AxisAlignedBB(-105, -105, -105, 105, 105, 105), Color.ORANGE.getRed() / 255F, Color.ORANGE.getGreen() / 255F, Color.ORANGE.getBlue() / 255F, 0.75F, Integer.MAX_VALUE);

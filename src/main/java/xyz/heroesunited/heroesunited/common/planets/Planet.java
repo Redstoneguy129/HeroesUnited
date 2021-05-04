@@ -21,10 +21,12 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 
 import java.awt.*;
+import java.util.HashMap;
 
 @Mod.EventBusSubscriber(modid = HeroesUnited.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Planet extends ForgeRegistryEntry<Planet> {
 
+    public static final HashMap<RegistryKey<World>, Planet> PLANETS_MAP = new HashMap<>();
     public static IForgeRegistry<Planet> PLANETS;
 
     private RegistryKey<World> dimension;
@@ -36,7 +38,8 @@ public class Planet extends ForgeRegistryEntry<Planet> {
     public Planet(RegistryKey<World> dimension, Vector3d coordinates, float scale, Vector3d outCordinates) {
         this.dimension = dimension;
         this.outCordinates = outCordinates;
-        hitbox = new AxisAlignedBB(-coordinates.x+scale/2,-coordinates.y+scale/2,-coordinates.z+scale/2,coordinates.x+scale/2,coordinates.y+scale/2,coordinates.z+scale/2);
+        PLANETS_MAP.put(dimension,this);
+        hitbox = new AxisAlignedBB(coordinates.x-scale/2,coordinates.y-scale/2,coordinates.z-scale/2,coordinates.x+scale/2,coordinates.y+scale/2,coordinates.z+scale/2);
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -52,11 +55,15 @@ public class Planet extends ForgeRegistryEntry<Planet> {
         return dimension;
     }
 
+    public Vector3d getOutCordinates() {
+        return outCordinates;
+    }
+
     @OnlyIn(Dist.CLIENT)
     public void render(MatrixStack matrixStack, IRenderTypeBuffer buffers){
 
         IVertexBuilder buffer = buffers.getBuffer(HUClientUtil.HURenderTypes.LASER);
-        HUClientUtil.renderFilledBox(matrixStack, buffer, hitbox, Color.BLUE.getRed() / 255F, Color.BLUE.getGreen() / 255F, Color.BLUE.getBlue() / 255F, 1, Integer.MAX_VALUE);
+        HUClientUtil.renderFilledBox(matrixStack, buffer, hitbox, Color.RED.getRed() / 255F, Color.RED.getGreen() / 255F, Color.RED.getBlue() / 255F, 1, Integer.MAX_VALUE);
 
     }
 }

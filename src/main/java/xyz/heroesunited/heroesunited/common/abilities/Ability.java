@@ -74,7 +74,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     public void onKeyInput(PlayerEntity player, Map<Integer, Boolean> map) {
-        //map.keySet().forEach((i) -> toggle(player, i, map.get(i)));
+        map.keySet().forEach((i) -> toggle(player, i, map.get(i)));
     }
 
     @OnlyIn(Dist.CLIENT)
