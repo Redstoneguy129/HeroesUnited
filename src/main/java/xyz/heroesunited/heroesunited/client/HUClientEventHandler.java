@@ -123,7 +123,8 @@ public class HUClientEventHandler {
         Vector3d view = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         matrixStack.translate(-view.x(), -view.y(), -view.z());
 
-        HUClientUtil.renderFilledBox(matrixStack,buffer,new AxisAlignedBB(0,0,0,1,1,1),1,1,1,1, Integer.MAX_VALUE);
+        HUClientUtil.renderFilledBox(matrixStack,buffer,new AxisAlignedBB(0,0,0,500,500,500),Color.ORANGE.getRed()/255F,Color.ORANGE.getGreen()/255F,Color.ORANGE.getBlue()/255F,1, Integer.MAX_VALUE);
+        HUClientUtil.renderFilledBox(matrixStack,buffer,new AxisAlignedBB(-5,-5,-5,505,505,505),Color.ORANGE.getRed()/255F,Color.ORANGE.getGreen()/255F,Color.ORANGE.getBlue()/255F,0.75F, Integer.MAX_VALUE);
 
         matrixStack.popPose();
         RenderSystem.disableDepthTest();
