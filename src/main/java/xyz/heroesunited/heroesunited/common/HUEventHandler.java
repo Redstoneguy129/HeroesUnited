@@ -67,7 +67,6 @@ import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOO
 
 public class HUEventHandler {
 
-    public static final RegistryKey<World> SPACE = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(HeroesUnited.MODID,"space"));
 
     @SubscribeEvent
     public void playerSize(EntityEvent.Size event) {
@@ -117,11 +116,18 @@ public class HUEventHandler {
 
     @SubscribeEvent
     public void livingUpdate(LivingEvent.LivingUpdateEvent event) {
-        if (event.getEntityLiving().level.dimension().equals(SPACE)){
-            AbilityHelper.setAttribute(event.getEntityLiving(), "space_gravity", ForgeMod.ENTITY_GRAVITY.get(),
-                    UUID.fromString("16c0c8f6-565e-4175-94f5-029986f3cc1d"),
-                    0,
-                    AttributeModifier.Operation.MULTIPLY_TOTAL);
+        if(event.getEntity().isAlive()){
+            if (event.getEntityLiving().level.dimension().equals(HeroesUnited.SPACE)){
+                AbilityHelper.setAttribute(event.getEntityLiving(), "space_gravity", ForgeMod.ENTITY_GRAVITY.get(),
+                        UUID.fromString("16c0c8f6-565e-4175-94f5-029986f3cc1d"),
+                        -1.35,
+                        AttributeModifier.Operation.MULTIPLY_TOTAL, false);
+            } else {
+                AbilityHelper.setAttribute(event.getEntityLiving(), "space_gravity", ForgeMod.ENTITY_GRAVITY.get(),
+                        UUID.fromString("16c0c8f6-565e-4175-94f5-029986f3cc1d"),
+                        0,
+                        AttributeModifier.Operation.MULTIPLY_TOTAL, true);
+            }
         }
         if (event.getEntityLiving() instanceof PlayerEntity && event.getEntityLiving() != null) {
             PlayerEntity pl = (PlayerEntity) event.getEntityLiving();

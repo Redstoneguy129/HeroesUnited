@@ -114,21 +114,23 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void onWorldLastRender(RenderWorldLastEvent event){
-        MatrixStack matrixStack = event.getMatrixStack();
-        matrixStack.pushPose();
+        if(Minecraft.getInstance().level.dimension().equals(HeroesUnited.SPACE)) {
+            MatrixStack matrixStack = event.getMatrixStack();
+            matrixStack.pushPose();
 
-        IRenderTypeBuffer.Impl buffers = Minecraft.getInstance().renderBuffers().bufferSource();
-        IVertexBuilder buffer = buffers.getBuffer(HUClientUtil.HURenderTypes.LASER);
+            IRenderTypeBuffer.Impl buffers = Minecraft.getInstance().renderBuffers().bufferSource();
+            IVertexBuilder buffer = buffers.getBuffer(HUClientUtil.HURenderTypes.LASER);
 
-        Vector3d view = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-        matrixStack.translate(-view.x(), -view.y(), -view.z());
+            Vector3d view = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+            matrixStack.translate(-view.x(), -view.y(), -view.z());
 
-        HUClientUtil.renderFilledBox(matrixStack,buffer,new AxisAlignedBB(-100,-100,-100,100,100,100),Color.ORANGE.getRed()/255F,Color.ORANGE.getGreen()/255F,Color.ORANGE.getBlue()/255F,1, Integer.MAX_VALUE);
-        HUClientUtil.renderFilledBox(matrixStack,buffer,new AxisAlignedBB(-105,-105,-105,105,105,105),Color.ORANGE.getRed()/255F,Color.ORANGE.getGreen()/255F,Color.ORANGE.getBlue()/255F,0.75F, Integer.MAX_VALUE);
+            HUClientUtil.renderFilledBox(matrixStack, buffer, new AxisAlignedBB(-100, -100, -100, 100, 100, 100), Color.ORANGE.getRed() / 255F, Color.ORANGE.getGreen() / 255F, Color.ORANGE.getBlue() / 255F, 1, Integer.MAX_VALUE);
+            HUClientUtil.renderFilledBox(matrixStack, buffer, new AxisAlignedBB(-105, -105, -105, 105, 105, 105), Color.ORANGE.getRed() / 255F, Color.ORANGE.getGreen() / 255F, Color.ORANGE.getBlue() / 255F, 0.75F, Integer.MAX_VALUE);
 
-        matrixStack.popPose();
-        RenderSystem.disableDepthTest();
-        buffers.endBatch();
+            matrixStack.popPose();
+            RenderSystem.disableDepthTest();
+            buffers.endBatch();
+        }
     }
 
     @SubscribeEvent

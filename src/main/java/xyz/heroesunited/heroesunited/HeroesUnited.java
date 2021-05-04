@@ -4,7 +4,10 @@ import net.arikia.dev.drpc.DiscordRPC;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
@@ -64,6 +67,7 @@ import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOO
 @Mod(HeroesUnited.MODID)
 public class HeroesUnited {
 
+    public static final RegistryKey<World> SPACE = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(HeroesUnited.MODID,"space"));
     public static final String MODID = "heroesunited";
     public static final Logger LOGGER = LogManager.getLogger();
 
