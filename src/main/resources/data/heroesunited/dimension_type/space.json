@@ -1,0 +1,18 @@
+
+{
+  "has_raids": false,
+  "logical_height": 256,
+  "infiniburn": "minecraft:infiniburn_nether",
+  "ambient_light": 1,
+  "piglin_safe": false,
+  "bed_works": false,
+  "respawn_anchor_works": false,
+  "ultrawarm": false,
+  "natural": false,
+  "shrunk": false,
+  "fixed_time": 6000,
+  "coordinate_scale": 1.0,
+  "effects": "minecraft:the_end",
+  "has_skylight": false,
+  "has_ceiling": false
+}

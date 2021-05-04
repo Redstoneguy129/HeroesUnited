@@ -2,10 +2,15 @@ package xyz.heroesunited.heroesunited.client;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.gui.screen.CustomizeSkinScreen;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
@@ -14,13 +19,13 @@ import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Quaternion;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -105,6 +110,24 @@ public class HUClientEventHandler {
             sendToggleKey(e.getKey(), e.getAction(), key, key.index);
         }
         sendToggleKey(e.getKey(), e.getAction(), mc.options.keyJump, 7);
+    }
+
+    @SubscribeEvent
+    public void onWorldLastRender(RenderWorldLastEvent event){
+        MatrixStack matrixStack = event.getMatrixStack();
+        matrixStack.pushPose();
+
+        IRenderTypeBuffer.Impl buffers = Minecraft.getInstance().renderBuffers().bufferSource();
+        IVertexBuilder buffer = buffers.getBuffer(HUClientUtil.HURenderTypes.LASER);
+
+        Vector3d view = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        matrixStack.translate(-view.x(), -view.y(), -view.z());
+
+        HUClientUtil.renderFilledBox(matrixStack,buffer,new AxisAlignedBB(0,0,0,1,1,1),1,1,1,1, Integer.MAX_VALUE);
+
+        matrixStack.popPose();
+        RenderSystem.disableDepthTest();
+        buffers.endBatch();
     }
 
     @SubscribeEvent
