@@ -20,6 +20,7 @@ import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.OreFeatureConfig;
 import net.minecraftforge.common.BiomeDictionary;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
@@ -117,11 +118,10 @@ public class HUEventHandler {
     @SubscribeEvent
     public void livingUpdate(LivingEvent.LivingUpdateEvent event) {
         if (event.getEntityLiving().level.dimension().equals(SPACE)){
-            AbilityHelper.setAttribute(event.getEntityLiving(), "space_gravity",
-                    ,
+            AbilityHelper.setAttribute(event.getEntityLiving(), "space_gravity", ForgeMod.ENTITY_GRAVITY.get(),
                     UUID.fromString("16c0c8f6-565e-4175-94f5-029986f3cc1d"),
-                    enabled ? JSONUtils.getAsFloat(attribute, "amount", 1f) : 0D,
-                    AttributeModifier.Operation.fromValue(JSONUtils.getAsInt(attribute, "operation", 0)));
+                    0,
+                    AttributeModifier.Operation.MULTIPLY_TOTAL);
         }
         if (event.getEntityLiving() instanceof PlayerEntity && event.getEntityLiving() != null) {
             PlayerEntity pl = (PlayerEntity) event.getEntityLiving();
