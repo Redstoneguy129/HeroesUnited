@@ -106,7 +106,7 @@ public class HeroesUnited {
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             PlanetRenderer.registerRenderer(new EarthRenderer(), Planets.EARTH);
-//            ModelBakery.UNREFERENCED_TEXTURES.add(SunModel.SUN_TEXTURE_MATERIAL);
+            ModelBakery.UNREFERENCED_TEXTURES.add(SunModel.SUN_TEXTURE_MATERIAL);
         });
     }
 
