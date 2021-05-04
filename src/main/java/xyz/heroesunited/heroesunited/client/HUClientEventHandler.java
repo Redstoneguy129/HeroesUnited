@@ -24,6 +24,7 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -132,8 +133,11 @@ public class HUClientEventHandler {
 //            HUClientUtil.renderFilledBox(matrixStack, buffer, new AxisAlignedBB(-100, -100, -100, 100, 100, 100), Color.ORANGE.getRed() / 255F, Color.ORANGE.getGreen() / 255F, Color.ORANGE.getBlue() / 255F, 1, Integer.MAX_VALUE);
 //            HUClientUtil.renderFilledBox(matrixStack, buffer, new AxisAlignedBB(-105, -105, -105, 105, 105, 105), Color.ORANGE.getRed() / 255F, Color.ORANGE.getGreen() / 255F, Color.ORANGE.getBlue() / 255F, 0.75F, Integer.MAX_VALUE);
 
-            new SunModel().renderToBuffer(matrixStack, buffer, Integer.MAX_VALUE, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
-
+            matrixStack.pushPose();
+            matrixStack.scale(100,100,100);
+            matrixStack.translate(0,-1,0);
+            new SunModel().renderToBuffer(matrixStack, buffer, WorldRenderer.getLightColor(Minecraft.getInstance().level, new BlockPos(0,0,0)), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+            matrixStack.popPose();
 
             for (Planet planet : Planet.PLANETS.getValues()) {
                 matrixStack.pushPose();

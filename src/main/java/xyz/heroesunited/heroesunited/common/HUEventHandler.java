@@ -133,14 +133,14 @@ public class HUEventHandler {
                                 Entity repositionedEntity = repositionEntity.apply(false);
 
                                 repositionedEntity.teleportTo(0, 10000, 0);
-
+                                repositionedEntity.setNoGravity(false);
                                 return repositionedEntity;
                             }
                         });
                     }
                 }
             } else {
-                if (Planet.PLANETS_MAP.containsKey(event.getEntityLiving().level.dimension()) && event.getEntityLiving().position().y > 10050) {
+                if (Planet.PLANETS_MAP.containsKey(event.getEntityLiving().level.dimension()) && event.getEntityLiving().position().y > 10050 && !event.getEntityLiving().level.isClientSide) {
                     Planet planet = Planet.PLANETS_MAP.get(event.getEntityLiving().level.dimension());
                     event.getEntityLiving().changeDimension(((ServerWorld) event.getEntityLiving().level).getServer().getLevel(HeroesUnited.SPACE), new ITeleporter() {
                         @Override
