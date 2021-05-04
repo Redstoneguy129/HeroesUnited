@@ -64,13 +64,11 @@ public class AbilityHelper {
         }
     }
 
-    @Deprecated
     public static void setAttribute(LivingEntity entity, Attribute attribute, UUID uuid, double amount, AttributeModifier.Operation operation) {
         setAttribute(entity, "hudefault", attribute, uuid, amount, operation);
     }
 
     //For remove modifier set amount to 0
-    @Deprecated
     public static void setAttribute(LivingEntity entity, String name, Attribute attribute, UUID uuid, double amount, AttributeModifier.Operation operation) {
         ModifiableAttributeInstance instance = entity.getAttribute(attribute);
 
@@ -81,28 +79,6 @@ public class AbilityHelper {
         AttributeModifier modifier = instance.getModifier(uuid);
 
         if (amount == 0 || modifier != null && (modifier.getAmount() != amount || modifier.getOperation() != operation)) {
-            instance.removeModifier(uuid);
-            return;
-        }
-
-        modifier = instance.getModifier(uuid);
-
-        if (modifier == null) {
-            modifier = new AttributeModifier(uuid, name, amount, operation);
-            instance.addTransientModifier(modifier);
-        }
-    }
-
-    public static void setAttribute(LivingEntity entity, String name, Attribute attribute, UUID uuid, double amount, AttributeModifier.Operation operation, boolean remove) {
-        ModifiableAttributeInstance instance = entity.getAttribute(attribute);
-
-        if (instance == null || entity.level.isClientSide) {
-            return;
-        }
-
-        AttributeModifier modifier = instance.getModifier(uuid);
-
-        if (remove || modifier != null && (modifier.getAmount() != amount || modifier.getOperation() != operation)) {
             instance.removeModifier(uuid);
             return;
         }

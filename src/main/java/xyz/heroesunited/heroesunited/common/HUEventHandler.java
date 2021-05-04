@@ -125,7 +125,7 @@ public class HUEventHandler {
                 AbilityHelper.setAttribute(event.getEntityLiving(), "space_gravity", ForgeMod.ENTITY_GRAVITY.get(),
                         UUID.fromString("16c0c8f6-565e-4175-94f5-029986f3cc1d"),
                         -1,
-                        AttributeModifier.Operation.MULTIPLY_TOTAL, false);
+                        AttributeModifier.Operation.MULTIPLY_TOTAL);
                 for (Planet planet: Planet.PLANETS.getValues()) {
                     if(event.getEntityLiving().level.getEntities(null, planet.getHitbox()).contains(event.getEntity())){
                         event.getEntityLiving().changeDimension(((ServerWorld) event.getEntityLiving().level).getServer().getLevel(planet.getDimension()), new ITeleporter() {
@@ -144,7 +144,7 @@ public class HUEventHandler {
                 AbilityHelper.setAttribute(event.getEntityLiving(), "space_gravity", ForgeMod.ENTITY_GRAVITY.get(),
                         UUID.fromString("16c0c8f6-565e-4175-94f5-029986f3cc1d"),
                         0,
-                        AttributeModifier.Operation.MULTIPLY_TOTAL, true);
+                        AttributeModifier.Operation.MULTIPLY_TOTAL);
             }
         }
         if (event.getEntityLiving() instanceof PlayerEntity && event.getEntityLiving() != null) {
