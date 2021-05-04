@@ -2,6 +2,8 @@ package xyz.heroesunited.heroesunited.common;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -28,6 +30,7 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 import software.bernie.geckolib3.core.AnimationState;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
@@ -54,9 +57,11 @@ import xyz.heroesunited.heroesunited.util.HUTickrate;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.ATTRIBUTES;
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOOST;
 
 public class HUEventHandler {
@@ -112,7 +117,11 @@ public class HUEventHandler {
     @SubscribeEvent
     public void livingUpdate(LivingEvent.LivingUpdateEvent event) {
         if (event.getEntityLiving().level.dimension().equals(SPACE)){
-
+            AbilityHelper.setAttribute(event.getEntityLiving(), "space_gravity",
+                    ,
+                    UUID.fromString("16c0c8f6-565e-4175-94f5-029986f3cc1d"),
+                    enabled ? JSONUtils.getAsFloat(attribute, "amount", 1f) : 0D,
+                    AttributeModifier.Operation.fromValue(JSONUtils.getAsInt(attribute, "operation", 0)));
         }
         if (event.getEntityLiving() instanceof PlayerEntity && event.getEntityLiving() != null) {
             PlayerEntity pl = (PlayerEntity) event.getEntityLiving();
