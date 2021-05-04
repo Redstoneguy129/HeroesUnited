@@ -19,8 +19,10 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.OreFeatureConfig;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.common.util.ITeleporter;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
@@ -52,6 +54,7 @@ import xyz.heroesunited.heroesunited.common.objects.HUSounds;
 import xyz.heroesunited.heroesunited.common.objects.blocks.HUBlocks;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
+import xyz.heroesunited.heroesunited.common.planets.Planet;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 import xyz.heroesunited.heroesunited.util.HUTickrate;
@@ -60,6 +63,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.ATTRIBUTES;
@@ -116,12 +120,26 @@ public class HUEventHandler {
 
     @SubscribeEvent
     public void livingUpdate(LivingEvent.LivingUpdateEvent event) {
-        if(event.getEntity().isAlive()){
+        if(event.getEntity().isAlive() && !event.getEntityLiving().level.isClientSide){
             if (event.getEntityLiving().level.dimension().equals(HeroesUnited.SPACE)){
                 AbilityHelper.setAttribute(event.getEntityLiving(), "space_gravity", ForgeMod.ENTITY_GRAVITY.get(),
                         UUID.fromString("16c0c8f6-565e-4175-94f5-029986f3cc1d"),
-                        -1.35,
+                        -1,
                         AttributeModifier.Operation.MULTIPLY_TOTAL, false);
+                for (Planet planet: Planet.PLANETS.getValues()) {
+                    if(event.getEntityLiving().level.getEntities(null, planet.getHitbox()).contains(event.getEntity())){
+                        event.getEntityLiving().changeDimension(((ServerWorld) event.getEntityLiving().level).getServer().getLevel(planet.getDimension()), new ITeleporter() {
+                            @Override
+                            public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
+                                Entity repositionedEntity = repositionEntity.apply(false);
+
+                                repositionedEntity.teleportTo(0,1000,0);
+
+                                return repositionedEntity;
+                            }
+                        });
+                    }
+                }
             } else {
                 AbilityHelper.setAttribute(event.getEntityLiving(), "space_gravity", ForgeMod.ENTITY_GRAVITY.get(),
                         UUID.fromString("16c0c8f6-565e-4175-94f5-029986f3cc1d"),

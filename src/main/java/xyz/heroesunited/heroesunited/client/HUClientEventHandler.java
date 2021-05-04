@@ -10,7 +10,6 @@ import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.gui.screen.CustomizeSkinScreen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
@@ -19,11 +18,9 @@ import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -59,6 +56,7 @@ import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccessor
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
+import xyz.heroesunited.heroesunited.common.planets.Planet;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
@@ -119,13 +117,18 @@ public class HUClientEventHandler {
             matrixStack.pushPose();
 
             IRenderTypeBuffer.Impl buffers = Minecraft.getInstance().renderBuffers().bufferSource();
-            IVertexBuilder buffer = buffers.getBuffer(HUClientUtil.HURenderTypes.LASER);
+
+            for (Planet planet: Planet.PLANETS.getValues()) {
+                planet.render(matrixStack, buffers);
+            }
 
             Vector3d view = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
             matrixStack.translate(-view.x(), -view.y(), -view.z());
+            IVertexBuilder buffer = buffers.getBuffer(HUClientUtil.HURenderTypes.LASER);
 
             HUClientUtil.renderFilledBox(matrixStack, buffer, new AxisAlignedBB(-100, -100, -100, 100, 100, 100), Color.ORANGE.getRed() / 255F, Color.ORANGE.getGreen() / 255F, Color.ORANGE.getBlue() / 255F, 1, Integer.MAX_VALUE);
             HUClientUtil.renderFilledBox(matrixStack, buffer, new AxisAlignedBB(-105, -105, -105, 105, 105, 105), Color.ORANGE.getRed() / 255F, Color.ORANGE.getGreen() / 255F, Color.ORANGE.getBlue() / 255F, 0.75F, Integer.MAX_VALUE);
+
 
             matrixStack.popPose();
             RenderSystem.disableDepthTest();
