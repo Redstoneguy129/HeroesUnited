@@ -8,10 +8,12 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.RegistryKey;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.OreFeatureConfig;
@@ -31,6 +33,7 @@ import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.util.GeckoLibUtil;
+import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.HUBoundingBoxEvent;
 import xyz.heroesunited.heroesunited.client.events.HUEyeHeightEvent;
 import xyz.heroesunited.heroesunited.common.abilities.*;
@@ -57,6 +60,8 @@ import java.util.stream.Collectors;
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOOST;
 
 public class HUEventHandler {
+
+    public static final RegistryKey<World> SPACE = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(HeroesUnited.MODID,"space"));
 
     @SubscribeEvent
     public void playerSize(EntityEvent.Size event) {
@@ -106,6 +111,9 @@ public class HUEventHandler {
 
     @SubscribeEvent
     public void livingUpdate(LivingEvent.LivingUpdateEvent event) {
+        if (event.getEntityLiving().level.dimension().equals(SPACE)){
+
+        }
         if (event.getEntityLiving() instanceof PlayerEntity && event.getEntityLiving() != null) {
             PlayerEntity pl = (PlayerEntity) event.getEntityLiving();
             pl.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
