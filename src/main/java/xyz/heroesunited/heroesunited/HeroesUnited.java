@@ -2,6 +2,7 @@ package xyz.heroesunited.heroesunited;
 
 import net.arikia.dev.drpc.DiscordRPC;
 import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.client.renderer.model.ModelBakery;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.RegistryKey;
@@ -12,6 +13,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -26,6 +28,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.RegistryBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import software.bernie.geckolib3.GeckoLib;
@@ -35,12 +38,16 @@ import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
 import xyz.heroesunited.heroesunited.client.HUClientEventHandler;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
 import xyz.heroesunited.heroesunited.client.gui.AccessoriesScreen;
+import xyz.heroesunited.heroesunited.client.render.model.SunModel;
 import xyz.heroesunited.heroesunited.client.render.renderer.EnergyBlastRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.GeckoSuitRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.HorasRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.IGeoAbility;
+import xyz.heroesunited.heroesunited.client.render.renderer.planet.EarthRenderer;
+import xyz.heroesunited.heroesunited.client.render.renderer.planet.PlanetRenderer;
 import xyz.heroesunited.heroesunited.common.HUConfig;
 import xyz.heroesunited.heroesunited.common.HUEventHandler;
+import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.suit.GeckoSuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUCapStorage;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
@@ -57,6 +64,7 @@ import xyz.heroesunited.heroesunited.common.objects.container.HUContainers;
 import xyz.heroesunited.heroesunited.common.objects.entities.HUEntities;
 import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
+import xyz.heroesunited.heroesunited.common.planets.Planet;
 import xyz.heroesunited.heroesunited.common.planets.Planets;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
@@ -93,7 +101,13 @@ public class HeroesUnited {
 
         MinecraftForge.EVENT_BUS.register(new HUEventHandler());
         MinecraftForge.EVENT_BUS.register(new HUPlayerEvent());
+        bus.addListener(this::onRegisterNewRegistries);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, HUConfig.CLIENT_SPEC);
+
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            PlanetRenderer.registerRenderer(new EarthRenderer(), Planets.EARTH);
+//            ModelBakery.UNREFERENCED_TEXTURES.add(SunModel.SUN_TEXTURE_MATERIAL);
+        });
     }
 
     static {
@@ -109,6 +123,11 @@ public class HeroesUnited {
             }
             return null;
         });
+    }
+
+    public void onRegisterNewRegistries(RegistryEvent.NewRegistry e) {
+        AbilityType.ABILITIES = new RegistryBuilder<AbilityType>().setName(new ResourceLocation(HeroesUnited.MODID, "ability_types")).setType(AbilityType.class).setIDRange(0, 2048).create();
+        Planet.PLANETS = new RegistryBuilder<Planet>().setName(new ResourceLocation(HeroesUnited.MODID, "planets")).setType(Planet.class).setIDRange(0, Integer.MAX_VALUE).create();
     }
 
     @SubscribeEvent

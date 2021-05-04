@@ -10,9 +10,12 @@ import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.gui.screen.CustomizeSkinScreen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.LivingEntity;
@@ -44,6 +47,8 @@ import xyz.heroesunited.heroesunited.client.events.HURenderPlayerHandEvent;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.client.render.HULayerRenderer;
+import xyz.heroesunited.heroesunited.client.render.model.SunModel;
+import xyz.heroesunited.heroesunited.client.render.renderer.planet.PlanetRenderer;
 import xyz.heroesunited.heroesunited.common.HUConfig;
 import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
@@ -111,8 +116,8 @@ public class HUClientEventHandler {
     }
 
     @SubscribeEvent
-    public void onWorldLastRender(RenderWorldLastEvent event){
-        if(Minecraft.getInstance().level.dimension().equals(HeroesUnited.SPACE)) {
+    public void onWorldLastRender(RenderWorldLastEvent event) {
+        if (Minecraft.getInstance().level.dimension().equals(HeroesUnited.SPACE)) {
             MatrixStack matrixStack = event.getMatrixStack();
             matrixStack.pushPose();
 
@@ -121,15 +126,27 @@ public class HUClientEventHandler {
 
             Vector3d view = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
             matrixStack.translate(-view.x(), -view.y(), -view.z());
-            IVertexBuilder buffer = buffers.getBuffer(HUClientUtil.HURenderTypes.LASER);
+            IVertexBuilder buffer = SunModel.SUN_TEXTURE_MATERIAL.buffer(buffers, RenderType::entityTranslucent);
 
-            for (Planet planet: Planet.PLANETS.getValues()) {
-                planet.render(matrixStack, buffers);
+
+//            HUClientUtil.renderFilledBox(matrixStack, buffer, new AxisAlignedBB(-100, -100, -100, 100, 100, 100), Color.ORANGE.getRed() / 255F, Color.ORANGE.getGreen() / 255F, Color.ORANGE.getBlue() / 255F, 1, Integer.MAX_VALUE);
+//            HUClientUtil.renderFilledBox(matrixStack, buffer, new AxisAlignedBB(-105, -105, -105, 105, 105, 105), Color.ORANGE.getRed() / 255F, Color.ORANGE.getGreen() / 255F, Color.ORANGE.getBlue() / 255F, 0.75F, Integer.MAX_VALUE);
+
+            new SunModel().renderToBuffer(matrixStack, buffer, Integer.MAX_VALUE, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+
+
+            for (Planet planet : Planet.PLANETS.getValues()) {
+                matrixStack.pushPose();
+                matrixStack.translate(planet.getCoordinates().x, planet.getCoordinates().y, planet.getCoordinates().z);
+                matrixStack.mulPose(new Quaternion(0, 0, 180, true));
+                PlanetRenderer planetRenderer = PlanetRenderer.getRenderer(planet);
+                planetRenderer.render(matrixStack, buffers);
+
+                buffer = buffers.getBuffer(RenderType.LINES);
+                matrixStack.popPose();
+                if (Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes())
+                    WorldRenderer.renderLineBox(matrixStack, buffer, planet.getHitbox(), 1, 1, 1, 1);
             }
-
-            HUClientUtil.renderFilledBox(matrixStack, buffer, new AxisAlignedBB(-100, -100, -100, 100, 100, 100), Color.ORANGE.getRed() / 255F, Color.ORANGE.getGreen() / 255F, Color.ORANGE.getBlue() / 255F, 1, Integer.MAX_VALUE);
-            HUClientUtil.renderFilledBox(matrixStack, buffer, new AxisAlignedBB(-105, -105, -105, 105, 105, 105), Color.ORANGE.getRed() / 255F, Color.ORANGE.getGreen() / 255F, Color.ORANGE.getBlue() / 255F, 0.75F, Integer.MAX_VALUE);
-
 
             matrixStack.popPose();
             RenderSystem.disableDepthTest();
@@ -338,7 +355,7 @@ public class HUClientEventHandler {
                 PlayerModel model = event.getPlayerModel();
                 boolean renderFlying = IFlyingAbility.getFlyingAbility(event.getPlayer()) == null || IFlyingAbility.getFlyingAbility(event.getPlayer()).setDefaultRotationAngles(event.getPlayer());
                 if (renderFlying) {
-                    model.head.xRot = (-(float)Math.PI / 4F);
+                    model.head.xRot = (-(float) Math.PI / 4F);
                     model.rightArm.xRot = IFlyingAbility.getFlyingAbility(event.getPlayer()) != null && IFlyingAbility.getFlyingAbility(event.getPlayer()).rotateArms(event.getPlayer()) ? (float) Math.toRadians(180F) : (float) Math.toRadians(0F);
                     model.leftArm.xRot = model.rightArm.xRot;
                     model.rightArm.yRot = model.rightArm.zRot =

@@ -8,10 +8,7 @@ import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.util.*;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.registry.Registry;
@@ -120,20 +117,22 @@ public class HUEventHandler {
 
     @SubscribeEvent
     public void livingUpdate(LivingEvent.LivingUpdateEvent event) {
-        if(event.getEntity().isAlive() && !event.getEntityLiving().level.isClientSide){
-            if (event.getEntityLiving().level.dimension().equals(HeroesUnited.SPACE)){
-                AbilityHelper.setAttribute(event.getEntityLiving(), "space_gravity", ForgeMod.ENTITY_GRAVITY.get(),
-                        UUID.fromString("16c0c8f6-565e-4175-94f5-029986f3cc1d"),
-                        -1,
-                        AttributeModifier.Operation.MULTIPLY_TOTAL);
-                for (Planet planet: Planet.PLANETS.getValues()) {
-                    if(event.getEntityLiving().level.getEntities(null, planet.getHitbox()).contains(event.getEntity())){
+        if (event.getEntity().isAlive()) {
+            if (event.getEntityLiving().level.dimension().equals(HeroesUnited.SPACE)) {
+                if(!event.getEntityLiving().isCrouching()){
+                    event.getEntityLiving().setNoGravity(true);
+                    event.getEntityLiving().setOnGround(true);
+                } else {
+                    event.getEntityLiving().setNoGravity(false);
+                }
+                for (Planet planet : Planet.PLANETS.getValues()) {
+                    if (event.getEntityLiving().level.getEntities(null, planet.getHitbox()).contains(event.getEntity()) && !event.getEntityLiving().level.isClientSide) {
                         event.getEntityLiving().changeDimension(((ServerWorld) event.getEntityLiving().level).getServer().getLevel(planet.getDimension()), new ITeleporter() {
                             @Override
                             public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
                                 Entity repositionedEntity = repositionEntity.apply(false);
 
-                                repositionedEntity.teleportTo(0,1000,0);
+                                repositionedEntity.teleportTo(0, 10000, 0);
 
                                 return repositionedEntity;
                             }
@@ -141,6 +140,19 @@ public class HUEventHandler {
                     }
                 }
             } else {
+                if (Planet.PLANETS_MAP.containsKey(event.getEntityLiving().level.dimension()) && event.getEntityLiving().position().y > 10050) {
+                    Planet planet = Planet.PLANETS_MAP.get(event.getEntityLiving().level.dimension());
+                    event.getEntityLiving().changeDimension(((ServerWorld) event.getEntityLiving().level).getServer().getLevel(HeroesUnited.SPACE), new ITeleporter() {
+                        @Override
+                        public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
+                            Entity repositionedEntity = repositionEntity.apply(false);
+
+                            repositionedEntity.teleportTo(planet.getOutCoordinates().x,planet.getOutCoordinates().y,planet.getOutCoordinates().z);
+
+                            return repositionedEntity;
+                        }
+                    });
+                }
                 AbilityHelper.setAttribute(event.getEntityLiving(), "space_gravity", ForgeMod.ENTITY_GRAVITY.get(),
                         UUID.fromString("16c0c8f6-565e-4175-94f5-029986f3cc1d"),
                         0,
@@ -171,7 +183,7 @@ public class HUEventHandler {
                 }
                 ItemStack stack = a.getInventory().getItem(EquipmentAccessoriesSlot.HELMET.getSlot());
                 if (!stack.isEmpty() && stack.getItem() == HUItems.BOBO_ACCESSORY) {
-                    AnimationController controller = GeckoLibUtil.getControllerForStack(((IAnimatable)stack.getItem()).getFactory(), stack, "controller");
+                    AnimationController controller = GeckoLibUtil.getControllerForStack(((IAnimatable) stack.getItem()).getFactory(), stack, "controller");
                     if (controller.getAnimationState() == AnimationState.Stopped) {
                         controller.markNeedsReload();
                         controller.setAnimation((new AnimationBuilder()).addAnimation("animation.bobo", true));
@@ -203,6 +215,9 @@ public class HUEventHandler {
 
     @SubscribeEvent
     public void onLivingHurt(LivingAttackEvent event) {
+        if (!event.getEntityLiving().level.isClientSide && event.getEntityLiving().level.dimension().equals(HeroesUnited.SPACE) && event.getSource() == DamageSource.OUT_OF_WORLD) {
+            event.setCanceled(true);
+        }
         if (event.getEntityLiving() instanceof PlayerEntity) {
             for (Ability ability : AbilityHelper.getAbilities(event.getEntityLiving())) {
                 if (ability instanceof DamageImmunityAbility && ((DamageImmunityAbility) ability).haveImmuneTo(event.getSource())) {
