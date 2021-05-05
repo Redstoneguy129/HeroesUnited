@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.common.planets;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -18,4 +19,8 @@ public class CelestialBody extends ForgeRegistryEntry<CelestialBody> {
     public Vector3d getCoordinates() {
         return coordinates;
     }
+
+    public void tick(){}
+
+    public void entityInside(Entity entity){}
 }

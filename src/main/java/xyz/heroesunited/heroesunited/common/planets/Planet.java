@@ -1,13 +1,17 @@
 package xyz.heroesunited.heroesunited.common.planets;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.util.ITeleporter;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.HashMap;
+import java.util.function.Function;
 
 public class Planet extends CelestialBody {
 
@@ -17,6 +21,10 @@ public class Planet extends CelestialBody {
 
     private float scale;
 
+    private float speed = 1.0E-5F;
+
+    private float angle = 0;
+
     private Vector3d outCoordinates;
 
     public Planet(RegistryKey<World> dimension, Vector3d coordinates, float scale, Vector3d outCoordinates) {
@@ -25,6 +33,26 @@ public class Planet extends CelestialBody {
         this.scale = scale;
         this.outCoordinates = outCoordinates;
         PLANETS_MAP.put(dimension, this);
+    }
+
+    public void tick(){
+        coordinates = this.coordinates.yRot(speed);
+    }
+
+    @Override
+    public void entityInside(Entity entity) {
+        if (entity.level.getEntities(null, this.getHitbox()).contains(entity) && !entity.level.isClientSide) {
+            entity.changeDimension(((ServerWorld) entity.level).getServer().getLevel( this.getDimension()), new ITeleporter() {
+                @Override
+                public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
+                    Entity repositionedEntity = repositionEntity.apply(false);
+
+                    repositionedEntity.teleportTo(0, 10000, 0);
+                    repositionedEntity.setNoGravity(false);
+                    return repositionedEntity;
+                }
+            });
+        }
     }
 
     public AxisAlignedBB getHitbox() {

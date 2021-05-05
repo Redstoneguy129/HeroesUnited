@@ -3,6 +3,7 @@ package xyz.heroesunited.heroesunited.client.render.model.space;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.ModelRenderer;
 
@@ -42,15 +43,17 @@ public class EarthModel extends PlanetModel{
 
 	@Override
 	public void prepareModel(float partialTicks) {
-		if(counter<360){
-			counter+=0.05;
-		} else {
-			counter = 0;
-		}
-		if(moonCounter<360){
-			moonCounter+=0.045;
-		} else {
-			moonCounter = 0;
+		if(!Minecraft.getInstance().isPaused()){
+			if (counter < 360) {
+				counter += 0.05;
+			} else {
+				counter = 0;
+			}
+			if (moonCounter < 360) {
+				moonCounter += 0.03;
+			} else {
+				moonCounter = 0;
+			}
 		}
 		earth.yRot = (float) (Math.toRadians(-counter));
 		moon.yRot = (float) (Math.toRadians(moonCounter));

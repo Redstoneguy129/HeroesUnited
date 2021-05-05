@@ -116,6 +116,9 @@ public class HUEventHandler {
     @SubscribeEvent
     public void onWorldTick(TickEvent.PlayerTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
+            for (CelestialBody celestialBody : CelestialBody.CELESTIAL_BODIES.getValues()) {
+                celestialBody.tick();
+            }
             HUTickrate.tick(event.player, event.side);
         }
     }
@@ -131,20 +134,7 @@ public class HUEventHandler {
                     event.getEntityLiving().setNoGravity(false);
                 }
                 for (CelestialBody celestialBody : CelestialBody.CELESTIAL_BODIES.getValues()) {
-                    if(celestialBody instanceof Planet){
-                        if (event.getEntityLiving().level.getEntities(null, ((Planet)celestialBody).getHitbox()).contains(event.getEntity()) && !event.getEntityLiving().level.isClientSide) {
-                            event.getEntityLiving().changeDimension(((ServerWorld) event.getEntityLiving().level).getServer().getLevel( ((Planet)celestialBody).getDimension()), new ITeleporter() {
-                                @Override
-                                public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
-                                    Entity repositionedEntity = repositionEntity.apply(false);
-
-                                    repositionedEntity.teleportTo(0, 10000, 0);
-                                    repositionedEntity.setNoGravity(false);
-                                    return repositionedEntity;
-                                }
-                            });
-                        }
-                    }
+                    celestialBody.entityInside(event.getEntity());
                 }
             } else {
                 if (Planet.PLANETS_MAP.containsKey(event.getEntityLiving().level.dimension()) && event.getEntityLiving().position().y > 10050 && !event.getEntityLiving().level.isClientSide) {

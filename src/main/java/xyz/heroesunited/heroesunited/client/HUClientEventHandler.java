@@ -182,16 +182,27 @@ public class HUClientEventHandler {
         }
     }
 
-
     @SubscribeEvent
     public void renderEntityPre(RenderLivingEvent.Pre event) {
         if (event.getEntity().level.dimension().equals(HeroesUnited.SPACE)) {
-            event.getMatrixStack().scale(0.1F,0.1F,0.1F);
+            event.getMatrixStack().pushPose();
+            event.getMatrixStack().scale(0.01F,0.01F,0.01F);
         }
         if (entitiesWithLayer.contains(event.getRenderer())) return;
         event.getRenderer().addLayer(new HULayerRenderer(event.getRenderer()));
         entitiesWithLayer.add(event.getRenderer());
     }
+
+    @SubscribeEvent
+    public void renderEntityPost(RenderLivingEvent.Post event) {
+        if (event.getEntity().level.dimension().equals(HeroesUnited.SPACE)) {
+            event.getMatrixStack().popPose();
+        }
+        if (entitiesWithLayer.contains(event.getRenderer())) return;
+        event.getRenderer().addLayer(new HULayerRenderer(event.getRenderer()));
+        entitiesWithLayer.add(event.getRenderer());
+    }
+
 
     @SubscribeEvent
     public void renderPlayer(HUChangeShadowSizeEvent event) {
