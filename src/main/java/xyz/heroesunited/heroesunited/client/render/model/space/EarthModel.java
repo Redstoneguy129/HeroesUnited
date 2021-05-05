@@ -25,7 +25,7 @@ public class EarthModel extends PlanetModel{
 		clouds = new ModelRenderer(this);
 		clouds.setPos(0.0F, 0.0F, 0.0F);
 		earth.addChild(clouds);
-		clouds.texOffs(65, 0).addBox(-8.0F, -16.0F, -8.0F, 16.0F, 16.0F, 16.0F, 0.5F, false);
+		clouds.texOffs(64, 0).addBox(-8.0F, -16.0F, -8.0F, 16.0F, 16.0F, 16.0F, 0.5F, false);
 
 		moon = new ModelRenderer(this);
 		moon.setPos(0.0F, 0.0F, 0.0F);
@@ -35,7 +35,7 @@ public class EarthModel extends PlanetModel{
 
 	@Override
 	public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
-		matrixStack.scale(23, 23, 23);
+		matrixStack.scale(3, 3, 3);
 		matrixStack.translate(0,-1,0);
 		earth.render(matrixStack, buffer, packedLight, packedOverlay);
 	}

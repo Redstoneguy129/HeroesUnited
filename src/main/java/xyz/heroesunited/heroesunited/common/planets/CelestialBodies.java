@@ -14,9 +14,11 @@ public class CelestialBodies {
 
     private static final HashMap<String, CelestialBody> CELESTIAL_BODIES = new HashMap<>();
 
-    public static CelestialBody EARTH = register("earth", new Planet(World.OVERWORLD, new Vector3d(500,0,0),25,new Vector3d(526,0,0)));
+    public static CelestialBody EARTH = register("earth", new Planet(World.OVERWORLD, new Vector3d(500,0,0),5,new Vector3d(526,0,0)));
 
-    public static CelestialBody SUN = register("sun", new Star(new Vector3d(500,0,0),25));
+    public static CelestialBody SUN = register("sun", new Star(new Vector3d(0,0,0),25));
+
+    public static CelestialBody ASTEROIDS_BELT = register("asteroids_belt", new CelestialBody(new Vector3d(0,0,0)));
 
     private static CelestialBody register(String name, CelestialBody celestialBody) {
         CELESTIAL_BODIES.put( name, celestialBody);

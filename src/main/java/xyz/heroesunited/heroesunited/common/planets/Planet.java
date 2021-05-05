@@ -15,20 +15,20 @@ public class Planet extends CelestialBody {
 
     private RegistryKey<World> dimension;
 
-    private AxisAlignedBB hitbox;
+    private float scale;
 
     private Vector3d outCoordinates;
 
     public Planet(RegistryKey<World> dimension, Vector3d coordinates, float scale, Vector3d outCoordinates) {
         super(coordinates);
         this.dimension = dimension;
+        this.scale = scale;
         this.outCoordinates = outCoordinates;
         PLANETS_MAP.put(dimension, this);
-        hitbox = new AxisAlignedBB(coordinates.x - scale / 2, coordinates.y - scale / 2, coordinates.z - scale / 2, coordinates.x + scale / 2, coordinates.y + scale / 2, coordinates.z + scale / 2);
     }
 
     public AxisAlignedBB getHitbox() {
-        return hitbox;
+        return new AxisAlignedBB(coordinates.x - scale / 2, coordinates.y - scale / 2, coordinates.z - scale / 2, coordinates.x + scale / 2, coordinates.y + scale / 2, coordinates.z + scale / 2);
     }
 
     public RegistryKey<World> getDimension() {

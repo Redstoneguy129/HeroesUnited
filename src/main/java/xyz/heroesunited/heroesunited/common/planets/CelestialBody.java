@@ -7,7 +7,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 public class CelestialBody extends ForgeRegistryEntry<CelestialBody> {
     public static IForgeRegistry<CelestialBody> CELESTIAL_BODIES;
 
-    private Vector3d coordinates;
+    protected Vector3d coordinates;
 
 
     public CelestialBody(Vector3d coordinates) {

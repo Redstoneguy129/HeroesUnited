@@ -64,6 +64,7 @@ import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.common.planets.CelestialBody;
 import xyz.heroesunited.heroesunited.common.planets.Planet;
+import xyz.heroesunited.heroesunited.common.planets.Star;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
@@ -139,8 +140,10 @@ public class HUClientEventHandler {
 
                 IVertexBuilder buffer = buffers.getBuffer(RenderType.LINES);
                 matrixStack.popPose();
-                if (Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes())
+                if (Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes() && celestialBody instanceof Planet)
                     WorldRenderer.renderLineBox(matrixStack, buffer,  ((Planet)celestialBody).getHitbox(), 1, 1, 1, 1);
+                if (Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes() && celestialBody instanceof Star)
+                    WorldRenderer.renderLineBox(matrixStack, buffer,  ((Star)celestialBody).getHitbox(), 1, 1, 1, 1);
             }
 
             matrixStack.popPose();

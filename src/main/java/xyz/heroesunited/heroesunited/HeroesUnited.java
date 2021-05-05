@@ -43,6 +43,7 @@ import xyz.heroesunited.heroesunited.client.render.renderer.EnergyBlastRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.GeckoSuitRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.HorasRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.IGeoAbility;
+import xyz.heroesunited.heroesunited.client.render.renderer.space.AsteroidsBeltRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.space.CelestialBodyRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.space.EarthRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.space.SunRenderer;
@@ -108,6 +109,7 @@ public class HeroesUnited {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             CelestialBodyRenderer.registerRenderer(new EarthRenderer(), CelestialBodies.EARTH);
             CelestialBodyRenderer.registerRenderer(new SunRenderer(), CelestialBodies.SUN);
+            CelestialBodyRenderer.registerRenderer(new AsteroidsBeltRenderer(), CelestialBodies.ASTEROIDS_BELT);
             ModelBakery.UNREFERENCED_TEXTURES.add(SunModel.SUN_TEXTURE_MATERIAL);
         });
     }
