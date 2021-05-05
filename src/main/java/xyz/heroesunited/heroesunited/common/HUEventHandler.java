@@ -86,8 +86,8 @@ public class HUEventHandler {
             });
         }
         if (event.getEntity().level.dimension().equals(HeroesUnited.SPACE)) {
-            event.setNewSize(EntitySize.fixed(0.1F, 0.2F));
-            event.setNewEyeHeight(0.15F);
+            event.setNewSize(event.getNewSize().scale(0.01F, 0.01F));
+            event.setNewEyeHeight(event.getNewEyeHeight()*0.01F);
         }
     }
 

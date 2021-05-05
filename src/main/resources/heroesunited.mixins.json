@@ -10,7 +10,8 @@
     "client.MixinMinecraft",
     "client.MixinPlayerModel",
     "client.MixinPlayerRenderer",
-    "client.MixinServerWorldInfo"
+    "client.MixinServerWorldInfo",
+    "client.MixinEntityRenderer"
   ],
   "mixins": [
     "MixinIBlockReader",

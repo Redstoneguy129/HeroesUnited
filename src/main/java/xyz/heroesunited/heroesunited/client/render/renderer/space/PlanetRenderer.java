@@ -10,7 +10,6 @@ public abstract class PlanetRenderer extends CelestialBodyRenderer{
     private final PlanetModel planetModel;
 
     public PlanetRenderer(PlanetModel planetModel) {
-        super();
         this.planetModel = planetModel;
     }
 

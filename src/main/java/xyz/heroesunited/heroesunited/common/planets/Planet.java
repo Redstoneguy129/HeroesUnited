@@ -23,8 +23,6 @@ public class Planet extends CelestialBody {
 
     private float speed = 1.0E-5F;
 
-    private float angle = 0;
-
     private Vector3d outCoordinates;
 
     public Planet(RegistryKey<World> dimension, Vector3d coordinates, float scale, Vector3d outCoordinates) {

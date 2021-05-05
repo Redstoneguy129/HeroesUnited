@@ -10,9 +10,7 @@ import net.minecraft.client.renderer.model.ModelRenderer;
 public class EarthModel extends PlanetModel{
 	private final ModelRenderer earth;
 	private final ModelRenderer clouds;
-	private final ModelRenderer moon;
 	private float counter = 0;
-	private float moonCounter = 0;
 
 	public EarthModel() {
 		super(RenderType::entityCutoutNoCull);
@@ -28,10 +26,6 @@ public class EarthModel extends PlanetModel{
 		earth.addChild(clouds);
 		clouds.texOffs(64, 0).addBox(-8.0F, -16.0F, -8.0F, 16.0F, 16.0F, 16.0F, 0.5F, false);
 
-		moon = new ModelRenderer(this);
-		moon.setPos(0.0F, 0.0F, 0.0F);
-		earth.addChild(moon);
-		moon.texOffs(0, 32).addBox(20.0F, -16.0F, -8.0F, 16.0F, 16.0F, 16.0F, -6.0F, false);
 	}
 
 	@Override
@@ -49,13 +43,7 @@ public class EarthModel extends PlanetModel{
 			} else {
 				counter = 0;
 			}
-			if (moonCounter < 360) {
-				moonCounter += 0.03;
-			} else {
-				moonCounter = 0;
-			}
 		}
 		earth.yRot = (float) (Math.toRadians(-counter));
-		moon.yRot = (float) (Math.toRadians(moonCounter));
 	}
 }
