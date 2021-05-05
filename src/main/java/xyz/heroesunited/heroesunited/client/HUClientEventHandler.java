@@ -129,17 +129,6 @@ public class HUClientEventHandler {
 
             Vector3d view = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
             matrixStack.translate(-view.x(), -view.y(), -view.z());
-            IVertexBuilder buffer = SunModel.SUN_TEXTURE_MATERIAL.buffer(buffers, RenderType::entityTranslucent);
-
-
-//            HUClientUtil.renderFilledBox(matrixStack, buffer, new AxisAlignedBB(-100, -100, -100, 100, 100, 100), Color.ORANGE.getRed() / 255F, Color.ORANGE.getGreen() / 255F, Color.ORANGE.getBlue() / 255F, 1, Integer.MAX_VALUE);
-//            HUClientUtil.renderFilledBox(matrixStack, buffer, new AxisAlignedBB(-105, -105, -105, 105, 105, 105), Color.ORANGE.getRed() / 255F, Color.ORANGE.getGreen() / 255F, Color.ORANGE.getBlue() / 255F, 0.75F, Integer.MAX_VALUE);
-
-            matrixStack.pushPose();
-            matrixStack.scale(100, 100, 100);
-            matrixStack.translate(0, -1.5, 0);
-            new SunModel().renderToBuffer(matrixStack, buffer, WorldRenderer.getLightColor(Minecraft.getInstance().level, new BlockPos(0, 0, 0)), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
-            matrixStack.popPose();
 
             for (CelestialBody celestialBody : CelestialBody.CELESTIAL_BODIES.getValues()) {
                 matrixStack.pushPose();
@@ -148,7 +137,7 @@ public class HUClientEventHandler {
                 CelestialBodyRenderer celestialBodyRenderer = CelestialBodyRenderer.getRenderer(celestialBody);
                 celestialBodyRenderer.render(matrixStack, buffers, WorldRenderer.getLightColor(Minecraft.getInstance().level, new BlockPos(celestialBody.getCoordinates())), event.getPartialTicks());
 
-                buffer = buffers.getBuffer(RenderType.LINES);
+                IVertexBuilder buffer = buffers.getBuffer(RenderType.LINES);
                 matrixStack.popPose();
                 if (Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes())
                     WorldRenderer.renderLineBox(matrixStack, buffer,  ((Planet)celestialBody).getHitbox(), 1, 1, 1, 1);

@@ -16,6 +16,8 @@ public class CelestialBodies {
 
     public static CelestialBody EARTH = register("earth", new Planet(World.OVERWORLD, new Vector3d(500,0,0),25,new Vector3d(526,0,0)));
 
+    public static CelestialBody SUN = register("sun", new Star(new Vector3d(500,0,0),25));
+
     private static CelestialBody register(String name, CelestialBody celestialBody) {
         CELESTIAL_BODIES.put( name, celestialBody);
         return celestialBody;

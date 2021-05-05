@@ -7,7 +7,7 @@ import xyz.heroesunited.heroesunited.client.render.model.space.StarModel;
 
 public abstract class StarRenderer extends CelestialBodyRenderer{
 
-    private final StarModel starModel;
+    protected final StarModel starModel;
 
     public StarRenderer(StarModel starModel) {
         this.starModel = starModel;
