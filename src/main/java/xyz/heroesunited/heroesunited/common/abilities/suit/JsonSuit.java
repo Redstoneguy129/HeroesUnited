@@ -96,6 +96,11 @@ public class JsonSuit extends Suit {
     }
 
     @Override
+    public boolean canBreathOnSpace() {
+        return JSONUtils.getAsBoolean(jsonObject, "breath_in_space", super.canBreathOnSpace());
+    }
+
+    @Override
     public ItemGroup getItemGroup() {
         return jsonObject.has("itemGroup") ? HUJsonUtils.getItemGroup(jsonObject, "itemGroup") : super.getItemGroup();
     }

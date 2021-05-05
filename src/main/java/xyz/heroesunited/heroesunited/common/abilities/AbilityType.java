@@ -5,12 +5,14 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistry;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
 import java.util.function.Supplier;
 
+@Mod.EventBusSubscriber(modid = HeroesUnited.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class AbilityType extends ForgeRegistryEntry<AbilityType> {
 
     public static IForgeRegistry<AbilityType> ABILITIES;
