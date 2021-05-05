@@ -9,29 +9,22 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.HashMap;
 
-public class Planet extends ForgeRegistryEntry<Planet> {
+public class Planet extends CelestialBody {
 
     public static final HashMap<RegistryKey<World>, Planet> PLANETS_MAP = new HashMap<>();
-    public static IForgeRegistry<Planet> PLANETS;
 
     private RegistryKey<World> dimension;
 
     private AxisAlignedBB hitbox;
 
-    private Vector3d coordinates;
-
     private Vector3d outCoordinates;
 
     public Planet(RegistryKey<World> dimension, Vector3d coordinates, float scale, Vector3d outCoordinates) {
+        super(coordinates);
         this.dimension = dimension;
-        this.coordinates = coordinates;
         this.outCoordinates = outCoordinates;
         PLANETS_MAP.put(dimension, this);
         hitbox = new AxisAlignedBB(coordinates.x - scale / 2, coordinates.y - scale / 2, coordinates.z - scale / 2, coordinates.x + scale / 2, coordinates.y + scale / 2, coordinates.z + scale / 2);
-    }
-
-    public Vector3d getCoordinates() {
-        return coordinates;
     }
 
     public AxisAlignedBB getHitbox() {

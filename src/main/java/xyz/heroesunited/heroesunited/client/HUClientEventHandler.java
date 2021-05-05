@@ -48,8 +48,8 @@ import xyz.heroesunited.heroesunited.client.events.HURenderPlayerHandEvent;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.client.render.HULayerRenderer;
-import xyz.heroesunited.heroesunited.client.render.model.SunModel;
-import xyz.heroesunited.heroesunited.client.render.renderer.planet.PlanetRenderer;
+import xyz.heroesunited.heroesunited.client.render.model.space.SunModel;
+import xyz.heroesunited.heroesunited.client.render.renderer.space.CelestialBodyRenderer;
 import xyz.heroesunited.heroesunited.common.HUConfig;
 import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
@@ -62,6 +62,7 @@ import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccessor
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
+import xyz.heroesunited.heroesunited.common.planets.CelestialBody;
 import xyz.heroesunited.heroesunited.common.planets.Planet;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
@@ -84,6 +85,7 @@ public class HUClientEventHandler {
     public static List<AbilityKeyBinding> ABILITY_KEYS = Lists.newArrayList();
     public static Map<Integer, Boolean> KEY_STATE = Maps.newHashMap();
     public static KeyMap MAP = new KeyMap();
+    public static float SPACE_ZOOM = 15;
 
     public HUClientEventHandler() {
         if (Minecraft.getInstance() != null) {
@@ -134,27 +136,34 @@ public class HUClientEventHandler {
 //            HUClientUtil.renderFilledBox(matrixStack, buffer, new AxisAlignedBB(-105, -105, -105, 105, 105, 105), Color.ORANGE.getRed() / 255F, Color.ORANGE.getGreen() / 255F, Color.ORANGE.getBlue() / 255F, 0.75F, Integer.MAX_VALUE);
 
             matrixStack.pushPose();
-            matrixStack.scale(100,100,100);
-            matrixStack.translate(0,-1,0);
-            new SunModel().renderToBuffer(matrixStack, buffer, WorldRenderer.getLightColor(Minecraft.getInstance().level, new BlockPos(0,0,0)), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+            matrixStack.scale(100, 100, 100);
+            matrixStack.translate(0, -1.5, 0);
+            new SunModel().renderToBuffer(matrixStack, buffer, WorldRenderer.getLightColor(Minecraft.getInstance().level, new BlockPos(0, 0, 0)), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
             matrixStack.popPose();
 
-            for (Planet planet : Planet.PLANETS.getValues()) {
+            for (CelestialBody celestialBody : CelestialBody.CELESTIAL_BODIES.getValues()) {
                 matrixStack.pushPose();
-                matrixStack.translate(planet.getCoordinates().x, planet.getCoordinates().y, planet.getCoordinates().z);
+                matrixStack.translate(celestialBody.getCoordinates().x, celestialBody.getCoordinates().y, celestialBody.getCoordinates().z);
                 matrixStack.mulPose(new Quaternion(0, 0, 180, true));
-                PlanetRenderer planetRenderer = PlanetRenderer.getRenderer(planet);
-                planetRenderer.render(matrixStack, buffers);
+                CelestialBodyRenderer celestialBodyRenderer = CelestialBodyRenderer.getRenderer(celestialBody);
+                celestialBodyRenderer.render(matrixStack, buffers, WorldRenderer.getLightColor(Minecraft.getInstance().level, new BlockPos(celestialBody.getCoordinates())), event.getPartialTicks());
 
                 buffer = buffers.getBuffer(RenderType.LINES);
                 matrixStack.popPose();
                 if (Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes())
-                    WorldRenderer.renderLineBox(matrixStack, buffer, planet.getHitbox(), 1, 1, 1, 1);
+                    WorldRenderer.renderLineBox(matrixStack, buffer,  ((Planet)celestialBody).getHitbox(), 1, 1, 1, 1);
             }
 
             matrixStack.popPose();
             RenderSystem.disableDepthTest();
             buffers.endBatch();
+        }
+    }
+
+    @SubscribeEvent
+    public void onFovUpdate(FOVUpdateEvent event) {
+        if (event.getEntity().level.dimension().equals(HeroesUnited.SPACE)) {
+            event.setNewfov((float) Math.atan(Math.tan(event.getFov()) / SPACE_ZOOM));
         }
     }
 
@@ -183,10 +192,13 @@ public class HUClientEventHandler {
 
 
     @SubscribeEvent
-    public void renderEntityPre(RenderLivingEvent.Pre e) {
-        if (entitiesWithLayer.contains(e.getRenderer())) return;
-        e.getRenderer().addLayer(new HULayerRenderer(e.getRenderer()));
-        entitiesWithLayer.add(e.getRenderer());
+    public void renderEntityPre(RenderLivingEvent.Pre event) {
+        if (event.getEntity().level.dimension().equals(HeroesUnited.SPACE)) {
+            event.getMatrixStack().scale(0.1F,0.1F,0.1F);
+        }
+        if (entitiesWithLayer.contains(event.getRenderer())) return;
+        event.getRenderer().addLayer(new HULayerRenderer(event.getRenderer()));
+        entitiesWithLayer.add(event.getRenderer());
     }
 
     @SubscribeEvent

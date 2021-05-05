@@ -1,12 +1,11 @@
-package xyz.heroesunited.heroesunited.client.render.renderer.planet;
+package xyz.heroesunited.heroesunited.client.render.renderer.space;
 
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.Model;
 import net.minecraft.util.ResourceLocation;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.client.render.model.EarthModel;
+import xyz.heroesunited.heroesunited.client.render.model.space.EarthModel;
 
-public class EarthRenderer extends PlanetRenderer{
+public class EarthRenderer extends PlanetRenderer {
     public EarthRenderer() {
         super(new EarthModel());
     }
@@ -18,6 +17,6 @@ public class EarthRenderer extends PlanetRenderer{
 
     @Override
     protected RenderType getRenderType() {
-        return RenderType.entityCutout(getTextureLocation());
+        return RenderType.entityTranslucent(getTextureLocation());
     }
 }

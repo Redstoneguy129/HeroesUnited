@@ -38,13 +38,13 @@ import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
 import xyz.heroesunited.heroesunited.client.HUClientEventHandler;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
 import xyz.heroesunited.heroesunited.client.gui.AccessoriesScreen;
-import xyz.heroesunited.heroesunited.client.render.model.SunModel;
+import xyz.heroesunited.heroesunited.client.render.model.space.SunModel;
 import xyz.heroesunited.heroesunited.client.render.renderer.EnergyBlastRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.GeckoSuitRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.HorasRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.IGeoAbility;
-import xyz.heroesunited.heroesunited.client.render.renderer.planet.EarthRenderer;
-import xyz.heroesunited.heroesunited.client.render.renderer.planet.PlanetRenderer;
+import xyz.heroesunited.heroesunited.client.render.renderer.space.CelestialBodyRenderer;
+import xyz.heroesunited.heroesunited.client.render.renderer.space.EarthRenderer;
 import xyz.heroesunited.heroesunited.common.HUConfig;
 import xyz.heroesunited.heroesunited.common.HUEventHandler;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
@@ -64,8 +64,8 @@ import xyz.heroesunited.heroesunited.common.objects.container.HUContainers;
 import xyz.heroesunited.heroesunited.common.objects.entities.HUEntities;
 import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
-import xyz.heroesunited.heroesunited.common.planets.Planet;
-import xyz.heroesunited.heroesunited.common.planets.Planets;
+import xyz.heroesunited.heroesunited.common.planets.CelestialBody;
+import xyz.heroesunited.heroesunited.common.planets.CelestialBodies;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
 import xyz.heroesunited.heroesunited.util.data.HUEnglishProvider;
@@ -105,7 +105,7 @@ public class HeroesUnited {
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, HUConfig.CLIENT_SPEC);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            PlanetRenderer.registerRenderer(new EarthRenderer(), Planets.EARTH);
+            CelestialBodyRenderer.registerRenderer(new EarthRenderer(), CelestialBodies.EARTH);
             ModelBakery.UNREFERENCED_TEXTURES.add(SunModel.SUN_TEXTURE_MATERIAL);
         });
     }
@@ -127,7 +127,7 @@ public class HeroesUnited {
 
     public void onRegisterNewRegistries(RegistryEvent.NewRegistry e) {
         AbilityType.ABILITIES = new RegistryBuilder<AbilityType>().setName(new ResourceLocation(HeroesUnited.MODID, "ability_types")).setType(AbilityType.class).setIDRange(0, 2048).create();
-        Planet.PLANETS = new RegistryBuilder<Planet>().setName(new ResourceLocation(HeroesUnited.MODID, "planets")).setType(Planet.class).setIDRange(0, Integer.MAX_VALUE).create();
+        CelestialBody.CELESTIAL_BODIES = new RegistryBuilder<CelestialBody>().setName(new ResourceLocation(HeroesUnited.MODID, "celestial_bodies")).setType(CelestialBody.class).setIDRange(0, Integer.MAX_VALUE).create();
     }
 
     @SubscribeEvent

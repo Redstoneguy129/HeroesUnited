@@ -51,6 +51,7 @@ import xyz.heroesunited.heroesunited.common.objects.HUSounds;
 import xyz.heroesunited.heroesunited.common.objects.blocks.HUBlocks;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
+import xyz.heroesunited.heroesunited.common.planets.CelestialBody;
 import xyz.heroesunited.heroesunited.common.planets.Planet;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
@@ -83,6 +84,10 @@ public class HUEventHandler {
                     event.setNewEyeHeight(0.4F);
                 }
             });
+        }
+        if (event.getEntity().level.dimension().equals(HeroesUnited.SPACE)) {
+            event.setNewSize(EntitySize.fixed(0.1F, 0.2F));
+            event.setNewEyeHeight(0.15F);
         }
     }
 
@@ -125,18 +130,20 @@ public class HUEventHandler {
                 } else {
                     event.getEntityLiving().setNoGravity(false);
                 }
-                for (Planet planet : Planet.PLANETS.getValues()) {
-                    if (event.getEntityLiving().level.getEntities(null, planet.getHitbox()).contains(event.getEntity()) && !event.getEntityLiving().level.isClientSide) {
-                        event.getEntityLiving().changeDimension(((ServerWorld) event.getEntityLiving().level).getServer().getLevel(planet.getDimension()), new ITeleporter() {
-                            @Override
-                            public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
-                                Entity repositionedEntity = repositionEntity.apply(false);
+                for (CelestialBody celestialBody : CelestialBody.CELESTIAL_BODIES.getValues()) {
+                    if(celestialBody instanceof Planet){
+                        if (event.getEntityLiving().level.getEntities(null, ((Planet)celestialBody).getHitbox()).contains(event.getEntity()) && !event.getEntityLiving().level.isClientSide) {
+                            event.getEntityLiving().changeDimension(((ServerWorld) event.getEntityLiving().level).getServer().getLevel( ((Planet)celestialBody).getDimension()), new ITeleporter() {
+                                @Override
+                                public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
+                                    Entity repositionedEntity = repositionEntity.apply(false);
 
-                                repositionedEntity.teleportTo(0, 10000, 0);
-                                repositionedEntity.setNoGravity(false);
-                                return repositionedEntity;
-                            }
-                        });
+                                    repositionedEntity.teleportTo(0, 10000, 0);
+                                    repositionedEntity.setNoGravity(false);
+                                    return repositionedEntity;
+                                }
+                            });
+                        }
                     }
                 }
             } else {
