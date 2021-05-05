@@ -21,16 +21,18 @@ public class Planet extends CelestialBody {
 
     private float scale;
 
-    private float speed = 1.0E-5F;
+    private float speed;
 
     private Vector3d outCoordinates;
 
-    public Planet(RegistryKey<World> dimension, Vector3d coordinates, float scale, Vector3d outCoordinates) {
+    public Planet(RegistryKey<World> dimension, Vector3d coordinates, float scale, Vector3d outCoordinates, float speed) {
         super(coordinates);
         this.dimension = dimension;
+        this.speed = speed;
         this.scale = scale;
         this.outCoordinates = outCoordinates;
-        PLANETS_MAP.put(dimension, this);
+        if(dimension != null)
+            PLANETS_MAP.put(dimension, this);
     }
 
     public void tick(){
@@ -39,7 +41,7 @@ public class Planet extends CelestialBody {
 
     @Override
     public void entityInside(Entity entity) {
-        if (entity.level.getEntities(null, this.getHitbox()).contains(entity) && !entity.level.isClientSide) {
+        if (dimension != null && entity.level.getEntities(null, this.getHitbox()).contains(entity) && !entity.level.isClientSide) {
             entity.changeDimension(((ServerWorld) entity.level).getServer().getLevel( this.getDimension()), new ITeleporter() {
                 @Override
                 public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
@@ -63,5 +65,9 @@ public class Planet extends CelestialBody {
 
     public Vector3d getOutCoordinates() {
         return outCoordinates;
+    }
+
+    public boolean hasOxygen() {
+        return this == CelestialBodies.EARTH;
     }
 }

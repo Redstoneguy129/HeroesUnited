@@ -54,6 +54,7 @@ import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.planets.CelestialBody;
 import xyz.heroesunited.heroesunited.common.planets.Planet;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
+import xyz.heroesunited.heroesunited.util.HUOxygenHelper;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 import xyz.heroesunited.heroesunited.util.HUTickrate;
 
@@ -126,6 +127,9 @@ public class HUEventHandler {
     @SubscribeEvent
     public void livingUpdate(LivingEvent.LivingUpdateEvent event) {
         if (event.getEntity().isAlive()) {
+            if(!event.getEntityLiving().level.isClientSide && !HUOxygenHelper.canBreath(event.getEntityLiving())){
+                event.getEntityLiving().hurt(DamageSource.DROWN,1);
+            }
             if (event.getEntityLiving().level.dimension().equals(HeroesUnited.SPACE)) {
                 if(!event.getEntityLiving().isCrouching()){
                     event.getEntityLiving().setNoGravity(true);
