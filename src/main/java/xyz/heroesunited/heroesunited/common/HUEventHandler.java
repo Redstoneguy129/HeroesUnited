@@ -128,7 +128,7 @@ public class HUEventHandler {
     public void livingUpdate(LivingEvent.LivingUpdateEvent event) {
         if (event.getEntity().isAlive()) {
             if(!event.getEntityLiving().level.isClientSide && !HUOxygenHelper.canBreath(event.getEntityLiving())){
-                event.getEntityLiving().hurt(DamageSource.DROWN,1);
+                event.getEntityLiving().hurt((new DamageSource("space_drown")).bypassArmor(),1);
             }
             if (event.getEntityLiving().level.dimension().equals(HeroesUnited.SPACE)) {
                 if(!event.getEntityLiving().isCrouching()){

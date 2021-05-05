@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.util;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
@@ -20,6 +19,7 @@ public class HUOxygenHelper {
         if (Suit.getSuit(entity) != null){
             canBreath = Suit.getSuit(entity).canBreathOnSpace();
         }
+
         return canBreath;
     }
 

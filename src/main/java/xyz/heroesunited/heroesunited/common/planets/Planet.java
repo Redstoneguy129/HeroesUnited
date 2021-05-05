@@ -23,14 +23,11 @@ public class Planet extends CelestialBody {
 
     private float speed;
 
-    private Vector3d outCoordinates;
-
-    public Planet(RegistryKey<World> dimension, Vector3d coordinates, float scale, Vector3d outCoordinates, float speed) {
+    public Planet(RegistryKey<World> dimension, Vector3d coordinates, float scale, float speed) {
         super(coordinates);
         this.dimension = dimension;
         this.speed = speed;
         this.scale = scale;
-        this.outCoordinates = outCoordinates;
         if(dimension != null)
             PLANETS_MAP.put(dimension, this);
     }
@@ -64,7 +61,7 @@ public class Planet extends CelestialBody {
     }
 
     public Vector3d getOutCoordinates() {
-        return outCoordinates;
+        return coordinates.add(new Vector3d(0,scale/2+1,0));
     }
 
     public boolean hasOxygen() {
