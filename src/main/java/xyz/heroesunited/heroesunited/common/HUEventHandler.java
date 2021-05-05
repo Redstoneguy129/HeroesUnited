@@ -154,10 +154,6 @@ public class HUEventHandler {
                         }
                     });
                 }
-                AbilityHelper.setAttribute(event.getEntityLiving(), "space_gravity", ForgeMod.ENTITY_GRAVITY.get(),
-                        UUID.fromString("16c0c8f6-565e-4175-94f5-029986f3cc1d"),
-                        0,
-                        AttributeModifier.Operation.MULTIPLY_TOTAL);
             }
         }
         if (event.getEntityLiving() instanceof PlayerEntity && event.getEntityLiving() != null) {
