@@ -4,7 +4,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
-import xyz.heroesunited.heroesunited.common.planets.CelestialBody;
+import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 
 import java.util.function.Supplier;
 

@@ -1,4 +1,4 @@
-package xyz.heroesunited.heroesunited.common.planets;
+package xyz.heroesunited.heroesunited.common.space;
 
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.vector.Vector3d;

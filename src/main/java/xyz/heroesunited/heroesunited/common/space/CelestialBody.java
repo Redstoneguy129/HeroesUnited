@@ -1,4 +1,4 @@
-package xyz.heroesunited.heroesunited.common.planets;
+package xyz.heroesunited.heroesunited.common.space;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundNBT;

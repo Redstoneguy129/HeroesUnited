@@ -1,4 +1,4 @@
-package xyz.heroesunited.heroesunited.common.planets;
+package xyz.heroesunited.heroesunited.common.space;
 
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
@@ -18,10 +18,10 @@ public class CelestialBodies {
 
     public static CelestialBody ASTEROIDS_BELT = register("asteroids_belt", new CelestialBody(new Vector3d(0,0,0)));
 
-    public static CelestialBody EARTH = register("earth", new Planet(World.OVERWORLD, new Vector3d(50,0,0),1.1F,0.0001F));
+    public static CelestialBody EARTH = register("earth", new Planet(World.OVERWORLD, new Vector3d(50,0,0),1.1F,0.0001F, (Star) SUN));
     public static CelestialBody MOON = register("moon", new Satellite(new Vector3d(2,0,0),0.05F, 0.001F, (Planet) EARTH));
 
-    public static CelestialBody MARS = register("mars", new Planet(HeroesUnited.MARS, new Vector3d(75,0,0),2,0.0002F));
+    public static CelestialBody MARS = register("mars", new Planet(HeroesUnited.MARS, new Vector3d(75,0,0),2,0.0002F, (Star) SUN));
 
 
     private static CelestialBody register(String name, CelestialBody celestialBody) {

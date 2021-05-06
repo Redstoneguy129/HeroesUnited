@@ -3,7 +3,7 @@ package xyz.heroesunited.heroesunited.util;
 import net.minecraft.entity.LivingEntity;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
-import xyz.heroesunited.heroesunited.common.planets.Planet;
+import xyz.heroesunited.heroesunited.common.space.Planet;
 
 public class HUOxygenHelper {
 

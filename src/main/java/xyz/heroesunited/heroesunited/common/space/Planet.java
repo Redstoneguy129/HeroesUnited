@@ -1,4 +1,4 @@
-package xyz.heroesunited.heroesunited.common.planets;
+package xyz.heroesunited.heroesunited.common.space;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.RegistryKey;
@@ -7,8 +7,6 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.ITeleporter;
-import net.minecraftforge.registries.ForgeRegistryEntry;
-import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.HashMap;
 import java.util.function.Function;
@@ -19,15 +17,18 @@ public class Planet extends CelestialBody {
 
     private RegistryKey<World> dimension;
 
+    private Star star;
+
     private float scale;
 
     private float speed;
 
-    public Planet(RegistryKey<World> dimension, Vector3d coordinates, float scale, float speed) {
+    public Planet(RegistryKey<World> dimension, Vector3d coordinates, float scale, float speed, Star star) {
         super(coordinates);
         this.dimension = dimension;
         this.speed = speed;
         this.scale = scale;
+        this.star = star;
         if(dimension != null)
             PLANETS_MAP.put(dimension, this);
     }
@@ -60,8 +61,13 @@ public class Planet extends CelestialBody {
         return dimension;
     }
 
+    @Override
+    public Vector3d getCoordinates() {
+        return super.getCoordinates().add(coordinates);
+    }
+
     public Vector3d getOutCoordinates() {
-        return coordinates.add(new Vector3d(0,scale/2+3,0));
+        return getCoordinates().add(new Vector3d(0,scale/2+3,0));
     }
 
     public boolean hasOxygen() {
