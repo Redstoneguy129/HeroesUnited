@@ -6,6 +6,7 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
@@ -30,6 +31,7 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.registries.ForgeRegistries;
 import software.bernie.geckolib3.core.AnimationState;
 import software.bernie.geckolib3.core.IAnimatable;
@@ -46,6 +48,9 @@ import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.command.HUCoreCommand;
 import xyz.heroesunited.heroesunited.common.events.HUCancelBlockCollision;
+import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbility;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncCelestialBody;
 import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
 import xyz.heroesunited.heroesunited.common.objects.HUSounds;
 import xyz.heroesunited.heroesunited.common.objects.blocks.HUBlocks;
@@ -88,7 +93,7 @@ public class HUEventHandler {
         }
         if (event.getEntity().level.dimension().equals(HeroesUnited.SPACE)) {
             event.setNewSize(event.getNewSize().scale(0.01F, 0.01F));
-            event.setNewEyeHeight(event.getNewEyeHeight()*0.01F);
+            event.setNewEyeHeight(event.getNewEyeHeight() * 0.01F);
         }
     }
 
@@ -117,9 +122,13 @@ public class HUEventHandler {
     @SubscribeEvent
     public void onWorldTick(TickEvent.PlayerTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
-            for (CelestialBody celestialBody : CelestialBody.CELESTIAL_BODIES.getValues()) {
-                celestialBody.tick();
-            }
+            if (!event.player.level.isClientSide)
+                for (CelestialBody celestialBody : CelestialBody.CELESTIAL_BODIES.getValues()) {
+                    celestialBody.tick();
+                    for (PlayerEntity mpPlayer : event.player.level.players()) {
+                        HUNetworking.INSTANCE.sendTo(new ClientSyncCelestialBody(celestialBody.writeNBT(), celestialBody.getRegistryName()), ((ServerPlayerEntity) mpPlayer).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                    }
+                }
             HUTickrate.tick(event.player, event.side);
         }
     }
@@ -127,11 +136,11 @@ public class HUEventHandler {
     @SubscribeEvent
     public void livingUpdate(LivingEvent.LivingUpdateEvent event) {
         if (event.getEntity().isAlive()) {
-            if(!event.getEntityLiving().level.isClientSide && !HUOxygenHelper.canBreath(event.getEntityLiving())){
-                event.getEntityLiving().hurt((new DamageSource("space_drown")).bypassArmor(),1);
+            if (!event.getEntityLiving().level.isClientSide && !HUOxygenHelper.canBreath(event.getEntityLiving())) {
+                event.getEntityLiving().hurt((new DamageSource("space_drown")).bypassArmor(), 1);
             }
             if (event.getEntityLiving().level.dimension().equals(HeroesUnited.SPACE)) {
-                if(!event.getEntityLiving().isCrouching()){
+                if (!event.getEntityLiving().isCrouching()) {
                     event.getEntityLiving().setNoGravity(true);
                     event.getEntityLiving().setOnGround(true);
                 } else {
@@ -148,7 +157,7 @@ public class HUEventHandler {
                         public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
                             Entity repositionedEntity = repositionEntity.apply(false);
 
-                            repositionedEntity.teleportTo(planet.getOutCoordinates().x,planet.getOutCoordinates().y,planet.getOutCoordinates().z);
+                            repositionedEntity.teleportTo(planet.getOutCoordinates().x, planet.getOutCoordinates().y, planet.getOutCoordinates().z);
 
                             return repositionedEntity;
                         }

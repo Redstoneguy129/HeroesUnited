@@ -23,6 +23,8 @@ public class MoonRenderer extends SatelliteRenderer {
     @Override
     public void render(MatrixStack matrixStack, IRenderTypeBuffer buffers, int packedLight, float partialTicks) {
 
+        matrixStack.scale(0.95F, 0.95F, 0.95F);
+        matrixStack.translate(0,-1,0);
         IVertexBuilder buffer = EarthModel.EARTH_TEXTURE_MATERIAL.buffer(buffers, RenderType::entityTranslucent);
         satelliteModel.prepareModel(partialTicks);
         satelliteModel.renderToBuffer(matrixStack,buffer,packedLight, OverlayTexture.NO_OVERLAY, 1f,1f, 1f, 1f);

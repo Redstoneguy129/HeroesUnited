@@ -22,7 +22,7 @@ public class SunRenderer extends StarRenderer {
 
     @Override
     public void render(MatrixStack matrixStack, IRenderTypeBuffer buffers, int packedLight, float partialTicks) {
-        matrixStack.scale(25, 25, 25);
+        matrixStack.scale(12.5F, 12.5F, 12.5F);
         matrixStack.translate(0, -1.5, 0);
         IVertexBuilder buffer = SunModel.SUN_TEXTURE_MATERIAL.buffer(buffers, RenderType::entityTranslucent);
         starModel.prepareModel(partialTicks);

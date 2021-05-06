@@ -23,7 +23,7 @@ public class EarthRenderer extends PlanetRenderer {
     @Override
     public void render(MatrixStack matrixStack, IRenderTypeBuffer buffers, int packedLight, float partialTicks) {
 
-        matrixStack.scale(3, 3, 3);
+        matrixStack.scale(0.95F, 0.95F, 0.95F);
         matrixStack.translate(0,-1,0);
         IVertexBuilder buffer = EarthModel.EARTH_TEXTURE_MATERIAL.buffer(buffers, RenderType::entityTranslucent);
         planetModel.prepareModel(partialTicks);

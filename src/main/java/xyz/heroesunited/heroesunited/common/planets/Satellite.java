@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.common.planets;
 
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.vector.Vector3d;
 
 public class Satellite extends CelestialBody{
@@ -8,7 +9,7 @@ public class Satellite extends CelestialBody{
 
     private float scale;
 
-    private float speed = 1.0E-5F;
+    private float speed;
 
     public Satellite(Vector3d coordinates, float scale, float speed,  Planet planet) {
         super(coordinates);
@@ -24,5 +25,9 @@ public class Satellite extends CelestialBody{
     @Override
     public Vector3d getCoordinates() {
         return planet.getCoordinates().add(coordinates);
+    }
+
+    public AxisAlignedBB getHitbox() {
+        return new AxisAlignedBB(coordinates.x - scale / 2, coordinates.y - scale / 2, coordinates.z - scale / 2, coordinates.x + scale / 2, coordinates.y + scale / 2, coordinates.z + scale / 2);
     }
 }

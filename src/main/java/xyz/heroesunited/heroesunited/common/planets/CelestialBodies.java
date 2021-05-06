@@ -14,10 +14,10 @@ public class CelestialBodies {
 
     private static final HashMap<String, CelestialBody> CELESTIAL_BODIES = new HashMap<>();
 
-    public static CelestialBody EARTH = register("earth", new Planet(World.OVERWORLD, new Vector3d(500,0,0),5,0.0001F));
-    public static CelestialBody MOON = register("moon", new Satellite(new Vector3d(6,0,0),1, 0.001F, (Planet) EARTH));
+    public static CelestialBody EARTH = register("earth", new Planet(World.OVERWORLD, new Vector3d(250,0,0),1,0.0001F));
+    public static CelestialBody MOON = register("moon", new Satellite(new Vector3d(1.5,0,0),0.05F, 0.001F, (Planet) EARTH));
 
-    public static CelestialBody SUN = register("sun", new Star(new Vector3d(0,0,0),25));
+    public static CelestialBody SUN = register("sun", new Star(new Vector3d(0,0,0),12.5F));
 
     public static CelestialBody ASTEROIDS_BELT = register("asteroids_belt", new CelestialBody(new Vector3d(0,0,0)));
 
