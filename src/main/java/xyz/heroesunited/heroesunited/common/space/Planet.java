@@ -54,7 +54,7 @@ public class Planet extends CelestialBody {
     }
 
     public AxisAlignedBB getHitbox() {
-        return new AxisAlignedBB(coordinates.x - scale / 2, coordinates.y - scale / 2, coordinates.z - scale / 2, coordinates.x + scale / 2, coordinates.y + scale / 2, coordinates.z + scale / 2);
+        return new AxisAlignedBB(getCoordinates().x - scale / 2, getCoordinates().y - scale / 2, getCoordinates().z - scale / 2, getCoordinates().x + scale / 2, getCoordinates().y + scale / 2, getCoordinates().z + scale / 2);
     }
 
     public RegistryKey<World> getDimension() {
@@ -63,7 +63,7 @@ public class Planet extends CelestialBody {
 
     @Override
     public Vector3d getCoordinates() {
-        return super.getCoordinates().add(coordinates);
+        return star.getCoordinates().add(coordinates);
     }
 
     public Vector3d getOutCoordinates() {
