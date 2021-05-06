@@ -13,7 +13,7 @@ public class HUOxygenHelper {
 
         if(Planet.PLANETS_MAP.containsKey(entity.level.dimension())){
             Planet planet = Planet.PLANETS_MAP.get(entity.level.dimension());
-            canBreath = !planet.hasOxygen();
+            canBreath = planet.hasOxygen();
         }
 
         if (Suit.getSuit(entity) != null){

@@ -61,7 +61,7 @@ public class Planet extends CelestialBody {
     }
 
     public Vector3d getOutCoordinates() {
-        return coordinates.add(new Vector3d(0,scale/2+1,0));
+        return coordinates.add(new Vector3d(0,scale/2+3,0));
     }
 
     public boolean hasOxygen() {
