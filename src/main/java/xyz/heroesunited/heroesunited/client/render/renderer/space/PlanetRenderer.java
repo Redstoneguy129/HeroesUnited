@@ -7,7 +7,7 @@ import xyz.heroesunited.heroesunited.client.render.model.space.PlanetModel;
 
 public abstract class PlanetRenderer extends CelestialBodyRenderer{
 
-    private final PlanetModel planetModel;
+    protected final PlanetModel planetModel;
 
     public PlanetRenderer(PlanetModel planetModel) {
         this.planetModel = planetModel;

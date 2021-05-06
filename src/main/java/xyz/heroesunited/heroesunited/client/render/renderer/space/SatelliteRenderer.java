@@ -8,7 +8,7 @@ import xyz.heroesunited.heroesunited.client.render.model.space.SatelliteModel;
 
 public abstract class SatelliteRenderer extends CelestialBodyRenderer{
 
-    private final SatelliteModel satelliteModel;
+    protected final SatelliteModel satelliteModel;
 
     public SatelliteRenderer(SatelliteModel satelliteModel) {
         this.satelliteModel = satelliteModel;

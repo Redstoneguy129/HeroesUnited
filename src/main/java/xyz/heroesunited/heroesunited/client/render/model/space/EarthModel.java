@@ -6,8 +6,14 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.renderer.model.RenderMaterial;
+import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.util.ResourceLocation;
+import xyz.heroesunited.heroesunited.HeroesUnited;
 
 public class EarthModel extends PlanetModel{
+
+	public static final RenderMaterial EARTH_TEXTURE_MATERIAL = new RenderMaterial(PlayerContainer.BLOCK_ATLAS, new ResourceLocation(HeroesUnited.MODID,"planets/earth"));
 	private final ModelRenderer earth;
 	private final ModelRenderer clouds;
 	private float counter = 0;
@@ -15,7 +21,7 @@ public class EarthModel extends PlanetModel{
 	public EarthModel() {
 		super(RenderType::entityCutoutNoCull);
 		texWidth = 128;
-		texHeight = 64;
+		texHeight = 128;
 
 		earth = new ModelRenderer(this);
 		earth.setPos(0.0F, 24.0F, 0.0F);
@@ -30,8 +36,6 @@ public class EarthModel extends PlanetModel{
 
 	@Override
 	public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
-		matrixStack.scale(3, 3, 3);
-		matrixStack.translate(0,-1,0);
 		earth.render(matrixStack, buffer, packedLight, packedOverlay);
 	}
 

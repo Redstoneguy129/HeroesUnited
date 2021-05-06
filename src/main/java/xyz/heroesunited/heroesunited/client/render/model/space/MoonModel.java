@@ -14,7 +14,7 @@ public class MoonModel extends SatelliteModel{
         super(RenderType::entityCutoutNoCull);
 
         texWidth = 128;
-        texHeight = 64;
+        texHeight = 128;
 
         moon = new ModelRenderer(this);
         moon.setPos(0.0F, 0.0F, 0.0F);

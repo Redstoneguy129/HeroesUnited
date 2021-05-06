@@ -3,6 +3,7 @@ package xyz.heroesunited.heroesunited;
 import net.arikia.dev.drpc.DiscordRPC;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.model.ModelBakery;
+import net.minecraft.client.world.DimensionRenderInfo;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.RegistryKey;
@@ -37,7 +38,9 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
 import xyz.heroesunited.heroesunited.client.HUClientEventHandler;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
+import xyz.heroesunited.heroesunited.client.SpaceDimensionRenderInfo;
 import xyz.heroesunited.heroesunited.client.gui.AccessoriesScreen;
+import xyz.heroesunited.heroesunited.client.render.model.space.EarthModel;
 import xyz.heroesunited.heroesunited.client.render.model.space.SunModel;
 import xyz.heroesunited.heroesunited.client.render.renderer.EnergyBlastRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.GeckoSuitRenderer;
@@ -109,6 +112,8 @@ public class HeroesUnited {
             CelestialBodyRenderer.registerRenderer(new SunRenderer(), CelestialBodies.SUN);
             CelestialBodyRenderer.registerRenderer(new AsteroidsBeltRenderer(), CelestialBodies.ASTEROIDS_BELT);
             ModelBakery.UNREFERENCED_TEXTURES.add(SunModel.SUN_TEXTURE_MATERIAL);
+            ModelBakery.UNREFERENCED_TEXTURES.add(EarthModel.EARTH_TEXTURE_MATERIAL);
+            DimensionRenderInfo.EFFECTS.put(new ResourceLocation(MODID,"space"), new SpaceDimensionRenderInfo());
         });
     }
 
