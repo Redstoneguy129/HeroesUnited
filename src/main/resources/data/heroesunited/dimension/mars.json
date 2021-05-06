@@ -1,0 +1,12 @@
+{
+  "generator": {
+    "type": "minecraft:noise",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "heroesunited:mars"
+    },
+    "seed": 0,
+    "settings": "heroesunited:mars"
+  },
+  "type": "heroesunited:mars"
+}

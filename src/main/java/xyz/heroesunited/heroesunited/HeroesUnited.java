@@ -111,6 +111,7 @@ public class HeroesUnited {
             CelestialBodyRenderer.registerRenderer(new MoonRenderer(), CelestialBodies.MOON);
             CelestialBodyRenderer.registerRenderer(new SunRenderer(), CelestialBodies.SUN);
             CelestialBodyRenderer.registerRenderer(new AsteroidsBeltRenderer(), CelestialBodies.ASTEROIDS_BELT);
+            CelestialBodyRenderer.registerRenderer(new MarsRenderer(), CelestialBodies.MARS);
             ModelBakery.UNREFERENCED_TEXTURES.add(SunModel.SUN_TEXTURE_MATERIAL);
             ModelBakery.UNREFERENCED_TEXTURES.add(EarthModel.EARTH_TEXTURE_MATERIAL);
             DimensionRenderInfo.EFFECTS.put(new ResourceLocation(MODID,"space"), new SpaceDimensionRenderInfo());

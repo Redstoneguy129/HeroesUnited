@@ -16,19 +16,19 @@ import java.util.Random;
 
 public class AsteroidsBeltRenderer extends CelestialBodyRenderer {
 
-    private ModelRenderer[] asteroids = new ModelRenderer[1000];
+    private ModelRenderer[] asteroids = new ModelRenderer[500];
     private HashMap<ModelRenderer,ResourceLocation> textures = new HashMap<>();
     private float counter = 0;
     private Random random = new Random();
 
     public AsteroidsBeltRenderer() {
         for (int i = 0; i < asteroids.length; i++) {
-            Vector3d asteroidPosition = new Vector3d(10000 + (random.nextBoolean() ?  random.nextInt(200) : -random.nextInt(200)), random.nextBoolean() ?  random.nextInt(200) : -random.nextInt(200), random.nextBoolean() ?  random.nextInt(200) : -random.nextInt(200)).yRot(7 * i);
+            Vector3d asteroidPosition = new Vector3d(1500 + (random.nextBoolean() ?  random.nextInt(50) : -random.nextInt(50)), random.nextBoolean() ?  random.nextInt(50) : -random.nextInt(50), random.nextBoolean() ?  random.nextInt(50) : -random.nextInt(50)).yRot(7 * i);
             asteroids[i] = new ModelRenderer(64, 64, 0, 0);
             asteroids[i].addBox(0, 0, 0,
-                    random.nextFloat() + random.nextInt(50) + 50,
-                    random.nextFloat() + random.nextInt(50) + 50,
-                    random.nextFloat() + random.nextInt(50) + 50);
+                    random.nextFloat() + random.nextInt(10) + 10,
+                    random.nextFloat() + random.nextInt(10) + 10,
+                    random.nextFloat() + random.nextInt(10) + 10);
             asteroids[i].setPos(((float) asteroidPosition.x),
                     ((float) asteroidPosition.y),
                     ((float) asteroidPosition.z));

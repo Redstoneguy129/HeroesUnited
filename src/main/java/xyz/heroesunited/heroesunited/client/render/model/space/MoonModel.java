@@ -2,6 +2,7 @@ package xyz.heroesunited.heroesunited.client.render.model.space;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.ModelRenderer;
 
@@ -9,6 +10,7 @@ public class MoonModel extends SatelliteModel{
 
 
     private final ModelRenderer moon;
+    private float counter = 0;
 
     public MoonModel() {
         super(RenderType::entityCutoutNoCull);
@@ -23,7 +25,14 @@ public class MoonModel extends SatelliteModel{
 
     @Override
     public void prepareModel(float partialTicks) {
-
+        if(!Minecraft.getInstance().isPaused()){
+            if (counter < 360) {
+                counter += 0.01;
+            } else {
+                counter = 0;
+            }
+        }
+        moon.yRot = (float) (Math.toRadians(-counter));
     }
 
     @Override

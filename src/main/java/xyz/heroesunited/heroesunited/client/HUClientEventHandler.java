@@ -87,7 +87,6 @@ public class HUClientEventHandler {
     public static List<AbilityKeyBinding> ABILITY_KEYS = Lists.newArrayList();
     public static Map<Integer, Boolean> KEY_STATE = Maps.newHashMap();
     public static KeyMap MAP = new KeyMap();
-    public static float SPACE_ZOOM = 15;
 
     public HUClientEventHandler() {
         if (Minecraft.getInstance() != null) {
@@ -152,13 +151,6 @@ public class HUClientEventHandler {
             matrixStack.popPose();
             RenderSystem.disableDepthTest();
             buffers.endBatch();
-        }
-    }
-
-    @SubscribeEvent
-    public void onFovUpdate(FOVUpdateEvent event) {
-        if (event.getEntity().level.dimension().equals(HeroesUnited.SPACE)) {
-            event.setNewfov((float) Math.atan(Math.tan(event.getFov()) / SPACE_ZOOM));
         }
     }
 
