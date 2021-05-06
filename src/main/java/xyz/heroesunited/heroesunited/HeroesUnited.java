@@ -79,6 +79,7 @@ import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOO
 public class HeroesUnited {
 
     public static final RegistryKey<World> SPACE = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(HeroesUnited.MODID,"space"));
+    public static final RegistryKey<World> MARS = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(HeroesUnited.MODID,"mars"));
     public static final String MODID = "heroesunited";
     public static final Logger LOGGER = LogManager.getLogger();
 
@@ -107,11 +108,11 @@ public class HeroesUnited {
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, HUConfig.CLIENT_SPEC);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            CelestialBodyRenderer.registerRenderer(new EarthRenderer(), CelestialBodies.EARTH);
             CelestialBodyRenderer.registerRenderer(new MoonRenderer(), CelestialBodies.MOON);
             CelestialBodyRenderer.registerRenderer(new SunRenderer(), CelestialBodies.SUN);
             CelestialBodyRenderer.registerRenderer(new AsteroidsBeltRenderer(), CelestialBodies.ASTEROIDS_BELT);
             CelestialBodyRenderer.registerRenderer(new MarsRenderer(), CelestialBodies.MARS);
+            CelestialBodyRenderer.registerRenderer(new EarthRenderer(), CelestialBodies.EARTH);
             ModelBakery.UNREFERENCED_TEXTURES.add(SunModel.SUN_TEXTURE_MATERIAL);
             ModelBakery.UNREFERENCED_TEXTURES.add(EarthModel.EARTH_TEXTURE_MATERIAL);
             DimensionRenderInfo.EFFECTS.put(new ResourceLocation(MODID,"space"), new SpaceDimensionRenderInfo());

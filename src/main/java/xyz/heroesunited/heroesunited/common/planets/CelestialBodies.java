@@ -21,7 +21,7 @@ public class CelestialBodies {
     public static CelestialBody EARTH = register("earth", new Planet(World.OVERWORLD, new Vector3d(50,0,0),1.1F,0.0001F));
     public static CelestialBody MOON = register("moon", new Satellite(new Vector3d(2,0,0),0.05F, 0.001F, (Planet) EARTH));
 
-    public static CelestialBody MARS = register("mars", new Planet(World.OVERWORLD, new Vector3d(75,0,0),2,0.0005F));
+    public static CelestialBody MARS = register("mars", new Planet(HeroesUnited.MARS, new Vector3d(75,0,0),2,0.0002F));
 
 
     private static CelestialBody register(String name, CelestialBody celestialBody) {
