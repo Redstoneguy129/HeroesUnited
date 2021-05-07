@@ -1,8 +1,5 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import net.minecraft.util.Util;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -33,10 +30,6 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
         return a;
     }
 
-    public ITextComponent getDisplayName() {
-        return new TranslationTextComponent(Util.makeDescriptionId("ability", this.getRegistryName()));
-    }
-
     public static final AbilityType ATTRIBUTE_MODIFIER = new AbilityType(AttributeModifierAbility::new, HeroesUnited.MODID, "attribute_modifier");
     public static final AbilityType FLIGHT = new AbilityType(FlightAbility::new, HeroesUnited.MODID, "flight");
     public static final AbilityType SLOW_MO = new AbilityType(SlowMoAbility::new, HeroesUnited.MODID, "slow_mo");
@@ -48,6 +41,8 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
     public static final AbilityType DAMAGE_IMMUNITY = new AbilityType(DamageImmunityAbility::new, HeroesUnited.MODID, "damage_immunity");
     public static final AbilityType POTION_EFFECT = new AbilityType(PotionEffectAbility::new, HeroesUnited.MODID, "potion_effect");
     public static final AbilityType ENERGY_LASER = new AbilityType(EnergyLaserAbility::new, HeroesUnited.MODID, "energy_laser");
+    public static final AbilityType HEAT_VISION = new AbilityType(HeatVisionAbility::new, HeroesUnited.MODID, "heat_vision");
+    public static final AbilityType OXYGEN = new AbilityType(OxygenAbility::new, HeroesUnited.MODID, "oxygen");
     public static final AbilityType PROJECTILE = new AbilityType(ProjectileAbility::new, HeroesUnited.MODID, "projectile");
     public static final AbilityType HIDE_LAYER = new AbilityType(HideLayerAbility::new, HeroesUnited.MODID, "hide_layer");
 
@@ -64,6 +59,8 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
         e.getRegistry().register(ROTATE_PARTS);
         e.getRegistry().register(POTION_EFFECT);
         e.getRegistry().register(ENERGY_LASER);
+        e.getRegistry().register(HEAT_VISION);
+        e.getRegistry().register(OXYGEN);
         e.getRegistry().register(PROJECTILE);
         e.getRegistry().register(HIDE_LAYER);
     }

@@ -38,14 +38,13 @@ public class EnergyLaserAbility extends JSONAbility {
         super.render(renderer, matrix, bufferIn, packedLightIn, player, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
         if (enabled) {
             Color color = HUJsonUtils.getColor(getJsonObject());
-            double d = 0.0625D;
             double distance = player.position().add(0, player.getEyeHeight(), 0).distanceTo(player.getLookAngle().scale(JSONUtils.getAsFloat(getJsonObject(), "distance")));
             AxisAlignedBB box = new AxisAlignedBB(0, 0, 0, 0, distance, 0);
             matrix.pushPose();
             renderer.getModel().translateToHand(player.getMainArm(), matrix);
-            matrix.translate(player.getMainArm() == HandSide.RIGHT ? -d : d, 0, 0);
-            HUClientUtil.renderFilledBox(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(d/2), 1F, 1F, 1F, 1F, packedLightIn);
-            HUClientUtil.renderFilledBox(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(d), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, packedLightIn);
+            matrix.translate(player.getMainArm() == HandSide.RIGHT ? -0.0625D : 0.0625D, 0, 0);
+            HUClientUtil.renderFilledBox(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.0625D/2), 1F, 1F, 1F, 1F, packedLightIn);
+            HUClientUtil.renderFilledBox(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.0625D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, packedLightIn);
             matrix.popPose();
         }
     }

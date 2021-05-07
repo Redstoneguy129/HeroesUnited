@@ -21,7 +21,10 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.*;
+import net.minecraft.util.HandSide;
+import net.minecraft.util.JSONUtils;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Quaternion;
@@ -175,10 +178,20 @@ public class HUClientEventHandler {
         }
     }
 
+    /*@SubscribeEvent
+    public void updateFov(FOVUpdateEvent event) {
+        if (event.getEntity().level.dimension().equals(HeroesUnited.SPACE)) {
+            event.setNewfov(-200);
+        }
+    }*/
+
     @SubscribeEvent
     public void renderEntityPre(RenderLivingEvent.Pre event) {
         if (event.getEntity().level.dimension().equals(HeroesUnited.SPACE)) {
             event.getMatrixStack().pushPose();
+            if (event.getEntity() instanceof PlayerEntity && event.getEntity().isCrouching()) {
+                event.getMatrixStack().translate(0,0.125D,0);
+            }
             event.getMatrixStack().scale(0.01F,0.01F,0.01F);
         }
         if (entitiesWithLayer.contains(event.getRenderer())) return;
@@ -198,7 +211,7 @@ public class HUClientEventHandler {
 
 
     @SubscribeEvent
-    public void renderPlayer(HUChangeShadowSizeEvent event) {
+    public void renderShadowSize(HUChangeShadowSizeEvent event) {
         for (Ability a : AbilityHelper.getAbilities(event.getEntity())) {
             if (a instanceof SizeChangeAbility) {
                 if (((SizeChangeAbility) a).changeSizeInRender()) {
@@ -407,18 +420,30 @@ public class HUClientEventHandler {
 
         player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
             for (Ability ability : a.getActiveAbilities().values()) {
-                if (ability instanceof EnergyLaserAbility && ((EnergyLaserAbility) ability).getEnabled() && Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+                if (ability instanceof JSONAbility && ((JSONAbility) ability).getEnabled() && Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
                     double distance = Minecraft.getInstance().hitResult.getLocation().distanceTo(player.position().add(0, player.getEyeHeight(), 0));
                     AxisAlignedBB box = new AxisAlignedBB(0.1F, -0.25, 0, 0, -0.25, -distance).inflate(0.03125D);
                     Color color = HUJsonUtils.getColor(ability.getJsonObject());
-
-                    event.getMatrixStack().pushPose();
-                    event.getMatrixStack().translate(player.getMainArm() == HandSide.RIGHT ? 0.3F : -0.3F, 0, 0);
-                    HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, 1, event.getLight());
-                    HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.03125D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, event.getLight());
-                    event.setCanceled(true);
-                    event.getMatrixStack().popPose();
-                    return;
+                    if (ability instanceof EnergyLaserAbility) {
+                        event.getMatrixStack().pushPose();
+                        event.getMatrixStack().translate(player.getMainArm() == HandSide.RIGHT ? 0.3F : -0.3F, 0, 0);
+                        HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, 1, event.getLight());
+                        HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.03125D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, event.getLight());
+                        event.setCanceled(true);
+                        event.getMatrixStack().popPose();
+                        return;
+                    }
+                    if (ability instanceof HeatVisionAbility) {
+                        for (int i = 0; i < 2; i++) {
+                            event.getMatrixStack().pushPose();
+                            event.getMatrixStack().translate(i==0 ? 0.25F : -0.3F, -0.5, 0);
+                            HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, 1, event.getLight());
+                            HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.03125D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, event.getLight());
+                            event.setCanceled(true);
+                            event.getMatrixStack().popPose();
+                        }
+                        return;
+                    }
                 }
             }
         });
