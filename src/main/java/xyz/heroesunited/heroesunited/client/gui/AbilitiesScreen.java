@@ -113,7 +113,7 @@ public class AbilitiesScreen extends Screen {
         this.renderBackground(matrixStack);
         matrixStack.pushPose();
         ResourceLocation theme = getTheme("default");
-        if (cap.getTheme() < themes.size()) {
+        if (cap != null && cap.getTheme() < themes.size()) {
             theme = themes.get(cap.getTheme());
         }
         minecraft.getTextureManager().bind(theme);
@@ -129,11 +129,13 @@ public class AbilitiesScreen extends Screen {
         blit(matrixStack, left + 5, top + 5, 32, 32, 32, 32, 256, 256);
         font.drawShadow(matrixStack, minecraft.player.getName().getString(), left + 42, top + 7, 16777215, false);
         matrixStack.popPose();
-        cap.getSuperpowerLevels().forEach((res, lvl) -> {
-            if (HUPackSuperpowers.hasSuperpower(minecraft.player, res)) {
-                renderLevelBar(matrixStack, lvl);
-            }
-        });
+        if (cap != null) {
+            cap.getSuperpowerLevels().forEach((res, lvl) -> {
+                if (HUPackSuperpowers.hasSuperpower(minecraft.player, res)) {
+                    renderLevelBar(matrixStack, lvl);
+                }
+            });
+        }
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         buttons.forEach(button -> {
             if (button instanceof AbilityButton) {

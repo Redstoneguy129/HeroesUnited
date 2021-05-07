@@ -7,7 +7,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.*;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.JSONUtils;
+import net.minecraft.util.RegistryKey;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.registry.Registry;
@@ -203,6 +206,11 @@ public class HUEventHandler {
                     if (pl.zza > 0F) {
                         Vector3d vec = pl.getLookAngle();
                         double speed = pl.isSprinting() ? 2.5f : 1f;
+                        for (Ability ability : AbilityHelper.getAbilities(pl)) {
+                            if (ability instanceof FlightAbility && ability.getJsonObject() != null && ability.getJsonObject().has("speed")) {
+                                speed = pl.isSprinting() ? JSONUtils.getAsFloat(ability.getJsonObject(), "maxSpeed", 2.5F) : JSONUtils.getAsFloat(ability.getJsonObject(), "speed");
+                            }
+                        }
                         pl.setDeltaMovement(vec.x * speed, vec.y * speed - (pl.isCrouching() ? pl.getBbHeight() * 0.2F : 0), vec.z * speed);
                     } else if (pl.isCrouching())
                         pl.setDeltaMovement(new Vector3d(pl.getDeltaMovement().x, pl.getBbHeight() * -0.2F, pl.getDeltaMovement().z));

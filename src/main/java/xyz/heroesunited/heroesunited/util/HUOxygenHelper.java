@@ -23,7 +23,7 @@ public class HUOxygenHelper {
         if (entity instanceof PlayerEntity) {
             for (Ability ability : AbilityHelper.getAbilities(entity)) {
                 if (ability instanceof OxygenAbility) {
-                    canBreath = ((OxygenAbility) ability).getEnabled();
+                    canBreath = entity.level.dimension().equals(HeroesUnited.SPACE) && ((OxygenAbility) ability).getEnabled();
                     break;
                 }
             }

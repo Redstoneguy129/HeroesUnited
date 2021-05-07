@@ -21,10 +21,14 @@ public abstract class JSONAbility extends Ability {
     public void onUpdate(PlayerEntity player) {
         super.onUpdate(player);
         action(player);
-        if (enabled && actionType == ActionType.ACTION) {
-            setEnabled(player, false);
-        } else if (actionType == ActionType.CONSTANT) {
-            setEnabled(player, true);
+        if (enabled) {
+            if (actionType == ActionType.ACTION) {
+                setEnabled(player, false);
+            }
+        } else {
+            if (actionType == ActionType.CONSTANT) {
+                setEnabled(player, true);
+            }
         }
     }
 
@@ -42,16 +46,17 @@ public abstract class JSONAbility extends Ability {
     @Override
     public void onKeyInput(PlayerEntity player, Map<Integer, Boolean> map) {
         super.onKeyInput(player, map);
-        if (getKey() != -1 && map.get(getKey()) && cooldownTicks == 0) {
-            if (actionType == ActionType.CONSTANT) return;
-            if (actionType == ActionType.TOGGLE) {
-                setEnabled(player, !enabled);
-            } else if (actionType == ActionType.ACTION || actionType == ActionType.HELD) {
-                setEnabled(player, true);
+        if (getKey() != -1 && actionType != ActionType.CONSTANT && cooldownTicks == 0) {
+            if (map.get(getKey())) {
+                if (actionType == ActionType.TOGGLE) {
+                    setEnabled(player, !enabled);
+                }
+                if (actionType == ActionType.ACTION) {
+                    setEnabled(player, true);
+                }
             }
-        } else {
             if (actionType == ActionType.HELD) {
-                setEnabled(player, false);
+                setEnabled(player, map.get(getKey()));
             }
         }
     }
