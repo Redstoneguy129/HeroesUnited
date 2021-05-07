@@ -27,6 +27,7 @@ public class Satellite extends CelestialBody{
         return planet.getCoordinates().add(coordinates);
     }
 
+    @Override
     public AxisAlignedBB getHitbox() {
         return new AxisAlignedBB(coordinates.x - scale / 2, coordinates.y - scale / 2, coordinates.z - scale / 2, coordinates.x + scale / 2, coordinates.y + scale / 2, coordinates.z + scale / 2);
     }

@@ -139,7 +139,9 @@ public class HUEventHandler {
                     event.getEntityLiving().setNoGravity(false);
                 }
                 for (CelestialBody celestialBody : CelestialBody.CELESTIAL_BODIES.getValues()) {
-                    celestialBody.entityInside(event.getEntity());
+                    if (celestialBody.getHitbox() != null && event.getEntityLiving().level.getEntities(null, celestialBody.getHitbox()).contains(event.getEntityLiving()) && !event.getEntityLiving().level.isClientSide) {
+                        celestialBody.entityInside(event.getEntity());
+                    }
                 }
             } else {
                 if (Planet.PLANETS_MAP.containsKey(event.getEntityLiving().level.dimension()) && event.getEntityLiving().position().y > 10050 && !event.getEntityLiving().level.isClientSide) {

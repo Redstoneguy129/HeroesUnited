@@ -2,6 +2,7 @@ package xyz.heroesunited.heroesunited.common.space;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -31,6 +32,10 @@ public class CelestialBody extends ForgeRegistryEntry<CelestialBody> {
         compound.putDouble("y", coordinates.y);
         compound.putDouble("z", coordinates.z);
         return compound;
+    }
+
+    public AxisAlignedBB getHitbox(){
+        return null;
     }
 
     public void readNBT(CompoundNBT nbt) {

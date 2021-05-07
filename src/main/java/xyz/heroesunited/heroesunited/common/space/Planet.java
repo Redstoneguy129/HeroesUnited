@@ -29,18 +29,18 @@ public class Planet extends CelestialBody {
         this.speed = speed;
         this.scale = scale;
         this.star = star;
-        if(dimension != null)
+        if (dimension != null)
             PLANETS_MAP.put(dimension, this);
     }
 
-    public void tick(){
+    public void tick() {
         coordinates = this.coordinates.yRot(speed);
     }
 
     @Override
     public void entityInside(Entity entity) {
-        if (dimension != null && entity.level.getEntities(null, this.getHitbox()).contains(entity) && !entity.level.isClientSide) {
-            entity.changeDimension(((ServerWorld) entity.level).getServer().getLevel( this.getDimension()), new ITeleporter() {
+        if(dimension != null){
+            entity.changeDimension(((ServerWorld) entity.level).getServer().getLevel(this.getDimension()), new ITeleporter() {
                 @Override
                 public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
                     Entity repositionedEntity = repositionEntity.apply(false);
@@ -53,6 +53,7 @@ public class Planet extends CelestialBody {
         }
     }
 
+    @Override
     public AxisAlignedBB getHitbox() {
         return new AxisAlignedBB(getCoordinates().x - scale / 2, getCoordinates().y - scale / 2, getCoordinates().z - scale / 2, getCoordinates().x + scale / 2, getCoordinates().y + scale / 2, getCoordinates().z + scale / 2);
     }
@@ -67,7 +68,7 @@ public class Planet extends CelestialBody {
     }
 
     public Vector3d getOutCoordinates() {
-        return getCoordinates().add(new Vector3d(0,scale/2+3,0));
+        return getCoordinates().add(new Vector3d(0, scale / 2 + 3, 0));
     }
 
     public boolean hasOxygen() {
