@@ -18,11 +18,9 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.HUTypes;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSetAnimation;
-import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUData;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUPlayer;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUType;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesInventory;
@@ -39,7 +37,6 @@ public class HUPlayer implements IHUPlayer {
     private AnimationFactory factory = new AnimationFactory(this);
     private ResourceLocation animationFile;
     protected Map<ResourceLocation, Level> superpowerLevels;
-    protected final Map<String, HUData> dataList;
 
     private AnimatedGeoModel modelProvider = new AnimatedGeoModel() {
 
@@ -61,7 +58,6 @@ public class HUPlayer implements IHUPlayer {
 
     public HUPlayer(PlayerEntity player) {
         this.player = player;
-        this.dataList = Maps.newHashMap();
         this.superpowerLevels = Maps.newHashMap();
         this.inventory = new AccessoriesInventory(player);
     }
@@ -162,13 +158,6 @@ public class HUPlayer implements IHUPlayer {
         this.flying = false;
         this.slowMo = 20F;
         this.animationTimer = 0;
-        for (HUData data : this.dataList.values()) {
-            for (HUData oldData : cap.getDataList().values()) {
-                if (data.canBeSaved() && oldData.canBeSaved() && data.getKey().equals(oldData.getKey())) {
-                    data.setValue(oldData.getValue());
-                }
-            }
-        }
         this.sync();
         return this;
     }
@@ -195,24 +184,6 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public AccessoriesInventory getInventory() {
         return inventory;
-    }
-
-    @Override
-    public IHUPlayer setHUData(String key, Object value, boolean save) {
-        if (!dataList.containsKey(key)) dataList.put(key, new HUData(key, value, save));
-        HUData data = dataList.get(key);
-        if (data != null && !data.getValue().equals(value)) {
-            data.setValue(value);
-            if (!player.level.isClientSide)
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getId(), key, this.serializeNBT()));
-            HUAbilityCap.getCap(player).syncToAll();
-        }
-        return this;
-    }
-
-    @Override
-    public Map<String, HUData> getDataList() {
-        return this.dataList;
     }
 
     @Override
@@ -245,23 +216,6 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT nbt = new CompoundNBT();
-        for (HUData data : dataList.values()) {
-            if (data.canBeSaved()) {
-                if (data.getValue() instanceof Boolean) {
-                    nbt.putBoolean(data.getKey(), (Boolean) data.getValue());
-                } else if (data.getValue() instanceof Integer) {
-                    nbt.putInt(data.getKey(), (Integer) data.getValue());
-                } else if (data.getValue() instanceof String) {
-                    nbt.putString(data.getKey(), (String) data.getValue());
-                } else if (data.getValue() instanceof Float) {
-                    nbt.putFloat(data.getKey(), (Float) data.getValue());
-                } else if (data.getValue() instanceof Double) {
-                    nbt.putDouble(data.getKey(), (Double) data.getValue());
-                } else if (data.getValue() instanceof Long) {
-                    nbt.putLong(data.getKey(), (Long) data.getValue());
-                }
-            }
-        }
 
         CompoundNBT levels = new CompoundNBT();
         superpowerLevels.forEach((resourceLocation,level)->{
@@ -287,24 +241,6 @@ public class HUPlayer implements IHUPlayer {
         superpowerLevels.clear();
         for (String key: levels.getAllKeys()) {
             superpowerLevels.put(new ResourceLocation(key),Level.readFromNBT(levels.getCompound(key)));
-        }
-
-        for (HUData data : dataList.values()) {
-            if (data.canBeSaved()) {
-                if (data.getValue() instanceof Boolean) {
-                    data.setValue(nbt.getBoolean(data.getKey()));
-                } else if (data.getValue() instanceof Integer) {
-                    data.setValue(nbt.getInt(data.getKey()));
-                } else if (data.getValue() instanceof String) {
-                    data.setValue(nbt.getString(data.getKey()));
-                } else if (data.getValue() instanceof Float) {
-                    data.setValue(nbt.getFloat(data.getKey()));
-                } else if (data.getValue() instanceof Double) {
-                    data.setValue(nbt.getDouble(data.getKey()));
-                } else if (data.getValue() instanceof Long) {
-                    data.setValue(nbt.getLong(data.getKey()));
-                }
-            }
         }
         if (nbt.contains("Flying")) {
             this.flying = nbt.getBoolean("Flying");

@@ -62,10 +62,6 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable {
      **/
     AccessoriesInventory getInventory();
 
-    IHUPlayer setHUData(String key, Object value, boolean save);
-
-    Map<String, HUData> getDataList();
-
     IHUPlayer copy(IHUPlayer ihuPlayer);
 
     IHUPlayer sync();

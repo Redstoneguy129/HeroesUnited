@@ -33,8 +33,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.render.model.ModelCape;
+import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 
 import java.awt.*;
 import java.io.File;
@@ -89,11 +89,12 @@ public class HUClientUtil {
             renderer.getModel().body.translateAndRotate(matrix);
             matrix.translate(0, -0.04F, 0.05F);
             matrix.scale(0.9F, 0.9F, 0.9F);
-            if (entity.isFallFlying() || HUPlayer.getCap(entity).isFlying() && !entity.isOnGround() && !entity.isSwimming() && entity.isSprinting()) {
+            if (entity.isFallFlying()) {
                 model.cape.xRot = 0F;
                 model.cape.yRot = 0F;
                 model.cape.zRot = 0F;
-            } else if (entity instanceof PlayerEntity) {
+            }
+            if (entity instanceof PlayerEntity) {
                 PlayerEntity player = (PlayerEntity) entity;
                 double d0 = MathHelper.lerp(partialTicks, player.xCloakO, player.xCloak) - MathHelper.lerp(partialTicks, player.xo, player.getX());
                 double d1 = MathHelper.lerp(partialTicks, player.yCloakO, player.yCloak) - MathHelper.lerp(partialTicks, player.yo, player.getY());
@@ -117,6 +118,13 @@ public class HUClientUtil {
                 model.cape.xRot = (float) -Math.toRadians(6.0F + f2 / 2.0F + f1);
                 model.cape.yRot = (float) Math.toRadians(180.0F - f3 / 2.0F);
                 model.cape.zRot = (float) Math.toRadians(f3 / 2.0F);
+
+                IFlyingAbility b = IFlyingAbility.getFlyingAbility(player);
+                if (b != null && b.isFlying(player) && !entity.isOnGround() && !entity.isSwimming() && entity.isSprinting()) {
+                    model.cape.xRot = 0F;
+                    model.cape.yRot = 0F;
+                    model.cape.zRot = 0F;
+                }
             }
             model.renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entitySolid(texture)), packedLightIn, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
             matrix.popPose();

@@ -57,6 +57,8 @@ import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerEvent;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.IHUAbilityCap;
+import xyz.heroesunited.heroesunited.common.capabilities.hudata.HUDataCap;
+import xyz.heroesunited.heroesunited.common.capabilities.hudata.IHUDataCap;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
 import xyz.heroesunited.heroesunited.common.objects.HUPaintings;
@@ -66,8 +68,8 @@ import xyz.heroesunited.heroesunited.common.objects.container.HUContainers;
 import xyz.heroesunited.heroesunited.common.objects.entities.HUEntities;
 import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
-import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.common.space.CelestialBodies;
+import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
 import xyz.heroesunited.heroesunited.util.data.HUEnglishProvider;
@@ -150,6 +152,7 @@ public class HeroesUnited {
     public void commonSetup(final FMLCommonSetupEvent event) {
         CapabilityManager.INSTANCE.register(IHUPlayer.class, new HUCapStorage<>(), () -> new HUPlayer(null));
         CapabilityManager.INSTANCE.register(IHUAbilityCap.class, new HUCapStorage<>(), () -> new HUAbilityCap(null));
+        CapabilityManager.INSTANCE.register(IHUDataCap.class, new HUCapStorage<>(), () -> new HUDataCap(null));
 
         HUNetworking.registerMessages();
         LOGGER.info(MODID + ": common is ready!");

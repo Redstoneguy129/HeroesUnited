@@ -30,7 +30,10 @@ import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbility;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityCreators;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUData;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
+import xyz.heroesunited.heroesunited.util.hudata.HUData;
+import xyz.heroesunited.heroesunited.util.hudata.HUDataManager;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -43,9 +46,25 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     protected int cooldownTicks = 0;
     protected CompoundNBT additionalData = new CompoundNBT();
     protected JsonObject jsonObject;
+    protected HUDataManager dataManager = new HUDataManager() {
+        @Override
+        public <T> void updateData(Entity entity, HUData<T> data, T value) {
+            if (!entity.level.isClientSide) {
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new ClientSyncHUData(entity.getId(), name, data.getKey(), data.serializeNBT(new CompoundNBT(), value)));
+            }
+        }
+    };
 
     public Ability(AbilityType type) {
         this.type = type;
+        this.registerData();
+    }
+
+    public HUDataManager getDataManager() {
+        return this.dataManager;
+    }
+
+    public void registerData() {
     }
 
     public boolean canActivate(PlayerEntity player) {
@@ -132,6 +151,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     public CompoundNBT serializeNBT() {
         CompoundNBT nbt = new CompoundNBT();
         nbt.putString("AbilityType", this.type.getRegistryName().toString());
+        nbt.put("HUData", this.dataManager.serializeNBT());
         nbt.putInt("Cooldown", cooldownTicks);
         nbt.put("AdditionalData", additionalData);
         if (this.jsonObject != null) {
@@ -142,6 +162,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
+        this.dataManager.deserializeNBT(nbt.getCompound("HUData"));
         this.cooldownTicks = nbt.getInt("Cooldown");
         this.additionalData = nbt.getCompound("AdditionalData");
         if (nbt.contains("JsonObject")) {

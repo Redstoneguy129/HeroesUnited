@@ -75,8 +75,9 @@ public class HUEventHandler {
     public void playerSize(EntityEvent.Size event) {
         if (event.getEntity().isAddedToWorld() && event.getEntity() instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) event.getEntity();
-            player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                if (cap.isFlying() && !player.isOnGround() && player.isSprinting()) {
+            IFlyingAbility ability = IFlyingAbility.getFlyingAbility(player);
+            if (ability != null && ability.isFlying(player)) {
+                if (!player.isOnGround() && player.isSprinting()) {
                     if (event.getOldSize().fixed) {
                         event.setNewSize(EntitySize.fixed(0.6F, 0.6F));
                     } else {
@@ -84,7 +85,7 @@ public class HUEventHandler {
                     }
                     event.setNewEyeHeight(0.4F);
                 }
-            });
+            }
         }
         if (event.getEntity().level.dimension().equals(HeroesUnited.SPACE)) {
             event.setNewSize(event.getNewSize().scale(0.01F, 0.01F));
@@ -201,7 +202,8 @@ public class HUEventHandler {
                 if (a.getAnimationTimer() > 0) a.setAnimationTimer(a.getAnimationTimer() + 1);
                 if (a.getAnimationTimer() >= 3600) a.setAnimationTimer(3600);
 
-                if (a.isFlying() && !pl.isOnGround()) {
+                IFlyingAbility b = IFlyingAbility.getFlyingAbility(pl);
+                if (b != null && b.isFlying(pl) && !pl.isOnGround()) {
                     HUPlayerUtil.playSoundToAll(pl.level, HUPlayerUtil.getPlayerPos(pl), 10, IFlyingAbility.getFlyingAbility(pl) != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() : HUSounds.FLYING : HUSounds.FLYING, SoundCategory.PLAYERS, 0.05F, 0.5F);
                     if (pl.zza > 0F) {
                         Vector3d vec = pl.getLookAngle();
@@ -244,7 +246,8 @@ public class HUEventHandler {
                 if (cap != null && cap.isIntangible()) {
                     if (event.getState().getShape(event.getWorld(), event.getPos()) != VoxelShapes.empty()) {
                         if (entity.position().y >= (event.getPos().getY() + event.getState().getShape(event.getWorld(), event.getPos()).bounds().getYsize())) {
-                            collidable.set(!cap.isFlying() && !entity.isCrouching());
+                            IFlyingAbility b = IFlyingAbility.getFlyingAbility((PlayerEntity) entity);
+                            collidable.set(b != null && !b.isFlying((PlayerEntity) entity) && !entity.isCrouching());
                         } else {
                             collidable.set(false);
                         }

@@ -7,6 +7,8 @@ import javax.annotation.Nullable;
 
 public interface IFlyingAbility {
 
+    boolean isFlying(PlayerEntity player);
+
     boolean renderFlying(PlayerEntity player);
 
     boolean rotateArms(PlayerEntity player);
