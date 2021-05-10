@@ -14,20 +14,20 @@ public class CelestialBodies {
 
     private static final HashMap<String, CelestialBody> CELESTIAL_BODIES = new HashMap<>();
 
-    public static CelestialBody SUN = register("sun", new Star(new Vector3d(0,0,0),12.5F));
+    public static Star SUN = register("sun", new Star(new Vector3d(0,0,0),12.5F));
 
-    public static CelestialBody MERCURY = register("mercury", new Planet(null, new Vector3d(15,0,0),0.85F,0.0001F, (Star) SUN));
-
-    public static CelestialBody EARTH = register("earth", new Planet(World.OVERWORLD, new Vector3d(50,0,0),1.1F,0.0001F, (Star) SUN));
-    public static CelestialBody MOON = register("moon", new Satellite(new Vector3d(2,0,0),0.05F, 0.001F, (Planet) EARTH));
+    public static Planet MERCURY = register("mercury", new Planet(null, new Vector3d(25,0,0),0.85F,0.005F, SUN));
+    public static Planet VENUS = register("venus", new Planet(null, new Vector3d(45,0,0),1.1F,0.004F, SUN));
+    public static Planet EARTH = register("earth", new Planet(World.OVERWORLD, new Vector3d(55,0,0),1.1F,0.003F, SUN));
+    public static Satellite MOON = register("moon", new Satellite(null,new Vector3d(2,0,0),0.05F, 0.001F, EARTH));
+    public static Planet MARS = register("mars", new Planet(HeroesUnited.MARS, new Vector3d(75,0,0),2,0.001F, SUN));
 
     public static CelestialBody ASTEROIDS_BELT = register("asteroid_belt", new CelestialBody(new Vector3d(0,0,0)));
     public static CelestialBody KUIPER_BELT = register("kuiper_belt", new CelestialBody(new Vector3d(0,0,0)));
 
-    public static CelestialBody MARS = register("mars", new Planet(HeroesUnited.MARS, new Vector3d(75,0,0),2,0.0002F, (Star) SUN));
 
 
-    private static CelestialBody register(String name, CelestialBody celestialBody) {
+    private static <T extends CelestialBody> T register(String name, T celestialBody) {
         CELESTIAL_BODIES.put( name, celestialBody);
         return celestialBody;
     }

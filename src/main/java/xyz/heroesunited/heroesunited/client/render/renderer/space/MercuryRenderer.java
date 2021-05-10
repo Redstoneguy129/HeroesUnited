@@ -10,8 +10,8 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.render.model.space.EarthModel;
 import xyz.heroesunited.heroesunited.client.render.model.space.PlanetModel;
 
-public class MarsRenderer extends PlanetRenderer {
-    public MarsRenderer() {
+public class MercuryRenderer extends PlanetRenderer {
+    public MercuryRenderer() {
         super(new PlanetModel());
     }
 
@@ -23,7 +23,7 @@ public class MarsRenderer extends PlanetRenderer {
     @Override
     public void render(MatrixStack matrixStack, IRenderTypeBuffer buffers, int packedLight, float partialTicks) {
 
-        matrixStack.scale(1.95F, 1.95F, 1.95F);
+        matrixStack.scale(0.75F, 0.75F, 0.75F);
         matrixStack.translate(0, -1, 0);
         IVertexBuilder buffer = buffers.getBuffer(RenderType.entityTranslucent(getTextureLocation()));
         planetModel.prepareModel(partialTicks);
