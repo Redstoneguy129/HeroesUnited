@@ -281,7 +281,7 @@ public class HUEventHandler {
                     if (event.getState().getShape(event.getWorld(), event.getPos()) != VoxelShapes.empty()) {
                         if (entity.position().y >= (event.getPos().getY() + event.getState().getShape(event.getWorld(), event.getPos()).bounds().getYsize())) {
                             IFlyingAbility b = IFlyingAbility.getFlyingAbility((PlayerEntity) entity);
-                            collidable.set(((b != null && !b.isFlying((PlayerEntity) entity)) || cap.isFlying()) && !entity.isCrouching());
+                            collidable.set(((b != null && !b.isFlying((PlayerEntity) entity)) || !cap.isFlying()) && !entity.isCrouching());
                         } else {
                             collidable.set(false);
                         }
