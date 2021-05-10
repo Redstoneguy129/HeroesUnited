@@ -289,6 +289,11 @@ public class HUClientUtil {
             RenderType.State render = RenderType.State.builder().setTextureState(new RenderState.TextureState(locationIn, false, false)).setTexturingState(new CustomRenderState(start, end)).setTransparencyState(NO_TRANSPARENCY).setDiffuseLightingState(RenderState.DIFFUSE_LIGHTING).setAlphaState(DEFAULT_ALPHA).setLightmapState(LIGHTMAP).setOverlayState(OVERLAY).createCompositeState(true);
             return create(HeroesUnited.MODID + ":entity_cutout", DefaultVertexFormats.NEW_ENTITY, 7, 256, false, true, render);
         }
+
+        public static RenderType sunRenderer(ResourceLocation p_230168_0_) {
+            RenderType.State rendertype$state = RenderType.State.builder().setTextureState(new RenderState.TextureState(p_230168_0_, false, false)).setTransparencyState(TRANSLUCENT_TRANSPARENCY).setDiffuseLightingState(NO_DIFFUSE_LIGHTING).setAlphaState(DEFAULT_ALPHA).setCullState(NO_CULL).setLightmapState(NO_LIGHTMAP).setOverlayState(OVERLAY).createCompositeState(true);
+            return create("sun_renderer", DefaultVertexFormats.NEW_ENTITY, 7, 256, true, true, rendertype$state);
+        }
     }
 
     public static ResourceLocation fileToTexture(File file) {

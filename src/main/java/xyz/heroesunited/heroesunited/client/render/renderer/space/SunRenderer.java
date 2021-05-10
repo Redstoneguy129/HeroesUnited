@@ -9,6 +9,7 @@ import net.minecraft.util.ResourceLocation;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.render.model.space.EarthModel;
 import xyz.heroesunited.heroesunited.client.render.model.space.SunModel;
+import xyz.heroesunited.heroesunited.util.HUClientUtil;
 
 public class SunRenderer extends StarRenderer {
     public SunRenderer() {
@@ -24,7 +25,7 @@ public class SunRenderer extends StarRenderer {
     public void render(MatrixStack matrixStack, IRenderTypeBuffer buffers, int packedLight, float partialTicks) {
         matrixStack.scale(12.5F, 12.5F, 12.5F);
         matrixStack.translate(0, -1.5, 0);
-        IVertexBuilder buffer = SunModel.SUN_TEXTURE_MATERIAL.buffer(buffers, RenderType::entityTranslucent);
+        IVertexBuilder buffer = SunModel.SUN_TEXTURE_MATERIAL.buffer(buffers, HUClientUtil.HURenderTypes::sunRenderer);
         starModel.prepareModel(partialTicks);
         starModel.renderToBuffer(matrixStack, buffer, packedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
     }
