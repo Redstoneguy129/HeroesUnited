@@ -8,7 +8,6 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
-import xyz.heroesunited.heroesunited.common.capabilities.hudata.HUDataCap;
 
 import java.util.function.Supplier;
 
@@ -38,7 +37,6 @@ public class ClientSyncHUPlayer {
             Entity entity = mc.level.getEntity(this.entityId);
             if (entity instanceof AbstractClientPlayerEntity) {
                 entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(data -> data.deserializeNBT(this.data));
-                entity.getCapability(HUDataCap.CAPABILITY).ifPresent(data -> data.deserializeNBT(this.data));
                 if (mc.screen instanceof AbilitiesScreen) {
                     mc.screen.init(mc, mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
                 }

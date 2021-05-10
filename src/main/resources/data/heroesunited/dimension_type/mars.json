@@ -1,5 +1,6 @@
 {
   "name": "heroesunited:mars",
+  "gravity": -0.0496,
   "ultrawarm": true,
   "natural": false,
   "coordinate_scale": 1,

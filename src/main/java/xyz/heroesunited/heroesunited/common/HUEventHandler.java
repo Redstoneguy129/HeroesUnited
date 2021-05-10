@@ -1,24 +1,27 @@
 package xyz.heroesunited.heroesunited.common;
 
+import com.google.gson.JsonObject;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.resources.IResourceManager;
+import net.minecraft.util.*;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.OreFeatureConfig;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.BiomeDictionary;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.util.ITeleporter;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -56,12 +59,18 @@ import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.common.space.Planet;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
+import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.util.HUOxygenHelper;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 import xyz.heroesunited.heroesunited.util.HUTickrate;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -133,26 +142,49 @@ public class HUEventHandler {
 
     @SubscribeEvent
     public void livingUpdate(LivingEvent.LivingUpdateEvent event) {
-        if (event.getEntity().isAlive()) {
-            if (!event.getEntityLiving().level.isClientSide && !HUOxygenHelper.canBreath(event.getEntityLiving())) {
-                event.getEntityLiving().hurt((new DamageSource("space_drown")).bypassArmor(), 1);
+        LivingEntity entity = event.getEntityLiving();
+        if (entity != null && entity.isAlive()) {
+            if (!entity.level.isClientSide && !HUOxygenHelper.canBreath(entity)) {
+                entity.hurt((new DamageSource("space_drown")).bypassArmor(), 1);
             }
-            if (event.getEntityLiving().level.dimension().equals(HeroesUnited.SPACE)) {
-                if (!event.getEntityLiving().isCrouching()) {
-                    event.getEntityLiving().setNoGravity(true);
-                    event.getEntityLiving().setOnGround(true);
+            if (!(entity.level.dimension().equals(World.OVERWORLD) || entity.level.dimension().equals(World.NETHER) || entity.level.dimension().equals(World.END))) {
+                JsonObject jsonObject = null;
+                if (entity.level instanceof ServerWorld) {
+                    try {
+                        IResourceManager manager = entity.level.getServer().getDataPackRegistries().getResourceManager();
+                        ResourceLocation res = entity.level.dimension().location();
+                        jsonObject = JSONUtils.fromJson(HUPacks.GSON, new BufferedReader(new InputStreamReader(manager.getResource(new ResourceLocation(res.getNamespace(), String.format("dimension_type/%s.json", res.getPath()))).getInputStream(), StandardCharsets.UTF_8)), JsonObject.class);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (jsonObject != null && jsonObject.has("gravity")) {
+                    AbilityHelper.setAttribute(entity, "hu_gravity", ForgeMod.ENTITY_GRAVITY.get(), UUID.fromString("f308847a-43e7-4aaa-a0a5-f474dac5404e"), JSONUtils.getAsFloat(jsonObject, "gravity"), AttributeModifier.Operation.MULTIPLY_TOTAL);
+                }
+            } else {
+                AttributeModifier modifier = entity.getAttribute(ForgeMod.ENTITY_GRAVITY.get()).getModifier(UUID.fromString("f308847a-43e7-4aaa-a0a5-f474dac5404e"));
+                if (modifier !=null && modifier.getAmount() != 0) {
+                    AbilityHelper.setAttribute(entity, "hu_gravity", ForgeMod.ENTITY_GRAVITY.get(), UUID.fromString("f308847a-43e7-4aaa-a0a5-f474dac5404e"), 0, AttributeModifier.Operation.MULTIPLY_TOTAL);
+                }
+            }
+
+
+            if (entity.level.dimension().equals(HeroesUnited.SPACE)) {
+                if (!entity.isCrouching()) {
+                    entity.setNoGravity(true);
+                    entity.setOnGround(true);
                 } else {
-                    event.getEntityLiving().setNoGravity(false);
+                    entity.setNoGravity(false);
                 }
                 for (CelestialBody celestialBody : CelestialBody.CELESTIAL_BODIES.getValues()) {
-                    if (celestialBody.getHitbox() != null && event.getEntityLiving().level.getEntities(null, celestialBody.getHitbox()).contains(event.getEntityLiving()) && !event.getEntityLiving().level.isClientSide) {
-                        celestialBody.entityInside(event.getEntity());
+                    if (celestialBody.getHitbox() != null && entity.level.getEntities(null, celestialBody.getHitbox()).contains(entity) && !entity.level.isClientSide) {
+                        celestialBody.entityInside(entity);
                     }
                 }
             } else {
-                if (Planet.PLANETS_MAP.containsKey(event.getEntityLiving().level.dimension()) && event.getEntityLiving().position().y > 10050 && !event.getEntityLiving().level.isClientSide) {
-                    Planet planet = Planet.PLANETS_MAP.get(event.getEntityLiving().level.dimension());
-                    event.getEntityLiving().changeDimension(((ServerWorld) event.getEntityLiving().level).getServer().getLevel(HeroesUnited.SPACE), new ITeleporter() {
+                if (Planet.PLANETS_MAP.containsKey(entity.level.dimension()) && entity.position().y > 10050 && !entity.level.isClientSide) {
+                    Planet planet = Planet.PLANETS_MAP.get(entity.level.dimension());
+                    entity.changeDimension(((ServerWorld) entity.level).getServer().getLevel(HeroesUnited.SPACE), new ITeleporter() {
                         @Override
                         public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
                             Entity repositionedEntity = repositionEntity.apply(false);
@@ -165,8 +197,8 @@ public class HUEventHandler {
                 }
             }
         }
-        if (event.getEntityLiving() instanceof PlayerEntity && event.getEntityLiving() != null) {
-            PlayerEntity pl = (PlayerEntity) event.getEntityLiving();
+        if (entity instanceof PlayerEntity) {
+            PlayerEntity pl = (PlayerEntity) entity;
             pl.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
                 for (Map.Entry<String, Ability> e : a.getAbilities().entrySet()) {
                     Ability ability = e.getValue();
