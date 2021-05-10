@@ -28,6 +28,11 @@ public abstract class MixinLivingEntity extends Entity {
         }
     }
 
+    @Inject(method = "setSprinting(Z)V", at = @At(value = "RETURN"))
+    public void onSetSprintReturn(boolean sprinting, CallbackInfo callbackInfoReturnable) {
+        this.refreshDimensions();
+    }
+
     @Inject(method = "getEyeHeight", at = @At("RETURN"), cancellable = true)
     private void onGetEyeHeight(Pose pose, EntitySize size, CallbackInfoReturnable<Float> info) {
         if (pose != Pose.SLEEPING) {
