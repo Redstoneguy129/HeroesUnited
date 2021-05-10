@@ -35,6 +35,7 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.render.model.ModelCape;
 import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
+import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
 import java.awt.*;
 import java.io.File;
@@ -120,11 +121,14 @@ public class HUClientUtil {
                 model.cape.zRot = (float) Math.toRadians(f3 / 2.0F);
 
                 IFlyingAbility b = IFlyingAbility.getFlyingAbility(player);
-                if (b != null && b.isFlying(player) && !entity.isOnGround() && !entity.isSwimming() && entity.isSprinting()) {
-                    model.cape.xRot = 0F;
-                    model.cape.yRot = 0F;
-                    model.cape.zRot = 0F;
-                }
+                player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+                    if ((b != null && b.isFlying(player)) || cap.isFlying())
+                        if (!entity.isOnGround() && !entity.isSwimming() && entity.isSprinting()) {
+                            model.cape.xRot = 0F;
+                            model.cape.yRot = 0F;
+                            model.cape.zRot = 0F;
+                        }
+                });
             }
             model.renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entitySolid(texture)), packedLightIn, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
             matrix.popPose();

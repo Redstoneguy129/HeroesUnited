@@ -291,32 +291,33 @@ public class HUClientEventHandler {
             AnimationEvent animationEvent = new AnimationEvent(cap, 0.0F, 0.0F, 0.0F, false, Arrays.asList(event.getPlayer().getUUID()));
             animationEvent.setController(cap.getController());
             cap.getAnimatedModel().setLivingAnimations(cap, event.getPlayer().getUUID().hashCode(), animationEvent);
-        });
-
-        IFlyingAbility ability = IFlyingAbility.getFlyingAbility(event.getPlayer());
-        if (ability != null && ability.isFlying(event.getPlayer()) && ability.renderFlying(event.getPlayer())) {
-            if (!event.getPlayer().isOnGround() && !event.getPlayer().isSwimming() && event.getPlayer().isSprinting()) {
-                if (!(event.getPlayer().getFallFlyingTicks() > 4) && !event.getPlayer().isVisuallySwimming()) {
-                    event.getMatrixStack().pushPose();
-                    event.getMatrixStack().mulPose(new Quaternion(0, -event.getPlayer().yRot, 0, true));
-                    event.getMatrixStack().mulPose(new Quaternion(90F + event.getPlayer().xRot, 0, 0, true));
-                    event.getMatrixStack().mulPose(new Quaternion(0, event.getPlayer().yRot, 0, true));
+            IFlyingAbility ability = IFlyingAbility.getFlyingAbility(event.getPlayer());
+            if ((ability != null && ability.isFlying(event.getPlayer()) && ability.renderFlying(event.getPlayer())) || cap.isFlying()) {
+                if (!event.getPlayer().isOnGround() && !event.getPlayer().isSwimming() && event.getPlayer().isSprinting()) {
+                    if (!(event.getPlayer().getFallFlyingTicks() > 4) && !event.getPlayer().isVisuallySwimming()) {
+                        event.getMatrixStack().pushPose();
+                        event.getMatrixStack().mulPose(new Quaternion(0, -event.getPlayer().yRot, 0, true));
+                        event.getMatrixStack().mulPose(new Quaternion(90F + event.getPlayer().xRot, 0, 0, true));
+                        event.getMatrixStack().mulPose(new Quaternion(0, event.getPlayer().yRot, 0, true));
+                    }
                 }
             }
-        }
+        });
     }
 
     @SubscribeEvent
     public void renderPlayerPost(RenderPlayerEvent.Post event) {
         AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.renderPlayerPost(event));
         IFlyingAbility ability = IFlyingAbility.getFlyingAbility(event.getPlayer());
-        if (ability != null && ability.isFlying(event.getPlayer()) && ability.renderFlying(event.getPlayer())) {
-            if (!event.getPlayer().isOnGround() && !event.getPlayer().isSwimming() && event.getPlayer().isSprinting()) {
-                if (!(event.getPlayer().getFallFlyingTicks() > 4) && !event.getPlayer().isVisuallySwimming()) {
-                    event.getMatrixStack().popPose();
+        event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+            if ((ability != null && ability.isFlying(event.getPlayer()) && ability.renderFlying(event.getPlayer())) || cap.isFlying()) {
+                if (!event.getPlayer().isOnGround() && !event.getPlayer().isSwimming() && event.getPlayer().isSprinting()) {
+                    if (!(event.getPlayer().getFallFlyingTicks() > 4) && !event.getPlayer().isVisuallySwimming()) {
+                        event.getMatrixStack().popPose();
+                    }
                 }
             }
-        }
+        });
     }
 
     @SubscribeEvent
@@ -378,7 +379,7 @@ public class HUClientEventHandler {
             }
 
             IFlyingAbility ability = IFlyingAbility.getFlyingAbility(event.getPlayer());
-            if (ability != null && ability.isFlying(event.getPlayer()) && ability.renderFlying(event.getPlayer())) {
+            if ((ability != null && ability.isFlying(event.getPlayer()) && ability.renderFlying(event.getPlayer())) || cap.isFlying()) {
                 if (!event.getPlayer().isOnGround() && !event.getPlayer().isSwimming() && event.getPlayer().isSprinting()) {
                     PlayerModel model = event.getPlayerModel();
                     model.head.xRot = (-(float) Math.PI / 4F);

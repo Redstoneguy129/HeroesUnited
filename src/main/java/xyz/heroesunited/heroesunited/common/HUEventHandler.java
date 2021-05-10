@@ -76,16 +76,18 @@ public class HUEventHandler {
         if (event.getEntity().isAddedToWorld() && event.getEntity() instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) event.getEntity();
             IFlyingAbility ability = IFlyingAbility.getFlyingAbility(player);
-            if (ability != null && ability.isFlying(player)) {
-                if (!player.isOnGround() && player.isSprinting()) {
-                    if (event.getOldSize().fixed) {
-                        event.setNewSize(EntitySize.fixed(0.6F, 0.6F));
-                    } else {
-                        event.setNewSize(EntitySize.scalable(0.6F, 0.6F));
+            player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
+                if ((ability != null && ability.isFlying(player)) || a.isFlying()) {
+                    if (!player.isOnGround() && player.isSprinting()) {
+                        if (event.getOldSize().fixed) {
+                            event.setNewSize(EntitySize.fixed(0.6F, 0.6F));
+                        } else {
+                            event.setNewSize(EntitySize.scalable(0.6F, 0.6F));
+                        }
+                        event.setNewEyeHeight(0.4F);
                     }
-                    event.setNewEyeHeight(0.4F);
                 }
-            }
+            });
         }
         if (event.getEntity().level.dimension().equals(HeroesUnited.SPACE)) {
             event.setNewSize(event.getNewSize().scale(0.01F, 0.01F));
@@ -203,7 +205,7 @@ public class HUEventHandler {
                 if (a.getAnimationTimer() >= 3600) a.setAnimationTimer(3600);
 
                 IFlyingAbility b = IFlyingAbility.getFlyingAbility(pl);
-                if (b != null && b.isFlying(pl) && !pl.isOnGround()) {
+                if ((b != null && b.isFlying(pl) && !pl.isOnGround()) || a.isFlying() && !pl.isOnGround()) {
                     HUPlayerUtil.playSoundToAll(pl.level, HUPlayerUtil.getPlayerPos(pl), 10, IFlyingAbility.getFlyingAbility(pl) != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() : HUSounds.FLYING : HUSounds.FLYING, SoundCategory.PLAYERS, 0.05F, 0.5F);
                     if (pl.zza > 0F) {
                         Vector3d vec = pl.getLookAngle();
@@ -247,7 +249,7 @@ public class HUEventHandler {
                     if (event.getState().getShape(event.getWorld(), event.getPos()) != VoxelShapes.empty()) {
                         if (entity.position().y >= (event.getPos().getY() + event.getState().getShape(event.getWorld(), event.getPos()).bounds().getYsize())) {
                             IFlyingAbility b = IFlyingAbility.getFlyingAbility((PlayerEntity) entity);
-                            collidable.set(b != null && !b.isFlying((PlayerEntity) entity) && !entity.isCrouching());
+                            collidable.set(((b != null && !b.isFlying((PlayerEntity) entity)) || cap.isFlying()) && !entity.isCrouching());
                         } else {
                             collidable.set(false);
                         }
