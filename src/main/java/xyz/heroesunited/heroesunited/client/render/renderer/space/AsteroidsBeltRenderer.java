@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
+import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.render.model.space.StarModel;
 
 import java.util.HashMap;
@@ -41,12 +42,18 @@ public class AsteroidsBeltRenderer extends CelestialBodyRenderer {
 
     private ResourceLocation getRandomTexture(){
         ResourceLocation texture = null;
-        switch (random.nextInt(2)){
+        switch (random.nextInt(4)){
             case 0:
                 texture = new ResourceLocation("textures/block/brown_terracotta.png");
                 break;
             case 1:
                 texture = new ResourceLocation("textures/block/gray_terracotta.png");
+                break;
+            case 2:
+                texture = new ResourceLocation(HeroesUnited.MODID,"textures/planets/asteroid1.png");
+                break;
+            case 3:
+                texture = new ResourceLocation(HeroesUnited.MODID,"textures/planets/asteroid2.png");
                 break;
         }
         return texture;
