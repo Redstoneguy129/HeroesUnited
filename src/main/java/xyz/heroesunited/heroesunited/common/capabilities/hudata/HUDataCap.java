@@ -7,6 +7,8 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.network.PacketDistributor;
+import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.events.HUDataRegister;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUData;
@@ -29,6 +31,10 @@ public class HUDataCap implements IHUDataCap, INBTSerializable<CompoundNBT> {
             }
         };
         MinecraftForge.EVENT_BUS.post(new HUDataRegister(entity, this.dataManager));
+    }
+
+    public static IHUDataCap getCap(Entity entity) {
+        return entity.getCapability(HUDataCap.CAPABILITY).orElse(null);
     }
 
     @Override
