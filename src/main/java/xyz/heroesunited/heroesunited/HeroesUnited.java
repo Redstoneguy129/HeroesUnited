@@ -110,14 +110,18 @@ public class HeroesUnited {
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, HUConfig.CLIENT_SPEC);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            CelestialBodyRenderer.registerRenderer(new MoonRenderer(), CelestialBodies.MOON);
             CelestialBodyRenderer.registerRenderer(new SunRenderer(), CelestialBodies.SUN);
-            CelestialBodyRenderer.registerRenderer(new AsteroidsBeltRenderer(), CelestialBodies.ASTEROIDS_BELT);
-            CelestialBodyRenderer.registerRenderer(new KuiperBeltRenderer(), CelestialBodies.KUIPER_BELT);
-            CelestialBodyRenderer.registerRenderer(new MarsRenderer(), CelestialBodies.MARS);
-            CelestialBodyRenderer.registerRenderer(new EarthRenderer(), CelestialBodies.EARTH);
             CelestialBodyRenderer.registerRenderer(new MercuryRenderer(), CelestialBodies.MERCURY);
             CelestialBodyRenderer.registerRenderer(new VenusRenderer(), CelestialBodies.VENUS);
+            CelestialBodyRenderer.registerRenderer(new EarthRenderer(), CelestialBodies.EARTH);
+            CelestialBodyRenderer.registerRenderer(new MoonRenderer(), CelestialBodies.MOON);
+            CelestialBodyRenderer.registerRenderer(new MarsRenderer(), CelestialBodies.MARS);
+            CelestialBodyRenderer.registerRenderer(new AsteroidsBeltRenderer(), CelestialBodies.ASTEROIDS_BELT);
+            CelestialBodyRenderer.registerRenderer(new JupiterRenderer(), CelestialBodies.JUPITER);
+            CelestialBodyRenderer.registerRenderer(new SaturnRenderer(), CelestialBodies.SATURN);
+            CelestialBodyRenderer.registerRenderer(new UranusRenderer(), CelestialBodies.URANUS);
+            CelestialBodyRenderer.registerRenderer(new NeptuneRenderer(), CelestialBodies.NEPTUNE);
+            CelestialBodyRenderer.registerRenderer(new KuiperBeltRenderer(), CelestialBodies.KUIPER_BELT);
             ModelBakery.UNREFERENCED_TEXTURES.add(SunModel.SUN_TEXTURE_MATERIAL);
             ModelBakery.UNREFERENCED_TEXTURES.add(EarthModel.EARTH_TEXTURE_MATERIAL);
             DimensionRenderInfo.EFFECTS.put(new ResourceLocation(MODID,"space"), new SpaceDimensionRenderInfo());

@@ -7,22 +7,22 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.ResourceLocation;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.client.render.model.space.EarthModel;
 import xyz.heroesunited.heroesunited.client.render.model.space.PlanetModel;
 
-public class VenusRenderer extends PlanetRenderer {
-    public VenusRenderer() {
+public class SaturnRenderer extends PlanetRenderer {
+    public SaturnRenderer() {
         super(new PlanetModel());
     }
 
     @Override
     public ResourceLocation getTextureLocation() {
-        return new ResourceLocation(HeroesUnited.MODID, "textures/planets/venus.png");
+        return new ResourceLocation(HeroesUnited.MODID, "textures/planets/saturn.png");
     }
 
     @Override
     public void render(MatrixStack matrixStack, IRenderTypeBuffer buffers, int packedLight, float partialTicks) {
 
+        matrixStack.scale(4.45F, 4.45F, 4.45F);
         matrixStack.translate(0, -1, 0);
         IVertexBuilder buffer = buffers.getBuffer(RenderType.entityTranslucent(getTextureLocation()));
         planetModel.prepareModel(partialTicks);

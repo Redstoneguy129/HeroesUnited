@@ -17,7 +17,7 @@ public class MarsRenderer extends PlanetRenderer {
 
     @Override
     public ResourceLocation getTextureLocation() {
-        return new ResourceLocation(HeroesUnited.MODID, "textures/planets/mercury.png");
+        return new ResourceLocation(HeroesUnited.MODID, "textures/planets/mars.png");
     }
 
     @Override
