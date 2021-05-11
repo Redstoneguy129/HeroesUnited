@@ -42,10 +42,7 @@ import xyz.heroesunited.heroesunited.client.SpaceDimensionRenderInfo;
 import xyz.heroesunited.heroesunited.client.gui.AccessoriesScreen;
 import xyz.heroesunited.heroesunited.client.render.model.space.EarthModel;
 import xyz.heroesunited.heroesunited.client.render.model.space.SunModel;
-import xyz.heroesunited.heroesunited.client.render.renderer.EnergyBlastRenderer;
-import xyz.heroesunited.heroesunited.client.render.renderer.GeckoSuitRenderer;
-import xyz.heroesunited.heroesunited.client.render.renderer.HorasRenderer;
-import xyz.heroesunited.heroesunited.client.render.renderer.IGeoAbility;
+import xyz.heroesunited.heroesunited.client.render.renderer.*;
 import xyz.heroesunited.heroesunited.client.render.renderer.space.*;
 import xyz.heroesunited.heroesunited.common.HUConfig;
 import xyz.heroesunited.heroesunited.common.HUEventHandler;
@@ -170,6 +167,7 @@ public class HeroesUnited {
         ClientRegistry.registerEntityShader(Horas.class, new ResourceLocation(MODID, "shaders/post/horas.json"));
         RenderingRegistry.registerEntityRenderingHandler(HUEntities.HORAS, HorasRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(HUEntities.ENERGY_BLAST, EnergyBlastRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(HUEntities.SPACESHIP, SpaceshipRenderer::new);
         GeoArmorRenderer.registerArmorRenderer(GeckoSuitItem.class, new GeckoSuitRenderer());
         ScreenManager.register(HUContainers.ACCESSORIES, AccessoriesScreen::new);
 
