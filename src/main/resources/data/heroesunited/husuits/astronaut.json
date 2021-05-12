@@ -1,0 +1,49 @@
+{
+  "type": "heroesunited:gecko",
+  "itemGroup": "huben10",
+  "hide_accessories": {
+    "head": [0],
+    "chest": [1,4,5,6,7,8],
+    "legs": [2],
+    "feet": [3]
+  },
+  "visibility_parts": {
+    "head_wear":  {
+      "show": false,
+      "slot": "head"
+    },
+    "body_wear":  {
+      "show": false,
+      "slot": "chest"
+    },
+    "right_arm_wear": {
+      "show": false,
+      "slot": "chest"
+    },
+    "left_arm_wear": {
+      "show": false,
+      "slot": "chest"
+    },
+    "right_leg_wear": {
+      "show": false,
+      "slot": "feet"
+    },
+    "left_leg_wear": {
+      "show": false,
+      "slot": "feet"
+    }
+  },
+  "breath_in_space": true,
+  "abilities": {
+    "gliding": {
+      "ability": "heroesunited:parachute",
+      "hidden": true,
+      "active": true,
+      "slot": "chest",
+      "key": {
+        "id": 1,
+        "pressType": "toggle"
+      }
+    }
+  }
+}

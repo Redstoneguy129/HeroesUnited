@@ -45,6 +45,7 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
     public static final AbilityType OXYGEN = new AbilityType(OxygenAbility::new, HeroesUnited.MODID, "oxygen");
     public static final AbilityType PROJECTILE = new AbilityType(ProjectileAbility::new, HeroesUnited.MODID, "projectile");
     public static final AbilityType HIDE_LAYER = new AbilityType(HideLayerAbility::new, HeroesUnited.MODID, "hide_layer");
+    public static final AbilityType PARACHUTE = new AbilityType(ParachuteAbility::new, HeroesUnited.MODID, "parachute");
 
     @SubscribeEvent
     public static void registerAbilityTypes(RegistryEvent.Register<AbilityType> e) {
