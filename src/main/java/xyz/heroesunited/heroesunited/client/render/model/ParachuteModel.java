@@ -17,7 +17,7 @@ public class ParachuteModel extends Model {
 
     public ParachuteModel() {
         super(RenderType::entityTranslucent);
-        texWidth = 128;
+        texWidth = 140;
         texHeight = 128;
 
         parachute = new ModelRenderer(this);
@@ -30,13 +30,13 @@ public class ParachuteModel extends Model {
         cube_r1.setPos(23.3572F, -34.2292F, -12.3155F);
         parachute.addChild(cube_r1);
         setRotationAngle(cube_r1, 0.0F, 0.0F, 0.6981F);
-        cube_r1.texOffs(0, 92).addBox(-11.0F, -1.0F, -0.725F, 12.0F, 1.0F, 35.475F, 0.0F, true);
+        cube_r1.texOffs(0, 91).addBox(-11.0F, -1.0F, -0.725F, 12.0F, 1.0F, 35.475F, 0.0F, true);
 
         cube_r2 = new ModelRenderer(this);
         cube_r2.setPos(-23.3572F, -34.2292F, -12.3155F);
         parachute.addChild(cube_r2);
         setRotationAngle(cube_r2, 0.0F, 0.0F, -0.6981F);
-        cube_r2.texOffs(0, 92).addBox(-1.0F, -1.0F, -0.725F, 12.0F, 1.0F, 35.475F, 0.0F, false);
+        cube_r2.texOffs(0, 91).addBox(-1.0F, -1.0F, -0.725F, 12.0F, 1.0F, 35.475F, 0.0F, false);
 
         cube_r3 = new ModelRenderer(this);
         cube_r3.setPos(3.0F, 1.2F, 4.65F);
