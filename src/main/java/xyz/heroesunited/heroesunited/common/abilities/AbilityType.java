@@ -64,5 +64,6 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
         e.getRegistry().register(OXYGEN);
         e.getRegistry().register(PROJECTILE);
         e.getRegistry().register(HIDE_LAYER);
+        e.getRegistry().register(PARACHUTE);
     }
 }

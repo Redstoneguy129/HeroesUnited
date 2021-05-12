@@ -35,7 +35,7 @@
   },
   "breath_in_space": true,
   "abilities": {
-    "gliding": {
+    "parachute": {
       "ability": "heroesunited:parachute",
       "hidden": true,
       "active": true,

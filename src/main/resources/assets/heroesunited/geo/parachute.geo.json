@@ -1,0 +1,37 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.Geckostand",
+				"texture_width": 128,
+				"texture_height": 128,
+				"visible_bounds_width": 5,
+				"visible_bounds_height": 5.5,
+				"visible_bounds_offset": [0, 2.25, 0]
+			},
+			"bones": [
+				{
+					"name": "armorBody",
+					"pivot": [0, 24, 0]
+				},
+				{
+					"name": "parachute",
+					"parent": "armorBody",
+					"pivot": [0, 24, 0],
+					"cubes": [
+						{"origin": [-3.2, 24.475, 2.1], "size": [0.25, 42.175, 0.25], "pivot": [-2.95, 24.475, 2.35], "rotation": [37.5, 55, 0], "uv": [0, 0], "mirror": true},
+						{"origin": [2.95, 24.475, 2.1], "size": [0.25, 42.175, 0.25], "pivot": [2.95, 24.475, 2.35], "rotation": [37.5, -55, 0], "uv": [0, 0]},
+						{"origin": [3, 22.8, 2.25], "size": [0.25, 1.675, 0.25], "uv": [0, 0]},
+						{"origin": [-3.25, 22.8, 2.25], "size": [0.25, 1.675, 0.25], "uv": [0, 0], "mirror": true},
+						{"origin": [-3.25, 22.8, 4.65], "size": [0.25, 44.675, 0.25], "pivot": [-3, 22.8, 4.65], "rotation": [-42.5, -55, 6], "uv": [0, 0], "mirror": true},
+						{"origin": [3, 22.8, 4.65], "size": [0.25, 44.675, 0.25], "pivot": [3, 22.8, 4.65], "rotation": [-42.5, 55, -6], "uv": [0, 0]},
+						{"origin": [-24.35717, 58.2292, -13.04047], "size": [12, 1, 35.475], "pivot": [-23.35717, 58.2292, -12.31547], "rotation": [0, 0, -40], "uv": [0, 0]},
+						{"origin": [12.35717, 58.2292, -13.04047], "size": [12, 1, 35.475], "pivot": [23.35717, 58.2292, -12.31547], "rotation": [0, 0, 40], "uv": [0, 0], "mirror": true},
+						{"origin": [-15.57346, 65.06591, -13.04047], "size": [31.14693, 1, 35.475], "uv": [0, 0]}
+					]
+				}
+			]
+		}
+	]
+}
