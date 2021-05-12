@@ -34,7 +34,6 @@ public class ParachuteAbility extends JSONAbility {
         if (usingParachute(player)) {
             Vector3d vec = player.getDeltaMovement();
             if(vec.y > -1){
-                System.out.println(vec.y);
                 player.fallDistance = 0;
             }
             vec = vec.multiply(0.99F, 0.93F, 0.99F);
