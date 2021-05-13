@@ -21,8 +21,6 @@ import java.util.List;
 
 public class Spaceship extends Entity {
 
-    private int dimensionChangeTime = 100;
-
     public Spaceship(EntityType<?> type, World p_i48580_2_) {
         super(type, p_i48580_2_);
     }
@@ -47,7 +45,7 @@ public class Spaceship extends Entity {
     public Entity changeDimension(ServerWorld world, net.minecraftforge.common.util.ITeleporter teleporter) {
         ArrayList<Entity> entities = new ArrayList<>();
         entities.addAll(getPassengers());
-        Entity entity = super.changeDimension(world, teleporter);
+        Spaceship entity = (Spaceship) super.changeDimension(world, teleporter);
         for (Entity entity2 : entities) {
             entity2.changeDimension(world, teleporter).startRiding(entity);
         }
@@ -57,9 +55,7 @@ public class Spaceship extends Entity {
     @Override
     public void tick() {
         super.tick();
-        if (dimensionChangeTime != 0)
-            dimensionChangeTime--;
-        if (this.getControllingPassenger() != null && this.getControllingPassenger() instanceof PlayerEntity && dimensionChangeTime == 0) {
+        if (this.getControllingPassenger() != null && this.getControllingPassenger() instanceof PlayerEntity) {
             PlayerEntity playerEntity = (PlayerEntity) this.getControllingPassenger();
             if (isRocket()) {
                 if (level.dimension() == HeroesUnited.SPACE) {
