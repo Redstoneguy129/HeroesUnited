@@ -1,7 +1,9 @@
 package xyz.heroesunited.heroesunited.common.objects.entities;
 
+import net.minecraft.command.arguments.EntityAnchorArgument;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
@@ -10,14 +12,15 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
+import xyz.heroesunited.heroesunited.HeroesUnited;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
 public class Spaceship extends Entity {
 
-    public Spaceship(EntityType<?> p_i48580_1_, World p_i48580_2_) {
-        super(p_i48580_1_, p_i48580_2_);
+    public Spaceship(EntityType<?> type, World p_i48580_2_) {
+        super(type, p_i48580_2_);
     }
 
     @Override
@@ -31,12 +34,38 @@ public class Spaceship extends Entity {
         }
     }
 
+    public boolean isRocket(){
+        return getType() == HUEntities.SPACESHIP;
+    }
+
     @Override
     public void tick() {
         super.tick();
         if (this.getControllingPassenger() != null && this.getControllingPassenger() instanceof PlayerEntity) {
-            setDeltaMovement(((PlayerEntity)this.getControllingPassenger()).xxa*10, ((PlayerEntity)this.getControllingPassenger()).yya != 0.0F? 5 : 0, ((PlayerEntity)this.getControllingPassenger()).zza*10);
+            PlayerEntity playerEntity = (PlayerEntity) this.getControllingPassenger();
+            if (isRocket()) {
+                if (level.dimension() == HeroesUnited.SPACE) {
+                    this.setRot(playerEntity.yRot, playerEntity.xRot);
+                    Vector3d vector3d = getLookAngle().multiply(playerEntity.zza * 10, playerEntity.zza * 10, playerEntity.zza * 10);
+                    setDeltaMovement(vector3d.x, vector3d.y, vector3d.z);
+                } else {
+                    if (playerEntity.zza > 0) {
+                        setDeltaMovement(0, getDeltaMovement().z + playerEntity.zza, 0);
+                    } else {
+                        if (getDeltaMovement().y > -0.8) {
+                            setDeltaMovement(getDeltaMovement().x, getDeltaMovement().y - 0.1, getDeltaMovement().z);
+                        } else {
+                            setDeltaMovement(getDeltaMovement().x, getDeltaMovement().y, getDeltaMovement().z);
+                        }
+                    }
+                }
+            } else {
+                this.setRot(playerEntity.yRot, playerEntity.xRot);
+                Vector3d vector3d = getLookAngle().multiply(playerEntity.zza * 10, playerEntity.zza * 10, playerEntity.zza * 10);
+                setDeltaMovement(vector3d.x, vector3d.y, vector3d.z);
+            }
         }
+        this.move(MoverType.SELF, this.getDeltaMovement());
     }
 
     @Override
