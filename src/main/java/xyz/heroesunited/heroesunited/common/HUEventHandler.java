@@ -189,9 +189,7 @@ public class HUEventHandler {
                             @Override
                             public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
                                 Entity repositionedEntity = repositionEntity.apply(false);
-
                                 repositionedEntity.teleportTo(planet.getOutCoordinates().x, planet.getOutCoordinates().y, planet.getOutCoordinates().z);
-
                                 return repositionedEntity;
                             }
                         });
@@ -200,9 +198,7 @@ public class HUEventHandler {
                             @Override
                             public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
                                 Entity repositionedEntity = repositionEntity.apply(false);
-
                                 repositionedEntity.teleportTo(planet.getOutCoordinates().x, planet.getOutCoordinates().y, planet.getOutCoordinates().z);
-
                                 return repositionedEntity;
                             }
                         });

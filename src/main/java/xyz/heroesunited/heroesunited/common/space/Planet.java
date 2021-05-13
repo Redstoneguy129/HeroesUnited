@@ -49,16 +49,29 @@ public class Planet extends CelestialBody {
     @Override
     public void entityInside(Entity entity) {
         if(dimension != null){
-            entity.changeDimension(((ServerWorld) entity.level).getServer().getLevel(dimension), new ITeleporter() {
-                @Override
-                public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
-                    Entity repositionedEntity = repositionEntity.apply(false);
+            if(entity.getVehicle() == null){
+                entity.changeDimension(((ServerWorld) entity.level).getServer().getLevel(dimension), new ITeleporter() {
+                    @Override
+                    public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
+                        Entity repositionedEntity = repositionEntity.apply(false);
 
-                    repositionedEntity.teleportTo(0, 10000, 0);
-                    repositionedEntity.setNoGravity(false);
-                    return repositionedEntity;
-                }
-            });
+                        repositionedEntity.teleportTo(0, 9000, 0);
+                        repositionedEntity.setNoGravity(false);
+                        return repositionedEntity;
+                    }
+                });
+            } else {
+                entity.getVehicle().changeDimension(((ServerWorld) entity.level).getServer().getLevel(dimension), new ITeleporter() {
+                    @Override
+                    public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
+                        Entity repositionedEntity = repositionEntity.apply(false);
+
+                        repositionedEntity.teleportTo(0, 9000, 0);
+                        repositionedEntity.setNoGravity(false);
+                        return repositionedEntity;
+                    }
+                });
+            }
         }
     }
 

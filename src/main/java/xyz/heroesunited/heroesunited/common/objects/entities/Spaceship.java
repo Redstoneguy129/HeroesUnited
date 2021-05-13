@@ -11,13 +11,17 @@ import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.NetworkHooks;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Spaceship extends Entity {
+
+    private int dimensionChangeTime = 100;
 
     public Spaceship(EntityType<?> type, World p_i48580_2_) {
         super(type, p_i48580_2_);
@@ -34,23 +38,37 @@ public class Spaceship extends Entity {
         }
     }
 
-    public boolean isRocket(){
+    public boolean isRocket() {
         return getType() == HUEntities.SPACESHIP;
+    }
+
+    @Nullable
+    @Override
+    public Entity changeDimension(ServerWorld world, net.minecraftforge.common.util.ITeleporter teleporter) {
+        ArrayList<Entity> entities = new ArrayList<>();
+        entities.addAll(getPassengers());
+        Entity entity = super.changeDimension(world, teleporter);
+        for (Entity entity2 : entities) {
+            entity2.changeDimension(world, teleporter).startRiding(entity);
+        }
+        return entity;
     }
 
     @Override
     public void tick() {
         super.tick();
-        if (this.getControllingPassenger() != null && this.getControllingPassenger() instanceof PlayerEntity) {
+        if (dimensionChangeTime != 0)
+            dimensionChangeTime--;
+        if (this.getControllingPassenger() != null && this.getControllingPassenger() instanceof PlayerEntity && dimensionChangeTime == 0) {
             PlayerEntity playerEntity = (PlayerEntity) this.getControllingPassenger();
             if (isRocket()) {
                 if (level.dimension() == HeroesUnited.SPACE) {
                     this.setRot(playerEntity.yRot, playerEntity.xRot);
-                    Vector3d vector3d = getLookAngle().multiply(playerEntity.zza * 10, playerEntity.zza * 10, playerEntity.zza * 10);
+                    Vector3d vector3d = getLookAngle().multiply(playerEntity.zza, playerEntity.zza, playerEntity.zza);
                     setDeltaMovement(vector3d.x, vector3d.y, vector3d.z);
                 } else {
                     if (playerEntity.zza > 0) {
-                        setDeltaMovement(0, getDeltaMovement().z + playerEntity.zza, 0);
+                        setDeltaMovement(0, getDeltaMovement().z + playerEntity.zza * 10, 0);
                     } else {
                         if (getDeltaMovement().y > -0.8) {
                             setDeltaMovement(getDeltaMovement().x, getDeltaMovement().y - 0.1, getDeltaMovement().z);
@@ -64,8 +82,8 @@ public class Spaceship extends Entity {
                 Vector3d vector3d = getLookAngle().multiply(playerEntity.zza * 10, playerEntity.zza * 10, playerEntity.zza * 10);
                 setDeltaMovement(vector3d.x, vector3d.y, vector3d.z);
             }
+            this.move(MoverType.SELF, this.getDeltaMovement());
         }
-        this.move(MoverType.SELF, this.getDeltaMovement());
     }
 
     @Override
@@ -86,7 +104,7 @@ public class Spaceship extends Entity {
 
     @Override
     public double getPassengersRidingOffset() {
-        return 8D;
+        return getBbHeight() / getType().getHeight() * 8;
     }
 
     @Override
