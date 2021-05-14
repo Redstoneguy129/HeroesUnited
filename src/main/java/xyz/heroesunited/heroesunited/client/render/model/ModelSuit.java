@@ -116,11 +116,6 @@ public class ModelSuit<T extends LivingEntity> extends BipedModel<T> {
         this.leftArm.copyFrom(model.leftArm);
         this.rightLeg.copyFrom(model.rightLeg);
         this.leftLeg.copyFrom(model.leftLeg);
-        this.leftPants.copyFrom(model.leftLeg);
-        this.rightPants.copyFrom(model.rightLeg);
-        this.leftSleeve.copyFrom(model.leftArm);
-        this.rightSleeve.copyFrom(model.rightArm);
-        this.jacket.copyFrom(model.body);
     }
 
     public void renderArm(HandSide handSide, MatrixStack matrixStack, IVertexBuilder vertexBuilder, int combinedLight, T entity) {
