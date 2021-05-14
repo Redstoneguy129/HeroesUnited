@@ -55,6 +55,7 @@ import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
 import xyz.heroesunited.heroesunited.common.objects.HUSounds;
 import xyz.heroesunited.heroesunited.common.objects.blocks.HUBlocks;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
+import xyz.heroesunited.heroesunited.common.objects.entities.Spaceship;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.common.space.Planet;
@@ -163,7 +164,7 @@ public class HUEventHandler {
                 }
             } else {
                 AttributeModifier modifier = entity.getAttribute(ForgeMod.ENTITY_GRAVITY.get()).getModifier(UUID.fromString("f308847a-43e7-4aaa-a0a5-f474dac5404e"));
-                if (modifier !=null && modifier.getAmount() != 0) {
+                if (modifier != null && modifier.getAmount() != 0) {
                     AbilityHelper.setAttribute(entity, "hu_gravity", ForgeMod.ENTITY_GRAVITY.get(), UUID.fromString("f308847a-43e7-4aaa-a0a5-f474dac5404e"), 0, AttributeModifier.Operation.MULTIPLY_TOTAL);
                 }
             }
@@ -184,12 +185,12 @@ public class HUEventHandler {
             } else {
                 if (Planet.PLANETS_MAP.containsKey(entity.level.dimension()) && entity.position().y > 10050 && !entity.level.isClientSide) {
                     Planet planet = Planet.PLANETS_MAP.get(entity.level.dimension());
-                    if(entity.getVehicle() == null){
+                    if (entity.getVehicle() == null || !(entity.getVehicle() instanceof Spaceship)) {
                         entity.changeDimension(((ServerWorld) entity.level).getServer().getLevel(HeroesUnited.SPACE), new ITeleporter() {
                             @Override
                             public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
                                 Entity repositionedEntity = repositionEntity.apply(false);
-                                repositionedEntity.teleportTo(planet.getOutCoordinates().x, planet.getOutCoordinates().y, planet.getOutCoordinates().z);
+                                repositionedEntity.moveTo(planet.getOutCoordinates().x, planet.getOutCoordinates().y, planet.getOutCoordinates().z);
                                 return repositionedEntity;
                             }
                         });
@@ -198,7 +199,7 @@ public class HUEventHandler {
                             @Override
                             public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
                                 Entity repositionedEntity = repositionEntity.apply(false);
-                                repositionedEntity.teleportTo(planet.getOutCoordinates().x, planet.getOutCoordinates().y, planet.getOutCoordinates().z);
+                                repositionedEntity.moveTo(planet.getOutCoordinates().x, planet.getOutCoordinates().y, planet.getOutCoordinates().z);
                                 return repositionedEntity;
                             }
                         });

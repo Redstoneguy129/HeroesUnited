@@ -55,7 +55,7 @@ public class Planet extends CelestialBody {
                     public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
                         Entity repositionedEntity = repositionEntity.apply(false);
 
-                        repositionedEntity.teleportTo(0, 9000, 0);
+                        repositionedEntity.moveTo(0, 9000, 0);
                         repositionedEntity.setNoGravity(false);
                         return repositionedEntity;
                     }
@@ -66,7 +66,7 @@ public class Planet extends CelestialBody {
                     public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
                         Entity repositionedEntity = repositionEntity.apply(false);
 
-                        repositionedEntity.teleportTo(0, 9000, 0);
+                        repositionedEntity.moveTo(0, 9000, 0);
                         repositionedEntity.setNoGravity(false);
                         return repositionedEntity;
                     }
