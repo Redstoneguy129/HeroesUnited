@@ -71,6 +71,7 @@ public class Planet extends CelestialBody {
                         return repositionedEntity;
                     }
                 });
+                entity.teleportTo(0, 9000, 0);
             }
         }
     }
