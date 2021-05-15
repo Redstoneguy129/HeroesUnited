@@ -9,10 +9,11 @@ import net.minecraft.util.ResourceLocation;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.render.model.space.EarthModel;
 import xyz.heroesunited.heroesunited.client.render.model.space.PlanetModel;
+import xyz.heroesunited.heroesunited.client.render.model.space.VenusModel;
 
 public class VenusRenderer extends PlanetRenderer {
     public VenusRenderer() {
-        super(new PlanetModel());
+        super(new VenusModel());
     }
 
     @Override
