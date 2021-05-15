@@ -25,7 +25,7 @@ public class ParachuteAbility extends JSONAbility {
 
     @Override
     public void onKeyInput(PlayerEntity player, Map<Integer, Boolean> map) {
-        if(!enabled)
+        if(!getEnabled())
             super.onKeyInput(player, map);
     }
 
@@ -39,12 +39,12 @@ public class ParachuteAbility extends JSONAbility {
             vec = vec.multiply(0.99F, 0.93F, 0.99F);
             player.setDeltaMovement(vec.x, vec.y, vec.z);
         } else {
-            enabled = false;
+            setEnabled(player, false);
         }
     }
 
     public boolean usingParachute(PlayerEntity player) {
-        return player.getDeltaMovement().y < 0F && !player.abilities.flying && !player.isOnGround() && !player.isInWater() && !player.isFallFlying() && enabled && player.level.dimension() != HeroesUnited.SPACE;
+        return player.getDeltaMovement().y < 0F && !player.abilities.flying && !player.isOnGround() && !player.isInWater() && !player.isFallFlying() && getEnabled() && player.level.dimension() != HeroesUnited.SPACE;
     }
 
     @OnlyIn(Dist.CLIENT)

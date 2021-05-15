@@ -18,7 +18,7 @@ public class CommandAbility extends JSONAbility implements ICommandSource {
 
     @Override
     public void action(PlayerEntity player) {
-        if (player.level.getServer() != null && enabled) {
+        if (player.level.getServer() != null && getEnabled()) {
             player.level.getServer().getCommands().performCommand(new CommandSource(this, player.position(), player.getRotationVector(), player.level instanceof ServerWorld ? (ServerWorld) player.level : null, 4, player.getName().getString(), player.getDisplayName(), player.level.getServer(), player), JSONUtils.getAsString(getJsonObject(), "command", "/say Hello World"));
         }
     }

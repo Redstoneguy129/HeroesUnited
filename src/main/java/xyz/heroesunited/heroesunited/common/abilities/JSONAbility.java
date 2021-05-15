@@ -5,12 +5,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.JSONUtils;
+import xyz.heroesunited.heroesunited.util.hudata.HUData;
 
 import java.util.Map;
 
 public abstract class JSONAbility extends Ability {
     protected ActionType actionType;
-    protected boolean enabled = false;
+    private static final HUData<Boolean> ENABLED = new HUData("enabled");
 
     public JSONAbility(AbilityType type) {
         super(type);
@@ -18,10 +19,16 @@ public abstract class JSONAbility extends Ability {
     }
 
     @Override
+    public void registerData() {
+        super.registerData();
+        this.dataManager.register(ENABLED, false);
+    }
+
+    @Override
     public void onUpdate(PlayerEntity player) {
         super.onUpdate(player);
         action(player);
-        if (enabled) {
+        if (getEnabled()) {
             if (actionType == ActionType.ACTION) {
                 setEnabled(player, false);
             }
@@ -46,10 +53,10 @@ public abstract class JSONAbility extends Ability {
     @Override
     public void onKeyInput(PlayerEntity player, Map<Integer, Boolean> map) {
         super.onKeyInput(player, map);
-        if (getKey() != -1 && actionType != ActionType.CONSTANT && cooldownTicks == 0) {
+        if (getKey() != -1 && actionType != ActionType.CONSTANT) {
             if (map.get(getKey())) {
                 if (actionType == ActionType.TOGGLE) {
-                    setEnabled(player, !enabled);
+                    setEnabled(player, !getEnabled());
                 }
                 if (actionType == ActionType.ACTION) {
                     setEnabled(player, true);
@@ -70,8 +77,8 @@ public abstract class JSONAbility extends Ability {
     }
 
     protected void setEnabled(PlayerEntity player, boolean enabled) {
-        if (this.enabled != enabled) {
-            this.enabled = enabled;
+        if (getEnabled() != enabled) {
+            this.dataManager.set(player, ENABLED, enabled);
             syncToAll(player);
         }
     }
@@ -85,13 +92,12 @@ public abstract class JSONAbility extends Ability {
     }
 
     public boolean getEnabled() {
-        return enabled;
+        return this.dataManager.get(ENABLED);
     }
 
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT nbt = super.serializeNBT();
-        nbt.putBoolean("Enabled", enabled);
         nbt.putString("actionType", actionType.getId());
         return nbt;
     }
@@ -99,7 +105,6 @@ public abstract class JSONAbility extends Ability {
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
         super.deserializeNBT(nbt);
-        this.enabled = nbt.getBoolean("Enabled");
         this.actionType = ActionType.getById(nbt.getString("actionType"));
     }
 

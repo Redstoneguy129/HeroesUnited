@@ -27,7 +27,7 @@ public class EnergyLaserAbility extends JSONAbility {
     @Override
     public void action(PlayerEntity player) {
         super.action(player);
-        if (enabled) {
+        if (getEnabled()) {
             HUPlayerUtil.makeLaserLooking(player, JSONUtils.getAsFloat(getJsonObject(), "distance"));
         }
     }
@@ -36,7 +36,7 @@ public class EnergyLaserAbility extends JSONAbility {
     @Override
     public void render(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         super.render(renderer, matrix, bufferIn, packedLightIn, player, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
-        if (enabled) {
+        if (getEnabled()) {
             Color color = HUJsonUtils.getColor(getJsonObject());
             double distance = player.position().add(0, player.getEyeHeight(), 0).distanceTo(player.getLookAngle().scale(JSONUtils.getAsFloat(getJsonObject(), "distance")));
             AxisAlignedBB box = new AxisAlignedBB(0, 0, 0, 0, distance, 0);
@@ -53,7 +53,7 @@ public class EnergyLaserAbility extends JSONAbility {
     @Override
     public void setRotationAngles(HUSetRotationAnglesEvent event) {
         super.setRotationAngles(event);
-        if (this.enabled) {
+        if (getEnabled()) {
             boolean isRightArm = event.getPlayer().getMainArm() == HandSide.RIGHT;
             ModelRenderer modelArm = isRightArm ? event.getPlayerModel().rightArm : event.getPlayerModel().leftArm;
             modelArm.xRot = (float) Math.toRadians(event.getPlayer().xRot - 90);

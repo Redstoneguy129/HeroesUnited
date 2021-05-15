@@ -19,7 +19,7 @@ public class HideBodyPartsAbility extends JSONAbility {
     @OnlyIn(Dist.CLIENT)
     @Override
     public void setRotationAngles(HUSetRotationAnglesEvent event) {
-        if (getJsonObject().has("visibility_parts") && enabled) {
+        if (getJsonObject().has("visibility_parts") && getEnabled()) {
             JsonObject overrides = JSONUtils.getAsJsonObject(getJsonObject(), "visibility_parts");
 
             for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {

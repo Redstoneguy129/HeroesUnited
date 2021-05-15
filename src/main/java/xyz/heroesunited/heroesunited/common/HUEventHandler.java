@@ -55,7 +55,6 @@ import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
 import xyz.heroesunited.heroesunited.common.objects.HUSounds;
 import xyz.heroesunited.heroesunited.common.objects.blocks.HUBlocks;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
-import xyz.heroesunited.heroesunited.common.objects.entities.Spaceship;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.common.space.Planet;
@@ -183,27 +182,28 @@ public class HUEventHandler {
                     }
                 }
             } else {
+                entity.setNoGravity(false);
                 if (Planet.PLANETS_MAP.containsKey(entity.level.dimension()) && entity.position().y > 10050 && !entity.level.isClientSide) {
                     Planet planet = Planet.PLANETS_MAP.get(entity.level.dimension());
-                    if (entity.getVehicle() == null || !(entity.getVehicle() instanceof Spaceship)) {
-                        entity.changeDimension(((ServerWorld) entity.level).getServer().getLevel(HeroesUnited.SPACE), new ITeleporter() {
-                            @Override
-                            public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
-                                Entity repositionedEntity = repositionEntity.apply(false);
-                                repositionedEntity.teleportTo(planet.getOutCoordinates().x, planet.getOutCoordinates().y, planet.getOutCoordinates().z);
-                                return repositionedEntity;
+                    entity.changeDimension(((ServerWorld) entity.level).getServer().getLevel(HeroesUnited.SPACE), new ITeleporter() {
+                        @Override
+                        public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
+                            Entity repositionedEntity = repositionEntity.apply(false);
+                            repositionedEntity.teleportTo(planet.getOutCoordinates().x, planet.getOutCoordinates().y, planet.getOutCoordinates().z);
+
+                            if (repositionedEntity.getVehicle() != null) {
+                                repositionedEntity.getVehicle().changeDimension(((ServerWorld) entity.getVehicle().level).getServer().getLevel(HeroesUnited.SPACE), new ITeleporter() {
+                                    @Override
+                                    public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
+                                        Entity repositionedEntity = repositionEntity.apply(false);
+                                        repositionedEntity.setPos(planet.getOutCoordinates().x, planet.getOutCoordinates().y, planet.getOutCoordinates().z);
+                                        return repositionedEntity;
+                                    }
+                                });
                             }
-                        });
-                    } else {
-                        entity.getVehicle().changeDimension(((ServerWorld) entity.level).getServer().getLevel(HeroesUnited.SPACE), new ITeleporter() {
-                            @Override
-                            public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
-                                Entity repositionedEntity = repositionEntity.apply(false);
-                                repositionedEntity.teleportTo(planet.getOutCoordinates().x, planet.getOutCoordinates().y, planet.getOutCoordinates().z);
-                                return repositionedEntity;
-                            }
-                        });
-                    }
+                            return repositionedEntity;
+                        }
+                    });
                 }
             }
         }

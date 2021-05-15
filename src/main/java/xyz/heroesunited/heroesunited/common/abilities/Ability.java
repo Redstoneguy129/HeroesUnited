@@ -43,7 +43,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
     public String name;
     public final AbilityType type;
-    protected int cooldownTicks = 0;
+    public static final HUData<Integer> COOLDOWN = new HUData("cooldown");
     protected CompoundNBT additionalData = new CompoundNBT();
     protected JsonObject jsonObject;
     protected HUDataManager dataManager = new HUDataManager() {
@@ -65,6 +65,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     public void registerData() {
+        this.dataManager.register(COOLDOWN, 0);
     }
 
     public boolean canActivate(PlayerEntity player) {
@@ -80,9 +81,6 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     public void onUpdate(PlayerEntity player) {
-        if(cooldownTicks > 0) {
-            --cooldownTicks;
-        }
     }
 
     public void onDeactivated(PlayerEntity player) {
@@ -152,7 +150,6 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         CompoundNBT nbt = new CompoundNBT();
         nbt.putString("AbilityType", this.type.getRegistryName().toString());
         nbt.put("HUData", this.dataManager.serializeNBT());
-        nbt.putInt("Cooldown", cooldownTicks);
         nbt.put("AdditionalData", additionalData);
         if (this.jsonObject != null) {
             nbt.putString("JsonObject", this.jsonObject.toString());
@@ -163,7 +160,6 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
         this.dataManager.deserializeNBT(nbt.getCompound("HUData"));
-        this.cooldownTicks = nbt.getInt("Cooldown");
         this.additionalData = nbt.getCompound("AdditionalData");
         if (nbt.contains("JsonObject")) {
             this.jsonObject = new JsonParser().parse(nbt.getString("JsonObject")).getAsJsonObject();
@@ -176,10 +172,6 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         } else {
             return new TranslationTextComponent(name);
         }
-    }
-
-    public int getCooldownTicks() {
-        return cooldownTicks;
     }
 
     public CompoundNBT getAdditionalData() {
@@ -203,11 +195,6 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         if (entity != null && jsonObject != null && entity instanceof ServerPlayerEntity) {
             HUNetworking.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) entity), new ClientSyncAbilityCreators(entity.getId(), name, jsonObject));
         }
-        return this;
-    }
-
-    public Ability setCooldownTicks(int cooldownTicks) {
-        this.cooldownTicks = cooldownTicks;
         return this;
     }
 

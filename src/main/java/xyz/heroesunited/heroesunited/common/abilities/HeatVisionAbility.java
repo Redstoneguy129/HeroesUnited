@@ -24,7 +24,7 @@ public class HeatVisionAbility extends JSONAbility {
     @Override
     public void action(PlayerEntity player) {
         super.action(player);
-        if (this.enabled) {
+        if (getEnabled()) {
             HUPlayerUtil.makeLaserLooking(player, JSONUtils.getAsFloat(getJsonObject(), "distance"));
         }
     }
@@ -33,7 +33,7 @@ public class HeatVisionAbility extends JSONAbility {
     @Override
     public void render(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         super.render(renderer, matrix, bufferIn, packedLightIn, player, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
-        if (this.enabled) {
+        if (getEnabled()) {
             for (int i = 0; i < 2; i++) {
                 Color color = HUJsonUtils.getColor(getJsonObject());
                 double distance = player.position().add(0, player.getEyeHeight(), 0).distanceTo(player.getLookAngle().scale(JSONUtils.getAsFloat(getJsonObject(), "distance")));

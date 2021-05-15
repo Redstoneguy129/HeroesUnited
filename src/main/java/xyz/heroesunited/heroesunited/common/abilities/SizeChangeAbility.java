@@ -15,7 +15,7 @@ public class SizeChangeAbility extends JSONAbility {
 
     @Override
     public void action(PlayerEntity player) {
-        setSize(player, enabled ? getRightSize(player) : 1F);
+        setSize(player, getEnabled() ? getRightSize(player) : 1F);
     }
 
     public void setSize(PlayerEntity player, float value) {

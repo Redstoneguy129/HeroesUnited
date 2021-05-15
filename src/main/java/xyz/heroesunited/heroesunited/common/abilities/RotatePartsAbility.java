@@ -19,7 +19,7 @@ public class RotatePartsAbility extends JSONAbility {
     @OnlyIn(Dist.CLIENT)
     @Override
     public void setRotationAngles(HUSetRotationAnglesEvent event) {
-        if (this.getJsonObject().has("parts") && enabled) {
+        if (this.getJsonObject().has("parts") && getEnabled()) {
             JsonObject overrides = JSONUtils.getAsJsonObject(getJsonObject(), "parts");
 
             for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {

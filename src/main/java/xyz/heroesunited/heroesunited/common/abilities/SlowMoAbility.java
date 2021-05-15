@@ -10,6 +10,6 @@ public class SlowMoAbility extends JSONAbility {
 
     @Override
     public void action(PlayerEntity player) {
-        HUPlayer.getCap(player).setSlowMoSpeed(enabled ? 6F : 20F);
+        HUPlayer.getCap(player).setSlowMoSpeed(getEnabled() ? 6F : 20F);
     }
 }

@@ -14,7 +14,9 @@ public class PotionEffectAbility extends JSONAbility {
     @Override
     public void action(PlayerEntity player) {
         super.action(player);
-        player.addEffect(new EffectInstance(ForgeRegistries.POTIONS.getValue(new ResourceLocation(JSONUtils.getAsString(getJsonObject(), "effect"))),
-                JSONUtils.getAsInt(getJsonObject(), "duration", 20), JSONUtils.getAsInt(getJsonObject(), "amplifier", 0), false, JSONUtils.getAsBoolean(getJsonObject(), "visible", false), JSONUtils.getAsBoolean(getJsonObject(), "show_icon",  true)));
+        if (getEnabled()) {
+            player.addEffect(new EffectInstance(ForgeRegistries.POTIONS.getValue(new ResourceLocation(JSONUtils.getAsString(getJsonObject(), "effect"))),
+                    JSONUtils.getAsInt(getJsonObject(), "duration", 20), JSONUtils.getAsInt(getJsonObject(), "amplifier", 0), false, JSONUtils.getAsBoolean(getJsonObject(), "visible", false), JSONUtils.getAsBoolean(getJsonObject(), "show_icon", true)));
+        }
     }
 }

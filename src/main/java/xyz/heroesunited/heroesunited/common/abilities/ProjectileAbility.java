@@ -17,7 +17,7 @@ public class ProjectileAbility extends JSONAbility {
 
     @Override
     public void action(PlayerEntity player) {
-        if (!player.level.isClientSide && enabled) {
+        if (!player.level.isClientSide && getEnabled()) {
             CompoundNBT compound = new CompoundNBT();
             ServerWorld world = (ServerWorld) player.level;
             try {

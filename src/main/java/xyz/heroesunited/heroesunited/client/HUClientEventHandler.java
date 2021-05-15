@@ -155,7 +155,7 @@ public class HUClientEventHandler {
     }
 
     @SubscribeEvent
-    public void onKeyInput(InputEvent.RawMouseEvent e) {
+    public void onKeyInput(InputEvent.MouseInputEvent e) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc == null || mc.screen != null) return;
         sendToggleKey(e.getButton(), e.getAction(), mc.options.keyAttack, 8);
@@ -254,6 +254,18 @@ public class HUClientEventHandler {
     @SubscribeEvent
     public void onArmorLayer(HURenderLayerEvent.Armor.Pre event) {
         hideLayer(event, event.getLivingEntity(), "armor");
+    }
+
+    @SubscribeEvent
+    public void onGameOverlayPost(RenderGameOverlayEvent.Post e) {
+        Minecraft mc = Minecraft.getInstance();
+        if (e.getType() == RenderGameOverlayEvent.ElementType.ALL && mc != null) {
+            for (Ability ability : AbilityHelper.getAbilities(mc.player)) {
+                if ( ability.getDataManager().getEntry(Ability.COOLDOWN) != null && ability.getDataManager().get(Ability.COOLDOWN) > 0) {
+                    Minecraft.getInstance().font.drawShadow(e.getMatrixStack(), ability.getDataManager().get(Ability.COOLDOWN).toString(), 34, 34, 0xffffff);
+                }
+            }
+        }
     }
 
     public void hideLayer(Event event, LivingEntity entity, String name) {
