@@ -206,64 +206,64 @@ public class HUEventHandler {
                     });
                 }
             }
-        }
-        if (entity instanceof PlayerEntity) {
-            PlayerEntity pl = (PlayerEntity) entity;
-            pl.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
-                for (Map.Entry<String, Ability> e : a.getAbilities().entrySet()) {
-                    Ability ability = e.getValue();
-                    if (ability != null && ability.alwaysActive()) {
-                        if (AbilityHelper.canActiveAbility(ability, pl)) {
-                            a.enable(e.getKey(), ability);
-                        } else {
-                            a.disable(e.getKey());
-                        }
-                    }
-                }
-            });
-            pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
-                AbilityHelper.getAbilities(pl).forEach(type -> type.onUpdate(pl));
-
-                for (int i = 0; i < a.getInventory().getInventory().size(); ++i) {
-                    if (!a.getInventory().getInventory().get(i).isEmpty()) {
-                        a.getInventory().getInventory().get(i).inventoryTick(pl.level, pl, i, false);
-                    }
-                }
-                ItemStack stack = a.getInventory().getItem(EquipmentAccessoriesSlot.HELMET.getSlot());
-                if (!stack.isEmpty() && stack.getItem() == HUItems.BOBO_ACCESSORY) {
-                    AnimationController controller = GeckoLibUtil.getControllerForStack(((IAnimatable) stack.getItem()).getFactory(), stack, "controller");
-                    if (controller.getAnimationState() == AnimationState.Stopped) {
-                        controller.markNeedsReload();
-                        controller.setAnimation((new AnimationBuilder()).addAnimation("animation.bobo", true));
-                    }
-                }
-
-                for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
-                    if (Suit.getSuitItem(equipmentSlot, pl) != null) {
-                        Suit.getSuitItem(equipmentSlot, pl).getSuit().onUpdate(pl, equipmentSlot);
-                    }
-                }
-                if (a.getAnimationTimer() > 0) a.setAnimationTimer(a.getAnimationTimer() + 1);
-                if (a.getAnimationTimer() >= 3600) a.setAnimationTimer(3600);
-
-                IFlyingAbility b = IFlyingAbility.getFlyingAbility(pl);
-                if ((b != null && b.isFlying(pl) && !pl.isOnGround()) || a.isFlying() && !pl.isOnGround()) {
-                    HUPlayerUtil.playSoundToAll(pl.level, HUPlayerUtil.getPlayerPos(pl), 10, IFlyingAbility.getFlyingAbility(pl) != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() : HUSounds.FLYING : HUSounds.FLYING, SoundCategory.PLAYERS, 0.05F, 0.5F);
-                    if (pl.zza > 0F) {
-                        Vector3d vec = pl.getLookAngle();
-                        double speed = pl.isSprinting() ? 2.5f : 1f;
-                        for (Ability ability : AbilityHelper.getAbilities(pl)) {
-                            if (ability instanceof FlightAbility && ability.getJsonObject() != null && ability.getJsonObject().has("speed")) {
-                                speed = pl.isSprinting() ? JSONUtils.getAsFloat(ability.getJsonObject(), "maxSpeed", 2.5F) : JSONUtils.getAsFloat(ability.getJsonObject(), "speed");
+            if (entity instanceof PlayerEntity) {
+                PlayerEntity pl = (PlayerEntity) entity;
+                pl.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
+                    for (Map.Entry<String, Ability> e : a.getAbilities().entrySet()) {
+                        Ability ability = e.getValue();
+                        if (ability != null && ability.alwaysActive()) {
+                            if (AbilityHelper.canActiveAbility(ability, pl)) {
+                                a.enable(e.getKey(), ability);
+                            } else {
+                                a.disable(e.getKey());
                             }
                         }
-                        pl.setDeltaMovement(vec.x * speed, vec.y * speed - (pl.isCrouching() ? pl.getBbHeight() * 0.2F : 0), vec.z * speed);
-                    } else if (pl.isCrouching())
-                        pl.setDeltaMovement(new Vector3d(pl.getDeltaMovement().x, pl.getBbHeight() * -0.2F, pl.getDeltaMovement().z));
-                    else
-                        pl.setDeltaMovement(new Vector3d(pl.getDeltaMovement().x, Math.sin(pl.tickCount / 10F) / 100F, pl.getDeltaMovement().z));
-                }
-            });
+                    }
+                });
+                pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
+                    AbilityHelper.getAbilities(pl).forEach(type -> type.onUpdate(pl));
+
+                    for (int i = 0; i < a.getInventory().getInventory().size(); ++i) {
+                        if (!a.getInventory().getInventory().get(i).isEmpty()) {
+                            a.getInventory().getInventory().get(i).inventoryTick(pl.level, pl, i, false);
+                        }
+                    }
+                    ItemStack stack = a.getInventory().getItem(EquipmentAccessoriesSlot.HELMET.getSlot());
+                    if (!stack.isEmpty() && stack.getItem() == HUItems.BOBO_ACCESSORY) {
+                        AnimationController controller = GeckoLibUtil.getControllerForStack(((IAnimatable) stack.getItem()).getFactory(), stack, "controller");
+                        if (controller.getAnimationState() == AnimationState.Stopped) {
+                            controller.markNeedsReload();
+                            controller.setAnimation((new AnimationBuilder()).addAnimation("animation.bobo", true));
+                        }
+                    }
+
+                    for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
+                        if (Suit.getSuitItem(equipmentSlot, pl) != null) {
+                            Suit.getSuitItem(equipmentSlot, pl).getSuit().onUpdate(pl, equipmentSlot);
+                        }
+                    }
+                    if (a.getAnimationTimer() > 0) a.setAnimationTimer(a.getAnimationTimer() + 1);
+                    if (a.getAnimationTimer() >= 3600) a.setAnimationTimer(3600);
+
+                    IFlyingAbility b = IFlyingAbility.getFlyingAbility(pl);
+                    if ((b != null && b.isFlying(pl) && !pl.isOnGround()) || a.isFlying() && !pl.isOnGround()) {
+                        HUPlayerUtil.playSoundToAll(pl.level, HUPlayerUtil.getPlayerPos(pl), 10, IFlyingAbility.getFlyingAbility(pl) != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() : HUSounds.FLYING : HUSounds.FLYING, SoundCategory.PLAYERS, 0.05F, 0.5F);
+                        if (pl.zza > 0F) {
+                            Vector3d vec = pl.getLookAngle();
+                            double speed = pl.isSprinting() ? 2.5f : 1f;
+                            for (Ability ability : AbilityHelper.getAbilities(pl)) {
+                                if (ability instanceof FlightAbility && ability.getJsonObject() != null && ability.getJsonObject().has("speed")) {
+                                    speed = pl.isSprinting() ? JSONUtils.getAsFloat(ability.getJsonObject(), "maxSpeed", 2.5F) : JSONUtils.getAsFloat(ability.getJsonObject(), "speed");
+                                }
+                            }
+                            pl.setDeltaMovement(vec.x * speed, vec.y * speed - (pl.isCrouching() ? pl.getBbHeight() * 0.2F : 0), vec.z * speed);
+                        } else if (pl.isCrouching())
+                            pl.setDeltaMovement(new Vector3d(pl.getDeltaMovement().x, pl.getBbHeight() * -0.2F, pl.getDeltaMovement().z));
+                        else
+                            pl.setDeltaMovement(new Vector3d(pl.getDeltaMovement().x, Math.sin(pl.tickCount / 10F) / 100F, pl.getDeltaMovement().z));
+                    }
+                });
+            }
         }
     }
 

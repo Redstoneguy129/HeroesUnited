@@ -45,7 +45,7 @@ public class HUDataManager implements INBTSerializable<CompoundNBT> {
     }
 
     public <T> T get(HUData<T> data) {
-        return getEntry(data).getValue();
+        return getEntry(data) == null ? null : getEntry(data).getValue();
     }
 
     public HUData getData(String id) {

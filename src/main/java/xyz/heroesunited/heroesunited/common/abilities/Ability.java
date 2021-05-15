@@ -81,6 +81,9 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     public void onUpdate(PlayerEntity player) {
+        if (this.dataManager.get(COOLDOWN) != null && this.dataManager.get(COOLDOWN) > 0) {
+            this.dataManager.set(player, COOLDOWN, this.dataManager.get(COOLDOWN) - 1);
+        }
     }
 
     public void onDeactivated(PlayerEntity player) {
