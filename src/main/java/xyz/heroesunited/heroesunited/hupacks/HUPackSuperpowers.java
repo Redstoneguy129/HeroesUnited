@@ -9,8 +9,11 @@ import net.minecraft.client.resources.JsonReloadListener;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
@@ -42,6 +45,17 @@ public class HUPackSuperpowers extends JsonReloadListener {
                 MinecraftForge.EVENT_BUS.post(new HURegisterSuperpower(this.registeredSuperpowers));
             } catch (Exception e) {
                 HeroesUnited.LOGGER.error("Parsing error loading superpower {}", resourcelocation, e);
+            }
+        }
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server != null) {
+            for (ServerWorld world : server.getAllLevels()) {
+                for (PlayerEntity player : world.players()) {
+                    ResourceLocation resourceLocation = HUPackSuperpowers.getSuperpower(player);
+                    if (player != null && player.isAlive() && resourceLocation != null && registeredSuperpowers.containsKey(resourceLocation)) {
+                        HUPackSuperpowers.setSuperpower(player, registeredSuperpowers.get(resourceLocation));
+                    }
+                }
             }
         }
         HeroesUnited.LOGGER.info("Loaded {} superpowers", this.registeredSuperpowers.size());
