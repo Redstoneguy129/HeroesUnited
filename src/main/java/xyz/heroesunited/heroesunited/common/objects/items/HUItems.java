@@ -33,6 +33,7 @@ public class HUItems {
             return new ResourceLocation(HeroesUnited.MODID, "geo/rex_glasses.geo.json");
         }
     });
+    public static final GeckoAccessory CAP_SHIELD_ACCESSORY = register("cap_shield", new GeckoAccessory(EquipmentAccessoriesSlot.TSHIRT, "El Dunchess"));
 
     private static <T extends Item> T register(String name, T item) {
         ITEMS.register(name, () -> item);
