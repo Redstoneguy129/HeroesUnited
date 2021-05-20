@@ -262,7 +262,7 @@ public class HUClientEventHandler {
         if (e.getType() == RenderGameOverlayEvent.ElementType.ALL && mc != null) {
             for (Ability ability : AbilityHelper.getAbilities(mc.player)) {
                 if ( ability.getDataManager().getEntry(Ability.COOLDOWN) != null && ability.getDataManager().get(Ability.COOLDOWN) > 0) {
-                    Minecraft.getInstance().font.drawShadow(e.getMatrixStack(), ability.getDataManager().get(Ability.COOLDOWN).toString(), 34, 34, 0xffffff);
+                    Minecraft.getInstance().font.drawShadow(e.getMatrixStack(), ability.getDataManager().get(Ability.COOLDOWN).toString(), e.getWindow().getGuiScaledWidth() / 2 + 2, e.getWindow().getGuiScaledHeight() / 2 + 2, 0xffffff);
                 }
             }
         }

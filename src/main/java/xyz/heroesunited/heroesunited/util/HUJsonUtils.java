@@ -113,6 +113,10 @@ public class HUJsonUtils {
         return Suit.SUITS.get(location);
     }
 
+    public static ResourceLocation getAsResourceLocation(JsonObject jsonObject, String string) {
+        return new ResourceLocation(JSONUtils.getAsString(jsonObject, string));
+    }
+
     public static void rotatePartOfModel(ModelRenderer modelRenderer, String xyz, float angle) {
         switch (xyz) {
             case "x":
