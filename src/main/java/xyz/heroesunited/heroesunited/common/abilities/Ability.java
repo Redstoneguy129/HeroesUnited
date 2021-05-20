@@ -52,6 +52,9 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
             if (!entity.level.isClientSide) {
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new ClientSyncHUData(entity.getId(), name, data.getKey(), data.serializeNBT(new CompoundNBT(), value)));
             }
+            if (entity instanceof PlayerEntity) {
+                Ability.this.syncToAll((PlayerEntity) entity);
+            }
         }
     };
 
@@ -69,7 +72,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     public boolean canActivate(PlayerEntity player) {
-        return jsonObject != null && jsonObject.has("condition") ? AbilityHelper.getEnabled(JSONUtils.getAsString(jsonObject, "condition"), player) : true;
+        return true;
     }
 
     @Nullable
@@ -181,11 +184,11 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         return additionalData;
     }
 
-    public boolean isHidden() {
+    public boolean isHidden(PlayerEntity player) {
         return jsonObject != null && JSONUtils.getAsBoolean(getJsonObject(), "hidden", false);
     }
 
-    public boolean alwaysActive() {
+    public boolean alwaysActive(PlayerEntity player) {
         return getJsonObject() != null && JSONUtils.getAsBoolean(getJsonObject(), "active", false);
     }
 
@@ -195,7 +198,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
     public Ability setJsonObject(Entity entity, JsonObject jsonObject) {
         this.jsonObject = jsonObject;
-        if (entity != null && jsonObject != null && entity instanceof ServerPlayerEntity) {
+        if (jsonObject != null && entity instanceof ServerPlayerEntity) {
             HUNetworking.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) entity), new ClientSyncAbilityCreators(entity.getId(), name, jsonObject));
         }
         return this;

@@ -21,6 +21,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
+import xyz.heroesunited.heroesunited.common.abilities.JsonConditionManager;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
@@ -30,11 +31,20 @@ import java.util.Map;
 
 public class JsonSuit extends Suit {
 
+    protected JsonConditionManager conditionManager = new JsonConditionManager();
     protected final JsonObject jsonObject;
 
     public JsonSuit(Map.Entry<ResourceLocation, JsonObject> map) {
         super(map.getKey());
         this.jsonObject = map.getValue();
+    }
+
+    public JsonConditionManager getConditionManager() {
+        return conditionManager;
+    }
+
+    public JsonObject getJsonObject() {
+        return jsonObject;
     }
 
     @Override
@@ -80,7 +90,7 @@ public class JsonSuit extends Suit {
 
     @Override
     public boolean canEquip(PlayerEntity player) {
-        return jsonObject.has("equip") ? JSONUtils.getAsBoolean(jsonObject, "equip") : super.canEquip(player);
+        return super.canEquip(player) && this.conditionManager.isEnabled(player, "equip");
     }
 
     @Override
@@ -112,7 +122,7 @@ public class JsonSuit extends Suit {
 
     @Override
     public boolean canCombineWithAbility(Ability type, PlayerEntity player) {
-        return jsonObject.has("combine") ? JSONUtils.getAsBoolean(jsonObject, "combine") : super.canCombineWithAbility(type, player);
+        return super.canCombineWithAbility(type, player) && this.conditionManager.isEnabled(player, "canCombineWithAbility");
     }
 
     @Override

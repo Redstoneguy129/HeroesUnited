@@ -10,25 +10,26 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.IArmorMaterial;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.capabilities.ICapabilitySerializable;
+import net.minecraftforge.common.util.LazyOptional;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
-
-import static net.minecraft.inventory.EquipmentSlotType.Group;
-import static net.minecraft.inventory.EquipmentSlotType.values;
-
-import net.minecraft.inventory.EquipmentSlotType.Group;
-import net.minecraft.item.Item.Properties;
 
 public class SuitItem extends ArmorItem implements IAbilityProvider {
 
@@ -63,15 +64,22 @@ public class SuitItem extends ArmorItem implements IAbilityProvider {
     }
 
     @Override
+    public void inventoryTick(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
+        super.inventoryTick(stack, world, entity, itemSlot, isSelected);
+        if (getSuit() instanceof JsonSuit) {
+            JsonSuit suit = ((JsonSuit) getSuit());
+            if (suit.getConditionManager().getConditions().isEmpty()) {
+                suit.getConditionManager().registerConditions(suit.getJsonObject());
+            }
+        }
+    }
+
+    @Override
     public void onArmorTick(ItemStack item, World world, PlayerEntity player) {
         if (!getSuit().canEquip(player)) {
-            for (EquipmentSlotType slot : values()) {
-                ItemStack stack = player.getItemBySlot(item.getEquipmentSlot());
-                if (slot.getType() == Group.ARMOR && player.getItemBySlot(slot).getItem() == stack.getItem()) {
-                    player.inventory.add(stack);
-                    player.setItemSlot(item.getEquipmentSlot(), ItemStack.EMPTY);
-                }
-            }
+            ItemStack stack = player.getItemBySlot(slot);
+            player.inventory.add(stack);
+            player.setItemSlot(slot, ItemStack.EMPTY);
         }
     }
 
@@ -85,13 +93,43 @@ public class SuitItem extends ArmorItem implements IAbilityProvider {
                 return (A) model;
             }
         }
-        return null;
+        return super.getArmorModel(entity, stack, armorSlot, _default);
     }
 
     @Nullable
     @Override
     public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlotType slot, String type) {
         return getSuit().getSuitTexture(stack, entity, slot);
+    }
+
+    @Nullable
+    @Override
+    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt) {
+        if (getSuit() instanceof JsonSuit) {
+            return new ICapabilitySerializable<CompoundNBT>() {
+
+                public LazyOptional<SuitCapability> lazyOptional = LazyOptional.of(() -> new SuitCapability(stack));
+
+                @Nonnull
+                @Override
+                public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
+                    return cap == SuitCapability.SUIT_CAPABILITY ? (LazyOptional<T>) this.lazyOptional : LazyOptional.empty();
+                }
+
+
+                @Override
+                public CompoundNBT serializeNBT() {
+                    return ((JsonSuit) SuitItem.this.getSuit()).getConditionManager().serializeNBT();
+                }
+
+                @Override
+                public void deserializeNBT(CompoundNBT nbt) {
+                    ((JsonSuit) SuitItem.this.getSuit()).getConditionManager().deserializeNBT(nbt);
+                }
+            };
+        } else {
+            return super.initCapabilities(stack, nbt);
+        }
     }
 
     @Override

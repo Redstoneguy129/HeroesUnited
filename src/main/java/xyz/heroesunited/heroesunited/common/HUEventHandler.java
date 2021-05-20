@@ -127,7 +127,7 @@ public class HUEventHandler {
     }
 
     @SubscribeEvent
-    public void onWorldTick(TickEvent.PlayerTickEvent event) {
+    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             if (!event.player.level.isClientSide)
                 for (CelestialBody celestialBody : CelestialBody.CELESTIAL_BODIES.getValues()) {
@@ -211,7 +211,7 @@ public class HUEventHandler {
                 pl.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
                     for (Map.Entry<String, Ability> e : a.getAbilities().entrySet()) {
                         Ability ability = e.getValue();
-                        if (ability != null && ability.alwaysActive()) {
+                        if (ability != null && ability.alwaysActive(pl)) {
                             if (AbilityHelper.canActiveAbility(ability, pl)) {
                                 a.enable(e.getKey(), ability);
                             } else {

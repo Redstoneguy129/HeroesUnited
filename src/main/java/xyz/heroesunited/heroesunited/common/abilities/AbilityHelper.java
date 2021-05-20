@@ -36,7 +36,7 @@ public class AbilityHelper {
     }
 
     public static boolean canActiveAbility(Ability ability, PlayerEntity player) {
-        boolean suit = Suit.getSuit(player) == null || Suit.getSuit(player) != null && Suit.getSuit(player).canCombineWithAbility(ability, player);
+        boolean suit = Suit.getSuit(player) == null || Suit.getSuit(player).canCombineWithAbility(ability, player);
         return ability.canActivate(player) && suit;
     }
 

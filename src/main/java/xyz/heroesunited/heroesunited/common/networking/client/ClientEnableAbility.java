@@ -46,12 +46,14 @@ public class ClientEnableAbility {
             if (entity instanceof AbstractClientPlayerEntity) {
                 entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
                     Ability ability = AbilityType.ABILITIES.getValue(new ResourceLocation(this.nbt.getString("AbilityType"))).create(this.name);
-                    if (ability != null && AbilityHelper.canActiveAbility(ability, (PlayerEntity) entity)) {
+                    if (ability != null) {
                         if (this.nbt.contains("JsonObject")) {
                             ability.setJsonObject(null, new JsonParser().parse(this.nbt.getString("JsonObject")).getAsJsonObject());
                         }
-                        cap.enable(this.name, ability);
-                        cap.getActiveAbilities().get(this.name).onActivated((PlayerEntity)entity);
+                        if (AbilityHelper.canActiveAbility(ability, (PlayerEntity) entity)) {
+                            cap.enable(this.name, ability);
+                            cap.getActiveAbilities().get(this.name).onActivated((PlayerEntity) entity);
+                        }
                     }
                 });
             }

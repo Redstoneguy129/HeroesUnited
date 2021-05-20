@@ -78,7 +78,7 @@ public class AbilitiesScreen extends Screen {
     public static List<Ability> getCurrentDisplayedAbilities(PlayerEntity player) {
         List<Ability> abilities = Lists.newArrayList(), list = Lists.newArrayList();
         HUAbilityCap.getCap(player).getAbilities().values().stream()
-                .filter(a -> a != null && !a.isHidden())
+                .filter(a -> a != null && !a.isHidden(player))
                 .collect(Collectors.toList()).forEach(creator -> abilities.add(creator));
 
         if (abilities.isEmpty()) {
@@ -241,7 +241,7 @@ public class AbilitiesScreen extends Screen {
 
         private static void onPressed(Button button) {
             AbilityButton btn = (AbilityButton) button;
-            if (!btn.ability.alwaysActive()) {
+            if (!btn.ability.alwaysActive(btn.parent.minecraft.player)) {
                 if (AbilityHelper.getEnabled(btn.ability.name, btn.parent.minecraft.player)) {
                     HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerDisableAbility(btn.ability.name));
                 } else {
