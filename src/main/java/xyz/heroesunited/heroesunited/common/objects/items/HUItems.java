@@ -27,6 +27,8 @@ public class HUItems {
     public static final GeckoAccessory KEY_VECTOR_SIGMA = register("key_vector_sigma", new GeckoAccessory(EquipmentAccessoriesSlot.TSHIRT, "TimeVortex_TV"));
     public static final GeckoAccessory FLASH_RING = register("flash_ring", new GeckoAccessory(EquipmentAccessoriesSlot.WRIST, "Mike Wazowski, yes he lmao xD"));
     public static final GeckoAccessory KEYBLADE = register("keyblade", new GeckoAccessory(EquipmentAccessoriesSlot.TSHIRT, "FalloutWolfGod"));
+    public static final GeckoAccessory SMALLGILLY = register("smallgilly", new GeckoAccessory(EquipmentAccessoriesSlot.GLOVES, "Gillygogs"));
+    public static final DefaultAccessoryItem REDA_SHIRT = register("simp_tshirt", new DefaultAccessoryItem(EquipmentAccessoriesSlot.TSHIRT, "Reda"));
     public static final GeckoAccessory GREEN_GOGGLES = register("green_goggles", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "artman") {
         @Override
         public ResourceLocation getModelFile() {

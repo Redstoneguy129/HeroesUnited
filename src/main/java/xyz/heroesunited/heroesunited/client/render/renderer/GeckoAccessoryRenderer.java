@@ -14,6 +14,10 @@ import javax.annotation.Nullable;
 public class GeckoAccessoryRenderer extends GeoItemRenderer<GeckoAccessory> {
 
     public GeckoAccessoryRenderer() {
+        this(null);
+    }
+
+    public GeckoAccessoryRenderer(ResourceLocation modelFile) {
         super(new AnimatedGeoModel<GeckoAccessory>() {
             @Override
             public ResourceLocation getAnimationFileLocation(GeckoAccessory accessory) {
@@ -22,7 +26,7 @@ public class GeckoAccessoryRenderer extends GeoItemRenderer<GeckoAccessory> {
 
             @Override
             public ResourceLocation getModelLocation(GeckoAccessory accessory) {
-                return accessory.getModelFile();
+                return modelFile == null ? accessory.getModelFile() : modelFile;
             }
 
             @Override

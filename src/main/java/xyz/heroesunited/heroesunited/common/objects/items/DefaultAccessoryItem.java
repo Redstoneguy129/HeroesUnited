@@ -21,7 +21,11 @@ import java.util.List;
 public class DefaultAccessoryItem extends Item implements IAccessory {
 
     protected final EquipmentAccessoriesSlot accessorySlot;
-    private String name;
+    protected String name;
+
+    public DefaultAccessoryItem(EquipmentAccessoriesSlot accessorySlot, String name) {
+        this(new Properties(), accessorySlot, "");
+    }
 
     public DefaultAccessoryItem(Properties properties, EquipmentAccessoriesSlot accessorySlot) {
         this(properties, accessorySlot, "");

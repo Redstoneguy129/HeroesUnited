@@ -35,6 +35,9 @@ public class HUEnglishProvider extends HULanguageProvider {
         this.add(HUItems.THE_ONE_RING_ACCESSORY, "The One Ring");
         this.add(HUItems.ARC_REACTOR_ACCESSORY, "Arc Reactor");
         this.add(HUItems.BOBO_ACCESSORY, "Bobo Accessory");
+        this.add(HUItems.REDA_SHIRT, "SIMP T-Shirt");
+        this.add(HUItems.SMALLGILLY, "Small Gilly");
+        this.add(HUItems.CAP_SHIELD_ACCESSORY, "Cap shield");
         this.add(HUItems.GREEN_GOGGLES, "Green Goggles");
         this.add(HUItems.HEADBAND, "Headband");
         this.add(HUItems.WALLE_HEAD, "Wall-e head");

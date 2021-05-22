@@ -68,10 +68,18 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
                 ItemCameraTransforms.TransformType transformType = side == HandSide.LEFT ? ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND : ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
                 matrix.pushPose();
                 renderer.getModel().translateToHand(side, matrix);
-                matrix.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
-                matrix.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-                matrix.translate((side == HandSide.LEFT ? -1 : 1) / 16.0F, 0.125D, -0.625D);
-                Minecraft.getInstance().getItemInHandRenderer().renderItem(player, stack, transformType, side == HandSide.LEFT, matrix, bufferIn, packedLightIn);
+                if (this.name.equals("Gillygogs")) {
+                    matrix.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+                    matrix.scale(0.625F, -0.625F, -0.625F);
+                    matrix.translate(side == HandSide.LEFT ? -0.6 : -0.4, -0.35D, -0.625D);
+                    ResourceLocation modelFile = new ResourceLocation(this.getRegistryName().getNamespace(), String.format("geo/%s.geo.json", this.getRegistryName().getPath() + (side == HandSide.LEFT ? "" : "_v2")));
+                    new GeckoAccessoryRenderer(modelFile).render(this, matrix, bufferIn, packedLightIn, this.getDefaultInstance());
+                } else {
+                    matrix.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
+                    matrix.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+                    matrix.translate((side == HandSide.LEFT ? -1 : 1) / 16.0F, 0.125D, -0.625D);
+                    Minecraft.getInstance().getItemInHandRenderer().renderItem(player, stack, transformType, side == HandSide.LEFT, matrix, bufferIn, packedLightIn);
+                }
                 matrix.popPose();
             }
         }

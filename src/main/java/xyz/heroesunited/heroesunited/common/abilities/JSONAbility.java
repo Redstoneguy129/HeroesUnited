@@ -104,7 +104,7 @@ public abstract class JSONAbility extends Ability {
         return conditionManager;
     }
 
-    protected void setEnabled(PlayerEntity player, boolean enabled) {
+    public void setEnabled(PlayerEntity player, boolean enabled) {
         boolean b = !enabled || this.conditionManager.isEnabled(player, "canBeEnabled");
         if (getEnabled() != enabled && b && this.dataManager.get(COOLDOWN) == 0) {
             this.dataManager.set(player, ENABLED, enabled);
