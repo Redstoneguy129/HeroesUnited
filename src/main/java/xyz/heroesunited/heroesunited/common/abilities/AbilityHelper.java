@@ -28,6 +28,15 @@ public class AbilityHelper {
         return HUAbilityCap.getCap(player).getActiveAbilities().containsKey(name);
     }
 
+    public static <T extends Ability> T getAnotherAbilityFromMap(PlayerEntity player, T ability) {
+        for (Ability newAbility : getAbilityMap(player).values()) {
+            if (newAbility.type.equals(ability.type) && newAbility.name.equals(ability.name)) {
+                return (T) newAbility;
+            }
+        }
+        return ability;
+    }
+
     public static void disable(PlayerEntity player) {
         player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> ImmutableMap.copyOf(a.getActiveAbilities()).forEach((id, ability) -> {
             a.disable(id);

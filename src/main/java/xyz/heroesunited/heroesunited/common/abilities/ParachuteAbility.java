@@ -38,6 +38,7 @@ public class ParachuteAbility extends JSONAbility {
             }
             vec = vec.multiply(0.99F, 0.93F, 0.99F);
             player.setDeltaMovement(vec.x, vec.y, vec.z);
+            syncToAll(player);
         } else {
             setEnabled(player, false);
         }

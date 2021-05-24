@@ -43,7 +43,11 @@ public class HUPackLayers extends JsonReloadListener {
     public Layer parseLayer(ResourceLocation name, JsonObject json) {
         JsonObject resources = JSONUtils.getAsJsonObject(json, "resources");
         Map<String, ResourceLocation> list = Maps.newHashMap();
-        resources.entrySet().forEach((e) -> list.put(e.getKey(), new ResourceLocation(JSONUtils.convertToString(e.getValue(), e.getKey()))));
+        for (Map.Entry<String, JsonElement> e : resources.entrySet()) {
+            if (e.getValue() instanceof JsonObject) {
+                list.put(e.getKey(), new ResourceLocation(JSONUtils.getAsString((JsonObject) e.getValue(), e.getKey())));
+            }
+        }
         return new Layer(name, list, json);
     }
 

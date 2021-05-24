@@ -231,9 +231,9 @@ public class AbilitiesScreen extends Screen {
             builder.vertex(x + width, y, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).uv(1, 0).endVertex();
             builder.vertex(x, y, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).uv(0, 0).endVertex();
             tessellator.end();
-            RenderSystem.disableBlend();
             RenderSystem.color3f(1f, 1f, 1f);
             this.ability.drawIcon(stack, x + 2, y + 2);
+            RenderSystem.disableBlend();
             String name = this.ability.getTitle().getString().length() > 20 ? this.ability.getTitle().getString().substring(0, 20) : this.ability.getTitle().getString();
             mc.font.draw(stack, name, x + 21, y + 7, 0);
             mc.font.draw(stack, name, x + 20, y + 6, 0xFFFFFFFF);

@@ -256,23 +256,11 @@ public class HUClientEventHandler {
         hideLayer(event, event.getLivingEntity(), "armor");
     }
 
-    @SubscribeEvent
-    public void onGameOverlayPost(RenderGameOverlayEvent.Post e) {
-        Minecraft mc = Minecraft.getInstance();
-        if (e.getType() == RenderGameOverlayEvent.ElementType.ALL && mc != null) {
-            for (Ability ability : AbilityHelper.getAbilities(mc.player)) {
-                if ( ability.getDataManager().getEntry(Ability.COOLDOWN) != null && ability.getDataManager().get(Ability.COOLDOWN) > 0) {
-                    Minecraft.getInstance().font.drawShadow(e.getMatrixStack(), ability.getDataManager().get(Ability.COOLDOWN).toString(), e.getWindow().getGuiScaledWidth() / 2 + 2, e.getWindow().getGuiScaledHeight() / 2 + 2, 0xffffff);
-                }
-            }
-        }
-    }
-
     public void hideLayer(Event event, LivingEntity entity, String name) {
         if (entity instanceof PlayerEntity) {
             for (Ability ability : AbilityHelper.getAbilities(entity)) {
                 if (ability instanceof HideLayerAbility) {
-                    if (((HideLayerAbility) ability).getEnabled() && JSONUtils.convertToString(ability.getJsonObject(), "layer").equals(name)) {
+                    if (((HideLayerAbility) ability).getEnabled() && JSONUtils.getAsString(ability.getJsonObject(), "layer").equals(name)) {
                         event.setCanceled(true);
                     }
                 }
@@ -315,11 +303,25 @@ public class HUClientEventHandler {
                 }
             }
         });
+        event.getPlayer().getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
+            for (Ability ability : cap.getAbilities().values()) {
+                if (ability instanceof IAbilityAlwaysRenderer) {
+                    ((IAbilityAlwaysRenderer) ability).renderPlayerPreAlways(event);
+                }
+            }
+        });
     }
 
     @SubscribeEvent
     public void renderPlayerPost(RenderPlayerEvent.Post event) {
         AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.renderPlayerPost(event));
+        event.getPlayer().getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
+            for (Ability ability : cap.getAbilities().values()) {
+                if (ability instanceof IAbilityAlwaysRenderer) {
+                    ((IAbilityAlwaysRenderer) ability).renderPlayerPostAlways(event);
+                }
+            }
+        });
         IFlyingAbility ability = IFlyingAbility.getFlyingAbility(event.getPlayer());
         event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             if ((ability != null && ability.isFlying(event.getPlayer()) && ability.renderFlying(event.getPlayer())) || cap.isFlying()) {
@@ -462,6 +464,80 @@ public class HUClientEventHandler {
             }
         });
     }
+
+    /*@SubscribeEvent
+    public void onGameOverlayPost(RenderGameOverlayEvent.Post event) {
+        Minecraft mc = Minecraft.getInstance();
+        if(event.getType() == RenderGameOverlayEvent.ElementType.ALL && mc.player.isAddedToWorld() && mc.player.isAlive()) {
+            List<Ability> abilities = AbilityHelper.getAbilities(mc.player);
+            for (int i = 0; i < abilities.size(); i++) {
+                Ability ability = abilities.get(i);
+                if (ability.getDataManager().getEntry(Ability.COOLDOWN) != null && ability.getDataManager().get(Ability.COOLDOWN) > 0) {
+                    Minecraft.getInstance().font.drawShadow(event.getMatrixStack(), ability.getDataManager().get(Ability.COOLDOWN).toString(), event.getWindow().getGuiScaledWidth() / 2 + 2, event.getWindow().getGuiScaledHeight() / 2 + 2, 0xffffff);
+                }
+                if (ability instanceof JSONAbility && !ability.isHidden(mc.player)) {
+                    renderAbility(ability, i, mc, event.getWindow(), event.getMatrixStack());
+                }
+            }
+        }
+    }
+
+    private void renderAbility(Ability ability, int index, Minecraft mc, MainWindow window, MatrixStack matrixStack) {
+        int startX = window.getGuiScaledWidth() - 40 - index * 24;
+        int startY = window.getGuiScaledHeight() - 24;
+        if (index == 0) {
+            startX -= 130;
+            startY -= 80;
+        } else if (index > 2) {
+            startX = window.getGuiScaledWidth() - 30;
+            startY = window.getGuiScaledHeight() + 12 - index * 24;
+        }
+        final ResourceLocation WIDGETS_LOCATION = new ResourceLocation("textures/gui/widgets.png");
+        RenderSystem.pushMatrix();
+        if (index == 0) {
+            RenderSystem.scalef(1.5F, 1.5F, 1);
+        }
+
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.color3f(0.25f, 0.25f, 0.25f);
+        mc.getTextureManager().bind(WIDGETS_LOCATION);
+        AbstractGui.blit(matrixStack, startX - 2, startY, 53, 22, 29, 24, 256, 256);
+        RenderSystem.color3f(1f, 1f, 1f);
+        ability.drawIcon(matrixStack, startX + 8, startY + 4);
+        if (ability.getJsonObject() != null && ability.getJsonObject().has("maxCooldown")) {
+            float progress = 1.0F - ((float) ability.getDataManager().get(Ability.COOLDOWN) / JSONUtils.getAsInt(ability.getJsonObject(), "maxCooldown"));
+            //renderColor(startX, startY + 10, startX + (int) (20 * progress), startY + 11, 0, 255, 0, 255);
+        }
+        if (((JSONAbility) ability).getKey() != -1) {
+            int id = ((JSONAbility) ability).getKey();
+            String keyBinding = id == 7 ? "jump" : id == 8 ? "LMB" : id == 9 ? "RMB" : null;
+            if (id < 6) {
+                keyBinding = ABILITY_KEYS.get(id - 1).getKey().getDisplayName().getString();
+            }
+            mc.font.drawShadow(matrixStack, keyBinding, startX + 20, startY + 15, !((JSONAbility) ability).getEnabled() && ability.getDataManager().get(Ability.COOLDOWN) <= 0 ? 0x00FF00 : 0xFF0000);
+        }
+        RenderSystem.disableBlend();
+
+        RenderSystem.popMatrix();
+    }
+
+    public static void renderColor(int x1, int y1, int x2, int y2, float r, float g, float b, float a) {
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder builder = tessellator.getBuilder();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.disableTexture();
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        builder.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        builder.vertex(x1, y2, 0).color(r / 255.0F, g / 255.0F, b / 255.0F, a / 255.0F).endVertex();
+        builder.vertex(x2, y2, 0).color(r / 255.0F, g / 255.0F, b / 255.0F, a / 255.0F).endVertex();
+        builder.vertex(x2, y1, 0).color(r / 255.0F, g / 255.0F, b / 255.0F, a / 255.0F).endVertex();
+        builder.vertex(x1, y1, 0).color(r / 255.0F, g / 255.0F, b / 255.0F, a / 255.0F).endVertex();
+        tessellator.end();
+        RenderSystem.disableBlend();
+        RenderSystem.enableTexture();
+    }*/
 
     public static class AbilityKeyBinding extends KeyBinding {
 
