@@ -74,7 +74,7 @@ sourceSets {
 }
 
 repositories {
-    maven { url 'https://repo.repsy.io/mvn/gandiber/geckolib' }
+    maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
     maven { url 'https://jitpack.io' }
 }
 
