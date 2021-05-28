@@ -10,6 +10,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.*;
 import net.minecraft.util.math.shapes.VoxelShapes;
@@ -73,7 +74,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOOST;
 
@@ -332,21 +332,20 @@ public class HUEventHandler {
                             AbilityHelper.disable(player);
                         }
                     }
-                } else if (event.getFrom().getItem() instanceof SuitItem) {
+                } else if (event.getFrom().getItem() instanceof SuitItem && !cap.getAbilities().isEmpty()) {
                     SuitItem suitItem = (SuitItem) event.getFrom().getItem();
-                    for (Ability ab1 : suitItem.getAbilities(player).values()) {
-                        for (Ability a : cap.getAbilities().values().stream().collect(Collectors.toList())) {
-                            if (a.name.equals(ab1.name)) {
-                                a.setAdditionalData(ab1.getAdditionalData());
-                                boolean all = a.getAdditionalData().equals(ab1.getAdditionalData()) && a.getAdditionalData().contains("Suit");
-                                if (a.getAdditionalData().contains("Slot")) {
-                                    String slot = a.getAdditionalData().getString("Slot");
-                                    if (slot == "all" ? all : all && suitItem.getSlot().getName().toLowerCase().equals(slot)) {
-                                        cap.removeAbility(a.name);
-                                    }
-                                } else if (all) {
+                    for (Ability a : AbilityHelper.getAbilityMap(player).values()) {
+                        if (suitItem.getAbilities(player).containsKey(a.name)) {
+                            CompoundNBT suit = suitItem.getAbilities(player).get(a.name).getAdditionalData();
+                            a.setAdditionalData(suit);
+                            boolean all = a.getAdditionalData().equals(suit) && a.getAdditionalData().contains("Suit");
+                            if (a.getAdditionalData().contains("Slot")) {
+                                String slot = a.getAdditionalData().getString("Slot");
+                                if (slot.equals("all") ? all : all && suitItem.getSlot().getName().toLowerCase().equals(slot)) {
                                     cap.removeAbility(a.name);
                                 }
+                            } else if (all) {
+                                cap.removeAbility(a.name);
                             }
                         }
                     }

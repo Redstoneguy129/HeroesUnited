@@ -35,7 +35,6 @@ import org.apache.logging.log4j.Logger;
 import software.bernie.geckolib3.GeckoLib;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
 import xyz.heroesunited.heroesunited.client.HUClientEventHandler;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
 import xyz.heroesunited.heroesunited.client.SpaceDimensionRenderInfo;
@@ -47,7 +46,7 @@ import xyz.heroesunited.heroesunited.client.render.renderer.space.*;
 import xyz.heroesunited.heroesunited.common.HUConfig;
 import xyz.heroesunited.heroesunited.common.HUEventHandler;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
-import xyz.heroesunited.heroesunited.common.abilities.suit.GeckoSuitItem;
+import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUCapStorage;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerEvent;
@@ -168,7 +167,7 @@ public class HeroesUnited {
         RenderingRegistry.registerEntityRenderingHandler(HUEntities.HORAS, HorasRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(HUEntities.ENERGY_BLAST, EnergyBlastRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(HUEntities.SPACESHIP, SpaceshipRenderer::new);
-        GeoArmorRenderer.registerArmorRenderer(GeckoSuitItem.class, new GeckoSuitRenderer());
+        GeckoSuitRenderer.registerArmorRenderer(SuitItem.class, new GeckoSuitRenderer());
         ScreenManager.register(HUContainers.ACCESSORIES, AccessoriesScreen::new);
 
         new HorasInfo.DimensionInfo("Overworld", "Default      Dimension", new ResourceLocation("overworld"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/overworld.png"));

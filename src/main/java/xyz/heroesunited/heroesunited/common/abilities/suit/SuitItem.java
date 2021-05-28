@@ -1,6 +1,7 @@
 package xyz.heroesunited.heroesunited.common.abilities.suit;
 
 import com.google.common.collect.Maps;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
@@ -11,10 +12,7 @@ import net.minecraft.item.ArmorItem;
 import net.minecraft.item.IArmorMaterial;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.JSONUtils;
+import net.minecraft.util.*;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
@@ -23,6 +21,11 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
+import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.manager.AnimationData;
+import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib3.geo.exception.GeckoLibException;
+import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
 
@@ -31,8 +34,9 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class SuitItem extends ArmorItem implements IAbilityProvider {
+public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable {
 
+    private AnimationFactory factory = new AnimationFactory(this);
     protected final Suit suit;
 
     public SuitItem(IArmorMaterial materialIn, EquipmentSlotType slot, Properties builder, Suit suit) {
@@ -86,20 +90,38 @@ public class SuitItem extends ArmorItem implements IAbilityProvider {
     @OnlyIn(Dist.CLIENT)
     @Override
     public <A extends BipedModel<?>> A getArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlotType armorSlot, A _default) {
-        if (stack != ItemStack.EMPTY) {
-            if (stack.getItem() instanceof SuitItem) {
-                BipedModel model = getSuit().getArmorModel(entity, stack, armorSlot, _default);
-                model.copyPropertiesTo(_default);
-                return (A) model;
+        try {
+            GeoArmorRenderer renderer = getArmorRenderer();
+            renderer.setCurrentItem(entity, stack, armorSlot);
+            renderer.applyEntityStats(_default).applySlot(armorSlot);
+            return (A) renderer;
+        } catch (GeckoLibException | IllegalArgumentException e) {
+            if (stack != ItemStack.EMPTY) {
+                if (stack.getItem() instanceof SuitItem) {
+                    BipedModel model = getSuit().getArmorModel(entity, stack, armorSlot, _default);
+                    model.copyPropertiesTo(_default);
+                    return (A) model;
+                }
             }
+            return super.getArmorModel(entity, stack, armorSlot, _default);
         }
-        return super.getArmorModel(entity, stack, armorSlot, _default);
     }
 
     @Nullable
     @Override
     public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlotType slot, String type) {
-        return getSuit().getSuitTexture(stack, entity, slot);
+        try {
+            GeoArmorRenderer renderer = getArmorRenderer();
+            ResourceLocation location = renderer.getTextureLocation((ArmorItem) stack.getItem());
+            if (Minecraft.getInstance().getResourceManager().hasResource(location)) {
+                return location.toString();
+            } else {
+                throw new GeckoLibException(location,
+                        "Could not find texture. If you are getting this with a built mod, please just restart your game.");
+            }
+        } catch (GeckoLibException | IllegalArgumentException e) {
+            return getSuit().getSuitTexture(stack, entity, slot);
+        }
     }
 
     @Nullable
@@ -143,5 +165,17 @@ public class SuitItem extends ArmorItem implements IAbilityProvider {
         } else {
             return ActionResult.fail(stack);
         }
+    }
+
+    public GeoArmorRenderer getArmorRenderer() {
+        Class<? extends ArmorItem> clazz = this.getClass();
+        return GeoArmorRenderer.getRenderer(clazz);
+    }
+
+    public void registerControllers(AnimationData data) {
+    }
+
+    public AnimationFactory getFactory() {
+        return this.factory;
     }
 }

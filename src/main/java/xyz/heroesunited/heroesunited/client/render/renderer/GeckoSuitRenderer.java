@@ -7,16 +7,16 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.ResourceLocation;
 import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
 import xyz.heroesunited.heroesunited.client.render.model.GeckoSuitModel;
-import xyz.heroesunited.heroesunited.common.abilities.suit.GeckoSuitItem;
+import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 
-public class GeckoSuitRenderer extends GeoArmorRenderer<GeckoSuitItem> {
+public class GeckoSuitRenderer extends GeoArmorRenderer<SuitItem> {
 
     public GeckoSuitRenderer() {
         super(new GeckoSuitModel());
     }
 
     @Override
-    public RenderType getRenderType(GeckoSuitItem animatable, float partialTicks, MatrixStack stack, IRenderTypeBuffer renderTypeBuffer, IVertexBuilder vertexBuilder, int packedLightIn, ResourceLocation textureLocation) {
+    public RenderType getRenderType(SuitItem animatable, float partialTicks, MatrixStack stack, IRenderTypeBuffer renderTypeBuffer, IVertexBuilder vertexBuilder, int packedLightIn, ResourceLocation textureLocation) {
         return RenderType.entityTranslucent(getTextureLocation(animatable));
     }
 }
