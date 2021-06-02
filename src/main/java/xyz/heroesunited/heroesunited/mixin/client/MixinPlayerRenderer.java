@@ -3,19 +3,29 @@ package xyz.heroesunited.heroesunited.mixin.client;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.HandSide;
 import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import xyz.heroesunited.heroesunited.client.events.HURenderLayerEvent;
 import xyz.heroesunited.heroesunited.client.events.HURenderPlayerHandEvent;
+import xyz.heroesunited.heroesunited.client.render.model.ModelSuit;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
+import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
+import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
+import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
+import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 @Mixin(PlayerRenderer.class)
 public abstract class MixinPlayerRenderer {
@@ -44,9 +54,34 @@ public abstract class MixinPlayerRenderer {
         if (!renderArm) {
             rendererArmIn.visible = false;
             rendererArmwearIn.visible = false;
-        }
-        if (Suit.getSuit(player) != null && (rendererArmIn.visible && rendererArmIn.visible)) {
-            Suit.getSuit(player).renderFirstPersonArm(playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side);
+        } else {
+            if (Suit.getSuit(player) != null) {
+                Suit.getSuit(player).renderFirstPersonArm(playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side);
+            }
+            player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+                for (int slot = 0; slot < cap.getInventory().getContainerSize(); ++slot) {
+                    ItemStack stack = cap.getInventory().getItem(slot);
+                    if (stack != null && stack.getItem() instanceof IAccessory && !MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Accessories(playerRenderer, player, matrixStackIn, bufferIn, combinedLightIn, 0, 0, 0, 0, 0, 0))) {
+                        IAccessory accessoire = ((IAccessory) stack.getItem());
+                        boolean shouldRender = true;
+                        for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
+                            SuitItem item = Suit.getSuitItem(equipmentSlot,player);
+                            if (item != null && item.getSuit().getSlotForHide(equipmentSlot).contains(EquipmentAccessoriesSlot.getFromSlotIndex(slot))) {
+                                shouldRender = false;
+                            }
+                        }
+                        if(shouldRender){
+                            if (accessoire.renderDefaultModel()) {
+                                ModelSuit suitModel = new ModelSuit(accessoire.getScale(stack), HUPlayerUtil.haveSmallArms(player));
+                                suitModel.copyPropertiesFrom(model);
+                                suitModel.renderArm(side, matrixStackIn, bufferIn.getBuffer(RenderType.entityTranslucent(accessoire.getTexture(stack, player, EquipmentAccessoriesSlot.getFromSlotIndex(slot)))), combinedLightIn, player);
+                            } else {
+                                accessoire.renderFirstPersonArm(playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side, stack, slot);
+                            }
+                        }
+                    }
+                }
+            });
         }
     }
 
