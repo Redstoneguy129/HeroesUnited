@@ -3,12 +3,16 @@ package xyz.heroesunited.heroesunited.common.abilities.suit;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
+import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -22,6 +26,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.GameData;
 import net.minecraftforge.registries.IForgeRegistry;
+import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import software.bernie.geckolib3.geo.exception.GeckoLibException;
+import software.bernie.geckolib3.geo.render.built.GeoBone;
+import software.bernie.geckolib3.geo.render.built.GeoModel;
+import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
+import software.bernie.geckolib3.util.GeoUtils;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.client.render.model.ModelSuit;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
@@ -31,6 +41,8 @@ import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 import javax.annotation.Nullable;
+import java.awt.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -165,11 +177,53 @@ public abstract class Suit {
 
     @OnlyIn(Dist.CLIENT)
     public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side) {
-        ModelSuit suitModel = new ModelSuit(getScale(EquipmentSlotType.CHEST), isSmallArms(player));
-        suitModel.rightArm.zRot = renderer.getModel().rightArm.zRot;
-        suitModel.leftArm.zRot = renderer.getModel().leftArm.zRot;
-        suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(getSuitTexture(player.getItemBySlot(EquipmentSlotType.CHEST), player, EquipmentSlotType.CHEST)))), packedLightIn, player);
-    }
+        EquipmentSlotType slot = EquipmentSlotType.CHEST;
+        try {
+            ItemStack stack = player.getItemBySlot(slot);
+            if (stack.getItem() instanceof SuitItem) {
+                SuitItem suitItem = (SuitItem) stack.getItem();
+
+                GeoArmorRenderer geo = suitItem.getArmorRenderer();
+                GeoModel model = geo.getGeoModelProvider().getModel(geo.getGeoModelProvider().getModelLocation(suitItem));
+
+                geo.setCurrentItem(player, stack, stack.getEquipmentSlot());
+                geo.applyEntityStats(renderer.getModel());
+                if (model.topLevelBones.size() == 0)
+                    throw new GeckoLibException(getRegistryName(), "Model doesn't have any parts");
+                GeoBone bone = model.getBone(side == HandSide.LEFT ? geo.leftArmBone : geo.rightArmBone).get();
+                geo.attackTime = 0.0F;
+                geo.crouching = false;
+                geo.swimAmount = 0.0F;
+                matrix.pushPose();
+                matrix.translate(0.0D, 1.5F, 0.0D);
+                matrix.scale(-1.0F, -1.0F, 1.0F);
+                AnimationEvent itemEvent = new AnimationEvent(suitItem, 0, 0, 0, false,
+                        Arrays.asList(stack, player, slot));
+                geo.getGeoModelProvider().setLivingAnimations(suitItem, geo.getUniqueID(suitItem), itemEvent);
+
+                ModelRenderer modelRenderer = side == HandSide.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
+                GeoUtils.copyRotations(modelRenderer, bone);
+                bone.setPositionX(side == HandSide.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
+                bone.setPositionY(2 - modelRenderer.y);
+                bone.setPositionZ(modelRenderer.z);
+
+                matrix.pushPose();
+                Minecraft.getInstance().textureManager.bind(geo.getTextureLocation(suitItem));
+                IVertexBuilder builder = bufferIn.getBuffer(RenderType.entityTranslucent(geo.getTextureLocation(suitItem)));
+                Color renderColor = geo.getRenderColor(suitItem, 0, matrix, null, builder, packedLightIn);
+                bone.setHidden(false);
+                geo.renderRecursively(bone, matrix, builder, packedLightIn, OverlayTexture.NO_OVERLAY, (float) renderColor.getRed() / 255f, (float) renderColor.getGreen() / 255f, (float) renderColor.getBlue() / 255f, (float) renderColor.getAlpha() / 255);
+                matrix.popPose();
+                matrix.scale(-1.0F, -1.0F, 1.0F);
+                matrix.translate(0.0D, -1.5F, 0.0D);
+                matrix.popPose();
+            }
+		} catch (GeckoLibException | IllegalArgumentException e) {
+			ModelSuit suitModel = new ModelSuit(getScale(slot), isSmallArms(player));
+			suitModel.copyPropertiesFrom(renderer.getModel());
+			suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(getSuitTexture(player.getItemBySlot(EquipmentSlotType.CHEST), player, EquipmentSlotType.CHEST)))), packedLightIn, player);
+        }
+	}
 
     public final Suit setRegistryName(ResourceLocation name) {
         if (getRegistryName() != null)
