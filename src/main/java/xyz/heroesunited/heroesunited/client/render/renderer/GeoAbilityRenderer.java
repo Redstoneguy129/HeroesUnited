@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
+import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.ResourceLocation;
@@ -22,9 +23,8 @@ import xyz.heroesunited.heroesunited.common.abilities.Ability;
 
 import java.awt.*;
 import java.util.Arrays;
-import java.util.Objects;
 
-public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implements IGeoRenderer<T> {
+public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends BipedModel implements IGeoRenderer<T> {
 
     protected T currentAbility;
     protected AbstractClientPlayerEntity player;
@@ -119,22 +119,35 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
     }
 
     public void renderFirstPersonArm(T ability, PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side) {
+        GeoModel model = this.getGeoModelProvider().getModel(this.getGeoModelProvider().getModelLocation(ability));
+        if (model.topLevelBones.size() == 0)
+            return;
+        GeoBone bone = model.getBone(side == HandSide.LEFT ? this.leftArmBone : this.rightArmBone).get();
         this.attackTime = 0.0F;
         this.crouching = false;
         this.swimAmount = 0.0F;
+        matrix.pushPose();
         matrix.translate(0.0D, 1.5F, 0.0D);
         matrix.scale(-1.0F, -1.0F, 1.0F);
         AnimationEvent itemEvent = new AnimationEvent(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.player));
-        modelProvider.setLivingAnimations(currentAbility, this.getUniqueID(this.currentAbility), itemEvent);
+        this.getGeoModelProvider().setLivingAnimations(ability, this.getUniqueID(ability), itemEvent);
+
+        ModelRenderer modelRenderer = side == HandSide.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
+        GeoUtils.copyRotations(modelRenderer, bone);
+        bone.setPositionX(side == HandSide.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
+        bone.setPositionY(2 - modelRenderer.y);
+        bone.setPositionZ(modelRenderer.z);
+
         matrix.pushPose();
-        Minecraft.getInstance().textureManager.bind(getTextureLocation(currentAbility));
-        GeoBone bone = (GeoBone) this.getGeoModelProvider().getAnimationProcessor().getBone(side == HandSide.LEFT ? "armorLeftArm" : "armorRightArm");
-        if (bone != null) {
-            this.renderRecursively(bone, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(this.getTextureLocation(ability))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
-        }
+        Minecraft.getInstance().textureManager.bind(this.getTextureLocation(ability));
+        IVertexBuilder builder = bufferIn.getBuffer(RenderType.entityTranslucent(this.getTextureLocation(ability)));
+        Color renderColor = this.getRenderColor(ability, 0, matrix, null, builder, packedLightIn);
+        bone.setHidden(false);
+        this.renderRecursively(bone, matrix, builder, packedLightIn, OverlayTexture.NO_OVERLAY, (float) renderColor.getRed() / 255f, (float) renderColor.getGreen() / 255f, (float) renderColor.getBlue() / 255f, (float) renderColor.getAlpha() / 255);
         matrix.popPose();
         matrix.scale(-1.0F, -1.0F, 1.0F);
         matrix.translate(0.0D, -1.5F, 0.0D);
+        matrix.popPose();
     }
 
     @Override
@@ -161,10 +174,5 @@ public class GeoAbilityRenderer<T extends IGeoAbility> extends BipedModel implem
 
     public AbstractClientPlayerEntity getPlayer() {
         return player;
-    }
-
-    @Override
-    public Integer getUniqueID(T animatable) {
-        return Objects.hash(currentAbility instanceof Ability ? ((Ability)currentAbility).type : 1, name, this.player.getStringUUID());
     }
 }

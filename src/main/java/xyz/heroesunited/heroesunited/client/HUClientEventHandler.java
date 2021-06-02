@@ -288,7 +288,7 @@ public class HUClientEventHandler {
     public void renderPlayerPre(RenderPlayerEvent.Pre event) {
         AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.renderPlayerPre(event));
         event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-            AnimationEvent animationEvent = new AnimationEvent(cap, 0.0F, 0.0F, 0.0F, false, Arrays.asList(event.getPlayer().getUUID()));
+            AnimationEvent animationEvent = new AnimationEvent(cap, 0.0F, 0.0F, event.getPartialRenderTick(), false, Arrays.asList(event.getPlayer(), event.getPlayer().getUUID()));
             animationEvent.setController(cap.getController());
             cap.getAnimatedModel().setLivingAnimations(cap, event.getPlayer().getUUID().hashCode(), animationEvent);
             IFlyingAbility ability = IFlyingAbility.getFlyingAbility(event.getPlayer());

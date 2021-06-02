@@ -1,5 +1,5 @@
 {
-  "type": "heroesunited:gecko",
+  "type": "heroesunited:default",
   "itemGroup": "combat",
   "hide_accessories": {
     "head": [0],

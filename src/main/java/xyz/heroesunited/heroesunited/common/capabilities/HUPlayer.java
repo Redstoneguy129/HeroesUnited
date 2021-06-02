@@ -10,6 +10,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.PacketDistributor;
 import software.bernie.geckolib3.core.AnimationState;
+import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
 import software.bernie.geckolib3.core.controller.AnimationController;
@@ -53,6 +54,11 @@ public class HUPlayer implements IHUPlayer {
         @Override
         public ResourceLocation getAnimationFileLocation(Object o) {
             return animationFile != null ? animationFile : new ResourceLocation(HeroesUnited.MODID, "animations/player.animation.json");
+        }
+
+        @Override
+        public Integer getUniqueID(IAnimatable animatable) {
+            return player.getUUID().hashCode();
         }
     };
 
