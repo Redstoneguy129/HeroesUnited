@@ -37,6 +37,7 @@ public class HUEnglishProvider extends HULanguageProvider {
         this.add(HUItems.BOBO_ACCESSORY, "Bobo Accessory");
         this.add(HUItems.REDA_SHIRT, "SIMP T-Shirt");
         this.add(HUItems.SMALLGILLY, "Small Gilly");
+        this.add(HUItems.JASON_MASK, "Jason's mask");
         this.add(HUItems.CAP_SHIELD_ACCESSORY, "Cap shield");
         this.add(HUItems.GREEN_GOGGLES, "Green Goggles");
         this.add(HUItems.HEADBAND, "Headband");
@@ -64,6 +65,8 @@ public class HUEnglishProvider extends HULanguageProvider {
         this.addCommand("superpowerlevel.set.single", "%s has reached %s level");
         this.addCommand("superpowerlevel.set.multiple", "%s entities has reached %s level");
         this.addCommand("slow_mo", "Slow-mo for all players has been set to %s");
+
+        this.add("itemGroup.accessories", "Accessories");
 
         this.add("heroesunited.jumpBoost", "Jump Boost");
         this.add("heroesunited.fallResistance", "Fall Resistance");

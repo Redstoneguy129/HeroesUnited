@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.ResourceLocation;
@@ -19,7 +18,7 @@ import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessori
 
 public class TheOneRingAccessory extends DefaultAccessoryItem {
     public TheOneRingAccessory() {
-        super(new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_COMBAT), EquipmentAccessoriesSlot.WRIST, "BlazeFire");
+        super(new Item.Properties(), EquipmentAccessoriesSlot.WRIST, "BlazeFire");
     }
 
     @OnlyIn(Dist.CLIENT)

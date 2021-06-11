@@ -3,11 +3,10 @@ package xyz.heroesunited.heroesunited.util;
 import com.google.common.collect.Lists;
 import com.google.gson.*;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.item.ArmorMaterial;
-import net.minecraft.item.IArmorMaterial;
-import net.minecraft.item.ItemGroup;
+import net.minecraft.item.*;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.JSONUtils;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.text.ITextComponent;
@@ -115,6 +114,15 @@ public class HUJsonUtils {
 
     public static ResourceLocation getAsResourceLocation(JsonObject jsonObject, String string) {
         return new ResourceLocation(JSONUtils.getAsString(jsonObject, string));
+    }
+
+    public static int getIndexOfItem(Item item, NonNullList<ItemStack> items) {
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).getItem() == item) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public static void rotatePartOfModel(ModelRenderer modelRenderer, String xyz, float angle) {

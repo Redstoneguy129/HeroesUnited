@@ -3,7 +3,6 @@ package xyz.heroesunited.heroesunited.common.objects.items;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
@@ -13,6 +12,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
@@ -32,7 +32,7 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
     }
 
     public DefaultAccessoryItem(Properties properties, EquipmentAccessoriesSlot accessorySlot, String name) {
-        super(properties.tab(ItemGroup.TAB_COMBAT).stacksTo(1));
+        super(properties.tab(HeroesUnited.ACCESSORIES).stacksTo(1));
         this.accessorySlot = accessorySlot;
         this.name = name;
     }

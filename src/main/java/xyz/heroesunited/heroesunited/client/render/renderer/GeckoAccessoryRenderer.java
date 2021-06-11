@@ -8,6 +8,7 @@ import net.minecraft.util.ResourceLocation;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
 import xyz.heroesunited.heroesunited.common.objects.items.GeckoAccessory;
+import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 
 import javax.annotation.Nullable;
 
@@ -38,6 +39,6 @@ public class GeckoAccessoryRenderer extends GeoItemRenderer<GeckoAccessory> {
 
     @Override
     public RenderType getRenderType(GeckoAccessory animatable, float partialTicks, MatrixStack stack, @Nullable IRenderTypeBuffer renderTypeBuffer, @Nullable IVertexBuilder vertexBuilder, int packedLightIn, ResourceLocation textureLocation) {
-        return RenderType.entityCutoutNoCull(textureLocation);
+        return animatable == HUItems.JASON_MASK ? RenderType.entityTranslucent(textureLocation) : RenderType.entityCutoutNoCull(textureLocation);
     }
 }

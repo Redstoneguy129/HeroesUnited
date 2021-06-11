@@ -35,10 +35,10 @@ import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraftforge.fml.network.PacketDistributor;
 import software.bernie.geckolib3.core.AnimationState;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
 import software.bernie.geckolib3.core.controller.AnimationController;
+import software.bernie.geckolib3.network.GeckoLibNetwork;
 import software.bernie.geckolib3.util.GeckoLibUtil;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.HUBoundingBoxEvent;
@@ -56,6 +56,7 @@ import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
 import xyz.heroesunited.heroesunited.common.objects.HUSounds;
 import xyz.heroesunited.heroesunited.common.objects.blocks.HUBlocks;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
+import xyz.heroesunited.heroesunited.common.objects.items.BoBoAccessory;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.common.space.Planet;
@@ -229,11 +230,14 @@ public class HUEventHandler {
                         }
                     }
                     ItemStack stack = a.getInventory().getItem(EquipmentAccessoriesSlot.HELMET.getSlot());
-                    if (!stack.isEmpty() && stack.getItem() == HUItems.BOBO_ACCESSORY) {
-                        AnimationController controller = GeckoLibUtil.getControllerForStack(((IAnimatable) stack.getItem()).getFactory(), stack, "controller");
+                    if (!stack.isEmpty() && stack.getItem() == HUItems.BOBO_ACCESSORY && !pl.level.isClientSide) {
+                        BoBoAccessory accessory = ((BoBoAccessory) stack.getItem());
+                        final int id = GeckoLibUtil.guaranteeIDForStack(stack, (ServerWorld) pl.level);
+                        AnimationController controller = GeckoLibUtil.getControllerForID(accessory.getFactory(), id, "controller");
+                        final PacketDistributor.PacketTarget target = PacketDistributor.TRACKING_ENTITY_AND_SELF
+                                .with(() -> pl);
                         if (controller.getAnimationState() == AnimationState.Stopped) {
-                            controller.markNeedsReload();
-                            controller.setAnimation((new AnimationBuilder()).addAnimation("animation.bobo", true));
+                            GeckoLibNetwork.syncAnimation(target, ((BoBoAccessory) stack.getItem()), id, 0);
                         }
                     }
 

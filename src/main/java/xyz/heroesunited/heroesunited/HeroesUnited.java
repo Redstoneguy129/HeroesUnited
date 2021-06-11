@@ -6,6 +6,8 @@ import net.minecraft.client.renderer.model.ModelBakery;
 import net.minecraft.client.world.DimensionRenderInfo;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
@@ -199,4 +201,12 @@ public class HeroesUnited {
             }
         }
     }
+
+    public static final ItemGroup ACCESSORIES = new ItemGroup(ItemGroup.TABS.length, "accessories") {
+
+        @Override
+        public ItemStack makeIcon() {
+            return HUItems.BOBO_ACCESSORY.getDefaultInstance();
+        }
+    };
 }

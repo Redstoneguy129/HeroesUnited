@@ -39,6 +39,7 @@
   "item.heroesunited.headband": "Headband",
   "item.heroesunited.heroes_united": "Heroes United",
   "item.heroesunited.horas": "HORAS",
+  "item.heroesunited.jason_mask": "Jason's mask",
   "item.heroesunited.key_vector_sigma": "Key to vector sigma",
   "item.heroesunited.keyblade": "Keyblade",
   "item.heroesunited.simp_tshirt": "SIMP T-Shirt",
@@ -46,6 +47,7 @@
   "item.heroesunited.the_one_ring": "The One Ring",
   "item.heroesunited.titanium_ingot": "Titanium Ingot",
   "item.heroesunited.walle_head": "Wall-e head",
+  "itemGroup.accessories": "Accessories",
   "key.categories.heroesunited": "Heroes United",
   "subtitles.flying": "Flight"
 }

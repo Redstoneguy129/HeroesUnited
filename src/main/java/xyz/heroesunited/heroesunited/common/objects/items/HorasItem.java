@@ -2,9 +2,9 @@ package xyz.heroesunited.heroesunited.common.objects.items;
 
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
+import net.minecraft.item.Items;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
@@ -20,11 +20,9 @@ import xyz.heroesunited.heroesunited.common.objects.entities.HUEntities;
 
 import java.util.Objects;
 
-import net.minecraft.item.Item.Properties;
-
-public class HorasItem extends Item {
+public class HorasItem extends HUItem {
     public HorasItem(Properties properties) {
-        super(properties);
+        super(Items.EMERALD, properties);
     }
 
     @Override
