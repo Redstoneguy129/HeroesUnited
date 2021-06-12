@@ -48,7 +48,7 @@ public class ClientEnableAbility {
                     Ability ability = AbilityType.ABILITIES.getValue(new ResourceLocation(this.nbt.getString("AbilityType"))).create(this.name);
                     if (ability != null) {
                         if (this.nbt.contains("JsonObject")) {
-                            ability.setJsonObject(null, new JsonParser().parse(this.nbt.getString("JsonObject")).getAsJsonObject());
+                            ability.setJsonObject(entity, new JsonParser().parse(this.nbt.getString("JsonObject")).getAsJsonObject());
                         }
                         if (AbilityHelper.canActiveAbility(ability, (PlayerEntity) entity)) {
                             cap.enable(this.name, ability);

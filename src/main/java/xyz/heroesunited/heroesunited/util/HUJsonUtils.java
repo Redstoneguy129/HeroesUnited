@@ -30,7 +30,7 @@ public class HUJsonUtils {
     }
 
     public static Color getColor(JsonObject json) {
-        if (json.has("color")) {
+        if (json != null && json.has("color")) {
             JsonArray jsonColor = JSONUtils.getAsJsonArray(json, "color");
             if (jsonColor.size() == 3) {
                 return new Color(jsonColor.get(0).getAsFloat() / 255F, jsonColor.get(1).getAsFloat() / 255F, jsonColor.get(2).getAsFloat() / 255F, 1);

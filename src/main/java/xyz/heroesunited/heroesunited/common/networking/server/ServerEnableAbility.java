@@ -41,7 +41,7 @@ public class ServerEnableAbility {
                     Ability ability = AbilityType.ABILITIES.getValue(new ResourceLocation(this.data.getString("AbilityType"))).create(this.id);
                     if (ability != null) {
                         if (this.data.contains("JsonObject"))
-                            ability.setJsonObject(null, new JsonParser().parse(this.data.getString("JsonObject")).getAsJsonObject());
+                            ability.setJsonObject(player, new JsonParser().parse(this.data.getString("JsonObject")).getAsJsonObject());
                         if (AbilityHelper.canActiveAbility(ability, player)) {
                             cap.enable(this.id, ability);
                         }

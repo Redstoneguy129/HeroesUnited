@@ -433,36 +433,47 @@ public class HUClientEventHandler {
     public void renderHand(RenderHandEvent event) {
         if (Minecraft.getInstance().player == null) return;
         AbstractClientPlayerEntity player = Minecraft.getInstance().player;
-
-        player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
-            for (Ability ability : a.getActiveAbilities().values()) {
-                if (ability instanceof JSONAbility && ((JSONAbility) ability).getEnabled() && Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
-                    double distance = Minecraft.getInstance().hitResult.getLocation().distanceTo(player.position().add(0, player.getEyeHeight(), 0));
-                    AxisAlignedBB box = new AxisAlignedBB(0.1F, -0.25, 0, 0, -0.25, -distance).inflate(0.03125D);
-                    Color color = HUJsonUtils.getColor(ability.getJsonObject());
-                    if (ability instanceof EnergyLaserAbility) {
-                        event.getMatrixStack().pushPose();
-                        event.getMatrixStack().translate(player.getMainArm() == HandSide.RIGHT ? 0.3F : -0.3F, 0, 0);
-                        HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, 1, event.getLight());
-                        HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.03125D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, event.getLight());
-                        event.setCanceled(true);
-                        event.getMatrixStack().popPose();
+        for (Ability a : AbilityHelper.getAbilities(player)) {
+            if (a instanceof JSONAbility && Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+                double distance = Minecraft.getInstance().hitResult.getLocation().distanceTo(player.position().add(0, player.getEyeHeight(), 0));
+                AxisAlignedBB box = new AxisAlignedBB(0.1F, -0.25, 0, 0, -0.25, -distance).inflate(0.03125D);
+                Color color = HUJsonUtils.getColor(a.getJsonObject());
+                if (a instanceof EnergyLaserAbility && ((JSONAbility) a).getEnabled()) {
+                    event.getMatrixStack().pushPose();
+                    event.getMatrixStack().translate(player.getMainArm() == HandSide.RIGHT ? 0.3F : -0.3F, 0, 0);
+                    HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, 1, event.getLight());
+                    HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.03125D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, event.getLight());
+                    event.setCanceled(true);
+                    event.getMatrixStack().popPose();
+                    return;
+                }
+                if (a instanceof HeatVisionAbility) {
+                    float alpha = (a.getDataManager().get(HeatVisionAbility.PREV_TIMER) + (a.getDataManager().get(HeatVisionAbility.TIMER) - a.getDataManager().get(HeatVisionAbility.PREV_TIMER)) * event.getPartialTicks()) / JSONUtils.getAsInt(a.getJsonObject(), "maxTimer", 10);
+                    if (a.getDataManager().get(HeatVisionAbility.TYPE).equals("cyclop")) {
+                        AxisAlignedBB box1 = new AxisAlignedBB(-0.15F, -0.11F, 0, 0.15F, -0.11F, -distance).inflate(0.0625D);
+                        HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box1.deflate(0.0625D / 2), 1F, 1F, 1F, alpha, event.getLight());
+                        HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box1, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255F, alpha * 0.5F, event.getLight());
+                        if (((HeatVisionAbility) a).getEnabled()) {
+                            event.setCanceled(true);
+                        }
                         return;
                     }
-                    if (ability instanceof HeatVisionAbility) {
+                    if (a.getDataManager().get(HeatVisionAbility.TYPE).equals("default")) {
                         for (int i = 0; i < 2; i++) {
                             event.getMatrixStack().pushPose();
-                            event.getMatrixStack().translate(i==0 ? 0.25F : -0.3F, -0.5, 0);
-                            HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, 1, event.getLight());
-                            HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.03125D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, event.getLight());
-                            event.setCanceled(true);
+                            event.getMatrixStack().translate(i == 0 ? 0.2F : -0.3F, 0.25, 0);
+                            HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, alpha, event.getLight());
+                            HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.03125D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, alpha * 0.5F, event.getLight());
+                            if (((HeatVisionAbility) a).getEnabled()) {
+                                event.setCanceled(true);
+                            }
                             event.getMatrixStack().popPose();
                         }
                         return;
                     }
                 }
             }
-        });
+        }
     }
 
     /*@SubscribeEvent

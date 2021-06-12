@@ -1,14 +1,27 @@
 package xyz.heroesunited.heroesunited.util.hudata;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.JSONUtils;
 
 public class HUData<T> {
 
     protected final String key;
     protected boolean saved = true;
+    protected boolean json;
 
     public HUData(String key) {
+        this(key, false);
+    }
+
+    public HUData(String key, boolean json) {
         this.key = key;
+        this.json = json;
+    }
+
+    public boolean isJson() {
+        return json;
     }
 
     public String getKey() {
@@ -22,6 +35,26 @@ public class HUData<T> {
 
     public boolean canBeSaved() {
         return this.saved;
+    }
+
+    public Object getFromJson(JsonObject json, T defaultValue) {
+        if (json.has(this.key)) {
+            JsonElement element = json.get(this.key);
+            if (defaultValue instanceof Boolean) {
+                return JSONUtils.getAsBoolean(json, this.key);
+            } else if (defaultValue instanceof Integer) {
+                return JSONUtils.getAsInt(json, this.key);
+            } else if (defaultValue instanceof String) {
+                return JSONUtils.getAsString(json, this.key);
+            } else if (defaultValue instanceof Float) {
+                return JSONUtils.getAsFloat(json, this.key);
+            } else if (defaultValue instanceof Double) {
+                return (double) JSONUtils.getAsFloat(json, this.key);
+            } else if (defaultValue instanceof Long) {
+                return JSONUtils.getAsLong(json, this.key);
+            }
+        }
+        return defaultValue;
     }
 
     public CompoundNBT serializeNBT(CompoundNBT nbt, T value) {

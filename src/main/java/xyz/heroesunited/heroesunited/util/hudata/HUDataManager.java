@@ -34,7 +34,7 @@ public class HUDataManager implements INBTSerializable<CompoundNBT> {
             T newValue = (T) data.deserializeNBT(nbt, entry.getDefaultValue());
 
             if (!oldValue.equals(newValue)) {
-                entry.setValue((T) data.deserializeNBT(nbt, newValue));
+                entry.setValue(newValue);
                 updateData(entity, data, newValue);
 
                 return newValue;

@@ -198,8 +198,16 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
     public Ability setJsonObject(Entity entity, JsonObject jsonObject) {
         this.jsonObject = jsonObject;
-        if (jsonObject != null && entity instanceof ServerPlayerEntity) {
-            HUNetworking.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) entity), new ClientSyncAbilityCreators(entity.getId(), name, jsonObject));
+        if (jsonObject != null && entity != null) {
+            for (Map.Entry<HUData<?>, HUDataManager.HUDataEntry<?>> entry : this.dataManager.getHUDataMap().entrySet()) {
+                HUData data = entry.getKey();
+                if (data.isJson()) {
+                    this.dataManager.set(entity, data, data.getFromJson(jsonObject, entry.getValue().getDefaultValue()));
+                }
+            }
+            if (!entity.level.isClientSide) {
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity), new ClientSyncAbilityCreators(entity.getId(), name, jsonObject));
+            }
         }
         return this;
     }
