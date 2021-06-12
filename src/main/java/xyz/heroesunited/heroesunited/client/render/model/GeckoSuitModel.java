@@ -14,7 +14,7 @@ public class GeckoSuitModel<T extends SuitItem> extends AnimatedGeoModel<T> {
         if (getLayer(item, "texture") != null) {
             return getLayer(item, "texture");
         }
-        if (((JsonSuit) item.getSuit()).getJsonObject() != null)
+        if (item.getSuit() instanceof JsonSuit && ((JsonSuit) item.getSuit()).getJsonObject() != null)
             return new ResourceLocation(JSONUtils.getAsString(((JsonSuit) item.getSuit()).getJsonObject(), "model", res.toString()));
         return res;
     }
@@ -24,7 +24,7 @@ public class GeckoSuitModel<T extends SuitItem> extends AnimatedGeoModel<T> {
         if (getLayer(item, "texture") != null) {
             return getLayer(item, "texture");
         }
-        if (((JsonSuit) item.getSuit()).getJsonObject() != null && ((JsonSuit) item.getSuit()).getJsonObject().has("texture")) {
+        if (item.getSuit() instanceof JsonSuit && ((JsonSuit) item.getSuit()).getJsonObject() != null && ((JsonSuit) item.getSuit()).getJsonObject().has("texture")) {
             return new ResourceLocation(JSONUtils.getAsString(((JsonSuit) item.getSuit()).getJsonObject(), "texture"));
         } else return new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "textures/suits/" + item.getSuit().getRegistryName().getPath() + ".png");
     }
