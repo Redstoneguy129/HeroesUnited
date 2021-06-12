@@ -137,6 +137,7 @@ public class HUEventHandler {
                         HUNetworking.INSTANCE.sendTo(new ClientSyncCelestialBody(celestialBody.writeNBT(), celestialBody.getRegistryName()), ((ServerPlayerEntity) mpPlayer).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                     }
                 }
+            AbilityHelper.getAbilities(event.player).forEach(type -> type.onUpdate(event.player, event.side));
             HUTickrate.tick(event.player, event.side);
         }
     }

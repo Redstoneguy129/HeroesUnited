@@ -23,6 +23,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -84,6 +85,9 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     public void onUpdate(PlayerEntity player) {
+    }
+
+    public void onUpdate(PlayerEntity player, LogicalSide side) {
         if (this.dataManager.get(COOLDOWN) != null && this.dataManager.get(COOLDOWN) > 0) {
             this.dataManager.set(player, COOLDOWN, this.dataManager.get(COOLDOWN) - 1);
         }
