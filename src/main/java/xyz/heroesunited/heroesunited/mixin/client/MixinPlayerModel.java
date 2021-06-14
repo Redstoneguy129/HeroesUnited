@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.mixin.client;
 
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.LivingEntity;
@@ -43,9 +44,9 @@ public abstract class MixinPlayerModel {
 
     @Inject(method = "setupAnim", at = @At(value = "TAIL"))
     private void setRotationAnglesPost(LivingEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
-        if (entityIn == null || !(entityIn instanceof PlayerEntity)) return;
+        if (entityIn == null || !(entityIn instanceof AbstractClientPlayerEntity)) return;
         PlayerModel model = (PlayerModel) (Object) this;
-        MinecraftForge.EVENT_BUS.post(new HUSetRotationAnglesEvent((PlayerEntity) entityIn, model, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch));
+        MinecraftForge.EVENT_BUS.post(new HUSetRotationAnglesEvent((AbstractClientPlayerEntity) entityIn, model, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch));
         HUClientUtil.copyAnglesToWear(model);
     }
 }

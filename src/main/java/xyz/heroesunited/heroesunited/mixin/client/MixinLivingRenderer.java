@@ -2,13 +2,13 @@ package xyz.heroesunited.heroesunited.mixin.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -41,11 +41,11 @@ public abstract class MixinLivingRenderer<T extends LivingEntity, M extends Enti
 
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/model/EntityModel;renderToBuffer(Lcom/mojang/blaze3d/matrix/MatrixStack;Lcom/mojang/blaze3d/vertex/IVertexBuilder;IIFFFF)V"))
     public void renderModel(M model, MatrixStack matrixStack, IVertexBuilder builder, int light, int overlay, float red, float green, float blue, float alpha) {
-        if (entity instanceof PlayerEntity && model instanceof PlayerModel) {
-            if (!MinecraftForge.EVENT_BUS.post(new HURenderPlayerEvent.Pre((PlayerEntity) entity, (PlayerRenderer) (Object) this, matrixStack, renderTypeBuffer, builder, light, overlay, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch))) {
+        if (entity instanceof AbstractClientPlayerEntity && model instanceof PlayerModel) {
+            if (!MinecraftForge.EVENT_BUS.post(new HURenderPlayerEvent.Pre((AbstractClientPlayerEntity) entity, (PlayerRenderer) (Object) this, matrixStack, renderTypeBuffer, builder, light, overlay, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch))) {
                 model.renderToBuffer(matrixStack, builder, light, overlay, red, green, blue, alpha);
             }
-            MinecraftForge.EVENT_BUS.post(new HURenderPlayerEvent.Post((PlayerEntity) entity, (PlayerRenderer) (Object) this, matrixStack, renderTypeBuffer, builder, light, overlay, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch));
+            MinecraftForge.EVENT_BUS.post(new HURenderPlayerEvent.Post((AbstractClientPlayerEntity) entity, (PlayerRenderer) (Object) this, matrixStack, renderTypeBuffer, builder, light, overlay, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch));
             return;
         }
         model.renderToBuffer(matrixStack, builder, light, overlay, red, green, blue, alpha);

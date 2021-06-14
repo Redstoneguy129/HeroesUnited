@@ -2,10 +2,9 @@ package xyz.heroesunited.heroesunited.client.events;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.eventbus.api.Cancelable;
 
 /**
@@ -19,7 +18,7 @@ public abstract class HURenderPlayerEvent extends HUSetRotationAnglesEvent {
     private final IVertexBuilder builder;
     private final int light, overlay;
 
-    public HURenderPlayerEvent(PlayerEntity playerEntity, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, IVertexBuilder builder, int light, int overlay, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public HURenderPlayerEvent(AbstractClientPlayerEntity playerEntity, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, IVertexBuilder builder, int light, int overlay, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         super(playerEntity, renderer.getModel(), limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
         this.renderer = renderer;
         this.stack = stack;
@@ -29,7 +28,7 @@ public abstract class HURenderPlayerEvent extends HUSetRotationAnglesEvent {
         this.overlay = overlay;
     }
 
-    public LivingRenderer getRenderer() {
+    public PlayerRenderer getRenderer() {
         return renderer;
     }
 
@@ -60,7 +59,7 @@ public abstract class HURenderPlayerEvent extends HUSetRotationAnglesEvent {
     @Cancelable
     public static class Pre extends HURenderPlayerEvent {
 
-        public Pre(PlayerEntity playerEntity, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, IVertexBuilder builder, int light, int overlay, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        public Pre(AbstractClientPlayerEntity playerEntity, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, IVertexBuilder builder, int light, int overlay, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
             super(playerEntity, renderer, stack, buffers, builder, light, overlay, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
         }
     }
@@ -72,7 +71,7 @@ public abstract class HURenderPlayerEvent extends HUSetRotationAnglesEvent {
      */
     public static class Post extends HURenderPlayerEvent {
 
-        public Post(PlayerEntity playerEntity, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, IVertexBuilder builder, int light, int overlay, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        public Post(AbstractClientPlayerEntity playerEntity, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, IVertexBuilder builder, int light, int overlay, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
             super(playerEntity, renderer, stack, buffers, builder, light, overlay, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
         }
     }

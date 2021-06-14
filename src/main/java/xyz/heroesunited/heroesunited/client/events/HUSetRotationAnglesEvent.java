@@ -1,8 +1,8 @@
 package xyz.heroesunited.heroesunited.client.events;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
 /**
@@ -14,7 +14,7 @@ public class HUSetRotationAnglesEvent extends PlayerEvent {
     private final PlayerModel playerModel;
     private float limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, partialTicks;
 
-    public HUSetRotationAnglesEvent(PlayerEntity playerEntity, PlayerModel playerModel, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public HUSetRotationAnglesEvent(AbstractClientPlayerEntity playerEntity, PlayerModel playerModel, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         super(playerEntity);
         this.playerModel = playerModel;
         this.limbSwing = limbSwing;
@@ -23,6 +23,11 @@ public class HUSetRotationAnglesEvent extends PlayerEvent {
         this.netHeadYaw = netHeadYaw;
         this.headPitch = headPitch;
         this.partialTicks = Minecraft.getInstance().getFrameTime();
+    }
+
+    @Override
+    public AbstractClientPlayerEntity getPlayer() {
+        return (AbstractClientPlayerEntity) super.getPlayer();
     }
 
     public PlayerModel getPlayerModel() {
