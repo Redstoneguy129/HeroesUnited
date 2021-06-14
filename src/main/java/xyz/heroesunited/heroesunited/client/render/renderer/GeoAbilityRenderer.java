@@ -61,16 +61,15 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends BipedMo
             this.fitToBiped();
             matrixStackIn.pushPose();
             Minecraft.getInstance().textureManager.bind(this.getTextureLocation(this.currentAbility));
-            Color renderColor = this.getRenderColor(this.currentAbility, 0, matrixStackIn, null, bufferIn, packedLightIn);
             RenderType renderType = this.getRenderType(this.currentAbility, 0, matrixStackIn, null, bufferIn, packedLightIn, this.getTextureLocation(this.currentAbility));
-            this.render(model, this.currentAbility, 0, renderType, matrixStackIn, null, bufferIn, packedLightIn, OverlayTexture.NO_OVERLAY, (float)renderColor.getRed() / 255.0F, (float)renderColor.getGreen() / 255.0F, (float)renderColor.getBlue() / 255.0F, (float)renderColor.getAlpha() / 255.0F);
+            this.render(model, this.currentAbility, 0, renderType, matrixStackIn, null, bufferIn, packedLightIn, OverlayTexture.NO_OVERLAY, red, green, blue, alpha);
             matrixStackIn.popPose();
             matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
             matrixStackIn.translate(0.0D, -1.5D, 0.0D);
         }
     }
 
-    private void fitToBiped() {
+    public void fitToBiped() {
         IBone headBone = this.modelProvider.getBone(this.headBone);
         IBone bodyBone = this.modelProvider.getBone(this.bodyBone);
         IBone rightArmBone = this.modelProvider.getBone(this.rightArmBone);
