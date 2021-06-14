@@ -4,6 +4,10 @@ import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
+/**
+ * This event is called when the bounding box changes.
+ * Can be used for those who want to change the player's bounding box.
+ */
 public class HUBoundingBoxEvent extends PlayerEvent {
 
     private final EntitySize oldSize;

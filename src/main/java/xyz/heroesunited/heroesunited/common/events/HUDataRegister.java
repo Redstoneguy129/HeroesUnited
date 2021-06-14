@@ -5,6 +5,10 @@ import net.minecraftforge.event.entity.EntityEvent;
 import xyz.heroesunited.heroesunited.util.hudata.HUData;
 import xyz.heroesunited.heroesunited.util.hudata.HUDataManager;
 
+/**
+ * Event that used to register HUData.
+ * Fired when HUDataManager registering HUData.
+ */
 public class HUDataRegister extends EntityEvent {
 
     private final HUDataManager huData;

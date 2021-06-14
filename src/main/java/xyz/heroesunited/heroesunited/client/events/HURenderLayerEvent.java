@@ -12,6 +12,9 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
+/**
+ * Just event.
+ */
 public class HURenderLayerEvent<T extends LivingEntity, M extends EntityModel<T>> extends Event {
 
     private final T livingEntity;

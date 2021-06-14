@@ -6,6 +6,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraftforge.event.world.BlockEvent;
 
+/**
+ * Fired when a block and entity collide.
+ * U can cancel it to make intangible entities
+ */
 public class HUCancelBlockCollision extends BlockEvent {
 
     private Entity entity;

@@ -8,6 +8,9 @@ import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.eventbus.api.Cancelable;
 
+/**
+ * This event is fired when rendering the player.
+ */
 public abstract class HURenderPlayerEvent extends HUSetRotationAnglesEvent {
 
     private final PlayerRenderer renderer;
@@ -50,6 +53,10 @@ public abstract class HURenderPlayerEvent extends HUSetRotationAnglesEvent {
         return overlay;
     }
 
+    /**
+     * Fired before the player model is rendered.
+     * Cancelling this event will prevent the player model from being rendered.
+     */
     @Cancelable
     public static class Pre extends HURenderPlayerEvent {
 
@@ -58,6 +65,11 @@ public abstract class HURenderPlayerEvent extends HUSetRotationAnglesEvent {
         }
     }
 
+    /**
+     * Fired after the player model has been rendered.
+     * This event is suitable for any additional renders you want to apply to the player,
+     * or to render a model other than the player.
+     */
     public static class Post extends HURenderPlayerEvent {
 
         public Post(PlayerEntity playerEntity, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, IVertexBuilder builder, int light, int overlay, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {

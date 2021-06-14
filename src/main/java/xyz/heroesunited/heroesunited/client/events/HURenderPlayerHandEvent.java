@@ -8,8 +8,9 @@ import net.minecraft.util.HandSide;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.Cancelable;
 
-/*
- * Use this to render Alien hand and others
+/**
+ * Fired when player hand should be rendered.
+ * Can be used to create own hand renderer like Alien, suits and etc.
  */
 public abstract class HURenderPlayerHandEvent extends PlayerEvent {
 
@@ -54,6 +55,10 @@ public abstract class HURenderPlayerHandEvent extends PlayerEvent {
         return light;
     }
 
+    /**
+     * Fired before hand should be rendered.
+     * Canceling the event causes the hand to not render.
+     */
     @Cancelable
     public static class Pre extends HURenderPlayerHandEvent {
         public Pre(AbstractClientPlayerEntity player, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, int light, HandSide side) {
@@ -61,6 +66,10 @@ public abstract class HURenderPlayerHandEvent extends PlayerEvent {
         }
     }
 
+    /**
+     * Fired after hand rendering.
+     * Can be used to render own hand.
+     */
     public static class Post extends HURenderPlayerHandEvent {
         public Post(AbstractClientPlayerEntity player, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, int light, HandSide side) {
             super(player, renderer, stack, buffers, light, side);

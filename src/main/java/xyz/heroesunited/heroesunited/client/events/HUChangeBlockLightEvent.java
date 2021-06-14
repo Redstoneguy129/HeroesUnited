@@ -4,6 +4,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraftforge.eventbus.api.Event;
 
+/**
+ * This event is called when block light updated.
+ * Can be used to make dynamic lights
+ */
 public class HUChangeBlockLightEvent extends Event {
 
     private final int defaultValue;

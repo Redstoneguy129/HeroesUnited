@@ -2,6 +2,10 @@ package xyz.heroesunited.heroesunited.client.events;
 
 import net.minecraftforge.eventbus.api.Event;
 
+/**
+ * This event is called when light updated.
+ * Can be used to make night vision and etc.
+ */
 public class HUChangeLightEvent extends Event {
 
     private final float defaultValue;

@@ -6,7 +6,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.world.IWorldReader;
 import net.minecraftforge.event.entity.EntityEvent;
 
-
+/**
+ * This event is called before the shadow should be rendered
+ * Can be used to change entity shadow size. (Seems logic i think)
+ */
 public class HUChangeShadowSizeEvent extends EntityEvent {
 
     private final MatrixStack matrixStack;

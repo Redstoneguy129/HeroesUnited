@@ -5,9 +5,9 @@ import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
-/*
-This runs when Player's rotations are being set.
-You can alter the position of the limbs etc.
+/**
+ * This runs when Player's rotations are being set.
+ * You can change the position and rotation of the limbs and create animation for player.
  */
 public class HUSetRotationAnglesEvent extends PlayerEvent {
 

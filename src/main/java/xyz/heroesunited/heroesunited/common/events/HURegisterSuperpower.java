@@ -6,6 +6,10 @@ import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 
 import java.util.Map;
 
+/**
+ * Event that used to register superpowers from java.
+ * Fired when HUPackSuperpowers registering superpowers.
+ */
 public class HURegisterSuperpower extends Event {
 
     private Map<ResourceLocation, Superpower> map;
