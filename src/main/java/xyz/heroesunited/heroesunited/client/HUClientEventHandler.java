@@ -44,10 +44,7 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.keyframe.BoneAnimation;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.client.events.HUChangeShadowSizeEvent;
-import xyz.heroesunited.heroesunited.client.events.HURenderLayerEvent;
-import xyz.heroesunited.heroesunited.client.events.HURenderPlayerHandEvent;
-import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
+import xyz.heroesunited.heroesunited.client.events.*;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.client.render.HULayerRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.space.CelestialBodyRenderer;
@@ -118,6 +115,25 @@ public class HUClientEventHandler {
         }
         sendToggleKey(e.getKey(), e.getAction(), mc.options.keyJump, 7);
     }
+
+    @SubscribeEvent
+    public void huRenderPlayerPre(HURenderPlayerEvent.Pre event) {
+        for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
+            if (ability instanceof IHUPlayerRenderer) {
+                ((IHUPlayerRenderer) ability).huRenderPlayerPre(event);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void huRenderPlayerPost(HURenderPlayerEvent.Post event) {
+        for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
+            if (ability instanceof IHUPlayerRenderer) {
+                ((IHUPlayerRenderer) ability).huRenderPlayerPost(event);
+            }
+        }
+    }
+
 
     @SubscribeEvent
     public void onWorldLastRender(RenderWorldLastEvent event) {
@@ -305,8 +321,8 @@ public class HUClientEventHandler {
         });
         event.getPlayer().getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
             for (Ability ability : cap.getAbilities().values()) {
-                if (ability instanceof IAbilityAlwaysRenderer) {
-                    ((IAbilityAlwaysRenderer) ability).renderPlayerPreAlways(event);
+                if (ability instanceof IAlwaysRenderer) {
+                    ((IAlwaysRenderer) ability).renderPlayerPreAlways(event);
                 }
             }
         });
@@ -317,8 +333,8 @@ public class HUClientEventHandler {
         AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.renderPlayerPost(event));
         event.getPlayer().getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
             for (Ability ability : cap.getAbilities().values()) {
-                if (ability instanceof IAbilityAlwaysRenderer) {
-                    ((IAbilityAlwaysRenderer) ability).renderPlayerPostAlways(event);
+                if (ability instanceof IAlwaysRenderer) {
+                    ((IAlwaysRenderer) ability).renderPlayerPostAlways(event);
                 }
             }
         });
@@ -354,8 +370,8 @@ public class HUClientEventHandler {
         }
         player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
             for (Ability ability : cap.getAbilities().values()) {
-                if (ability instanceof IAbilityAlwaysRenderer) {
-                    ((IAbilityAlwaysRenderer) ability).setAlwaysRotationAngles(event);
+                if (ability instanceof IAlwaysRenderer) {
+                    ((IAlwaysRenderer) ability).setAlwaysRotationAngles(event);
                 }
             }
         });
@@ -411,8 +427,8 @@ public class HUClientEventHandler {
     public void renderPlayerHand(HURenderPlayerHandEvent event) {
         event.getPlayer().getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
             for (Ability ability : a.getAbilities().values()) {
-                if (ability instanceof IAbilityAlwaysRenderer) {
-                    ((IAbilityAlwaysRenderer) ability).renderAlwaysFirstPersonArm(event.getRenderer(), event.getMatrixStack(), event.getBuffers(), event.getLight(), event.getPlayer(), event.getSide());
+                if (ability instanceof IAlwaysRenderer) {
+                    ((IAlwaysRenderer) ability).renderAlwaysFirstPersonArm(event.getRenderer(), event.getMatrixStack(), event.getBuffers(), event.getLight(), event.getPlayer(), event.getSide());
                 }
             }
         });
@@ -422,8 +438,8 @@ public class HUClientEventHandler {
     public void renderPlayerLayers(HURenderLayerEvent.Player event) {
         event.getPlayer().getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
             for (Ability ability : a.getAbilities().values()) {
-                if (ability instanceof IAbilityAlwaysRenderer) {
-                    ((IAbilityAlwaysRenderer) ability).renderAlways(event.getRenderer(), event.getMatrixStack(), event.getBuffers(), event.getLight(), event.getPlayer(), event.getLimbSwing(), event.getLimbSwingAmount(), event.getPartialTicks(), event.getAgeInTicks(), event.getNetHeadYaw(), event.getHeadPitch());
+                if (ability instanceof IAlwaysRenderer) {
+                    ((IAlwaysRenderer) ability).renderAlways(event.getRenderer(), event.getMatrixStack(), event.getBuffers(), event.getLight(), event.getPlayer(), event.getLimbSwing(), event.getLimbSwingAmount(), event.getPartialTicks(), event.getAgeInTicks(), event.getNetHeadYaw(), event.getHeadPitch());
                 }
             }
         });

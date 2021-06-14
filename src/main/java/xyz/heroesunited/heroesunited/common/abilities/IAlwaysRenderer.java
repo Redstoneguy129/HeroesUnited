@@ -10,7 +10,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 
-public interface IAbilityAlwaysRenderer {
+public interface IAlwaysRenderer {
 
     @OnlyIn(Dist.CLIENT)
     default void renderAlways(PlayerRenderer playerRenderer, MatrixStack matrixStack, IRenderTypeBuffer iRenderTypeBuffer, int i, AbstractClientPlayerEntity abstractClientPlayerEntity, float v, float v1, float v2, float v3, float v4, float v5) {
