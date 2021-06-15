@@ -138,6 +138,7 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends BipedMo
         bone.setPositionZ(modelRenderer.z);
 
         matrix.pushPose();
+        renderer.getModel().translateToHand(side, matrix);
         Minecraft.getInstance().textureManager.bind(this.getTextureLocation(ability));
         IVertexBuilder builder = bufferIn.getBuffer(RenderType.entityTranslucent(this.getTextureLocation(ability)));
         Color renderColor = this.getRenderColor(ability, 0, matrix, null, builder, packedLightIn);
