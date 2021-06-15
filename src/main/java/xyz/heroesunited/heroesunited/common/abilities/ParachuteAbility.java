@@ -55,6 +55,7 @@ public class ParachuteAbility extends JSONAbility {
             new ParachuteModel().renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(HeroesUnited.MODID, "textures/suits/parachute.png"))), packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
     }
 
+	@OnlyIn(Dist.CLIENT)
     @Override
     public void setRotationAngles(HUSetRotationAnglesEvent event) {
         if(usingParachute(event.getPlayer())){

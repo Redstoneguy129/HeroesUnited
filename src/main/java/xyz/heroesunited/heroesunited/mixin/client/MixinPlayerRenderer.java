@@ -55,8 +55,6 @@ public abstract class MixinPlayerRenderer {
             rendererArmIn.visible = false;
             rendererArmwearIn.visible = false;
         } else {
-            matrixStackIn.pushPose();
-            model.translateToHand(side, matrixStackIn);
             if (Suit.getSuit(player) != null) {
                 Suit.getSuit(player).renderFirstPersonArm(playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side);
             }
@@ -84,7 +82,6 @@ public abstract class MixinPlayerRenderer {
                     }
                 }
             });
-            matrixStackIn.popPose();
         }
     }
 
