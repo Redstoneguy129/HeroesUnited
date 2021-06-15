@@ -6,7 +6,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.JSONUtils;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
-import xyz.heroesunited.heroesunited.util.hudata.HUData;
 
 import java.util.Map;
 
@@ -20,7 +19,6 @@ public abstract class JSONAbility extends Ability {
     };
 
     protected ActionType actionType;
-    private static final HUData<Boolean> ENABLED = new HUData("enabled");
 
     public JSONAbility(AbilityType type) {
         super(type);
@@ -30,7 +28,7 @@ public abstract class JSONAbility extends Ability {
     @Override
     public void registerData() {
         super.registerData();
-        this.dataManager.register(ENABLED, false);
+        this.dataManager.register("enabled", false);
     }
 
     @Override
@@ -106,10 +104,10 @@ public abstract class JSONAbility extends Ability {
 
     public void setEnabled(PlayerEntity player, boolean enabled) {
         boolean b = !enabled || this.conditionManager.isEnabled(player, "canBeEnabled");
-        if (getEnabled() != enabled && b && this.dataManager.get(COOLDOWN) == 0) {
-            this.dataManager.set(player, ENABLED, enabled);
+            if (getEnabled() != enabled && b && this.dataManager.<Integer>getValue("cooldown") == 0) {
+            this.dataManager.set(player, "enabled", enabled);
             if (!enabled && getJsonObject().has("maxCooldown")) {
-                this.dataManager.set(player, Ability.COOLDOWN, JSONUtils.getAsInt(getJsonObject(), "maxCooldown"));
+                this.dataManager.set(player, "cooldown", JSONUtils.getAsInt(getJsonObject(), "maxCooldown"));
             }
         }
     }
@@ -126,7 +124,7 @@ public abstract class JSONAbility extends Ability {
     }
 
     public boolean getEnabled() {
-        return this.dataManager.get(ENABLED);
+        return this.dataManager.<Boolean>getValue("enabled");
     }
 
     @Override

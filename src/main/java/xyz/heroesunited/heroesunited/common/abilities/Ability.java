@@ -44,14 +44,13 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
     public String name;
     public final AbilityType type;
-    public static final HUData<Integer> COOLDOWN = new HUData("cooldown");
     protected CompoundNBT additionalData = new CompoundNBT();
     protected JsonObject jsonObject;
     protected HUDataManager dataManager = new HUDataManager() {
         @Override
-        public <T> void updateData(Entity entity, HUData<T> data, T value) {
+        public <T> void updateData(Entity entity, String id, HUData<T> data, T value) {
             if (!entity.level.isClientSide) {
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new ClientSyncHUData(entity.getId(), name, data.getKey(), data.serializeNBT(new CompoundNBT(), value)));
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new ClientSyncHUData(entity.getId(), name, id, data.serializeNBT(id, value)));
             }
             if (entity instanceof PlayerEntity) {
                 Ability.this.syncToAll((PlayerEntity) entity);
@@ -69,7 +68,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     public void registerData() {
-        this.dataManager.register(COOLDOWN, 0);
+        this.dataManager.register("cooldown", 0);
     }
 
     public boolean canActivate(PlayerEntity player) {
@@ -85,12 +84,12 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     public void onUpdate(PlayerEntity player) {
+        if (this.dataManager.<Integer>getValue("cooldown") > 0) {
+            this.dataManager.set(player, "cooldown", this.dataManager.<Integer>getValue("cooldown") - 1);
+        }
     }
 
     public void onUpdate(PlayerEntity player, LogicalSide side) {
-        if (this.dataManager.get(COOLDOWN) != null && this.dataManager.get(COOLDOWN) > 0) {
-            this.dataManager.set(player, COOLDOWN, this.dataManager.get(COOLDOWN) - 1);
-        }
     }
 
     public void onDeactivated(PlayerEntity player) {
@@ -203,10 +202,10 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     public Ability setJsonObject(Entity entity, JsonObject jsonObject) {
         this.jsonObject = jsonObject;
         if (jsonObject != null && entity != null) {
-            for (Map.Entry<HUData<?>, HUDataManager.HUDataEntry<?>> entry : this.dataManager.getHUDataMap().entrySet()) {
-                HUData data = entry.getKey();
+            for (Map.Entry<String, HUData<?>> entry : this.dataManager.getHUDataMap().entrySet()) {
+                HUData data = entry.getValue();
                 if (data.isJson()) {
-                    this.dataManager.set(entity, data, data.getFromJson(jsonObject, entry.getValue().getDefaultValue()));
+                    this.dataManager.set(entity, entry.getKey(), data.getFromJson(jsonObject, entry.getKey(), entry.getValue().getDefaultValue()));
                 }
             }
             if (!entity.level.isClientSide) {

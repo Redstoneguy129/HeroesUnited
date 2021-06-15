@@ -46,11 +46,11 @@ public class ClientSyncHUData {
             if (entity != null) {
                 if (this.ability.equals("heroesunited:hudata_sync")) {
                     entity.getCapability(HUDataCap.CAPABILITY).ifPresent((cap) ->
-                            cap.getDataManager().readValue(entity, cap.getDataManager().getData(this.id), this.nbt));
+                            cap.getDataManager().read(entity, this.id, this.nbt));
                 } else {
                     entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent((cap) -> {
                         HUDataManager manager = cap.getActiveAbilities().get(this.ability).getDataManager();
-                        manager.readValue(entity, manager.getData(this.id), this.nbt);
+                        manager.read(entity, this.id, this.nbt);
                     });
                 }
             }

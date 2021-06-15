@@ -2,7 +2,6 @@ package xyz.heroesunited.heroesunited.common.events;
 
 import net.minecraft.entity.Entity;
 import net.minecraftforge.event.entity.EntityEvent;
-import xyz.heroesunited.heroesunited.util.hudata.HUData;
 import xyz.heroesunited.heroesunited.util.hudata.HUDataManager;
 
 /**
@@ -11,19 +10,19 @@ import xyz.heroesunited.heroesunited.util.hudata.HUDataManager;
  */
 public class HUDataRegister extends EntityEvent {
 
-    private final HUDataManager huData;
+    private final HUDataManager manager;
 
-    public HUDataRegister(Entity entity, HUDataManager huData) {
+    public HUDataRegister(Entity entity, HUDataManager manager) {
         super(entity);
-        this.huData = huData;
+        this.manager = manager;
     }
 
-    public HUDataManager getHUData() {
-        return huData;
+    public HUDataManager getHUDataManager() {
+        return manager;
     }
 
-    public <T> void register(HUData<T> data, T defaultValue) {
-        getHUData().register(data, defaultValue);
+    public <T> void register(String id, T defaultValue) {
+        getHUDataManager().register(id, defaultValue);
     }
 
 }

@@ -1,93 +1,95 @@
 package xyz.heroesunited.heroesunited.util.hudata;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.JSONUtils;
 
 public class HUData<T> {
 
-    protected final String key;
-    protected boolean saved = true;
-    protected boolean json;
+    private T value, defaultValue;
+    protected boolean json, saving;
 
-    public HUData(String key) {
-        this(key, false);
+    public HUData(T defaultValue, boolean saving, boolean json) {
+        this.defaultValue = defaultValue;
+        this.value = defaultValue;
+        this.json = json;
+        this.saving = saving;
     }
 
-    public HUData(String key, boolean json) {
-        this.key = key;
-        this.json = json;
+    public void setValue(T valueIn) {
+        this.value = valueIn;
+    }
+
+    public T getValue() {
+        return this.value;
+    }
+
+    public T getDefaultValue() {
+        return this.defaultValue;
     }
 
     public boolean isJson() {
         return json;
     }
 
-    public String getKey() {
-        return key;
-    }
-
-    public HUData<T> disableSaving() {
-        this.saved = false;
-        return this;
-    }
-
     public boolean canBeSaved() {
-        return this.saved;
+        return this.saving;
     }
 
-    public Object getFromJson(JsonObject json, T defaultValue) {
-        if (json.has(this.key)) {
-            JsonElement element = json.get(this.key);
+    public Object getFromJson(JsonObject json, String id, T defaultValue) {
+        if (json.has(id)) {
             if (defaultValue instanceof Boolean) {
-                return JSONUtils.getAsBoolean(json, this.key);
+                return JSONUtils.getAsBoolean(json, id);
             } else if (defaultValue instanceof Integer) {
-                return JSONUtils.getAsInt(json, this.key);
+                return JSONUtils.getAsInt(json, id);
             } else if (defaultValue instanceof String) {
-                return JSONUtils.getAsString(json, this.key);
+                return JSONUtils.getAsString(json, id);
             } else if (defaultValue instanceof Float) {
-                return JSONUtils.getAsFloat(json, this.key);
+                return JSONUtils.getAsFloat(json, id);
             } else if (defaultValue instanceof Double) {
-                return (double) JSONUtils.getAsFloat(json, this.key);
+                return (double) JSONUtils.getAsFloat(json, id);
             } else if (defaultValue instanceof Long) {
-                return JSONUtils.getAsLong(json, this.key);
+                return JSONUtils.getAsLong(json, id);
             }
         }
         return defaultValue;
     }
 
-    public CompoundNBT serializeNBT(CompoundNBT nbt, T value) {
+    public CompoundNBT serializeNBT(String id, T value) {
+        return this.serializeNBT(new CompoundNBT(), id, value);
+    }
+
+    public CompoundNBT serializeNBT(CompoundNBT nbt, String id, T value) {
         if (value instanceof Boolean) {
-            nbt.putBoolean(this.key, (Boolean) value);
+            nbt.putBoolean(id, (Boolean) value);
         } else if (value instanceof Integer) {
-            nbt.putInt(this.key, (Integer) value);
+            nbt.putInt(id, (Integer) value);
         } else if (value instanceof String) {
-            nbt.putString(this.key, (String) value);
+            nbt.putString(id, (String) value);
         } else if (value instanceof Float) {
-            nbt.putFloat(this.key, (Float) value);
+            nbt.putFloat(id, (Float) value);
         } else if (value instanceof Double) {
-            nbt.putDouble(this.key, (Double) value);
+            nbt.putDouble(id, (Double) value);
         } else if (value instanceof Long) {
-            nbt.putLong(this.key, (Long) value);
+            nbt.putLong(id, (Long) value);
         }
         return nbt;
     }
 
-    public Object deserializeNBT(CompoundNBT nbt, T defaultValue) {
-        if (nbt.contains(this.key)) {
+    public Object deserializeNBT(CompoundNBT nbt, String id, T defaultValue) {
+        if (nbt.contains(id)) {
             if (defaultValue instanceof Boolean) {
-                return nbt.getBoolean(this.key);
+                return nbt.getBoolean(id);
             } else if (defaultValue instanceof Integer) {
-                return nbt.getInt(this.key);
+                return nbt.getInt(id);
             } else if (defaultValue instanceof String) {
-                return nbt.getString(this.key);
+                return nbt.getString(id);
             } else if (defaultValue instanceof Float) {
-                return nbt.getFloat(this.key);
+                return nbt.getFloat(id);
             } else if (defaultValue instanceof Double) {
-                return nbt.getDouble(this.key);
+                return nbt.getDouble(id);
             } else if (defaultValue instanceof Long) {
-                return nbt.getLong(this.key);
+                return nbt.getLong(id);
             }
         }
         return defaultValue;

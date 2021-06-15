@@ -7,8 +7,6 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.network.PacketDistributor;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
-import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.events.HUDataRegister;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUData;
@@ -24,9 +22,9 @@ public class HUDataCap implements IHUDataCap, INBTSerializable<CompoundNBT> {
     public HUDataCap(Entity entity) {
         this.dataManager = new HUDataManager() {
             @Override
-            public <T> void updateData(Entity entity, HUData<T> data, T value) {
+            public <T> void updateData(Entity entity, String id, HUData<T> data, T value) {
                 if (!entity.level.isClientSide) {
-                    HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new ClientSyncHUData(entity.getId(), "heroesunited:hudata_sync", data.getKey(), data.serializeNBT(new CompoundNBT(), value)));
+                    HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new ClientSyncHUData(entity.getId(), "heroesunited:hudata_sync", id, data.serializeNBT(id, value)));
                 }
             }
         };

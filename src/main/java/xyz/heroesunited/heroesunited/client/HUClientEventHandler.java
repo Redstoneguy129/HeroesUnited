@@ -464,8 +464,8 @@ public class HUClientEventHandler {
                     return;
                 }
                 if (a instanceof HeatVisionAbility) {
-                    float alpha = (a.getDataManager().get(HeatVisionAbility.PREV_TIMER) + (a.getDataManager().get(HeatVisionAbility.TIMER) - a.getDataManager().get(HeatVisionAbility.PREV_TIMER)) * event.getPartialTicks()) / JSONUtils.getAsInt(a.getJsonObject(), "maxTimer", 10);
-                    if (a.getDataManager().get(HeatVisionAbility.TYPE).equals("cyclop")) {
+                    float alpha = (a.getDataManager().<Integer>getValue("prev_timer") + (a.getDataManager().<Integer>getValue("timer") - a.getDataManager().<Integer>getValue("prev_timer")) * event.getPartialTicks()) / JSONUtils.getAsInt(a.getJsonObject(), "maxTimer", 10);
+                    if (a.getDataManager().<String>getValue("type").equals("cyclop")) {
                         AxisAlignedBB box1 = new AxisAlignedBB(-0.15F, -0.11F, 0, 0.15F, -0.11F, -distance).inflate(0.0625D);
                         HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box1.deflate(0.0625D / 2), 1F, 1F, 1F, alpha, event.getLight());
                         HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box1, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255F, alpha * 0.5F, event.getLight());
@@ -474,7 +474,7 @@ public class HUClientEventHandler {
                         }
                         return;
                     }
-                    if (a.getDataManager().get(HeatVisionAbility.TYPE).equals("default")) {
+                    if (a.getDataManager().<String>getValue("type").equals("default")) {
                         for (int i = 0; i < 2; i++) {
                             event.getMatrixStack().pushPose();
                             event.getMatrixStack().translate(i == 0 ? 0.2F : -0.3F, 0.25, 0);
