@@ -21,8 +21,11 @@ public class AttributeModifierAbility extends JSONAbility {
             AbilityHelper.setAttribute(player, this.name,
                     ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(JSONUtils.getAsString(attribute, "name"))),
                     UUID.fromString(JSONUtils.getAsString(attribute, "uuid", "16c0c8f6-565e-4175-94f5-029986f3cc2c")),
-                    getEnabled() ? JSONUtils.getAsFloat(attribute, "amount", 1f) : 0D,
-                    AttributeModifier.Operation.fromValue(JSONUtils.getAsInt(attribute, "operation", 0)));
+                    getAmount(player, attribute), AttributeModifier.Operation.fromValue(JSONUtils.getAsInt(attribute, "operation", 0)));
         }
+    }
+
+    public double getAmount(PlayerEntity player, JsonObject attribute) {
+        return getEnabled() ? JSONUtils.getAsFloat(attribute, "amount", 1f) : 0D;
     }
 }
