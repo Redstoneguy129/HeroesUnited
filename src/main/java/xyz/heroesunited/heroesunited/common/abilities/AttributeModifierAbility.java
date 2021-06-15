@@ -10,8 +10,13 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.UUID;
 
 public class AttributeModifierAbility extends JSONAbility {
+
     public AttributeModifierAbility() {
-        super(AbilityType.ATTRIBUTE_MODIFIER);
+        this(AbilityType.ATTRIBUTE_MODIFIER);
+    }
+
+    public AttributeModifierAbility(AbilityType type) {
+        super(type);
     }
 
     @Override
