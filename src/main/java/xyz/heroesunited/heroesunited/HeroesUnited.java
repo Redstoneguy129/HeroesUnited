@@ -29,7 +29,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.RegistryBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -70,7 +69,6 @@ import xyz.heroesunited.heroesunited.common.space.CelestialBodies;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
-import xyz.heroesunited.heroesunited.util.data.HUEnglishProvider;
 
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.FALL_RESISTANCE;
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOOST;
@@ -144,11 +142,6 @@ public class HeroesUnited {
     public void onRegisterNewRegistries(RegistryEvent.NewRegistry e) {
         AbilityType.ABILITIES = new RegistryBuilder<AbilityType>().setName(new ResourceLocation(HeroesUnited.MODID, "ability_types")).setType(AbilityType.class).setIDRange(0, 2048).create();
         CelestialBody.CELESTIAL_BODIES = new RegistryBuilder<CelestialBody>().setName(new ResourceLocation(HeroesUnited.MODID, "celestial_bodies")).setType(CelestialBody.class).setIDRange(0, Integer.MAX_VALUE).create();
-    }
-
-    @SubscribeEvent
-    public void gatherData(final GatherDataEvent e) {
-        e.getGenerator().addProvider(new HUEnglishProvider(e.getGenerator()));
     }
 
     @SubscribeEvent

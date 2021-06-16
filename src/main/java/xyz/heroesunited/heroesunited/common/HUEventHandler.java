@@ -261,11 +261,12 @@ public class HUEventHandler {
                                     speed = pl.isSprinting() ? JSONUtils.getAsFloat(ability.getJsonObject(), "maxSpeed", 2.5F) : JSONUtils.getAsFloat(ability.getJsonObject(), "speed");
                                 }
                             }
-                            pl.setDeltaMovement(vec.x * speed, vec.y * speed - (pl.isCrouching() ? pl.getBbHeight() * 0.2F : 0), vec.z * speed);
-                        } else if (pl.isCrouching())
-                            pl.setDeltaMovement(new Vector3d(pl.getDeltaMovement().x, pl.getBbHeight() * -0.2F, pl.getDeltaMovement().z));
-                        else
-                            pl.setDeltaMovement(new Vector3d(pl.getDeltaMovement().x, Math.sin(pl.tickCount / 10F) / 100F, pl.getDeltaMovement().z));
+                            pl.setDeltaMovement(vec.x * speed, vec.y * speed, vec.z * speed);
+                        } else if (pl.isCrouching()) {
+                            pl.setDeltaMovement(new Vector3d(pl.getDeltaMovement().x, pl.getBbHeight() * -0.12F, pl.getDeltaMovement().z));
+                        } else {
+                            pl.setDeltaMovement(new Vector3d(pl.getDeltaMovement().x, Math.sin(pl.tickCount) / 10000F, pl.getDeltaMovement().z));
+                        }
                     }
                 });
             }

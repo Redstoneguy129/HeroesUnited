@@ -52,6 +52,7 @@ public class ClientEnableAbility {
                         }
                         if (AbilityHelper.canActiveAbility(ability, (PlayerEntity) entity)) {
                             cap.enable(this.name, ability);
+                            ability.syncToAll((PlayerEntity) entity);
                             cap.getActiveAbilities().get(this.name).onActivated((PlayerEntity) entity);
                         }
                     }

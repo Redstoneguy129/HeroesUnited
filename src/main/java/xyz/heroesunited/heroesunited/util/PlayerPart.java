@@ -1,6 +1,7 @@
 package xyz.heroesunited.heroesunited.util;
 
 import net.minecraft.client.renderer.entity.model.PlayerModel;
+import net.minecraft.client.renderer.model.ModelRenderer;
 
 public enum PlayerPart {
 
@@ -25,129 +26,43 @@ public enum PlayerPart {
     }
 
     public void setVisibility(PlayerModel model, boolean visible) {
-        switch (this) {
-            case HEAD:
-                model.head.visible = visible;
-                return;
-            case HEAD_WEAR:
-                model.hat.visible = visible;
-                return;
-            case CHEST:
-                model.body.visible = visible;
-                return;
-            case CHEST_WEAR:
-                model.jacket.visible = visible;
-                return;
-            case RIGHT_ARM:
-                model.rightArm.visible = visible;
-                return;
-            case RIGHT_ARM_WEAR:
-                model.rightSleeve.visible = visible;
-                return;
-            case LEFT_ARM:
-                model.leftArm.visible = visible;
-                return;
-            case LEFT_ARM_WEAR:
-                model.leftSleeve.visible = visible;
-                return;
-            case RIGHT_LEG:
-                model.rightLeg.visible = visible;
-                return;
-            case RIGHT_LEG_WEAR:
-                model.rightPants.visible = visible;
-                return;
-            case LEFT_LEG:
-                model.leftLeg.visible = visible;
-                return;
-            case LEFT_LEG_WEAR:
-                model.leftPants.visible = visible;
-                return;
-            case ALL:
-                model.setAllVisible(visible);
-                return;
+        ModelRenderer modelRenderer = getModelRendererByPart(model);
+        if (modelRenderer == null) {
+            model.setAllVisible(visible);
+        } else {
+            modelRenderer.visible = visible;
         }
+        return;
     }
 
-    public void rotatePart(PlayerModel model, String xyz, float angle) {
+    public ModelRenderer getModelRendererByPart(PlayerModel model) {
         switch (this) {
             case HEAD:
-                HUJsonUtils.rotatePartOfModel(model.head, xyz, angle);
-                return;
+                return model.head;
             case HEAD_WEAR:
-                HUJsonUtils.rotatePartOfModel(model.hat, xyz, angle);
-                return;
+                return model.hat;
             case CHEST:
-                HUJsonUtils.rotatePartOfModel(model.body, xyz, angle);
-                return;
+                return model.body;
             case CHEST_WEAR:
-                HUJsonUtils.rotatePartOfModel(model.jacket, xyz, angle);
-                return;
+                return model.jacket;
             case RIGHT_ARM:
-                HUJsonUtils.rotatePartOfModel(model.rightArm, xyz, angle);
-                return;
+                return model.rightArm;
             case RIGHT_ARM_WEAR:
-                HUJsonUtils.rotatePartOfModel(model.rightSleeve, xyz, angle);
-                return;
+                return model.rightSleeve;
             case LEFT_ARM:
-                HUJsonUtils.rotatePartOfModel(model.leftArm, xyz, angle);
-                return;
+                return model.leftArm;
             case LEFT_ARM_WEAR:
-                HUJsonUtils.rotatePartOfModel(model.leftSleeve, xyz, angle);
-                return;
+                return model.leftSleeve;
             case RIGHT_LEG:
-                HUJsonUtils.rotatePartOfModel(model.rightLeg, xyz, angle);
-                return;
+                return model.rightLeg;
             case RIGHT_LEG_WEAR:
-                HUJsonUtils.rotatePartOfModel(model.rightPants, xyz, angle);
-                return;
+                return model.rightPants;
             case LEFT_LEG:
-                HUJsonUtils.rotatePartOfModel(model.leftLeg, xyz, angle);
-                return;
+                return model.leftLeg;
             case LEFT_LEG_WEAR:
-                HUJsonUtils.rotatePartOfModel(model.leftPants, xyz, angle);
-                return;
+                return model.leftPants;
         }
-    }
-
-    public void translatePivot(PlayerModel model, String xyz, float value) {
-        switch (this) {
-            case HEAD:
-                HUJsonUtils.translatePivotOfModel(model.head, xyz, value);
-                return;
-            case HEAD_WEAR:
-                HUJsonUtils.translatePivotOfModel(model.hat, xyz, value);
-                return;
-            case CHEST:
-                HUJsonUtils.translatePivotOfModel(model.body, xyz, value);
-                return;
-            case CHEST_WEAR:
-                HUJsonUtils.translatePivotOfModel(model.jacket, xyz, value);
-                return;
-            case RIGHT_ARM:
-                HUJsonUtils.translatePivotOfModel(model.rightArm, xyz, value);
-                return;
-            case RIGHT_ARM_WEAR:
-                HUJsonUtils.translatePivotOfModel(model.rightSleeve, xyz, value);
-                return;
-            case LEFT_ARM:
-                HUJsonUtils.translatePivotOfModel(model.leftArm, xyz, value);
-                return;
-            case LEFT_ARM_WEAR:
-                HUJsonUtils.translatePivotOfModel(model.leftSleeve, xyz, value);
-                return;
-            case RIGHT_LEG:
-                HUJsonUtils.translatePivotOfModel(model.rightLeg, xyz, value);
-                return;
-            case RIGHT_LEG_WEAR:
-                HUJsonUtils.translatePivotOfModel(model.rightPants, xyz, value);
-                return;
-            case LEFT_LEG:
-                HUJsonUtils.translatePivotOfModel(model.leftLeg, xyz, value);
-                return;
-            case LEFT_LEG_WEAR:
-                HUJsonUtils.translatePivotOfModel(model.leftPants, xyz, value);
-                return;
-        }
+        return null;
     }
 
     public static PlayerPart getByName(String name) {

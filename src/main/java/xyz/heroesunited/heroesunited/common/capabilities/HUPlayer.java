@@ -218,9 +218,7 @@ public class HUPlayer implements IHUPlayer {
         CompoundNBT nbt = new CompoundNBT();
 
         CompoundNBT levels = new CompoundNBT();
-        superpowerLevels.forEach((resourceLocation,level)->{
-            levels.put(resourceLocation.toString(),level.writeNBT());
-        });
+        superpowerLevels.forEach((resourceLocation,level)-> levels.put(resourceLocation.toString(),level.writeNBT()));
         nbt.put("levels",levels);
         nbt.putBoolean("Flying", this.flying);
         nbt.putFloat("SlowMo", this.slowMo);

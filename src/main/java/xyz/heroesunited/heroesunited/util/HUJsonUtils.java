@@ -125,30 +125,30 @@ public class HUJsonUtils {
         return -1;
     }
 
-    public static void rotatePartOfModel(ModelRenderer modelRenderer, String xyz, float angle) {
+    public static void rotatePartOfModel(ModelRenderer modelRenderer, String xyz, float angle, boolean player) {
         switch (xyz) {
             case "x":
-                modelRenderer.xRot = (float) Math.toRadians(angle);
+                modelRenderer.xRot = (player ? modelRenderer.xRot : 0) + (float) Math.toRadians(angle);
                 break;
             case "y":
-                modelRenderer.yRot = (float) Math.toRadians(angle);
+                modelRenderer.yRot = (player ? modelRenderer.yRot : 0) + (float) Math.toRadians(angle);
                 break;
             case "z":
-                modelRenderer.zRot = (float) Math.toRadians(angle);
+                modelRenderer.zRot = (player ? modelRenderer.zRot : 0) + (float) Math.toRadians(angle);
                 break;
         }
     }
 
-    public static void translatePivotOfModel(ModelRenderer modelRenderer, String xyz, float value) {
+    public static void translatePivotOfModel(ModelRenderer modelRenderer, String xyz, float value, boolean player) {
         switch (xyz) {
             case "x":
-                modelRenderer.x = value;
+                modelRenderer.x = (player ? modelRenderer.x : 0) + value;
                 break;
             case "y":
-                modelRenderer.y = value;
+                modelRenderer.y = (player ? modelRenderer.y : 0) + value;
                 break;
             case "z":
-                modelRenderer.z = value;
+                modelRenderer.z = (player ? modelRenderer.z : 0) + value;
                 break;
         }
     }

@@ -29,33 +29,26 @@ public class HUPlayerUtil {
         if (player.level.isClientSide) player.displayClientMessage(text, showInActionbar);
     }
 
-    public static void playSound(PlayerEntity player, Vector3d vec, SoundEvent sound, SoundCategory category, float volume, float pitch) {
-        if (player instanceof ServerPlayerEntity) {
-            ((ServerPlayerEntity) player).connection.send(new SPlaySoundPacket(sound.getRegistryName(), category, new Vector3d(vec.x, vec.y, vec.z), volume, pitch));
-        }
-    }
-
     public static void playSoundToAll(World world, Vector3d vec, double range, SoundEvent sound, SoundCategory category, float volume, float pitch) {
-        for (PlayerEntity players : world.getEntitiesOfClass(PlayerEntity.class, getCollisionBoxWithRange(vec, range))) {
-            playSound(players, vec, sound, category, volume, pitch);
-        }
-    }
-
-    public static void spawnParticle(PlayerEntity player, IParticleData particleIn, boolean longDistanceIn, Vector3d posVc3d, Vector3d offsetVc3d, float speedIn, int countIn) {
-        if (player instanceof ServerPlayerEntity) {
-            ((ServerPlayerEntity) player).connection.send(new SSpawnParticlePacket(particleIn, longDistanceIn, posVc3d.x, posVc3d.y, posVc3d.z, (float) offsetVc3d.x, (float) offsetVc3d.y, (float) offsetVc3d.z, speedIn, countIn));
+        for (PlayerEntity player : world.getEntitiesOfClass(PlayerEntity.class, getCollisionBoxWithRange(vec, range))) {
+            if (player instanceof ServerPlayerEntity) {
+                ((ServerPlayerEntity) player).connection.send(new SPlaySoundPacket(sound.getRegistryName(), category, new Vector3d(vec.x, vec.y, vec.z), volume, pitch));
+            }
         }
     }
 
     public static void spawnParticleForAll(World world, double range, IParticleData particleIn, boolean longDistanceIn, Vector3d posVc3d, Vector3d offsetVc3d, float speedIn, int countIn) {
-        for (PlayerEntity players : world.getEntitiesOfClass(PlayerEntity.class, getCollisionBoxWithRange(posVc3d, range))) {
-            spawnParticle(players, particleIn, longDistanceIn, posVc3d, offsetVc3d, speedIn, countIn);
+        for (PlayerEntity player : world.getEntitiesOfClass(PlayerEntity.class, getCollisionBoxWithRange(posVc3d, range))) {
+            if (player instanceof ServerPlayerEntity) {
+                ((ServerPlayerEntity) player).connection.send(new SSpawnParticlePacket(particleIn, longDistanceIn, posVc3d.x, posVc3d.y, posVc3d.z, (float) offsetVc3d.x, (float) offsetVc3d.y, (float) offsetVc3d.z, speedIn, countIn));
+            }
         }
     }
 
     public static boolean haveSmallArms(Entity entity) {
-        if (entity instanceof AbstractClientPlayerEntity)
+        if (entity instanceof AbstractClientPlayerEntity) {
             return ((AbstractClientPlayerEntity) entity).getModelName().equalsIgnoreCase("slim");
+        }
         return false;
     }
 
@@ -119,25 +112,25 @@ public class HUPlayerUtil {
             if (player.getItemBySlot(EquipmentSlotType.HEAD).isEmpty()) {
                 player.setItemSlot(EquipmentSlotType.HEAD, new ItemStack(helmet));
             } else player.addItem(new ItemStack(helmet));
-            playSound(player, getPlayerPos(player), SoundEvents.ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
+            player.playSound(SoundEvents.ITEM_PICKUP, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
         }
         if (chest != null) {
             if (player.getItemBySlot(EquipmentSlotType.CHEST).isEmpty()) {
                 player.setItemSlot(EquipmentSlotType.CHEST, new ItemStack(chest));
             } else player.addItem(new ItemStack(chest));
-            playSound(player, getPlayerPos(player), SoundEvents.ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
+            player.playSound(SoundEvents.ITEM_PICKUP, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
         }
         if (legs != null) {
             if (player.getItemBySlot(EquipmentSlotType.LEGS).isEmpty()) {
                 player.setItemSlot(EquipmentSlotType.LEGS, new ItemStack(legs));
             } else player.addItem(new ItemStack(legs));
-            playSound(player, getPlayerPos(player), SoundEvents.ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
+            player.playSound(SoundEvents.ITEM_PICKUP, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
         }
         if (feet != null) {
             if (player.getItemBySlot(EquipmentSlotType.FEET).isEmpty()) {
                 player.setItemSlot(EquipmentSlotType.FEET, new ItemStack(feet));
             } else player.addItem(new ItemStack(feet));
-            playSound(player, getPlayerPos(player), SoundEvents.ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
+            player.playSound(SoundEvents.ITEM_PICKUP, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
         }
     }
 }
