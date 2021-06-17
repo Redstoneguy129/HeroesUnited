@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.common.objects.items;
 
+import com.google.common.collect.Lists;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -15,6 +16,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
+import xyz.heroesunited.heroesunited.util.PlayerPart;
 
 import java.util.List;
 
@@ -44,6 +46,32 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
             tooltip.add(new StringTextComponent("Made For " + name).withStyle(TextFormatting.ITALIC));
         }
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
+    }
+
+    @Override
+    public List<PlayerPart> getHiddenParts() {
+        List<PlayerPart> parts = Lists.newArrayList();
+        if (this == HUItems.FINN_ARM) {
+            parts.add(PlayerPart.RIGHT_ARM);
+            parts.add(PlayerPart.RIGHT_ARM_WEAR);
+        }
+        if (this == HUItems.REDA_SHIRT) {
+            parts.add(PlayerPart.RIGHT_ARM);
+            parts.add(PlayerPart.RIGHT_ARM_WEAR);
+            parts.add(PlayerPart.LEFT_ARM);
+            parts.add(PlayerPart.LEFT_ARM_WEAR);
+            parts.add(PlayerPart.CHEST);
+            parts.add(PlayerPart.CHEST_WEAR);
+        }
+        if (this == HUItems.WALLE_HEAD) {
+            parts.add(PlayerPart.HEAD);
+            parts.add(PlayerPart.HEAD_WEAR);
+        }
+        if (this == HUItems.JASON_MASK) {
+            parts.add(PlayerPart.HEAD_WEAR);
+        }
+
+        return parts;
     }
 
     @OnlyIn(Dist.CLIENT)

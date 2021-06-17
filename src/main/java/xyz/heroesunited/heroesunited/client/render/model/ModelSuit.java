@@ -1,7 +1,5 @@
 package xyz.heroesunited.heroesunited.client.render.model;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.RenderType;
@@ -29,19 +27,24 @@ public class ModelSuit<T extends LivingEntity> extends BipedModel<T> {
     public ModelSuit(float scale, boolean slim) {
         super(RenderType::entityTranslucent, scale, 0.0F, 64, 64);
         if (slim) {
+            this.leftArm = new ModelRenderer(this, 32, 48);
+            this.leftArm.addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, scale);
+            this.leftArm.setPos(5.0F, 2.5F, 0.0F);
+            this.rightArm = new ModelRenderer(this, 40, 16);
+            this.rightArm.addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, scale);
+            this.rightArm.setPos(-5.0F, 2.5F, 0.0F);
             this.leftSleeve = new ModelRenderer(this, 48, 48);
             this.leftSleeve.addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, scale + 0.25F);
-            this.leftArm.addChild(leftSleeve);
             this.rightSleeve = new ModelRenderer(this, 40, 32);
             this.rightSleeve.addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, scale + 0.25F);
-            this.rightArm.addChild(rightSleeve);
         } else {
+            this.leftArm = new ModelRenderer(this, 32, 48);
+            this.leftArm.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale);
+            this.leftArm.setPos(5.0F, 2.0F, 0.0F);
             this.leftSleeve = new ModelRenderer(this, 48, 48);
             this.leftSleeve.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale + 0.25F);
-            this.leftArm.addChild(leftSleeve);
             this.rightSleeve = new ModelRenderer(this, 40, 32);
             this.rightSleeve.addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale + 0.25F);
-            this.rightArm.addChild(rightSleeve);
         }
 
         this.leftLeg = new ModelRenderer(this, 16, 48);
@@ -49,13 +52,15 @@ public class ModelSuit<T extends LivingEntity> extends BipedModel<T> {
         this.leftLeg.setPos(1.9F, 12.0F, 0.0F);
         this.leftPants = new ModelRenderer(this, 0, 48);
         this.leftPants.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale + 0.25F);
-        this.leftLeg.addChild(leftPants);
         this.rightPants = new ModelRenderer(this, 0, 32);
         this.rightPants.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale + 0.25F);
-        this.rightLeg.addChild(rightPants);
         this.jacket = new ModelRenderer(this, 16, 32);
         this.jacket.addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, scale + 0.25F);
         this.body.addChild(jacket);
+        this.rightArm.addChild(rightSleeve);
+        this.leftArm.addChild(leftSleeve);
+        this.leftLeg.addChild(leftPants);
+        this.rightLeg.addChild(rightPants);
     }
 
     public void setupAnim(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
