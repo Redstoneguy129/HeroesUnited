@@ -4,14 +4,15 @@
   "refmap": "heroesunited.refmap.json",
   "client": [
     "client.MixinArmorLayerRenderer",
+    "client.MixinEntityRenderer",
     "client.MixinEntityRendererManager",
     "client.MixinLightTexture",
     "client.MixinLivingRenderer",
     "client.MixinMinecraft",
+    "client.MixinNetworkPlayerInfo",
     "client.MixinPlayerModel",
     "client.MixinPlayerRenderer",
-    "client.MixinServerWorldInfo",
-    "client.MixinEntityRenderer"
+    "client.MixinServerWorldInfo"
   ],
   "mixins": [
     "MixinIBlockReader",
