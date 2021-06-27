@@ -65,11 +65,6 @@ public class ModelSuit<T extends LivingEntity> extends BipedModel<T> {
 
     public void setupAnim(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         super.setupAnim(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-        this.leftPants.copyFrom(this.leftLeg);
-        this.rightPants.copyFrom(this.rightLeg);
-        this.leftSleeve.copyFrom(this.leftArm);
-        this.rightSleeve.copyFrom(this.rightArm);
-        this.jacket.copyFrom(this.body);
         if (entityIn instanceof ArmorStandEntity) {
             ArmorStandEntity armorStand = (ArmorStandEntity)entityIn;
             this.head.xRot = 0.017453292F * armorStand.getHeadPose().getX();

@@ -30,7 +30,7 @@ public class HUMixinPlugin implements IMixinConfigPlugin
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return this.optifineLoaded ? !mixinClassName.equals("xyz.heroesunited.heroesunited.mixin.client.LivingRendererMixin") : !mixinClassName.equals("xyz.heroesunited.heroesunited.mixin.client.MixinOptifineLivingRenderer");
+        return this.optifineLoaded ? !mixinClassName.equals("xyz.heroesunited.heroesunited.mixin.client.MixinLivingRenderer") : !mixinClassName.equals("xyz.heroesunited.heroesunited.mixin.client.MixinOptifineLivingRenderer");
     }
 
     @Override

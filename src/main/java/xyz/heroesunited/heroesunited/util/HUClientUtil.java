@@ -130,7 +130,7 @@ public class HUClientUtil {
                         }
                 });
             }
-            model.renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entitySolid(texture)), packedLightIn, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
+            model.renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entityTranslucent(texture)), packedLightIn, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
             matrix.popPose();
         }
     }
