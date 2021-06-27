@@ -188,7 +188,7 @@ public abstract class Suit {
 
                 geo.setCurrentItem(player, stack, stack.getEquipmentSlot());
                 geo.applyEntityStats(renderer.getModel());
-                if (model.topLevelBones.size() == 0)
+                if (model.topLevelBones.isEmpty())
                     throw new GeckoLibException(getRegistryName(), "Model doesn't have any parts");
                 GeoBone bone = model.getBone(side == HandSide.LEFT ? geo.leftArmBone : geo.rightArmBone).get();
                 geo.attackTime = 0.0F;
@@ -206,12 +206,15 @@ public abstract class Suit {
                 bone.setPositionX(side == HandSide.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
                 bone.setPositionY(2 - modelRenderer.y);
                 bone.setPositionZ(modelRenderer.z);
+                bone.setHidden(false);
+
+                if (bone.childBones.isEmpty() && bone.childCubes.isEmpty())
+                    throw new GeckoLibException(getRegistryName(), "Model doesn't have any parts");
 
                 matrix.pushPose();
                 Minecraft.getInstance().textureManager.bind(geo.getTextureLocation(suitItem));
                 IVertexBuilder builder = bufferIn.getBuffer(RenderType.entityTranslucent(geo.getTextureLocation(suitItem)));
                 Color renderColor = geo.getRenderColor(suitItem, 0, matrix, null, builder, packedLightIn);
-                bone.setHidden(false);
                 geo.renderRecursively(bone, matrix, builder, packedLightIn, OverlayTexture.NO_OVERLAY, (float) renderColor.getRed() / 255f, (float) renderColor.getGreen() / 255f, (float) renderColor.getBlue() / 255f, (float) renderColor.getAlpha() / 255);
                 matrix.popPose();
                 matrix.scale(-1.0F, -1.0F, 1.0F);

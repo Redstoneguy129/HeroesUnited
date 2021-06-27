@@ -5,7 +5,6 @@ import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
@@ -40,12 +39,8 @@ public abstract class MixinPlayerRenderer {
 
     @Inject(method = "renderHand(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;ILnet/minecraft/client/entity/player/AbstractClientPlayerEntity;Lnet/minecraft/client/renderer/model/ModelRenderer;Lnet/minecraft/client/renderer/model/ModelRenderer;)V", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, target = "Lnet/minecraft/client/renderer/model/ModelRenderer;render(Lcom/mojang/blaze3d/matrix/MatrixStack;Lcom/mojang/blaze3d/vertex/IVertexBuilder;II)V"))
     private void renderItem(MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn, AbstractClientPlayerEntity player, ModelRenderer rendererArmIn, ModelRenderer rendererArmwearIn, CallbackInfo ci) {
-        PlayerRenderer playerRenderer = ((PlayerRenderer) (Object) this);
-        PlayerModel<AbstractClientPlayerEntity> model = playerRenderer.getModel();
-        HandSide side = rendererArmIn == model.rightArm ? HandSide.RIGHT : HandSide.LEFT;
         boolean renderArm = true;
         for (Ability ability : AbilityHelper.getAbilities(player)) {
-            ability.renderFirstPersonArm(playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side);
             if (!ability.renderFirstPersonArm(player)) {
                 renderArm = false;
                 break;
@@ -54,7 +49,20 @@ public abstract class MixinPlayerRenderer {
         if (!renderArm) {
             rendererArmIn.visible = false;
             rendererArmwearIn.visible = false;
-        } else {
+        }
+    }
+
+    @Inject(method = "renderHand(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;ILnet/minecraft/client/entity/player/AbstractClientPlayerEntity;Lnet/minecraft/client/renderer/model/ModelRenderer;Lnet/minecraft/client/renderer/model/ModelRenderer;)V", at = @At("TAIL"))
+    private void renderItemPost(MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn, AbstractClientPlayerEntity player, ModelRenderer rendererArmIn, ModelRenderer rendererArmwearIn, CallbackInfo ci) {
+        PlayerRenderer playerRenderer = ((PlayerRenderer) (Object) this);
+        MinecraftForge.EVENT_BUS.post(new HURenderPlayerHandEvent.Post(player, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, rendererArmIn == playerRenderer.getModel().rightArm ? HandSide.RIGHT : HandSide.LEFT));
+        HandSide side = rendererArmIn == playerRenderer.getModel().rightArm ? HandSide.RIGHT : HandSide.LEFT;
+
+        for (Ability ability : AbilityHelper.getAbilities(player)) {
+            ability.renderFirstPersonArm(playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side);
+        }
+
+        if (rendererArmIn.visible) {
             if (Suit.getSuit(player) != null) {
                 Suit.getSuit(player).renderFirstPersonArm(playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side);
             }
@@ -65,15 +73,15 @@ public abstract class MixinPlayerRenderer {
                         IAccessory accessoire = ((IAccessory) stack.getItem());
                         boolean shouldRender = true;
                         for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
-                            SuitItem item = Suit.getSuitItem(equipmentSlot,player);
+                            SuitItem item = Suit.getSuitItem(equipmentSlot, player);
                             if (item != null && item.getSuit().getSlotForHide(equipmentSlot).contains(EquipmentAccessoriesSlot.getFromSlotIndex(slot))) {
                                 shouldRender = false;
                             }
                         }
-                        if(shouldRender){
+                        if (shouldRender) {
                             if (accessoire.renderDefaultModel()) {
                                 ModelSuit suitModel = new ModelSuit(accessoire.getScale(stack), HUPlayerUtil.haveSmallArms(player));
-                                suitModel.copyPropertiesFrom(model);
+                                suitModel.copyPropertiesFrom(playerRenderer.getModel());
                                 suitModel.renderArm(side, matrixStackIn, bufferIn.getBuffer(RenderType.entityTranslucent(accessoire.getTexture(stack, player, EquipmentAccessoriesSlot.getFromSlotIndex(slot)))), combinedLightIn, player);
                             } else {
                                 accessoire.renderFirstPersonArm(playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side, stack, slot);
@@ -83,11 +91,5 @@ public abstract class MixinPlayerRenderer {
                 }
             });
         }
-    }
-
-    @Inject(method = "renderHand(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;ILnet/minecraft/client/entity/player/AbstractClientPlayerEntity;Lnet/minecraft/client/renderer/model/ModelRenderer;Lnet/minecraft/client/renderer/model/ModelRenderer;)V", at = @At("RETURN"))
-    private void renderItemPost(MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn, AbstractClientPlayerEntity player, ModelRenderer rendererArmIn, ModelRenderer rendererArmwearIn, CallbackInfo ci) {
-        PlayerRenderer playerRenderer = ((PlayerRenderer) (Object) this);
-        MinecraftForge.EVENT_BUS.post(new HURenderPlayerHandEvent.Post(player, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, rendererArmIn == playerRenderer.getModel().rightArm ? HandSide.RIGHT : HandSide.LEFT));
     }
 }

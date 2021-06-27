@@ -28,9 +28,9 @@ public class RotatePartsAbility extends JSONAbility {
                 if (part != null && entry.getValue() instanceof JsonObject) {
                     JsonObject jsonObject = (JsonObject) entry.getValue();
                     if (jsonObject.has("value")) {
-                        HUJsonUtils.translatePivotOfModel(part.getModelRendererByPart(event.getPlayerModel()), JSONUtils.getAsString(jsonObject, "xyz"), JSONUtils.getAsFloat(jsonObject, "value"), JSONUtils.getAsBoolean(jsonObject, "player"));
+                        HUJsonUtils.translatePivotOfModel(part.getModelRendererByPart(event.getPlayerModel()), JSONUtils.getAsString(jsonObject, "xyz"), JSONUtils.getAsFloat(jsonObject, "value"), JSONUtils.getAsBoolean(jsonObject, "player", false));
                     } else {
-                        HUJsonUtils.rotatePartOfModel(part.getModelRendererByPart(event.getPlayerModel()), JSONUtils.getAsString(jsonObject, "xyz"), JSONUtils.getAsFloat(jsonObject, "angle"), JSONUtils.getAsBoolean(jsonObject, "player"));
+                        HUJsonUtils.rotatePartOfModel(part.getModelRendererByPart(event.getPlayerModel()), JSONUtils.getAsString(jsonObject, "xyz"), JSONUtils.getAsFloat(jsonObject, "angle"), JSONUtils.getAsBoolean(jsonObject, "player", false));
                     }
                 }
             }

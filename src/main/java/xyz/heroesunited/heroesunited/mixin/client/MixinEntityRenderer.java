@@ -12,7 +12,7 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 @Mixin(EntityRenderer.class)
 public class MixinEntityRenderer {
 
-    @Inject(method = "Lnet/minecraft/client/renderer/entity/EntityRenderer;shouldRender(Lnet/minecraft/entity/Entity;Lnet/minecraft/client/renderer/culling/ClippingHelper;DDD)Z", at = @At(value = "HEAD"), cancellable = true)
+    @Inject(method = "shouldRender(Lnet/minecraft/entity/Entity;Lnet/minecraft/client/renderer/culling/ClippingHelper;DDD)Z", at = @At(value = "HEAD"), cancellable = true)
     public <T extends Entity> void onShouldRender(T entity, ClippingHelper p_225626_2_, double p_225626_3_, double p_225626_5_, double p_225626_7_, CallbackInfoReturnable ci) {
         if(entity.level.dimension().equals(HeroesUnited.SPACE)){
             ci.setReturnValue(true);

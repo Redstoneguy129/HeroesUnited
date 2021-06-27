@@ -1,0 +1,146 @@
+{
+  "credit": "Made with Blockbench",
+  "parent": "builtin/entity",
+  "texture_size": [
+    64,
+    64
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        0
+      ],
+      "translation": [
+        0.5,
+        -4.5,
+        0.25
+      ],
+      "scale": [
+        0.64,
+        0.54,
+        0.32
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        0,
+        -4.25,
+        0.25
+      ],
+      "scale": [
+        0.64,
+        0.54,
+        0.32
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        0
+      ],
+      "translation": [
+        0,
+        -1.5,
+        0
+      ],
+      "scale": [
+        0.44,
+        0.34,
+        0.12
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        0,
+        -1.5,
+        0
+      ],
+      "scale": [
+        0.44,
+        0.34,
+        0.12
+      ]
+    },
+    "ground": {
+      "rotation": [
+        90,
+        0,
+        0
+      ],
+      "translation": [
+        -1.5,
+        0,
+        -17
+      ],
+      "scale": [
+        0.84,
+        0.74,
+        0.52
+      ]
+    },
+    "gui": {
+      "rotation": [
+        0,
+        -180,
+        45
+      ],
+      "translation": [
+        -6.25,
+        -5.75,
+        0
+      ],
+      "scale": [
+        0.44,
+        0.34,
+        0.12
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        0,
+        -98
+      ],
+      "translation": [
+        -21.25,
+        7,
+        0
+      ],
+      "scale": [
+        0.84,
+        0.74,
+        0.52
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        0,
+        -35.25
+      ],
+      "translation": [
+        -7,
+        -9.25,
+        0
+      ],
+      "scale": [
+        0.626953125,
+        0.474609375,
+        1
+      ]
+    }
+  }
+}

@@ -21,14 +21,13 @@ import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 import software.bernie.geckolib3.util.GeoUtils;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 
-import java.awt.*;
 import java.util.Arrays;
+import java.util.Optional;
 
 public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends BipedModel implements IGeoRenderer<T> {
 
     protected T currentAbility;
     protected AbstractClientPlayerEntity player;
-    protected String name;
 
     public String headBone = "armorHead";
     public String bodyBone = "armorBody";
@@ -119,31 +118,32 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends BipedMo
 
     public void renderFirstPersonArm(T ability, PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side) {
         GeoModel model = this.getGeoModelProvider().getModel(this.getGeoModelProvider().getModelLocation(ability));
-        if (model.topLevelBones.size() == 0)
+        if (model.topLevelBones.isEmpty())
             return;
-        GeoBone bone = model.getBone(side == HandSide.LEFT ? this.leftArmBone : this.rightArmBone).get();
+        Optional<GeoBone> bone = model.getBone(side == HandSide.LEFT ? this.leftArmBone : this.rightArmBone);
+        if (!bone.isPresent() || bone.get().childBones.isEmpty() && bone.get().childCubes.isEmpty())
+            return;
+
         this.attackTime = 0.0F;
         this.crouching = false;
         this.swimAmount = 0.0F;
         matrix.pushPose();
         matrix.translate(0.0D, 1.5F, 0.0D);
         matrix.scale(-1.0F, -1.0F, 1.0F);
-        AnimationEvent itemEvent = new AnimationEvent(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.player));
+        AnimationEvent itemEvent = new AnimationEvent(ability, 0, 0, 0, false, Arrays.asList(ability, this.player));
         this.getGeoModelProvider().setLivingAnimations(ability, this.getUniqueID(ability), itemEvent);
 
         ModelRenderer modelRenderer = side == HandSide.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
-        GeoUtils.copyRotations(modelRenderer, bone);
-        bone.setPositionX(side == HandSide.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
-        bone.setPositionY(2 - modelRenderer.y);
-        bone.setPositionZ(modelRenderer.z);
+        GeoUtils.copyRotations(modelRenderer, bone.get());
+        bone.get().setPositionX(side == HandSide.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
+        bone.get().setPositionY(2 - modelRenderer.y);
+        bone.get().setPositionZ(modelRenderer.z);
+        bone.get().setHidden(false);
 
         matrix.pushPose();
-        renderer.getModel().translateToHand(side, matrix);
         Minecraft.getInstance().textureManager.bind(this.getTextureLocation(ability));
         IVertexBuilder builder = bufferIn.getBuffer(RenderType.entityTranslucent(this.getTextureLocation(ability)));
-        Color renderColor = this.getRenderColor(ability, 0, matrix, null, builder, packedLightIn);
-        bone.setHidden(false);
-        this.renderRecursively(bone, matrix, builder, packedLightIn, OverlayTexture.NO_OVERLAY, (float) renderColor.getRed() / 255f, (float) renderColor.getGreen() / 255f, (float) renderColor.getBlue() / 255f, (float) renderColor.getAlpha() / 255);
+        this.renderRecursively(bone.get(), matrix, builder, packedLightIn, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
         matrix.popPose();
         matrix.scale(-1.0F, -1.0F, 1.0F);
         matrix.translate(0.0D, -1.5F, 0.0D);
@@ -160,10 +160,9 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends BipedMo
         return this.modelProvider.getTextureLocation(instance);
     }
 
-    public void setCurrentAbility(AbstractClientPlayerEntity player, T ability, BipedModel from, String name) {
+    public void setCurrentAbility(AbstractClientPlayerEntity player, T ability, BipedModel from) {
         this.player = player;
         this.currentAbility = ability;
-        this.name = name;
         from.copyPropertiesTo(this);
     }
 
