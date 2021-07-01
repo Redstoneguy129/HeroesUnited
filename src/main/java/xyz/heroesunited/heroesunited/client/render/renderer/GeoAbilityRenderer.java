@@ -69,52 +69,69 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends BipedMo
     }
 
     public void fitToBiped() {
-        IBone headBone = this.modelProvider.getBone(this.headBone);
-        IBone bodyBone = this.modelProvider.getBone(this.bodyBone);
-        IBone rightArmBone = this.modelProvider.getBone(this.rightArmBone);
-        IBone leftArmBone = this.modelProvider.getBone(this.leftArmBone);
-        IBone rightLegBone = this.modelProvider.getBone(this.rightLegBone);
-        IBone leftLegBone = this.modelProvider.getBone(this.leftLegBone);
-        IBone rightBootBone = this.modelProvider.getBone(this.rightBootBone);
-        IBone leftBootBone = this.modelProvider.getBone(this.leftBootBone);
-
-        try {
+        if (this.headBone != null) {
+            IBone headBone = this.modelProvider.getBone(this.headBone);
             GeoUtils.copyRotations(this.head, headBone);
-            GeoUtils.copyRotations(this.body, bodyBone);
-            GeoUtils.copyRotations(this.rightArm, rightArmBone);
-            GeoUtils.copyRotations(this.leftArm, leftArmBone);
-            GeoUtils.copyRotations(this.rightLeg, rightLegBone);
-            GeoUtils.copyRotations(this.leftLeg, leftLegBone);
-            GeoUtils.copyRotations(this.rightLeg, rightBootBone);
-            GeoUtils.copyRotations(this.leftLeg, leftBootBone);
             headBone.setPositionX(this.head.x);
             headBone.setPositionY(-this.head.y);
             headBone.setPositionZ(this.head.z);
+        }
+
+        if (this.bodyBone != null) {
+            IBone bodyBone = this.modelProvider.getBone(this.bodyBone);
+            GeoUtils.copyRotations(this.body, bodyBone);
             bodyBone.setPositionX(this.body.x);
             bodyBone.setPositionY(-this.body.y);
             bodyBone.setPositionZ(this.body.z);
-            rightArmBone.setPositionX(this.rightArm.x + 5.0F);
-            rightArmBone.setPositionY(2.0F - this.rightArm.y);
+        }
+
+        if (this.rightArmBone != null) {
+            IBone rightArmBone = this.modelProvider.getBone(this.rightArmBone);
+            GeoUtils.copyRotations(this.rightArm, rightArmBone);
+            rightArmBone.setPositionX(this.rightArm.x + 5);
+            rightArmBone.setPositionY(2 - this.rightArm.y);
             rightArmBone.setPositionZ(this.rightArm.z);
-            leftArmBone.setPositionX(this.leftArm.x - 5.0F);
-            leftArmBone.setPositionY(2.0F - this.leftArm.y);
+        }
+
+        if (this.leftArmBone != null) {
+            IBone leftArmBone = this.modelProvider.getBone(this.leftArmBone);
+            GeoUtils.copyRotations(this.leftArm, leftArmBone);
+            leftArmBone.setPositionX(this.leftArm.x - 5);
+            leftArmBone.setPositionY(2 - this.leftArm.y);
             leftArmBone.setPositionZ(this.leftArm.z);
-            rightLegBone.setPositionX(this.rightLeg.x + 2.0F);
-            rightLegBone.setPositionY(12.0F - this.rightLeg.y);
+        }
+
+        if (this.rightLegBone != null) {
+            IBone rightLegBone = this.modelProvider.getBone(this.rightLegBone);
+            GeoUtils.copyRotations(this.rightLeg, rightLegBone);
+            rightLegBone.setPositionX(this.rightLeg.x + 2);
+            rightLegBone.setPositionY(12 - this.rightLeg.y);
             rightLegBone.setPositionZ(this.rightLeg.z);
-            leftLegBone.setPositionX(this.leftLeg.x - 2.0F);
-            leftLegBone.setPositionY(12.0F - this.leftLeg.y);
+            if (this.rightBootBone != null) {
+                IBone rightBootBone = this.modelProvider.getBone(this.rightBootBone);
+                GeoUtils.copyRotations(this.rightLeg, rightBootBone);
+                rightBootBone.setPositionX(this.rightLeg.x + 2);
+                rightBootBone.setPositionY(12 - this.rightLeg.y);
+                rightBootBone.setPositionZ(this.rightLeg.z);
+            }
+        }
+
+        if (this.leftLegBone != null) {
+            IBone leftLegBone = this.modelProvider.getBone(this.leftLegBone);
+            GeoUtils.copyRotations(this.leftLeg, leftLegBone);
+            leftLegBone.setPositionX(this.leftLeg.x - 2);
+            leftLegBone.setPositionY(12 - this.leftLeg.y);
             leftLegBone.setPositionZ(this.leftLeg.z);
-            rightBootBone.setPositionX(this.rightLeg.x + 2.0F);
-            rightBootBone.setPositionY(12.0F - this.rightLeg.y);
-            rightBootBone.setPositionZ(this.rightLeg.z);
-            leftBootBone.setPositionX(this.leftLeg.x - 2.0F);
-            leftBootBone.setPositionY(12.0F - this.leftLeg.y);
-            leftBootBone.setPositionZ(this.leftLeg.z);
-        } catch (Exception var10) {
-            throw new RuntimeException("Could not find an armor bone.", var10);
+            if (this.leftBootBone != null) {
+                IBone leftBootBone = this.modelProvider.getBone(this.leftBootBone);
+                GeoUtils.copyRotations(this.leftLeg, leftBootBone);
+                leftBootBone.setPositionX(this.leftLeg.x - 2);
+                leftBootBone.setPositionY(12 - this.leftLeg.y);
+                leftBootBone.setPositionZ(this.leftLeg.z);
+            }
         }
     }
+
 
     public void renderFirstPersonArm(T ability, PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side) {
         GeoModel model = this.getGeoModelProvider().getModel(this.getGeoModelProvider().getModelLocation(ability));

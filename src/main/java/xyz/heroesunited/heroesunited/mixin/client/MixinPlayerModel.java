@@ -1,18 +1,15 @@
 package xyz.heroesunited.heroesunited.mixin.client;
 
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 
 /**
@@ -26,7 +23,7 @@ public abstract class MixinPlayerModel {
 
     @Inject(method = "setupAnim", at = @At(value = "HEAD"))
     private void setRotationAngles(LivingEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
-        if (entityIn == null || !(entityIn instanceof PlayerEntity)) return;
+        if (!(entityIn instanceof PlayerEntity)) return;
         PlayerModel model = (PlayerModel) (Object) this;
         HUClientUtil.resetModelRenderer(model.head);
         for (ModelRenderer renderer : bodyParts()) {
@@ -40,13 +37,5 @@ public abstract class MixinPlayerModel {
         model.leftPants.copyFrom(model.leftLeg);
         model.rightLeg.setPos(-1.9F, 12F, 0F);
         model.rightPants.copyFrom(model.rightLeg);
-    }
-
-    @Inject(method = "setupAnim", at = @At(value = "TAIL"))
-    private void setRotationAnglesPost(LivingEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
-        if (entityIn == null || !(entityIn instanceof AbstractClientPlayerEntity)) return;
-        PlayerModel model = (PlayerModel) (Object) this;
-        MinecraftForge.EVENT_BUS.post(new HUSetRotationAnglesEvent((AbstractClientPlayerEntity) entityIn, model, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch));
-        HUClientUtil.copyAnglesToWear(model);
     }
 }

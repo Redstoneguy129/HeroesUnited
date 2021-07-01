@@ -31,7 +31,10 @@ import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.MinecraftForge;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.client.events.HURenderPlayerEvent;
+import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.client.render.model.ModelCape;
 import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
@@ -49,6 +52,16 @@ import static net.minecraft.inventory.EquipmentSlotType.*;
 public class HUClientUtil {
 
     public static final ResourceLocation null_texture = new ResourceLocation(HeroesUnited.MODID + ":textures/null.png");
+
+    public static <M extends PlayerModel<AbstractClientPlayerEntity>> void renderModel(PlayerRenderer renderer, M model, AbstractClientPlayerEntity entity, MatrixStack matrixStack, IRenderTypeBuffer buffer, IVertexBuilder builder, int light, int overlay, float red, float green, float blue, float alpha, float limbSwing, float limbSwingAmount, float ageInTicks, float headPitch, float netHeadYaw) {
+        MinecraftForge.EVENT_BUS.post(new HUSetRotationAnglesEvent(entity, model, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch));
+        HUClientUtil.copyAnglesToWear(model);
+
+        if (!MinecraftForge.EVENT_BUS.post(new HURenderPlayerEvent.Pre(entity, renderer, matrixStack, buffer, builder, light, overlay, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch))) {
+            model.renderToBuffer(matrixStack, builder, light, overlay, red, green, blue, alpha);
+        }
+        MinecraftForge.EVENT_BUS.post(new HURenderPlayerEvent.Post(entity, renderer, matrixStack, buffer, builder, light, overlay, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch));
+    }
 
     public static int getLivingOverlay(LivingEntity entity) {
         return LivingRenderer.getOverlayCoords(entity, 0.0F);

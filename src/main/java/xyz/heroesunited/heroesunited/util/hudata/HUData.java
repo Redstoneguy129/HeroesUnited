@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.JSONUtils;
 
+import java.util.UUID;
+
 public class HUData<T> {
 
     private T value, defaultValue;
@@ -50,6 +52,8 @@ public class HUData<T> {
                 return (double) JSONUtils.getAsFloat(json, id);
             } else if (defaultValue instanceof Long) {
                 return JSONUtils.getAsLong(json, id);
+            } else if (defaultValue instanceof UUID) {
+                return UUID.fromString(JSONUtils.getAsString(json, id));
             }
         }
         return defaultValue;
@@ -72,6 +76,8 @@ public class HUData<T> {
             nbt.putDouble(id, (Double) value);
         } else if (value instanceof Long) {
             nbt.putLong(id, (Long) value);
+        } else if (value instanceof UUID) {
+            nbt.putUUID(id, (UUID) value);
         }
         return nbt;
     }
@@ -90,6 +96,8 @@ public class HUData<T> {
                 return nbt.getDouble(id);
             } else if (defaultValue instanceof Long) {
                 return nbt.getLong(id);
+            } else if (defaultValue instanceof UUID) {
+                return nbt.getUUID(id);
             }
         }
         return defaultValue;

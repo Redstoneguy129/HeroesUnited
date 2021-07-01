@@ -49,7 +49,10 @@ public class ClientSyncHUData {
                             cap.getDataManager().read(entity, this.id, this.nbt));
                 } else {
                     entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent((cap) -> {
-                        HUDataManager manager = cap.getActiveAbilities().get(this.ability).getDataManager();
+                        HUDataManager manager = cap.getAbilities().get(this.ability).getDataManager();
+                        if (cap.getActiveAbilities().containsKey(this.ability)) {
+                            manager = cap.getActiveAbilities().get(this.ability).getDataManager();
+                        }
                         manager.read(entity, this.id, this.nbt);
                     });
                 }

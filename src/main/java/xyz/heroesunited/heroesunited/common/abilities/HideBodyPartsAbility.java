@@ -2,6 +2,7 @@ package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.JSONUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -33,5 +34,17 @@ public class HideBodyPartsAbility extends JSONAbility {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean renderFirstPersonArm(PlayerEntity player) {
+        if (getJsonObject().has("visibility_parts") && getEnabled()) {
+            for (Map.Entry<String, JsonElement> entry : JSONUtils.getAsJsonObject(getJsonObject(), "visibility_parts").entrySet()) {
+                if (PlayerPart.getByName(entry.getKey()) == PlayerPart.ALL) {
+                    return false;
+                }
+            }
+        }
+        return super.renderFirstPersonArm(player);
     }
 }

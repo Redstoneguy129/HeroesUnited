@@ -36,9 +36,6 @@ public class ClientSyncAbilities {
             CompoundNBT nbt = buf.readNbt();
             Ability ability = AbilityType.ABILITIES.getValue(new ResourceLocation(nbt.getString("AbilityType"))).create(id);
             ability.deserializeNBT(nbt);
-            if (nbt.contains("JsonObject")) {
-                ability.setJsonObject(null, new JsonParser().parse(nbt.getString("JsonObject")).getAsJsonObject());
-            }
             this.abilities.put(id, ability);
         }
     }
@@ -61,7 +58,12 @@ public class ClientSyncAbilities {
             if (entity instanceof AbstractClientPlayerEntity) {
                 entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent((a) -> {
                     ImmutableList.copyOf(a.getActiveAbilities().keySet()).forEach(a::removeAbility);
-                    this.abilities.forEach((key, value) -> a.addAbility(key, value));
+                    this.abilities.forEach((key, value) -> {
+                        if (value.serializeNBT().contains("JsonObject")) {
+                            value.setJsonObject(entity, new JsonParser().parse(value.serializeNBT().getString("JsonObject")).getAsJsonObject());
+                        }
+                        a.addAbility(key, value);
+                    });
                 });
             }
         });

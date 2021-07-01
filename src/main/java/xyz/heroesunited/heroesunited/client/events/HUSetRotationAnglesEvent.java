@@ -12,7 +12,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 public class HUSetRotationAnglesEvent extends PlayerEvent {
 
     private final PlayerModel playerModel;
-    private float limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, partialTicks;
+    private final float limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, partialTicks;
 
     public HUSetRotationAnglesEvent(AbstractClientPlayerEntity playerEntity, PlayerModel playerModel, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         super(playerEntity);
