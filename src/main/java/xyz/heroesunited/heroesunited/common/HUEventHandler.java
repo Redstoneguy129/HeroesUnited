@@ -62,6 +62,7 @@ import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.common.space.Planet;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
+import xyz.heroesunited.heroesunited.mixin.entity.MixinILivingEntity;
 import xyz.heroesunited.heroesunited.util.HUOxygenHelper;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 import xyz.heroesunited.heroesunited.util.HUTickrate;
@@ -253,6 +254,16 @@ public class HUEventHandler {
                     IFlyingAbility b = IFlyingAbility.getFlyingAbility(pl);
                     if ((b != null && b.isFlying(pl) && !pl.isOnGround()) || a.isFlying() && !pl.isOnGround()) {
                         HUPlayerUtil.playSoundToAll(pl.level, HUPlayerUtil.getPlayerPos(pl), 10, IFlyingAbility.getFlyingAbility(pl) != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() : HUSounds.FLYING : HUSounds.FLYING, SoundCategory.PLAYERS, 0.05F, 0.5F);
+
+                        float j = 0.0F;
+                        if (pl.isShiftKeyDown()) {
+                            j = -0.2F;
+                        }
+
+                        if (((MixinILivingEntity) pl).isJumping()) {
+                            j = 0.2F;
+                        }
+
                         if (pl.zza > 0F) {
                             Vector3d vec = pl.getLookAngle();
                             double speed = pl.isSprinting() ? 2.5f : 1f;
@@ -261,11 +272,9 @@ public class HUEventHandler {
                                     speed = pl.isSprinting() ? JSONUtils.getAsFloat(ability.getJsonObject(), "maxSpeed", 2.5F) : JSONUtils.getAsFloat(ability.getJsonObject(), "speed");
                                 }
                             }
-                            pl.setDeltaMovement(vec.x * speed, vec.y * speed, vec.z * speed);
-                        } else if (pl.isCrouching()) {
-                            pl.setDeltaMovement(new Vector3d(pl.getDeltaMovement().x, pl.getBbHeight() * -0.12F, pl.getDeltaMovement().z));
+                            pl.setDeltaMovement(vec.x * speed, j + vec.y * speed, vec.z * speed);
                         } else {
-                            pl.setDeltaMovement(new Vector3d(pl.getDeltaMovement().x, Math.sin(pl.tickCount) / 10000F, pl.getDeltaMovement().z));
+                            pl.setDeltaMovement(new Vector3d(pl.getDeltaMovement().x, j + Math.sin(pl.tickCount) / 10000F, pl.getDeltaMovement().z));
                         }
                     }
                 });

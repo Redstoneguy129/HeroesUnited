@@ -46,6 +46,10 @@ public abstract class MixinPlayerRenderer {
                 break;
             }
         }
+        if (Suit.getSuit(player) != null) {
+            rendererArmwearIn.visible = false;
+        }
+
         if (!renderArm) {
             rendererArmIn.visible = false;
             rendererArmwearIn.visible = false;

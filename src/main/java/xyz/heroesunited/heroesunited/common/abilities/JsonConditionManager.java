@@ -100,12 +100,12 @@ public class JsonConditionManager implements INBTSerializable<CompoundNBT> {
 
         ListNBT list = new ListNBT();
         if (!conditions.isEmpty()) {
-            conditions.forEach((key, value) -> {
+            for (Map.Entry<Map.Entry<JsonObject, UUID>, Boolean> entry : conditions.entrySet()) {
                 CompoundNBT conditionTag = new CompoundNBT();
-                conditionTag.putBoolean("Active", value);
-                conditionTag.putString("JsonObject", key.getKey().toString());
+                conditionTag.putBoolean("Active", entry.getValue());
+                conditionTag.putString("JsonObject", entry.getKey().getKey().toString());
                 list.add(conditionTag);
-            });
+            }
         }
         nbt.put("Conditions", list);
 
