@@ -23,6 +23,8 @@
     "block.MixinCactusBlock",
     "block.MixinFourWayBlock",
     "block.MixinWallBlock",
+    "client.MixinIParticle",
+    "client.MixinTexturedParticle",
     "entity.MixinILivingEntity",
     "entity.MixinLivingEntity",
     "entity.MixinPlayerEntity"

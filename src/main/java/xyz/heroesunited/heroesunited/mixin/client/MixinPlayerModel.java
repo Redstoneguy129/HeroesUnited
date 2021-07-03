@@ -19,7 +19,7 @@ import xyz.heroesunited.heroesunited.util.HUClientUtil;
 public abstract class MixinPlayerModel {
     @Shadow @Final private boolean slim;
 
-    @Shadow public abstract Iterable<ModelRenderer> bodyParts();
+    @Shadow protected abstract Iterable<ModelRenderer> bodyParts();
 
     @Inject(method = "setupAnim", at = @At(value = "HEAD"))
     private void setRotationAngles(LivingEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
