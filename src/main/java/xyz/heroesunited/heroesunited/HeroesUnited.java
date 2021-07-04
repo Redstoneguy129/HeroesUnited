@@ -2,8 +2,6 @@ package xyz.heroesunited.heroesunited;
 
 import net.arikia.dev.drpc.DiscordRPC;
 import net.minecraft.client.gui.ScreenManager;
-import net.minecraft.client.renderer.model.ModelBakery;
-import net.minecraft.client.world.DimensionRenderInfo;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemGroup;
@@ -68,6 +66,8 @@ import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.space.CelestialBodies;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
+import xyz.heroesunited.heroesunited.mixin.client.AccessorDimensionRenderInfo;
+import xyz.heroesunited.heroesunited.mixin.client.AccessorModelBakery;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
 
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.FALL_RESISTANCE;
@@ -118,9 +118,9 @@ public class HeroesUnited {
             CelestialBodyRenderer.registerRenderer(new UranusRenderer(), CelestialBodies.URANUS);
             CelestialBodyRenderer.registerRenderer(new NeptuneRenderer(), CelestialBodies.NEPTUNE);
             CelestialBodyRenderer.registerRenderer(new KuiperBeltRenderer(), CelestialBodies.KUIPER_BELT);
-            ModelBakery.UNREFERENCED_TEXTURES.add(SunModel.SUN_TEXTURE_MATERIAL);
-            ModelBakery.UNREFERENCED_TEXTURES.add(EarthModel.EARTH_TEXTURE_MATERIAL);
-            DimensionRenderInfo.EFFECTS.put(new ResourceLocation(MODID,"space"), new SpaceDimensionRenderInfo());
+            AccessorModelBakery.getUnreferencedTex().add(SunModel.SUN_TEXTURE_MATERIAL);
+            AccessorModelBakery.getUnreferencedTex().add(EarthModel.EARTH_TEXTURE_MATERIAL);
+            AccessorDimensionRenderInfo.getEffects().put(new ResourceLocation(MODID,"space"), new SpaceDimensionRenderInfo());
         });
     }
 

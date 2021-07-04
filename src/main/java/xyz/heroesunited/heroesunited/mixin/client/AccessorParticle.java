@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 
 @Mixin(Particle.class)
-public interface MixinIParticle {
+public interface AccessorParticle {
     @Accessor
     ClientWorld getLevel();
 }
