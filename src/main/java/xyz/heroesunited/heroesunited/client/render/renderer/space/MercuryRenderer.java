@@ -7,7 +7,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.ResourceLocation;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.client.render.model.space.EarthModel;
 import xyz.heroesunited.heroesunited.client.render.model.space.PlanetModel;
 
 public class MercuryRenderer extends PlanetRenderer {

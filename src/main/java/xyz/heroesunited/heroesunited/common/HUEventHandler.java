@@ -62,7 +62,7 @@ import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.common.space.Planet;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
-import xyz.heroesunited.heroesunited.mixin.entity.MixinILivingEntity;
+import xyz.heroesunited.heroesunited.mixin.entity.AccessorLivingEntity;
 import xyz.heroesunited.heroesunited.util.HUOxygenHelper;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 import xyz.heroesunited.heroesunited.util.HUTickrate;
@@ -260,7 +260,7 @@ public class HUEventHandler {
                             j = -0.2F;
                         }
 
-                        if (((MixinILivingEntity) pl).isJumping()) {
+                        if (((AccessorLivingEntity) pl).isJumping()) {
                             j = 0.2F;
                         }
 

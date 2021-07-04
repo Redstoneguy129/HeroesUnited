@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.ResourceLocation;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.render.model.space.EarthModel;
-import xyz.heroesunited.heroesunited.client.render.model.space.SunModel;
 
 public class EarthRenderer extends PlanetRenderer {
     public EarthRenderer() {

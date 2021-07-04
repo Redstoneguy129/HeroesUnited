@@ -27,7 +27,7 @@
     "client.AccessorModelBakery",
     "client.AccessorParticle",
     "client.MixinTexturedParticle",
-    "entity.MixinILivingEntity",
+    "entity.AccessorLivingEntity",
     "entity.MixinLivingEntity",
     "entity.MixinPlayerEntity"
   ]

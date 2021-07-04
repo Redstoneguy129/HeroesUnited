@@ -6,14 +6,9 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import xyz.heroesunited.heroesunited.common.objects.entities.EnergyBlastEntity;
 import xyz.heroesunited.heroesunited.common.objects.entities.Spaceship;
-import xyz.heroesunited.heroesunited.util.HUClientUtil;
 
 @OnlyIn(Dist.CLIENT)
 public class SpaceshipRenderer extends EntityRenderer<Spaceship> {

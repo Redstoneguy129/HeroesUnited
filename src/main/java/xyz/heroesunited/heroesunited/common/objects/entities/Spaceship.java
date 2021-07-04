@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.common.objects.entities;
 
-import net.minecraft.command.arguments.EntityAnchorArgument;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MoverType;
