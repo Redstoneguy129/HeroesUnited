@@ -127,7 +127,7 @@ public class HUCoreCommand {
 
     public static Superpower getSuperpower(CommandContext<CommandSource> context, String key) throws CommandSyntaxException {
         ResourceLocation resourceLocation = context.getArgument(key, ResourceLocation.class);
-        Superpower superpower = HUPackSuperpowers.getSuperpower(resourceLocation);
+        Superpower superpower = HUPackSuperpowers.getSuperpowers().get(resourceLocation);
         if (superpower == null) {
             throw DIDNT_EXIST.create(resourceLocation);
         } else {
@@ -136,12 +136,10 @@ public class HUCoreCommand {
     }
 
     private static int disableAbility(CommandSource commandSource, Collection<ServerPlayerEntity> players) {
-        Iterator iterator = players.iterator();
-        while (iterator.hasNext()) {
-            PlayerEntity pl = (PlayerEntity) iterator.next();
-            AbilityHelper.disable(pl);
-            HUPlayer.getCap(pl).syncToAll();
-            HUAbilityCap.getCap(pl).syncToAll();
+        for (ServerPlayerEntity player : players) {
+            AbilityHelper.disable(player);
+            HUPlayer.getCap(player).syncToAll();
+            HUAbilityCap.getCap(player).syncToAll();
         }
         commandSource.sendSuccess(new TranslationTextComponent("commands.heroesunited.ability.disabled"), true);
 

@@ -1,6 +1,7 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.common.collect.Maps;
+import com.google.gson.JsonObject;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
@@ -14,6 +15,7 @@ import java.util.Map;
 public class Superpower implements IAbilityProvider {
 
     private final ResourceLocation name;
+    public JsonObject jsonObject;
     private List<AbilityCreator> containedAbilities;
 
     public Superpower(ResourceLocation name) {
@@ -23,6 +25,11 @@ public class Superpower implements IAbilityProvider {
     public Superpower(ResourceLocation name, List<AbilityCreator> containedAbilities) {
         this.name = name;
         this.containedAbilities = containedAbilities;
+    }
+
+    public Superpower(ResourceLocation name, JsonObject jsonObject) {
+        this(name, AbilityHelper.parseAbilityCreators(jsonObject, name));
+        this.jsonObject = jsonObject;
     }
 
     public ITextComponent getDisplayName() {
