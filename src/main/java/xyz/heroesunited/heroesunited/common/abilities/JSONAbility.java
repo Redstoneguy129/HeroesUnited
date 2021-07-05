@@ -5,18 +5,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.JSONUtils;
-import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 
 import java.util.Map;
 
 public abstract class JSONAbility extends Ability {
-    protected JsonConditionManager conditionManager = new JsonConditionManager() {
-        @Override
-        public void sync(PlayerEntity player) {
-            super.sync(player);
-            JSONAbility.this.syncToAll(player);
-        }
-    };
 
     protected ActionType actionType;
 
@@ -33,14 +25,13 @@ public abstract class JSONAbility extends Ability {
 
     @Override
     public boolean canActivate(PlayerEntity player) {
-        return super.canActivate(player) && this.conditionManager.isEnabled(player, "canActivate");
+        return super.canActivate(player) ;
     }
 
     @Override
     public void onUpdate(PlayerEntity player) {
         super.onUpdate(player);
         action(player);
-        this.conditionManager.update(player);
         if (getEnabled()) {
             if (actionType == ActionType.ACTION) {
                 setEnabled(player, false);
@@ -49,9 +40,6 @@ public abstract class JSONAbility extends Ability {
             if (actionType == ActionType.CONSTANT) {
                 setEnabled(player, true);
             }
-        }
-        if (!canActivate(player) && !alwaysActive(player)) {
-            player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> a.disable(name));
         }
 
         for (Map.Entry<String, Boolean> entry : this.conditionManager.getMethodConditions().entrySet()) {
@@ -98,10 +86,6 @@ public abstract class JSONAbility extends Ability {
         }
     }
 
-    public JsonConditionManager getConditionManager() {
-        return conditionManager;
-    }
-
     public void setEnabled(PlayerEntity player, boolean enabled) {
         boolean b = !enabled || this.conditionManager.isEnabled(player, "canBeEnabled");
             if (getEnabled() != enabled && b && this.dataManager.<Integer>getValue("cooldown") == 0) {
@@ -114,11 +98,8 @@ public abstract class JSONAbility extends Ability {
 
     @Override
     public Ability setJsonObject(Entity entity, JsonObject jsonObject) {
-        if (jsonObject != null) {
-            this.conditionManager.registerConditions(jsonObject);
-            if (jsonObject.has("key")) {
-                this.actionType = ActionType.getById(JSONUtils.getAsString(JSONUtils.getAsJsonObject(jsonObject, "key"), "pressType", "toggle"));
-            }
+        if (jsonObject != null && jsonObject.has("key")) {
+            this.actionType = ActionType.getById(JSONUtils.getAsString(JSONUtils.getAsJsonObject(jsonObject, "key"), "pressType", "toggle"));
         }
         return super.setJsonObject(entity, jsonObject);
     }
@@ -128,19 +109,8 @@ public abstract class JSONAbility extends Ability {
     }
 
     @Override
-    public boolean alwaysActive(PlayerEntity player) {
-        return super.alwaysActive(player) && this.conditionManager.isEnabled(player, "alwaysActive");
-    }
-
-    @Override
-    public boolean isHidden(PlayerEntity player) {
-        return super.isHidden(player) && this.conditionManager.isEnabled(player, "isHidden");
-    }
-
-    @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT nbt = super.serializeNBT();
-        nbt.put("Conditions", this.conditionManager.serializeNBT());
         nbt.putString("actionType", actionType.getId());
         return nbt;
     }
@@ -148,7 +118,6 @@ public abstract class JSONAbility extends Ability {
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
         super.deserializeNBT(nbt);
-        this.conditionManager.deserializeNBT(nbt.getCompound("Conditions"));
         this.actionType = ActionType.getById(nbt.getString("actionType"));
     }
 

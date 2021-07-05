@@ -2,26 +2,32 @@ package xyz.heroesunited.heroesunited.common.abilities;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.SoundEvent;
-
-import javax.annotation.Nullable;
+import xyz.heroesunited.heroesunited.common.objects.HUSounds;
 
 public interface IFlyingAbility {
 
     boolean isFlying(PlayerEntity player);
 
-    boolean renderFlying(PlayerEntity player);
+    default boolean renderFlying(PlayerEntity player) {
+        return true;
+    }
 
-    boolean rotateArms(PlayerEntity player);
+    default boolean rotateArms(PlayerEntity player) {
+        return false;
+    }
 
-    boolean setDefaultRotationAngles(PlayerEntity player);
+    default boolean setDefaultRotationAngles(PlayerEntity player) {
+        return true;
+    }
 
-    SoundEvent getSoundEvent();
+    default SoundEvent getSoundEvent() {
+        return HUSounds.FLYING;
+    }
 
-    @Nullable
     static IFlyingAbility getFlyingAbility(PlayerEntity player) {
-        for (Ability type : AbilityHelper.getAbilities(player)) {
-            if (type != null && type instanceof IFlyingAbility) {
-                return (IFlyingAbility) type;
+        for (Ability ability : AbilityHelper.getAbilities(player)) {
+            if (ability instanceof IFlyingAbility) {
+                return (IFlyingAbility) ability;
             }
         }
         return null;

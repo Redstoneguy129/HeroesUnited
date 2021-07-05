@@ -27,7 +27,7 @@ public class FlightAbility extends JSONAbility implements IFlyingAbility {
 
     @Override
     public boolean setDefaultRotationAngles(PlayerEntity player) {
-        return getJsonObject() != null ? JSONUtils.getAsBoolean(this.getJsonObject(), "setDefaultRotationAngles", true) : true;
+        return getJsonObject() == null || JSONUtils.getAsBoolean(this.getJsonObject(), "setDefaultRotationAngles", true);
     }
 
     @Override

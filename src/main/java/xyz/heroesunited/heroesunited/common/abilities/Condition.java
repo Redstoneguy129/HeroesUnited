@@ -71,11 +71,21 @@ public class Condition extends ForgeRegistryEntry<Condition> {
         return b;
     }, HeroesUnited.MODID, "has_item");
 
+
+    public static final Condition ABILITY_ENABLED = new Condition((player, jsonObject) -> {
+        Ability ability = AbilityHelper.getActiveAbilityMap(player).getOrDefault(JSONUtils.getAsString(jsonObject, "ability"), null);
+        if (ability instanceof JSONAbility) {
+            return ((JSONAbility) ability).getEnabled();
+        }
+        return false;
+    }, HeroesUnited.MODID, "ability_enabled");
+
     @SubscribeEvent
     public static void registerConditions(RegistryEvent.Register<Condition> e) {
         e.getRegistry().register(HAS_SUPERPOWERS);
         e.getRegistry().register(HAS_SUPERPOWER);
         e.getRegistry().register(ACTIVATED_ABILITY);
         e.getRegistry().register(HAS_ITEM);
+        e.getRegistry().register(ABILITY_ENABLED);
     }
 }

@@ -27,6 +27,7 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.registries.ForgeRegistries;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
+import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbility;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityCreators;
@@ -53,6 +54,13 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
             }
         }
     };
+    protected JsonConditionManager conditionManager = new JsonConditionManager() {
+        @Override
+        public void sync(PlayerEntity player) {
+            super.sync(player);
+            Ability.this.syncToAll(player);
+        }
+    };
 
     public Ability(AbilityType type) {
         this.type = type;
@@ -68,7 +76,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     public boolean canActivate(PlayerEntity player) {
-        return true;
+        return this.conditionManager.isEnabled(player, "canActivate");
     }
 
     @Nullable
@@ -82,6 +90,10 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     public void onUpdate(PlayerEntity player) {
         if (this.dataManager.<Integer>getValue("cooldown") > 0) {
             this.dataManager.set(player, "cooldown", this.dataManager.<Integer>getValue("cooldown") - 1);
+        }
+        this.conditionManager.update(player);
+        if (!canActivate(player) && !alwaysActive(player)) {
+            player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> a.disable(name));
         }
     }
 
@@ -155,6 +167,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         CompoundNBT nbt = new CompoundNBT();
         nbt.putString("AbilityType", this.type.getRegistryName().toString());
         nbt.put("HUData", this.dataManager.serializeNBT());
+        nbt.put("Conditions", this.conditionManager.serializeNBT());
         nbt.put("AdditionalData", additionalData);
         if (this.jsonObject != null) {
             nbt.putString("JsonObject", this.jsonObject.toString());
@@ -165,6 +178,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
         this.dataManager.deserializeNBT(nbt.getCompound("HUData"));
+        this.conditionManager.deserializeNBT(nbt.getCompound("Conditions"));
         this.additionalData = nbt.getCompound("AdditionalData");
         if (nbt.contains("JsonObject")) {
             this.jsonObject = new JsonParser().parse(nbt.getString("JsonObject")).getAsJsonObject();
@@ -179,16 +193,20 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         }
     }
 
+    public JsonConditionManager getConditionManager() {
+        return conditionManager;
+    }
+
     public CompoundNBT getAdditionalData() {
         return additionalData;
     }
 
     public boolean isHidden(PlayerEntity player) {
-        return getJsonObject() != null && JSONUtils.getAsBoolean(getJsonObject(), "hidden", false);
+        return getJsonObject() != null && JSONUtils.getAsBoolean(getJsonObject(), "hidden", false) && this.conditionManager.isEnabled(player, "isHidden");
     }
 
     public boolean alwaysActive(PlayerEntity player) {
-        return getJsonObject() != null && JSONUtils.getAsBoolean(getJsonObject(), "active", false);
+        return getJsonObject() != null && JSONUtils.getAsBoolean(getJsonObject(), "active", false) && this.conditionManager.isEnabled(player, "alwaysActive");
     }
 
     public JsonObject getJsonObject() {
@@ -196,16 +214,19 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     public Ability setJsonObject(Entity entity, JsonObject jsonObject) {
-        this.jsonObject = jsonObject;
-        if (jsonObject != null && entity != null) {
-            for (Map.Entry<String, HUData<?>> entry : this.dataManager.getHUDataMap().entrySet()) {
-                HUData data = entry.getValue();
-                if (data.isJson()) {
-                    this.dataManager.set(entity, entry.getKey(), data.getFromJson(jsonObject, entry.getKey(), entry.getValue().getDefaultValue()));
+        if (jsonObject != null) {
+            this.jsonObject = jsonObject;
+            this.conditionManager.registerConditions(jsonObject);
+            if (entity != null) {
+                for (Map.Entry<String, HUData<?>> entry : this.dataManager.getHUDataMap().entrySet()) {
+                    HUData data = entry.getValue();
+                    if (data.isJson()) {
+                        this.dataManager.set(entity, entry.getKey(), data.getFromJson(jsonObject, entry.getKey(), entry.getValue().getDefaultValue()));
+                    }
                 }
-            }
-            if (entity instanceof ServerPlayerEntity) {
-                HUNetworking.INSTANCE.sendTo(new ClientSyncAbilityCreators(entity.getId(), name, jsonObject), ((ServerPlayerEntity) entity).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                if (entity instanceof ServerPlayerEntity) {
+                    HUNetworking.INSTANCE.sendTo(new ClientSyncAbilityCreators(entity.getId(), name, jsonObject), ((ServerPlayerEntity) entity).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                }
             }
         }
         return this;
