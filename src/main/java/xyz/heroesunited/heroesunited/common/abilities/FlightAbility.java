@@ -2,7 +2,6 @@ package xyz.heroesunited.heroesunited.common.abilities;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.JSONUtils;
-import net.minecraft.util.SoundEvent;
 
 public class FlightAbility extends JSONAbility implements IFlyingAbility {
 
@@ -28,10 +27,5 @@ public class FlightAbility extends JSONAbility implements IFlyingAbility {
     @Override
     public boolean setDefaultRotationAngles(PlayerEntity player) {
         return getJsonObject() == null || JSONUtils.getAsBoolean(this.getJsonObject(), "setDefaultRotationAngles", true);
-    }
-
-    @Override
-    public SoundEvent getSoundEvent() {
-        return null;
     }
 }

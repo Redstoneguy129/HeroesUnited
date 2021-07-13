@@ -5,6 +5,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.JSONUtils;
+import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 
 import java.util.Map;
 
@@ -21,11 +22,6 @@ public abstract class JSONAbility extends Ability {
     public void registerData() {
         super.registerData();
         this.dataManager.register("enabled", false);
-    }
-
-    @Override
-    public boolean canActivate(PlayerEntity player) {
-        return super.canActivate(player) ;
     }
 
     @Override
@@ -46,6 +42,9 @@ public abstract class JSONAbility extends Ability {
             if (entry.getKey().equals("canBeEnabled") && !entry.getValue()) {
                 this.setEnabled(player, false);
             }
+        }
+        if (!canActivate(player) && !alwaysActive(player)) {
+            player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> a.disable(name));
         }
     }
 

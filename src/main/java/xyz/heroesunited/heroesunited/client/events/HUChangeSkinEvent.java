@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.client.events;
 
+import com.mojang.authlib.GameProfile;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.eventbus.api.Event;
 
@@ -13,10 +14,16 @@ public class HUChangeSkinEvent extends Event {
     private String skinModel;
     private final ResourceLocation defaultSkin;
     private ResourceLocation skin;
+    private final GameProfile gameProfile;
 
-    public HUChangeSkinEvent(String model, ResourceLocation skin) {
+    public HUChangeSkinEvent(String model, ResourceLocation skin, GameProfile gameProfile) {
         this.defaultModel = model;
         this.defaultSkin = skin;
+        this.gameProfile = gameProfile;
+    }
+
+    public GameProfile getGameProfile() {
+        return gameProfile;
     }
 
     public ResourceLocation getSkin() {

@@ -40,8 +40,7 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
         if (getEnabled()) {
             GeoAbilityRenderer abilityRenderer = new GeoAbilityRenderer(getGeoModel());
             abilityRenderer.setCurrentAbility(player, this, renderer.getModel());
-            int i = abilityRenderer.hashCode();
-            abilityRenderer.renderFirstPersonArm(this, renderer, matrix, bufferIn, packedLightIn, player, side);
+            abilityRenderer.renderFirstPersonArm(renderer, matrix, bufferIn, packedLightIn, side);
         }
     }
 

@@ -38,7 +38,7 @@ import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.PacketDistributor;
 import software.bernie.geckolib3.core.AnimationState;
 import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.network.GeckoLibNetwork;
+import software.bernie.geckolib3.network.messages.SyncAnimationMsg;
 import software.bernie.geckolib3.util.GeckoLibUtil;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.HUBoundingBoxEvent;
@@ -224,6 +224,10 @@ public class HUEventHandler {
                     }
                 });
                 pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
+                    IFlyingAbility ab = IFlyingAbility.getFlyingAbility(pl);
+                    if ((ab != null && ab.isFlying(pl)) || a.isFlying()) {
+                        pl.refreshDimensions();
+                    }
                     AbilityHelper.getAbilities(pl).forEach(type -> type.onUpdate(pl));
 
                     for (int i = 0; i < a.getInventory().getInventory().size(); ++i) {
@@ -236,10 +240,9 @@ public class HUEventHandler {
                         BoBoAccessory accessory = ((BoBoAccessory) stack.getItem());
                         final int id = GeckoLibUtil.guaranteeIDForStack(stack, (ServerWorld) pl.level);
                         AnimationController controller = GeckoLibUtil.getControllerForID(accessory.getFactory(), id, "controller");
-                        final PacketDistributor.PacketTarget target = PacketDistributor.TRACKING_ENTITY_AND_SELF
-                                .with(() -> pl);
+                        final PacketDistributor.PacketTarget target = PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> pl);
                         if (controller.getAnimationState() == AnimationState.Stopped) {
-                            GeckoLibNetwork.syncAnimation(target, ((BoBoAccessory) stack.getItem()), id, 0);
+                            HUNetworking.INSTANCE.send(target, new SyncAnimationMsg(accessory.getSyncKey(), id, 0));
                         }
                     }
 

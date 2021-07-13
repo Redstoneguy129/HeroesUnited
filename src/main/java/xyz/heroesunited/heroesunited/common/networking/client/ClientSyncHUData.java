@@ -7,7 +7,6 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.capabilities.hudata.HUDataCap;
-import xyz.heroesunited.heroesunited.util.hudata.HUDataManager;
 
 import java.util.function.Supplier;
 
@@ -49,11 +48,10 @@ public class ClientSyncHUData {
                             cap.getDataManager().read(entity, this.id, this.nbt));
                 } else {
                     entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent((cap) -> {
-                        HUDataManager manager = cap.getAbilities().get(this.ability).getDataManager();
+                        cap.getAbilities().get(this.ability).getDataManager().read(entity, this.id, this.nbt);
                         if (cap.getActiveAbilities().containsKey(this.ability)) {
-                            manager = cap.getActiveAbilities().get(this.ability).getDataManager();
+                            cap.getActiveAbilities().get(this.ability).getDataManager().read(entity, this.id, this.nbt);
                         }
-                        manager.read(entity, this.id, this.nbt);
                     });
                 }
             }

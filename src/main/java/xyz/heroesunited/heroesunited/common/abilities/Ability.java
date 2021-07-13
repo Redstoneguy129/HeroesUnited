@@ -27,7 +27,6 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.registries.ForgeRegistries;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
-import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbility;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityCreators;
@@ -49,8 +48,10 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     protected HUDataManager dataManager = new HUDataManager() {
         @Override
         public <T> void updateData(Entity entity, String id, HUData<T> data, T value) {
-            if (entity instanceof ServerPlayerEntity) {
-                HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(entity.getId(), name, id, data.serializeNBT(id, value)), ((ServerPlayerEntity) entity).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+            for (PlayerEntity mpPlayer : entity.level.players()) {
+                if (mpPlayer instanceof ServerPlayerEntity) {
+                    HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(entity.getId(), name, id, data.serializeNBT(id, value)), ((ServerPlayerEntity) mpPlayer).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                }
             }
         }
     };
@@ -92,9 +93,6 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
             this.dataManager.set(player, "cooldown", this.dataManager.<Integer>getValue("cooldown") - 1);
         }
         this.conditionManager.update(player);
-        if (!canActivate(player) && !alwaysActive(player)) {
-            player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> a.disable(name));
-        }
     }
 
     public void onUpdate(PlayerEntity player, LogicalSide side) {

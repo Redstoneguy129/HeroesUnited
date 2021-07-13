@@ -4,13 +4,11 @@ import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 
@@ -50,11 +48,7 @@ public class ClientEnableAbility {
                         if (this.nbt.contains("JsonObject")) {
                             ability.setJsonObject(entity, new JsonParser().parse(this.nbt.getString("JsonObject")).getAsJsonObject());
                         }
-                        if (AbilityHelper.canActiveAbility(ability, (PlayerEntity) entity)) {
-                            cap.enable(this.name, ability);
-                            ability.syncToAll((PlayerEntity) entity);
-                            cap.getActiveAbilities().get(this.name).onActivated((PlayerEntity) entity);
-                        }
+                        cap.enable(this.name, ability);
                     }
                 });
             }
