@@ -22,11 +22,7 @@ import xyz.heroesunited.heroesunited.util.HUClientUtil;
 public abstract class MixinOptifineLivingRenderer<T extends LivingEntity, M extends EntityModel<T>> {
     private T entity;
     private IRenderTypeBuffer renderTypeBuffer;
-    private float limbSwing;
-    private float limbSwingAmount;
-    private float ageInTicks;
-    private float netHeadYaw;
-    private float headPitch;
+    private float limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch;
 
     @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/model/EntityModel;renderToBuffer(Lcom/mojang/blaze3d/matrix/MatrixStack;Lcom/mojang/blaze3d/vertex/IVertexBuilder;IIFFFF)V"), locals = LocalCapture.CAPTURE_FAILHARD)
     public void captureThings(T entity, float entityYaw, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int light, CallbackInfo ci, float f, float f1, float netHeadYaw, float headPitch, float ageInTicks, float limbSwingAmount, float limbSwing) {
@@ -43,8 +39,8 @@ public abstract class MixinOptifineLivingRenderer<T extends LivingEntity, M exte
     public void renderModel(M model, MatrixStack matrixStack, IVertexBuilder builder, int light, int overlay, float red, float green, float blue, float alpha) {
         if (entity instanceof AbstractClientPlayerEntity && model instanceof PlayerModel) {
             HUClientUtil.renderModel((PlayerRenderer) (Object) this, (PlayerModel) model, (AbstractClientPlayerEntity) entity, matrixStack, renderTypeBuffer, builder, light, overlay, red, green, blue, alpha, limbSwing, limbSwingAmount, ageInTicks, headPitch, netHeadYaw);
-            return;
+        } else {
+            model.renderToBuffer(matrixStack, builder, light, overlay, red, green, blue, alpha);
         }
-        model.renderToBuffer(matrixStack, builder, light, overlay, red, green, blue, alpha);
     }
 }

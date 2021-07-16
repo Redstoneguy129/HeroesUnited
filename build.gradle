@@ -34,6 +34,8 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'SCAN,REGISTRIES'
             property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             arg "-mixin.config=heroesunited.mixins.json"
             mods {
                 heroesunited {
@@ -46,6 +48,8 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'SCAN,REGISTRIES'
             property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             arg "-mixin.config=heroesunited.mixins.json"
             mods {
                 heroesunited {
@@ -59,6 +63,9 @@ minecraft {
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
             args '--mod', 'heroesunited', '--all', '--output', file('src/generated/resources/')
+
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             arg "-mixin.config=heroesunited.mixins.json"
             mods {
                 heroesunited {
@@ -76,6 +83,7 @@ sourceSets {
 repositories {
     maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
     maven { url 'https://jitpack.io' }
+    maven { url "https://www.cursemaven.com" }
 }
 
 configurations {
@@ -96,6 +104,8 @@ shadowJar {
 dependencies {
     minecraft "net.minecraftforge:forge:$project.minecraft_version-$project.forge_version"
     annotationProcessor 'org.spongepowered:mixin:0.8.2:processor'
+
+    compileOnly fg.deobf('curse.maven:obfuscate-289380:3148131')
 
     compile 'com.github.Vatuu:discord-rpc:1.6.2'
     compile fg.deobf("software.bernie.geckolib:geckolib-forge-1.16.5:$project.geckolib_version")

@@ -2,6 +2,8 @@
   "required": true,
   "package": "xyz.heroesunited.heroesunited.mixin",
   "refmap": "heroesunited.refmap.json",
+  "compatibilityLevel": "JAVA_8",
+  "minVersion": "0.8",
   "plugin": "xyz.heroesunited.heroesunited.mixin.HUMixinPlugin",
   "client": [
     "client.MixinArmorLayerRenderer",
@@ -30,5 +32,8 @@
     "entity.AccessorLivingEntity",
     "entity.MixinLivingEntity",
     "entity.MixinPlayerEntity"
-  ]
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

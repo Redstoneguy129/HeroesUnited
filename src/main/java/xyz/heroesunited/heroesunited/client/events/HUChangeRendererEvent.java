@@ -6,13 +6,19 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
+import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.Cancelable;
 
 /**
- * This event is fired when rendering the player.
+ * Fired before the entity model is rendered.
+ * Cancelling this event will prevent the entity model from being rendered.
+ *
+ * This event is suitable for any additional renders you want to apply to the entity,
+ * or to render a model other than the entity.
  */
-public abstract class HURenderPlayerEvent extends PlayerEvent {
+@Cancelable
+public class HUChangeRendererEvent<T extends AbstractClientPlayerEntity, M extends PlayerModel<T>> extends PlayerEvent {
 
     private final PlayerRenderer renderer;
     private final MatrixStack stack;
@@ -21,7 +27,7 @@ public abstract class HURenderPlayerEvent extends PlayerEvent {
     private final int light, overlay;
     private final float limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, partialTicks;
 
-    public HURenderPlayerEvent(AbstractClientPlayerEntity playerEntity, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, IVertexBuilder builder, int light, int overlay, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public HUChangeRendererEvent(T playerEntity, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, IVertexBuilder builder, int light, int overlay, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         super(playerEntity);
         this.renderer = renderer;
         this.stack = stack;
@@ -38,8 +44,8 @@ public abstract class HURenderPlayerEvent extends PlayerEvent {
     }
 
     @Override
-    public AbstractClientPlayerEntity getPlayer() {
-        return (AbstractClientPlayerEntity) super.getPlayer();
+    public T getPlayer() {
+        return (T) super.getPlayer();
     }
 
     public PlayerRenderer getRenderer() {
@@ -89,29 +95,4 @@ public abstract class HURenderPlayerEvent extends PlayerEvent {
     public float getPartialTicks() {
         return partialTicks;
     }
-
-    /**
-     * Fired before the player model is rendered.
-     * Cancelling this event will prevent the player model from being rendered.
-     */
-    @Cancelable
-    public static class Pre extends HURenderPlayerEvent {
-
-        public Pre(AbstractClientPlayerEntity playerEntity, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, IVertexBuilder builder, int light, int overlay, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-            super(playerEntity, renderer, stack, buffers, builder, light, overlay, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-        }
-    }
-
-    /**
-     * Fired after the player model has been rendered.
-     * This event is suitable for any additional renders you want to apply to the player,
-     * or to render a model other than the player.
-     */
-    public static class Post extends HURenderPlayerEvent {
-
-        public Post(AbstractClientPlayerEntity playerEntity, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, IVertexBuilder builder, int light, int overlay, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-            super(playerEntity, renderer, stack, buffers, builder, light, overlay, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-        }
-    }
-
 }

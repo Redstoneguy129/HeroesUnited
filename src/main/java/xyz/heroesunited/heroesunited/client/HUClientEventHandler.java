@@ -13,7 +13,9 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.entity.LivingRenderer;
+import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
+import net.minecraft.client.renderer.entity.model.SkeletonModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
@@ -21,10 +23,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Quaternion;
@@ -115,23 +114,18 @@ public class HUClientEventHandler {
     }
 
     @SubscribeEvent
-    public void huRenderPlayerPre(HURenderPlayerEvent.Pre event) {
-        for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
-            if (ability instanceof IHUPlayerRenderer) {
-                ((IHUPlayerRenderer) ability).huRenderPlayerPre(event);
-            }
+    public void huRender(HUChangeRendererEvent event) {
+        for (Ability ability : AbilityHelper.getAbilities(event.getEntityLiving())) {
+            ability.huRenderPlayer(event);
+        }
+        if (event.getEntityLiving().isCrouching() && event.getRenderer().getModel() instanceof BipedModel) {
+            SkeletonModel model = new SkeletonModel<>();
+            ((BipedModel) event.getRenderer().getModel()).copyPropertiesTo(model);
+            IVertexBuilder builder = event.getBuffers().getBuffer(RenderType.entityTranslucent(new ResourceLocation("textures/entity/skeleton/skeleton.png")));
+            model.renderToBuffer(event.getMatrixStack(), builder, event.getLight(), event.getOverlay(), 1f, 1f, 1f, 1f);
+            event.setCanceled(true);
         }
     }
-
-    @SubscribeEvent
-    public void huRenderPlayerPost(HURenderPlayerEvent.Post event) {
-        for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
-            if (ability instanceof IHUPlayerRenderer) {
-                ((IHUPlayerRenderer) ability).huRenderPlayerPost(event);
-            }
-        }
-    }
-
 
     @SubscribeEvent
     public void onWorldLastRender(RenderWorldLastEvent event) {

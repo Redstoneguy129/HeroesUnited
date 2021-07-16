@@ -33,7 +33,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.client.events.HURenderPlayerEvent;
+import xyz.heroesunited.heroesunited.client.events.HUChangeRendererEvent;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.client.render.model.ModelCape;
 import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
@@ -57,10 +57,9 @@ public class HUClientUtil {
         MinecraftForge.EVENT_BUS.post(new HUSetRotationAnglesEvent(entity, model, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch));
         HUClientUtil.copyAnglesToWear(model);
 
-        if (!MinecraftForge.EVENT_BUS.post(new HURenderPlayerEvent.Pre(entity, renderer, matrixStack, buffer, builder, light, overlay, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch))) {
+        if (!MinecraftForge.EVENT_BUS.post(new HUChangeRendererEvent(entity, renderer, matrixStack, buffer, builder, light, overlay, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch))) {
             model.renderToBuffer(matrixStack, builder, light, overlay, red, green, blue, alpha);
         }
-        MinecraftForge.EVENT_BUS.post(new HURenderPlayerEvent.Post(entity, renderer, matrixStack, buffer, builder, light, overlay, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch));
     }
 
     public static int getLivingOverlay(LivingEntity entity) {
