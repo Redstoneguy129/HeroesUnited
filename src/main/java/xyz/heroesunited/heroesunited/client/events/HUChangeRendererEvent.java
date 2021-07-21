@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.Cancelable;
 
@@ -18,7 +17,7 @@ import net.minecraftforge.eventbus.api.Cancelable;
  * or to render a model other than the entity.
  */
 @Cancelable
-public class HUChangeRendererEvent<T extends AbstractClientPlayerEntity, M extends PlayerModel<T>> extends PlayerEvent {
+public class HUChangeRendererEvent extends PlayerEvent {
 
     private final PlayerRenderer renderer;
     private final MatrixStack stack;
@@ -27,7 +26,7 @@ public class HUChangeRendererEvent<T extends AbstractClientPlayerEntity, M exten
     private final int light, overlay;
     private final float limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, partialTicks;
 
-    public HUChangeRendererEvent(T playerEntity, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, IVertexBuilder builder, int light, int overlay, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public HUChangeRendererEvent(AbstractClientPlayerEntity playerEntity, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, IVertexBuilder builder, int light, int overlay, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         super(playerEntity);
         this.renderer = renderer;
         this.stack = stack;
@@ -44,8 +43,8 @@ public class HUChangeRendererEvent<T extends AbstractClientPlayerEntity, M exten
     }
 
     @Override
-    public T getPlayer() {
-        return (T) super.getPlayer();
+    public AbstractClientPlayerEntity getPlayer() {
+        return (AbstractClientPlayerEntity) super.getPlayer();
     }
 
     public PlayerRenderer getRenderer() {

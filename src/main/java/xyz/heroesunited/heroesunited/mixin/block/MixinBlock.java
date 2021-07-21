@@ -19,7 +19,6 @@ import xyz.heroesunited.heroesunited.common.events.HUCancelBlockCollision;
 @Mixin(AbstractBlock.class)
 public abstract class MixinBlock {
 
-
     @Shadow @Final protected boolean hasCollision;
 
     @Inject(method = "getCollisionShape(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/IBlockReader;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/shapes/ISelectionContext;)Lnet/minecraft/util/math/shapes/VoxelShape;", at = @At(value = "RETURN"), cancellable = true)
@@ -27,7 +26,7 @@ public abstract class MixinBlock {
         if (state != null && context != null && context.getEntity() != null) {
             HUCancelBlockCollision event = new HUCancelBlockCollision(context.getEntity().level, pos, state, context.getEntity());
             MinecraftForge.EVENT_BUS.post(event);
-            cir.setReturnValue(!event.isCanceled() && hasCollision ? state.getShape(worldIn, pos) : VoxelShapes.empty());
+            cir.setReturnValue(!event.isCanceled() && this.hasCollision ? state.getShape(worldIn, pos) : VoxelShapes.empty());
         }
     }
 }

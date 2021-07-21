@@ -15,7 +15,7 @@ import net.minecraftforge.eventbus.api.Event;
 /**
  * Just event.
  */
-public class HURenderLayerEvent<T extends LivingEntity, M extends EntityModel<T>> extends Event {
+public abstract class HURenderLayerEvent<T extends LivingEntity, M extends EntityModel<T>> extends Event {
 
     private final T livingEntity;
     private final LivingRenderer<T, M> renderer;
@@ -85,6 +85,12 @@ public class HURenderLayerEvent<T extends LivingEntity, M extends EntityModel<T>
     @Cancelable
     public static class Pre extends HURenderLayerEvent {
         public Pre(LivingRenderer renderer, LivingEntity livingEntity, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+            super(renderer, livingEntity, matrixStack, bufferIn, packedLightIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+        }
+    }
+
+    public static class Post extends HURenderLayerEvent {
+        public Post(LivingRenderer renderer, LivingEntity livingEntity, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
             super(renderer, livingEntity, matrixStack, bufferIn, packedLightIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
         }
     }

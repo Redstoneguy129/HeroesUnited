@@ -27,11 +27,15 @@ import net.minecraft.util.HandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Quaternion;
+import net.minecraft.util.math.vector.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
+import software.bernie.geckolib3.geo.render.built.GeoBone;
+import software.bernie.geckolib3.geo.render.built.GeoCube;
+import software.bernie.geckolib3.geo.render.built.GeoQuad;
+import software.bernie.geckolib3.geo.render.built.GeoVertex;
+import software.bernie.geckolib3.util.RenderUtils;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.HUChangeRendererEvent;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
@@ -60,6 +64,58 @@ public class HUClientUtil {
         if (!MinecraftForge.EVENT_BUS.post(new HUChangeRendererEvent(entity, renderer, matrixStack, buffer, builder, light, overlay, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch))) {
             model.renderToBuffer(matrixStack, builder, light, overlay, red, green, blue, alpha);
         }
+    }
+
+    public static void renderGeckoRecursively(GeoBone bone, MatrixStack stack, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+        stack.pushPose();
+        RenderUtils.translate(bone, stack);
+        RenderUtils.moveToPivot(bone, stack);
+        RenderUtils.rotate(bone, stack);
+        RenderUtils.scale(bone, stack);
+        RenderUtils.moveBackFromPivot(bone, stack);
+
+        if (!bone.isHidden) {
+            for (GeoCube cube : bone.childCubes) {
+                stack.pushPose();
+                RenderUtils.moveToPivot(cube, stack);
+                RenderUtils.rotate(cube, stack);
+                RenderUtils.moveBackFromPivot(cube, stack);
+                Matrix3f matrix3f = stack.last().normal();
+                Matrix4f matrix4f = stack.last().pose();
+
+                for (GeoQuad quad : cube.quads) {
+                    if (quad == null) {
+                        continue;
+                    }
+                    Vector3f normal = quad.normal.copy();
+                    normal.transform(matrix3f);
+                    if ((cube.size.y() == 0 || cube.size.z() == 0) && normal.x() < 0) {
+                        normal.mul(-1, 1, 1);
+                    }
+                    if ((cube.size.x() == 0 || cube.size.z() == 0) && normal.y() < 0) {
+                        normal.mul(1, -1, 1);
+                    }
+                    if ((cube.size.x() == 0 || cube.size.y() == 0) && normal.z() < 0) {
+                        normal.mul(1, 1, -1);
+                    }
+
+                    for (GeoVertex vertex : quad.vertices) {
+                        Vector4f vector4f = new Vector4f(vertex.position.x(), vertex.position.y(), vertex.position.z(),
+                                1.0F);
+                        vector4f.transform(matrix4f);
+                        bufferIn.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha,
+                                vertex.textureU, vertex.textureV, packedOverlayIn, packedLightIn, normal.x(), normal.y(),
+                                normal.z());
+                    }
+                }
+                stack.popPose();
+            }
+            for (GeoBone childBone : bone.childBones) {
+                renderGeckoRecursively(childBone, stack, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+            }
+        }
+
+        stack.popPose();
     }
 
     public static int getLivingOverlay(LivingEntity entity) {
@@ -212,8 +268,7 @@ public class HUClientUtil {
             case "bipedRightArm": return model.rightArm;
             case "bipedLeftArm": return model.leftArm;
             case "bipedRightLeg": return model.rightLeg;
-            case "bipedLeftLeg": return model.leftLeg;
-            default: return null;
+            default: return model.leftLeg;
         }
     }
 

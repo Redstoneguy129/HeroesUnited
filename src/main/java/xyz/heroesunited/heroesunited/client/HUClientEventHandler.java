@@ -13,9 +13,7 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.entity.LivingRenderer;
-import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.client.renderer.entity.model.SkeletonModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
@@ -23,11 +21,15 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.*;
+import net.minecraft.util.HandSide;
+import net.minecraft.util.JSONUtils;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -60,10 +62,7 @@ import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.common.space.Planet;
 import xyz.heroesunited.heroesunited.common.space.Satellite;
 import xyz.heroesunited.heroesunited.common.space.Star;
-import xyz.heroesunited.heroesunited.util.HUClientUtil;
-import xyz.heroesunited.heroesunited.util.HUJsonUtils;
-import xyz.heroesunited.heroesunited.util.HURichPresence;
-import xyz.heroesunited.heroesunited.util.PlayerPart;
+import xyz.heroesunited.heroesunited.util.*;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -115,15 +114,8 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void huRender(HUChangeRendererEvent event) {
-        for (Ability ability : AbilityHelper.getAbilities(event.getEntityLiving())) {
+        for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
             ability.huRenderPlayer(event);
-        }
-        if (event.getEntityLiving().isCrouching() && event.getRenderer().getModel() instanceof BipedModel) {
-            SkeletonModel model = new SkeletonModel<>();
-            ((BipedModel) event.getRenderer().getModel()).copyPropertiesTo(model);
-            IVertexBuilder builder = event.getBuffers().getBuffer(RenderType.entityTranslucent(new ResourceLocation("textures/entity/skeleton/skeleton.png")));
-            model.renderToBuffer(event.getMatrixStack(), builder, event.getLight(), event.getOverlay(), 1f, 1f, 1f, 1f);
-            event.setCanceled(true);
         }
     }
 
@@ -368,17 +360,26 @@ public class HUClientEventHandler {
             }
         });
 
-
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             for (String s : playerBones) {
                 GeoBone bone = cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap)).getBone(s).get();
                 ModelRenderer renderer = HUClientUtil.getModelRendererById(event.getPlayerModel(), s);
+                ((IHUModelRenderer) renderer).setSize(new Vector3f(1f, 1f, 1f));
                 if (cap.getController().getCurrentAnimation() != null && cap.getController().getAnimationState() == AnimationState.Running) {
                     for (BoneAnimation boneAnimation : cap.getController().getCurrentAnimation().boneAnimations) {
                         if (boneAnimation.boneName.equals(s)) {
                             renderer.xRot = -bone.getRotationX();
                             renderer.yRot = -bone.getRotationY();
                             renderer.zRot = bone.getRotationZ();
+
+                            renderer.x = -(bone.getPivotX() + bone.getPositionX());
+                            renderer.y = (24 - bone.getPivotY()) - bone.getPositionY();
+                            renderer.z = bone.getPivotZ() + bone.getPositionZ();
+
+                            if (bone.name.endsWith("Leg")) {
+                                renderer.y = ((24 - bone.getPivotY()) - bone.getPositionY()) - bone.getScaleY()*2;
+                            }
+                            ((IHUModelRenderer) renderer).setSize(new Vector3f(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ()));
                         }
                     }
                 }
