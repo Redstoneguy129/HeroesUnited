@@ -17,6 +17,7 @@ public class MixinEntityRendererManager {
     @ModifyArg(method = "render(Lnet/minecraft/entity/Entity;DDDFFLcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;I)V", index = 6, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRendererManager;renderShadow(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;Lnet/minecraft/entity/Entity;FFLnet/minecraft/world/IWorldReader;F)V"))
     private float changeShadowSize(MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, Entity entity, float darkness, float partialTicks, IWorldReader world, float size) {
         HUChangeShadowSizeEvent event = new HUChangeShadowSizeEvent(matrixStack, renderTypeBuffer, entity, darkness, partialTicks, world, size);
+        event.setNewSize(event.getDefaultSize());
         MinecraftForge.EVENT_BUS.post(event);
         if (event.getSize() != event.getDefaultSize()) {
             return event.getSize();

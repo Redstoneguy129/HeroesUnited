@@ -13,6 +13,7 @@ public class MixinLightTexture {
     @ModifyConstant(method = "updateLightTexture(F)V", constant = @Constant(floatValue = 0.0F, ordinal = 1))
     private float getNightVision(float value) {
         HUChangeLightEvent event = new HUChangeLightEvent(value);
+        event.setNewValue(event.getDefaultValue());
         MinecraftForge.EVENT_BUS.post(event);
         return event.getValue();
     }

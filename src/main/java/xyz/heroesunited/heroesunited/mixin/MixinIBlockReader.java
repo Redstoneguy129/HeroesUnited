@@ -18,6 +18,7 @@ public interface MixinIBlockReader {
     default int getLightEmission(BlockPos pos) {
         IBlockReader iBlockReader = ((IBlockReader) this);
         HUChangeBlockLightEvent event = new HUChangeBlockLightEvent(iBlockReader.getBlockState(pos).getLightValue(iBlockReader, pos), pos, iBlockReader);
+        event.setNewValue(event.getDefaultValue());
         MinecraftForge.EVENT_BUS.post(event);
         return event.getValue();
     }

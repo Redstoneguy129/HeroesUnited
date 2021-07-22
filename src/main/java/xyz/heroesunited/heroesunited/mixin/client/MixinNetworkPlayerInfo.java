@@ -46,6 +46,8 @@ public abstract class MixinNetworkPlayerInfo {
     @Inject(method = "getSkinLocation()Lnet/minecraft/util/ResourceLocation;", at = @At("RETURN"), cancellable = true)
     private void getSkinLocation(CallbackInfoReturnable<ResourceLocation> ci) {
         HUChangeSkinEvent event = new HUChangeSkinEvent(defaultModel, ci.getReturnValue(), profile);
+        event.setSkin(event.getDefaultSkin());
+        event.setSkinModel(event.getDefaultModel());
         MinecraftForge.EVENT_BUS.post(event);
         this.skinModel = event.getSkinModel();
         ci.setReturnValue(event.getSkin());

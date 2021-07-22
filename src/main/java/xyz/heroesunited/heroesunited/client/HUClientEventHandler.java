@@ -212,16 +212,9 @@ public class HUClientEventHandler {
     @SubscribeEvent
     public void renderShadowSize(HUChangeShadowSizeEvent event) {
         for (Ability a : AbilityHelper.getAbilities(event.getEntity())) {
-            if (a instanceof SizeChangeAbility) {
-                if (((SizeChangeAbility) a).changeSizeInRender()) {
-                    event.setNewSize(event.getDefaultSize() * ((SizeChangeAbility) a).getSize());
-                } else {
-                    event.setNewSize(event.getDefaultSize());
-                }
+            if (a instanceof SizeChangeAbility && ((SizeChangeAbility) a).changeSizeInRender()) {
+                event.setNewSize(event.getDefaultSize() * ((SizeChangeAbility) a).getSize());
             }
-        }
-        if (AbilityHelper.getAbilities(event.getEntity()).stream().noneMatch(ab -> ab instanceof SizeChangeAbility)) {
-            event.setNewSize(event.getDefaultSize());
         }
     }
 
