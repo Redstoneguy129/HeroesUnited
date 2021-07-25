@@ -27,15 +27,15 @@ public abstract class JSONAbility extends Ability {
     @Override
     public void onUpdate(PlayerEntity player) {
         super.onUpdate(player);
-        action(player);
-        if (getEnabled()) {
-            if (actionType == ActionType.ACTION) {
+        if (actionType != ActionType.ACTION) {
+            action(player);
+        } else {
+            if (getEnabled()) {
                 setEnabled(player, false);
             }
-        } else {
-            if (actionType == ActionType.CONSTANT) {
-                setEnabled(player, true);
-            }
+        }
+        if (actionType == ActionType.CONSTANT && !getEnabled()) {
+            setEnabled(player, true);
         }
 
         for (Map.Entry<String, Boolean> entry : this.conditionManager.getMethodConditions().entrySet()) {
@@ -87,8 +87,9 @@ public abstract class JSONAbility extends Ability {
 
     public void setEnabled(PlayerEntity player, boolean enabled) {
         boolean b = !enabled || this.conditionManager.isEnabled(player, "canBeEnabled");
-            if (getEnabled() != enabled && b && this.dataManager.<Integer>getValue("cooldown") == 0) {
+        if (getEnabled() != enabled && b && this.dataManager.<Integer>getValue("cooldown") == 0) {
             this.dataManager.set(player, "enabled", enabled);
+            action(player);
             if (!enabled && getJsonObject().has("maxCooldown")) {
                 this.dataManager.set(player, "cooldown", JSONUtils.getAsInt(getJsonObject(), "maxCooldown"));
             }

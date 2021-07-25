@@ -1,9 +1,8 @@
 buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net' }
-        jcenter()
-        mavenCentral()
         maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+        mavenCentral()
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1+', changing: true
@@ -15,7 +14,6 @@ buildscript {
 
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'maven'
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'idea'
@@ -42,6 +40,11 @@ minecraft {
                     source sourceSets.main
                 }
             }
+        }
+
+        clientWithCredentials {
+            parent runs.client
+            args '--username', 'jeb_', '--uuid', '853c80ef-3c37-49fd-aa49-938b674adae6', "-mixin.config=heroesunited.mixins.json"
         }
 
         server {
@@ -76,16 +79,6 @@ minecraft {
     }
 }
 
-sourceSets {
-    main.resources.srcDirs += 'src/generated/resources'
-}
-
-repositories {
-    maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
-    maven { url 'https://jitpack.io' }
-    maven { url "https://www.cursemaven.com" }
-}
-
 configurations {
     shade
     compile.extendsFrom(shade)
@@ -101,14 +94,20 @@ shadowJar {
     classifier ''
 }
 
+repositories {
+    maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
+    maven { url 'https://jitpack.io' }
+    maven { url "https://www.cursemaven.com" }
+}
+
 dependencies {
     minecraft "net.minecraftforge:forge:$project.minecraft_version-$project.forge_version"
     annotationProcessor 'org.spongepowered:mixin:0.8.2:processor'
 
     compileOnly fg.deobf('curse.maven:obfuscate-289380:3148131')
 
-    compile 'com.github.Vatuu:discord-rpc:1.6.2'
-    compile fg.deobf("software.bernie.geckolib:geckolib-forge-1.16.5:$project.geckolib_version")
+    implementation 'com.github.Vatuu:discord-rpc:1.6.2'
+    implementation fg.deobf("software.bernie.geckolib:geckolib-forge-1.16.5:$project.geckolib_version")
 
     shade 'com.github.Vatuu:discord-rpc:1.6.2'
     shade 'com.github.Vatuu:discord-rpc-binaries:3.4.0'

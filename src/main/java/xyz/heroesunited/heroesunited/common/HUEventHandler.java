@@ -251,6 +251,10 @@ public class HUEventHandler {
                             Suit.getSuitItem(equipmentSlot, pl).getSuit().onUpdate(pl, equipmentSlot);
                         }
                     }
+                    if (pl.isCrouching()) {
+                        a.setAnimation("hello", new ResourceLocation(HeroesUnited.MODID, "animations/player.animation.json"), false);
+                    }
+
                     if (a.getAnimationTimer() > 0) a.setAnimationTimer(a.getAnimationTimer() + 1);
                     if (a.getAnimationTimer() >= 3600) a.setAnimationTimer(3600);
 
@@ -355,14 +359,7 @@ public class HUEventHandler {
                     for (Ability a : AbilityHelper.getAbilityMap(player).values()) {
                         if (suitItem.getAbilities(player).containsKey(a.name)) {
                             CompoundNBT suit = suitItem.getAbilities(player).get(a.name).getAdditionalData();
-                            a.setAdditionalData(suit);
-                            boolean all = a.getAdditionalData().equals(suit) && a.getAdditionalData().contains("Suit");
-                            if (a.getAdditionalData().contains("Slot")) {
-                                String slot = a.getAdditionalData().getString("Slot");
-                                if (slot.equals("all") ? all : all && suitItem.getSlot().getName().toLowerCase().equals(slot)) {
-                                    cap.removeAbility(a.name);
-                                }
-                            } else if (all) {
+                            if (a.getAdditionalData().equals(suit) && a.getAdditionalData().contains("Suit")) {
                                 cap.removeAbility(a.name);
                             }
                         }

@@ -7,6 +7,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.PacketDistributor;
 import software.bernie.geckolib3.core.AnimationState;
@@ -70,12 +72,14 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public void setAnimation(String name, ResourceLocation animationFile, boolean loop) {
         this.animationFile = animationFile;
-        getController().markNeedsReload();
-        getController().setAnimation(new AnimationBuilder().addAnimation(name, loop));
-        this.animationFile = null;
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            getController().markNeedsReload();
+            getController().setAnimation(new AnimationBuilder().addAnimation(name, loop));
+        });
         if (!player.level.isClientSide) {
             HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSetAnimation(player.getId(), name, animationFile, loop));
         }
+        syncToAll();
     }
 
     @Nonnull
