@@ -251,9 +251,6 @@ public class HUEventHandler {
                             Suit.getSuitItem(equipmentSlot, pl).getSuit().onUpdate(pl, equipmentSlot);
                         }
                     }
-                    if (pl.isCrouching()) {
-                        a.setAnimation("hello", new ResourceLocation(HeroesUnited.MODID, "animations/player.animation.json"), false);
-                    }
 
                     if (a.getAnimationTimer() > 0) a.setAnimationTimer(a.getAnimationTimer() + 1);
                     if (a.getAnimationTimer() >= 3600) a.setAnimationTimer(3600);
