@@ -168,11 +168,11 @@ publishing {
     }
     repositories {
         maven {
-            def repsyURL = System.getenv("repsyURL")
-            url = repsyURL
+            def explodingCreeperURL = System.getenv("explodingCreeperURL")
+            url = explodingCreeperURL
             credentials {
-                def envUsername = System.getenv("repsyUser")
-                def envPassword = System.getenv("repsyPassword")
+                def envUsername = System.getenv("explodingCreeperUser")
+                def envPassword = System.getenv("explodingCreeperPassword")
                 username = envUsername
                 password = envPassword
             }
