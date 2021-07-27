@@ -21,10 +21,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Quaternion;
@@ -406,7 +403,12 @@ public class HUClientEventHandler {
     }
 
     @SubscribeEvent
-    public void renderPlayerHand(HURenderPlayerHandEvent event) {
+    public void onInputUpdate(InputUpdateEvent event) {
+        AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.inputUpdate(event));
+    }
+    
+    @SubscribeEvent
+    public void renderPlayerHandPost(HURenderPlayerHandEvent.Post event) {
         event.getPlayer().getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
             for (Ability ability : a.getAbilities().values()) {
                 if (ability instanceof IAlwaysRenderer) {
