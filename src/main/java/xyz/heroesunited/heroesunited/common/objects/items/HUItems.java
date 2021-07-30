@@ -36,13 +36,14 @@ public class HUItems {
     public static final GeckoAccessory MACHETE = register("machete", new GeckoAccessory(EquipmentAccessoriesSlot.WRIST, "FalloutWolfGod"));
     public static final GeckoAccessory LARA_CROFT = register("lara_croft", new GeckoAccessory(EquipmentAccessoriesSlot.WRIST, "CandyFreak"));
     public static final GeckoAccessory ZEK_GLASSES = register("zek_glasses", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "Zekeram12"));
+    public static final GeckoAccessory CAPTAIN_REX = register("captain_rex", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "Zekeram12"));
+    public static final GeckoAccessory CAP_SHIELD_ACCESSORY = register("cap_shield", new GeckoAccessory(EquipmentAccessoriesSlot.TSHIRT, "El Dunchess"));
     public static final GeckoAccessory GREEN_GOGGLES = register("green_goggles", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "artman") {
         @Override
         public ResourceLocation getModelFile() {
             return new ResourceLocation(HeroesUnited.MODID, "geo/rex_glasses.geo.json");
         }
     });
-    public static final GeckoAccessory CAP_SHIELD_ACCESSORY = register("cap_shield", new GeckoAccessory(EquipmentAccessoriesSlot.TSHIRT, "El Dunchess"));
 
     private static <T extends Item> T register(String name, T item) {
         ITEMS.register(name, () -> item);
