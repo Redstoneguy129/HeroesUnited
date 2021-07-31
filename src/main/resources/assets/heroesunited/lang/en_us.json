@@ -38,6 +38,12 @@
 
   "heroesunited.no_patreon.message": "Sorry, alphas are only for Patrons,\nplease wait until the mod is in beta stage,\nor join the patreon",
 
+  "suit.heroesunited.astronaut": "Astronaut's",
+  "item.heroesunited.astronaut_head": "Astronaut Helmet",
+  "item.heroesunited.astronaut_chest": "Astronaut Chestplate",
+  "item.heroesunited.astronaut_legs": "Astronaut Leggings",
+  "item.heroesunited.astronaut_feet": "Astronaut Boots",
+
   "item.heroesunited.arc_reactor": "Arc Reactor",
   "item.heroesunited.bobo": "Bobo Accessory",
   "item.heroesunited.cap_shield": "Cap shield",
