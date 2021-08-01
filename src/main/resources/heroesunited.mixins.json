@@ -30,6 +30,7 @@
     "client.AccessorModelBakery",
     "client.AccessorModelRenderer",
     "client.AccessorParticle",
+    "client.MixinLivingLayers",
     "client.MixinModelRenderer",
     "client.MixinTexturedParticle",
     "entity.AccessorLivingEntity",

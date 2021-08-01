@@ -28,6 +28,7 @@ import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUType;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesInventory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Map;
 
 public class HUPlayer implements IHUPlayer {
@@ -82,7 +83,7 @@ public class HUPlayer implements IHUPlayer {
         syncToAll();
     }
 
-    @Nonnull
+    @Nullable
     public static IHUPlayer getCap(Entity entity) {
         return entity.getCapability(HUPlayerProvider.CAPABILITY).orElse(null);
     }

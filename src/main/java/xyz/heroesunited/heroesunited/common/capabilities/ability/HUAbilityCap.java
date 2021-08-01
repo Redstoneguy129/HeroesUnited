@@ -24,6 +24,7 @@ import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilitie
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityCap;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Map;
 
 public class HUAbilityCap implements IHUAbilityCap {
@@ -39,7 +40,7 @@ public class HUAbilityCap implements IHUAbilityCap {
         this.containedAbilities = Maps.newHashMap();
     }
 
-    @Nonnull
+    @Nullable
     public static IHUAbilityCap getCap(Entity entity) {
         return entity.getCapability(CAPABILITY).orElse(null);
     }
