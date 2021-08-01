@@ -7,6 +7,7 @@ import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -62,6 +63,7 @@ public class AlphaMaskTexture extends SimpleTexture {
                 }
             }
         }
+        mask.close();
         TextureUtil.prepareImage(this.getId(), image.getWidth(), image.getHeight());
         image.upload(0, 0, 0, false);
         for (InputStream stream : streams) {
@@ -70,5 +72,4 @@ public class AlphaMaskTexture extends SimpleTexture {
             }
         }
     }
-
 }

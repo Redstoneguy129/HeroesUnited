@@ -16,6 +16,10 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryBuilder;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
+import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
+import xyz.heroesunited.heroesunited.common.capabilities.Level;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 
 import java.util.Map;
@@ -52,6 +56,14 @@ public class Condition extends ForgeRegistryEntry<Condition> {
     public static final Condition HAS_SUPERPOWERS = new Condition((player, e) -> HUPackSuperpowers.hasSuperpowers(player), HeroesUnited.MODID, "has_superpowers");
     public static final Condition HAS_SUPERPOWER = new Condition((player, e) -> HUPackSuperpowers.hasSuperpower(player, new ResourceLocation(JSONUtils.getAsString(e, "superpower"))), HeroesUnited.MODID, "has_superpower");
     public static final Condition ACTIVATED_ABILITY = new Condition((player, e) -> AbilityHelper.getEnabled(JSONUtils.getAsString(e, "ability"), player), HeroesUnited.MODID, "activated_ability");
+    public static final Condition HAS_LEVEL = new Condition((player, e) -> {
+        IHUPlayer hu = HUPlayer.getCap(player);
+        if (hu != null) {
+            Level level = hu.getSuperpowerLevels().get(new ResourceLocation(JSONUtils.getAsString(e, "superpower")));
+            return level.getLevel() == JSONUtils.getAsInt(e, "level");
+        }
+        return false;
+    }, HeroesUnited.MODID, "has_level");
     public static final Condition HAS_ITEM = new Condition((player, e) -> {
         Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(JSONUtils.getAsString(e, "item")));
         boolean b = false;
@@ -85,6 +97,7 @@ public class Condition extends ForgeRegistryEntry<Condition> {
         e.getRegistry().register(HAS_SUPERPOWERS);
         e.getRegistry().register(HAS_SUPERPOWER);
         e.getRegistry().register(ACTIVATED_ABILITY);
+        e.getRegistry().register(HAS_LEVEL);
         e.getRegistry().register(HAS_ITEM);
         e.getRegistry().register(ABILITY_ENABLED);
     }

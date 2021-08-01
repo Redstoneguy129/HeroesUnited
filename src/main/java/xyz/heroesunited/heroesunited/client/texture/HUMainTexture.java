@@ -1,7 +1,6 @@
 package xyz.heroesunited.heroesunited.client.texture;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.util.ResourceLocation;
 
 public class HUMainTexture {
@@ -15,14 +14,12 @@ public class HUMainTexture {
     }
 
     public ResourceLocation getTexture() {
-        ResourceLocation baseOutput = new ResourceLocation(base.getNamespace(), String.format("%s_%d", base.getPath(), mask.hashCode()));
-        AlphaMaskTexture texture = new AlphaMaskTexture(base, mask, output);
-        if (Minecraft.getInstance().getTextureManager().getTexture(baseOutput) != texture) {
-            Minecraft.getInstance().getTextureManager().register(baseOutput, texture);
-        }
+        ResourceLocation output = new ResourceLocation(this.base.getNamespace(), String.format("%s_%d", this.base.getPath(), this.mask.hashCode()));
+
         if (Minecraft.getInstance().getTextureManager().getTexture(output) == null) {
-            Minecraft.getInstance().getTextureManager().register(output, new SimpleTexture(output));
+            Minecraft.getInstance().getTextureManager().register(output, new AlphaMaskTexture(this.base, this.mask, this.output));
         }
-        return baseOutput;
+
+        return output;
     }
 }
