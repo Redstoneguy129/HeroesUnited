@@ -14,11 +14,11 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.entity.LivingRenderer;
+import net.minecraft.client.renderer.entity.layers.*;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
@@ -37,7 +37,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import org.lwjgl.glfw.GLFW;
@@ -236,26 +235,42 @@ public class HUClientEventHandler {
     }
 
     @SubscribeEvent
-    public void onRenderHULayer(HURenderLayerEvent.Pre event) {
-        hideLayer(event, event.getLivingEntity(), "heroesunited");
-    }
-
-    @SubscribeEvent
     public void onRenderHULayer(HURenderLayerEvent.Accessories event) {
-        hideLayer(event, event.getLivingEntity(), "accessories");
+        if (event.getLivingEntity() instanceof PlayerEntity) {
+            for (Ability ability : AbilityHelper.getAbilities(event.getLivingEntity())) {
+                if (ability instanceof HideLayerAbility && ((HideLayerAbility) ability).getEnabled()) {
+                    String layer = JSONUtils.getAsString(ability.getJsonObject(), "layer");
+                    if (layer.equals("accessories")) {
+                        event.setCanceled(true);
+                    }
+                }
+            }
+        }
     }
 
     @SubscribeEvent
-    public void onArmorLayer(HURenderLayerEvent.Armor.Pre event) {
-        hideLayer(event, event.getLivingEntity(), "armor");
-    }
-
-    public void hideLayer(Event event, LivingEntity entity, String name) {
-        if (entity instanceof PlayerEntity) {
-            for (Ability ability : AbilityHelper.getAbilities(entity)) {
+    public void hideLayers(HUHideLayerEvent event) {
+        if (event.getEntity() instanceof PlayerEntity) {
+            for (Ability ability : AbilityHelper.getAbilities(event.getEntity())) {
                 if (ability instanceof HideLayerAbility) {
-                    if (((HideLayerAbility) ability).getEnabled() && JSONUtils.getAsString(ability.getJsonObject(), "layer").equals(name)) {
-                        event.setCanceled(true);
+                    HideLayerAbility a = (HideLayerAbility) ability;
+                    if (a.layerNameIs("armor")) {
+                        event.blockLayers(BipedArmorLayer.class, ElytraLayer.class);
+                    }
+                    if (a.layerNameIs("head")) {
+                        event.blockLayer(HeadLayer.class);
+                    }
+                    if (a.layerNameIs("held_item")) {
+                        event.blockLayer(HeldItemLayer.class);
+                    }
+                    if (a.layerNameIs("heroesunited")) {
+                        event.blockLayer(HULayerRenderer.class);
+                    }
+                    if (a.layerNameIs("arrow")) {
+                        event.blockLayer(ArrowLayer.class);
+                    }
+                    if (a.layerNameIs("player")) {
+                        event.blockLayers(BipedArmorLayer.class, HeldItemLayer.class, Deadmau5HeadLayer.class, CapeLayer.class, HeadLayer.class, ElytraLayer.class, ParrotVariantLayer.class);
                     }
                 }
             }

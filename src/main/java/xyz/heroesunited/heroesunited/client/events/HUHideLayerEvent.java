@@ -24,6 +24,12 @@ public class HUHideLayerEvent extends EntityEvent {
         this.blockedLayers.add(layer);
     }
 
+    public void blockLayers(Class<? extends LayerRenderer>... layers) {
+        for (Class<? extends LayerRenderer> layer : layers) {
+            blockLayer(layer);
+        }
+    }
+
     public List<Class<? extends LayerRenderer>> getBlockedLayers() {
         return blockedLayers;
     }
