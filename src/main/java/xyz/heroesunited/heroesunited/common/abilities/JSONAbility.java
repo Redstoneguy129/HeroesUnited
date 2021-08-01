@@ -90,6 +90,7 @@ public abstract class JSONAbility extends Ability {
         if (getEnabled() != enabled && b && this.dataManager.<Integer>getValue("cooldown") == 0) {
             this.dataManager.set(player, "enabled", enabled);
             action(player);
+            player.refreshDimensions();
             if (!enabled && getJsonObject().has("maxCooldown")) {
                 this.dataManager.set(player, "cooldown", JSONUtils.getAsInt(getJsonObject(), "maxCooldown"));
             }

@@ -6,7 +6,9 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
+import net.minecraft.client.gui.IngameGui;
 import net.minecraft.client.gui.ResourceLoadProgressGui;
 import net.minecraft.client.gui.screen.CustomizeSkinScreen;
 import net.minecraft.client.gui.widget.button.Button;
@@ -39,6 +41,7 @@ import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 import software.bernie.geckolib3.core.AnimationState;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
@@ -55,6 +58,8 @@ import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
+import xyz.heroesunited.heroesunited.common.networking.server.ServerDisableAbility;
+import xyz.heroesunited.heroesunited.common.networking.server.ServerEnableAbility;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerKeyInput;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccessoriesInv;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
@@ -62,6 +67,7 @@ import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.common.space.Planet;
 import xyz.heroesunited.heroesunited.common.space.Satellite;
 import xyz.heroesunited.heroesunited.common.space.Star;
+import xyz.heroesunited.heroesunited.mixin.client.InvokerKeyBinding;
 import xyz.heroesunited.heroesunited.util.*;
 
 import java.awt.*;
@@ -98,7 +104,27 @@ public class HUClientEventHandler {
     @SubscribeEvent
     public void keyInput(InputEvent.KeyInputEvent e) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc == null || mc.screen != null) return;
+        if (mc.player == null || mc.screen != null) return;
+
+        if (e.getModifiers() == GLFW.GLFW_MOD_ALT) {
+            List<Ability> abilities = AbilitiesScreen.getCurrentDisplayedAbilities(mc.player);
+            for (int i = 0; i < abilities.size(); i++) {
+                int key = GLFW.GLFW_KEY_1 + i;
+                if (key == e.getKey() && e.getAction() == GLFW.GLFW_PRESS) {
+                    Ability ability = abilities.get(i);
+                    if (!ability.alwaysActive(mc.player)) {
+                        if (AbilityHelper.getEnabled(ability.name, mc.player)) {
+                            HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerDisableAbility(ability.name));
+                        } else {
+                            HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerEnableAbility(ability.name, ability.serializeNBT()));
+                        }
+                        mc.getSoundManager().play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                    }
+                    ((InvokerKeyBinding) mc.options.keyHotbarSlots[i]).releaseKey();
+                }
+            }
+        }
+
         if (ABILITIES_SCREEN.consumeClick()) {
             mc.player.level.playSound(mc.player, mc.player.getX(), mc.player.getY(), mc.player.getZ(), SoundEvents.STONE_BUTTON_CLICK_ON, SoundCategory.NEUTRAL, 1, 0);
             mc.setScreen(new AbilitiesScreen());
@@ -157,7 +183,7 @@ public class HUClientEventHandler {
     @SubscribeEvent
     public void onKeyInput(InputEvent.MouseInputEvent e) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc == null || mc.screen != null) return;
+        if (mc.player == null || mc.screen != null) return;
         sendToggleKey(e.getButton(), e.getAction(), mc.options.keyAttack, 8);
         sendToggleKey(e.getButton(), e.getAction(), mc.options.keyUse, 9);
     }
