@@ -14,7 +14,7 @@ public class HUMainTexture {
     }
 
     public ResourceLocation getTexture() {
-        ResourceLocation output = new ResourceLocation(this.base.getNamespace(), String.format("%s_%d", this.base.getPath(), this.mask.hashCode()));
+        ResourceLocation output = new ResourceLocation(this.output.getNamespace(), String.format("%s_%d", this.output.getPath(), this.mask.hashCode()));
 
         if (Minecraft.getInstance().getTextureManager().getTexture(output) == null) {
             Minecraft.getInstance().getTextureManager().register(output, new AlphaMaskTexture(this.base, this.mask, this.output));
