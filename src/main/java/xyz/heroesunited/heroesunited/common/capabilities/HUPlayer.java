@@ -64,7 +64,7 @@ public class HUPlayer implements IHUPlayer {
     }
 
     public static IHUPlayer getCap(Entity entity) {
-        return entity.getCapability(HUPlayerProvider.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("HUPlayer must not be empty"));
+        return entity.getCapability(HUPlayerProvider.CAPABILITY).orElse(null);
     }
 
     @Override

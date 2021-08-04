@@ -39,7 +39,7 @@ public class HUAbilityCap implements IHUAbilityCap {
     }
 
     public static IHUAbilityCap getCap(Entity entity) {
-        return entity.getCapability(HUAbilityCap.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("HUAbilityCap must not be empty"));
+        return entity.getCapability(HUAbilityCap.CAPABILITY).orElse(null);
     }
 
     @Override

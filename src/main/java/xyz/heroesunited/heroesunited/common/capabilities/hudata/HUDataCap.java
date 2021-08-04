@@ -32,7 +32,7 @@ public class HUDataCap implements IHUDataCap, INBTSerializable<CompoundNBT> {
     }
 
     public static IHUDataCap getCap(Entity entity) {
-        return entity.getCapability(HUDataCap.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("HUDataCap must not be empty"));
+        return entity.getCapability(HUDataCap.CAPABILITY).orElse(null);
     }
 
     @Override
