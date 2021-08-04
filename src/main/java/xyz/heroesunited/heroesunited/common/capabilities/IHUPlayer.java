@@ -18,8 +18,10 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable {
      * Can be used for custom player animations
      */
     void setAnimation(String name, ResourceLocation animationFile, boolean loop);
-    AnimatedGeoModel getAnimatedModel();
-    AnimationController getController();
+
+    AnimatedGeoModel<IHUPlayer> getAnimatedModel();
+
+    AnimationController<IHUPlayer> getController();
 
     int getTheme();
 
@@ -45,17 +47,6 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable {
     boolean isIntangible();
 
     void setIntangible(boolean intangible);
-
-    int getType();
-
-    void setType(int type);
-
-    /**
-     * Default animation timer
-     **/
-    int getAnimationTimer();
-
-    void setAnimationTimer(int animationTimer);
 
     /**
      * Accessories inventory

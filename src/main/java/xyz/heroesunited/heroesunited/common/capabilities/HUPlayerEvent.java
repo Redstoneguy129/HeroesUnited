@@ -54,7 +54,7 @@ public class HUPlayerEvent {
         if (event.getEntityLiving() instanceof PlayerEntity && !event.getEntityLiving().level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
             PlayerEntity player = (PlayerEntity) event.getEntityLiving();
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
-                NonNullList<ItemStack> list = a.getInventory().getInventory();
+                NonNullList<ItemStack> list = a.getInventory().getItems();
                 for (int i = 0; i < list.size(); ++i) {
                     ItemStack stack = list.get(i);
                     if (!stack.isEmpty() && stack.getItem() instanceof IAccessory && ((IAccessory) stack.getItem()).dropAfterDeath(player, stack) == true) {

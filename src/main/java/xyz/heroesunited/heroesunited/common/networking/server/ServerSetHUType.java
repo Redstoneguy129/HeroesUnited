@@ -14,21 +14,21 @@ import java.util.function.Supplier;
 public class ServerSetHUType {
 
     private final HUTypes type;
-    private final int value;
+    private final boolean value;
 
-    public ServerSetHUType(HUTypes type, int value) {
+    public ServerSetHUType(HUTypes type, boolean value) {
         this.type = type;
         this.value = value;
     }
 
     public ServerSetHUType(PacketBuffer buffer) {
         this.type = buffer.readEnum(HUTypes.class);
-        this.value = buffer.readInt();
+        this.value = buffer.readBoolean();
     }
 
     public void toBytes(PacketBuffer buffer) {
         buffer.writeEnum(this.type);
-        buffer.writeInt(this.value);
+        buffer.writeBoolean(this.value);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {

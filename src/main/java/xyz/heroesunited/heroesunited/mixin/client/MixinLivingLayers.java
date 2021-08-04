@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.mixin.client;
 
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.LivingRenderer;
@@ -11,8 +10,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import xyz.heroesunited.heroesunited.client.events.HUHideLayerEvent;
-
-import java.util.List;
 
 @Mixin(LivingRenderer.class)
 public class MixinLivingLayers {

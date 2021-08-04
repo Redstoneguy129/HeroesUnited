@@ -13,7 +13,7 @@ import static xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilit
 
 public class HUAbilityCapProvider implements ICapabilitySerializable<INBT> {
 
-    private LazyOptional<IHUAbilityCap> instance;
+    private final LazyOptional<IHUAbilityCap> instance;
 
     public HUAbilityCapProvider(PlayerEntity player) {
         instance = LazyOptional.of(() -> new HUAbilityCap(player));

@@ -14,7 +14,7 @@ public class HUPlayerProvider implements ICapabilitySerializable<INBT> {
 
     @CapabilityInject(IHUPlayer.class)
     public static Capability<IHUPlayer> CAPABILITY = null;
-    private LazyOptional<IHUPlayer> instance;
+    private final LazyOptional<IHUPlayer> instance;
 
     public HUPlayerProvider(PlayerEntity player) {
         instance = LazyOptional.of(() -> new HUPlayer(player));

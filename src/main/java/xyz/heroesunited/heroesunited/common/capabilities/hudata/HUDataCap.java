@@ -13,8 +13,6 @@ import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUData;
 import xyz.heroesunited.heroesunited.util.hudata.HUData;
 import xyz.heroesunited.heroesunited.util.hudata.HUDataManager;
 
-import javax.annotation.Nullable;
-
 public class HUDataCap implements IHUDataCap, INBTSerializable<CompoundNBT> {
 
     @CapabilityInject(IHUDataCap.class)
@@ -33,9 +31,8 @@ public class HUDataCap implements IHUDataCap, INBTSerializable<CompoundNBT> {
         MinecraftForge.EVENT_BUS.post(new HUDataRegister(entity, this.dataManager));
     }
 
-    @Nullable
     public static IHUDataCap getCap(Entity entity) {
-        return entity.getCapability(HUDataCap.CAPABILITY).orElse(null);
+        return entity.getCapability(HUDataCap.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("HUDataCap must not be empty"));
     }
 
     @Override

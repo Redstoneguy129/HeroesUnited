@@ -5,25 +5,13 @@ import net.minecraft.client.renderer.model.ModelRenderer;
 
 public enum PlayerPart {
 
-    HEAD("head"),
-    HEAD_WEAR("head_wear"),
-    CHEST("chest"),
-    CHEST_WEAR("body_wear"),
-    RIGHT_ARM("right_arm"),
-    RIGHT_ARM_WEAR("right_arm_wear"),
-    LEFT_ARM("left_arm"),
-    LEFT_ARM_WEAR("left_arm_wear"),
-    RIGHT_LEG("right_leg"),
-    RIGHT_LEG_WEAR("right_leg_wear"),
-    LEFT_LEG("left_leg"),
-    LEFT_LEG_WEAR("left_leg_wear"),
-    ALL("all");
-
-    private String name;
-
-    PlayerPart(String name) {
-        this.name = name;
-    }
+    ALL,
+    HEAD, HEAD_WEAR,
+    CHEST, CHEST_WEAR,
+    RIGHT_ARM, RIGHT_ARM_WEAR,
+    LEFT_ARM, LEFT_ARM_WEAR,
+    RIGHT_LEG, RIGHT_LEG_WEAR,
+    LEFT_LEG, LEFT_LEG_WEAR;
 
     public void setVisibility(PlayerModel model, boolean visible) {
         ModelRenderer modelRenderer = getModelRendererByPart(model);
@@ -67,7 +55,7 @@ public enum PlayerPart {
 
     public static PlayerPart getByName(String name) {
         for (PlayerPart playerPart : values()) {
-            if (name.equalsIgnoreCase(playerPart.name)) {
+            if (name.equalsIgnoreCase(playerPart.name().toLowerCase())) {
                 return playerPart;
             }
         }

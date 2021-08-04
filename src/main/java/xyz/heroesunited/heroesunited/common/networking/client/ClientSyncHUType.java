@@ -12,9 +12,9 @@ public class ClientSyncHUType {
 
     private int entityId;
     private final HUTypes data;
-    private final int value;
+    private final boolean value;
 
-    public ClientSyncHUType(int entityId, HUTypes data, int value) {
+    public ClientSyncHUType(int entityId, HUTypes data, boolean value) {
         this.entityId = entityId;
         this.data = data;
         this.value = value;
@@ -23,13 +23,13 @@ public class ClientSyncHUType {
     public ClientSyncHUType(PacketBuffer buffer) {
         this.entityId = buffer.readInt();
         this.data = buffer.readEnum(HUTypes.class);
-        this.value = buffer.readInt();
+        this.value = buffer.readBoolean();
     }
 
     public void toBytes(PacketBuffer buffer) {
         buffer.writeInt(this.entityId);
         buffer.writeEnum(this.data);
-        buffer.writeInt(this.value);
+        buffer.writeBoolean(this.value);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {

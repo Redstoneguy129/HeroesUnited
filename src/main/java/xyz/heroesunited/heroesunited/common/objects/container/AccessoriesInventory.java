@@ -4,37 +4,36 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.NonNullList;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 
 public class AccessoriesInventory implements IInventory {
 
-    private NonNullList<ItemStack> inventory;
+    private NonNullList<ItemStack> items;
     private PlayerEntity player;
 
     public AccessoriesInventory(PlayerEntity player) {
         this.player = player;
-        this.inventory = NonNullList.withSize(9, ItemStack.EMPTY);
+        this.items = NonNullList.withSize(9, ItemStack.EMPTY);
     }
 
     public boolean haveStack(EquipmentAccessoriesSlot slot) {
         return getItem(slot.getSlot()) != null && !getItem(slot.getSlot()).isEmpty();
     }
 
-    public NonNullList<ItemStack> getInventory() {
-        return this.inventory;
+    public NonNullList<ItemStack> getItems() {
+        return this.items;
     }
 
     @Override
     public int getContainerSize() {
-        return inventory.size();
+        return items.size();
     }
 
     @Override
     public boolean isEmpty() {
-        for (ItemStack itemstack : this.inventory) {
+        for (ItemStack itemstack : this.items) {
             if (!itemstack.isEmpty()) {
                 return false;
             }
@@ -44,15 +43,15 @@ public class AccessoriesInventory implements IInventory {
 
     @Override
     public ItemStack getItem(int index) {
-        return index >= getContainerSize() ? ItemStack.EMPTY : this.inventory.get(index);
+        return index >= getContainerSize() ? ItemStack.EMPTY : this.items.get(index);
     }
 
     @Override
     public ItemStack removeItem(int index, int count) {
-        ItemStack itemstack = this.inventory.get(index);
+        ItemStack itemstack = this.items.get(index);
         if (!itemstack.isEmpty()) {
             if (itemstack.getCount() > count) {
-                itemstack = ItemStackHelper.removeItem(this.inventory, index, count);
+                itemstack = ItemStackHelper.removeItem(this.items, index, count);
             } else setItem(index, ItemStack.EMPTY);
             setChanged();
             return itemstack;
@@ -61,8 +60,8 @@ public class AccessoriesInventory implements IInventory {
 
     @Override
     public ItemStack removeItemNoUpdate(int i) {
-        if (!this.inventory.get(i).isEmpty()) {
-            ItemStack itemstack = this.inventory.get(i);
+        if (!this.items.get(i).isEmpty()) {
+            ItemStack itemstack = this.items.get(i);
             setItem(i, ItemStack.EMPTY);
             setChanged();
             return itemstack;
@@ -73,7 +72,7 @@ public class AccessoriesInventory implements IInventory {
 
     @Override
     public void setItem(int i, ItemStack itemStack) {
-        this.inventory.set(i, itemStack);
+        this.items.set(i, itemStack);
         setChanged();
     }
 
@@ -87,16 +86,6 @@ public class AccessoriesInventory implements IInventory {
         return true;
     }
 
-    public CompoundNBT write(CompoundNBT compound) {
-        ItemStackHelper.saveAllItems(compound, this.inventory);
-        return compound;
-    }
-
-    public void read(CompoundNBT compound) {
-        this.inventory.clear();
-        ItemStackHelper.loadAllItems(compound, this.inventory);
-    }
-
     public void copy(AccessoriesInventory inv) {
         for(int i = 0; i < this.getContainerSize(); ++i) {
             setItem(i, inv.getItem(i));
@@ -105,7 +94,7 @@ public class AccessoriesInventory implements IInventory {
 
     @Override
     public void clearContent() {
-        for (int i = 0; i < inventory.size(); i++) {
+        for (int i = 0; i < items.size(); i++) {
             setItem(i, ItemStack.EMPTY);
         }
         setChanged();

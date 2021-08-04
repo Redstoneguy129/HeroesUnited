@@ -6,7 +6,6 @@ import net.minecraft.util.Timer;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 
 public class HUTickrate {

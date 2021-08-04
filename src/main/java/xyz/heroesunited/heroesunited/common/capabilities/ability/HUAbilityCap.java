@@ -23,8 +23,6 @@ import xyz.heroesunited.heroesunited.common.networking.client.ClientEnableAbilit
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilities;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityCap;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Map;
 
 public class HUAbilityCap implements IHUAbilityCap {
@@ -40,9 +38,8 @@ public class HUAbilityCap implements IHUAbilityCap {
         this.containedAbilities = Maps.newHashMap();
     }
 
-    @Nullable
     public static IHUAbilityCap getCap(Entity entity) {
-        return entity.getCapability(CAPABILITY).orElse(null);
+        return entity.getCapability(HUAbilityCap.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("HUAbilityCap must not be empty"));
     }
 
     @Override
@@ -90,7 +87,7 @@ public class HUAbilityCap implements IHUAbilityCap {
     @Override
     public void addAbilities(IAbilityProvider provider) {
         if (!provider.getAbilities(player).isEmpty()) {
-            provider.getAbilities(player).forEach((id, d) -> addAbility(id, d));
+            provider.getAbilities(player).forEach(this::addAbility);
         }
     }
 

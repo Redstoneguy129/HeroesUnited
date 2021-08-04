@@ -112,7 +112,7 @@ public abstract class JSONAbility extends Ability {
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT nbt = super.serializeNBT();
-        nbt.putString("actionType", actionType.getId());
+        nbt.putString("actionType", actionType.name().toLowerCase());
         return nbt;
     }
 
@@ -123,24 +123,14 @@ public abstract class JSONAbility extends Ability {
     }
 
     public enum ActionType {
-        CONSTANT("constant"),
-        ACTION("action"),
-        TOGGLE("toggle"),
-        HELD("held");
-
-        final String id;
-
-        ActionType(String id) {
-            this.id = id;
-        }
-
-        String getId() {
-            return id;
-        }
+        CONSTANT,
+        ACTION,
+        TOGGLE,
+        HELD;
 
         static ActionType getById(String id) {
             for (ActionType type : values()) {
-                if (type.getId().equals(id)) {
+                if (type.name().toLowerCase().equals(id)) {
                     return type;
                 }
             }

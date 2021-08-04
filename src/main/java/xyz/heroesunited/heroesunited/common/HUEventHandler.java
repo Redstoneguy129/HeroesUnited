@@ -230,9 +230,9 @@ public class HUEventHandler {
                     }
                     AbilityHelper.getAbilities(pl).forEach(type -> type.onUpdate(pl));
 
-                    for (int i = 0; i < a.getInventory().getInventory().size(); ++i) {
-                        if (!a.getInventory().getInventory().get(i).isEmpty()) {
-                            a.getInventory().getInventory().get(i).inventoryTick(pl.level, pl, i, false);
+                    for (int i = 0; i < a.getInventory().getItems().size(); ++i) {
+                        if (!a.getInventory().getItems().get(i).isEmpty()) {
+                            a.getInventory().getItems().get(i).inventoryTick(pl.level, pl, i, false);
                         }
                     }
                     ItemStack stack = a.getInventory().getItem(EquipmentAccessoriesSlot.HELMET.getSlot());
@@ -251,9 +251,6 @@ public class HUEventHandler {
                             Suit.getSuitItem(equipmentSlot, pl).getSuit().onUpdate(pl, equipmentSlot);
                         }
                     }
-
-                    if (a.getAnimationTimer() > 0) a.setAnimationTimer(a.getAnimationTimer() + 1);
-                    if (a.getAnimationTimer() >= 3600) a.setAnimationTimer(3600);
 
                     IFlyingAbility b = IFlyingAbility.getFlyingAbility(pl);
                     if ((b != null && b.isFlying(pl) && !pl.isOnGround()) || a.isFlying() && !pl.isOnGround()) {

@@ -13,7 +13,7 @@ import static xyz.heroesunited.heroesunited.common.capabilities.hudata.HUDataCap
 
 public class HUDataProvider implements ICapabilitySerializable<INBT> {
 
-    private LazyOptional<IHUDataCap> instance;
+    private final LazyOptional<IHUDataCap> instance;
 
     public HUDataProvider(Entity entity) {
         instance = LazyOptional.of(() -> new HUDataCap(entity));
