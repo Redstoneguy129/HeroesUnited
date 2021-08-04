@@ -1,32 +1,31 @@
 package xyz.heroesunited.heroesunited.client.texture;
 
-import net.minecraft.client.renderer.texture.NativeImage;
-import net.minecraft.client.renderer.texture.SimpleTexture;
-import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
-
+import com.mojang.blaze3d.platform.TextureUtil;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.ResourceTexture;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.util.Identifier;
 
-public class AlphaMaskTexture extends SimpleTexture {
+public class AlphaMaskTexture extends ResourceTexture {
 
-    private final ResourceLocation maskLocation, output;
+    private final Identifier maskLocation, output;
 
-    public AlphaMaskTexture(ResourceLocation base, ResourceLocation maskLocation) {
+    public AlphaMaskTexture(Identifier base, Identifier maskLocation) {
         this(base, maskLocation, base);
     }
     
-    public AlphaMaskTexture(ResourceLocation base, ResourceLocation maskLocation, ResourceLocation output) {
+    public AlphaMaskTexture(Identifier base, Identifier maskLocation, Identifier output) {
         super(base);
         this.maskLocation = maskLocation;
         this.output = output;
     }
 
     @Override
-    public void load(IResourceManager manager) throws IOException {
-        releaseId();
+    public void load(ResourceManager manager) throws IOException {
+        clearGlId();
         InputStream[] streams = new InputStream[3];
         NativeImage image = NativeImage.read(streams[0] = manager.getResource(this.location).getInputStream());
         NativeImage mask = NativeImage.read(streams[1] = manager.getResource(this.maskLocation).getInputStream());
@@ -34,10 +33,10 @@ public class AlphaMaskTexture extends SimpleTexture {
 
         for (int y = 0; y < mask.getHeight(); ++y) {
             for (int x = 0; x < mask.getWidth(); ++x) {
-                int pixelMask = mask.getPixelRGBA(x, y);
+                int pixelMask = mask.getPixelColor(x, y);
                 Color color = new Color(pixelMask, true);
-                Color colorOutput = new Color(output.getPixelRGBA(x, y), true);
-                Color colorDefault = new Color(image.getPixelRGBA(x, y), true);
+                Color colorOutput = new Color(output.getPixelColor(x, y), true);
+                Color colorDefault = new Color(image.getPixelColor(x, y), true);
                 boolean isBlack = color.getRed() == 0 && color.getGreen() == 0 && color.getBlue() == 0;
                 boolean isWhite = color.getRed() == 255 && color.getGreen() == 255 && color.getBlue() == 255;
                 if (colorDefault.equals(colorOutput)) {
@@ -45,25 +44,25 @@ public class AlphaMaskTexture extends SimpleTexture {
                         float hue = 1F - (color.getRed() + color.getGreen() + color.getBlue()) / 3F / 255F;
                         int newAlpha = pixelMask == 0 ? 0 : (int) (colorDefault.getAlpha() * hue);
                         Color newColor = new Color(colorDefault.getRed(), colorDefault.getGreen(), colorDefault.getBlue(), newAlpha);
-                        image.setPixelRGBA(x, y, newColor.getRGB());
+                        image.setPixelColor(x, y, newColor.getRGB());
                     } else {
-                        image.setPixelRGBA(x, y, color.getRGB());
+                        image.setPixelColor(x, y, color.getRGB());
                     }
                 } else {
                     if (pixelMask == 0 || isWhite) {
-                        image.setPixelRGBA(x, y, colorDefault.getRGB());
+                        image.setPixelColor(x, y, colorDefault.getRGB());
                     } else {
                         if (isBlack) {
-                            image.setPixelRGBA(x, y, colorOutput.getRGB());
+                            image.setPixelColor(x, y, colorOutput.getRGB());
                         } else {
-                            image.setPixelRGBA(x, y, color.getRGB());
+                            image.setPixelColor(x, y, color.getRGB());
                         }
                     }
                 }
             }
         }
         mask.close();
-        TextureUtil.prepareImage(this.getId(), image.getWidth(), image.getHeight());
+        TextureUtil.prepareImage(this.getGlId(), image.getWidth(), image.getHeight());
         image.upload(0, 0, 0, false);
         for (InputStream stream : streams) {
             if (stream != null) {

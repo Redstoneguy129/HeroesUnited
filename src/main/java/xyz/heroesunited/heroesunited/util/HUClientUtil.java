@@ -1,33 +1,39 @@
 package xyz.heroesunited.heroesunited.util;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderState;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.LivingRenderer;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.NativeImage;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.RenderPhase;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.entity.LivingEntityRenderer;
+import net.minecraft.client.render.entity.PlayerEntityRenderer;
+import net.minecraft.client.render.entity.PlayerModelPart;
+import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.render.entity.model.EntityModelLoader;
+import net.minecraft.client.render.entity.model.PlayerEntityModel;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerModelPart;
-import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ElytraItem;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.Arm;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.*;
+import net.minecraft.util.math.Matrix3f;
+import net.minecraft.util.math.Matrix4f;
+import net.minecraft.util.math.Quaternion;
+import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.math.Vector4f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
@@ -36,10 +42,11 @@ import software.bernie.geckolib3.geo.render.built.GeoCube;
 import software.bernie.geckolib3.geo.render.built.GeoQuad;
 import software.bernie.geckolib3.geo.render.built.GeoVertex;
 import software.bernie.geckolib3.util.RenderUtils;
+import xyz.heroesunited.heroesunited.HUClientListener;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.HUChangeRendererEvent;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
-import xyz.heroesunited.heroesunited.client.render.model.ModelCape;
+import xyz.heroesunited.heroesunited.client.render.model.CapeModel;
 import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
@@ -50,24 +57,24 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Random;
 
-import static net.minecraft.inventory.EquipmentSlotType.*;
+import static net.minecraft.entity.EquipmentSlot.*;
 
 @OnlyIn(Dist.CLIENT)
 public class HUClientUtil {
 
-    public static final ResourceLocation null_texture = new ResourceLocation(HeroesUnited.MODID + ":textures/null.png");
+    public static final Identifier null_texture = new Identifier(HeroesUnited.MODID + ":textures/null.png");
 
-    public static <M extends PlayerModel<AbstractClientPlayerEntity>> void renderModel(PlayerRenderer renderer, M model, AbstractClientPlayerEntity entity, MatrixStack matrixStack, IRenderTypeBuffer buffer, IVertexBuilder builder, int light, int overlay, float red, float green, float blue, float alpha, float limbSwing, float limbSwingAmount, float ageInTicks, float headPitch, float netHeadYaw) {
+    public static <M extends PlayerEntityModel<AbstractClientPlayerEntity>> void renderModel(PlayerEntityRenderer renderer, M model, AbstractClientPlayerEntity entity, MatrixStack matrixStack, VertexConsumerProvider buffer, VertexConsumer builder, int light, int overlay, float red, float green, float blue, float alpha, float limbSwing, float limbSwingAmount, float ageInTicks, float headPitch, float netHeadYaw) {
         MinecraftForge.EVENT_BUS.post(new HUSetRotationAnglesEvent(entity, model, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch));
         HUClientUtil.copyAnglesToWear(model);
 
         if (!MinecraftForge.EVENT_BUS.post(new HUChangeRendererEvent(entity, renderer, matrixStack, buffer, builder, light, overlay, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch))) {
-            model.renderToBuffer(matrixStack, builder, light, overlay, red, green, blue, alpha);
+            model.render(matrixStack, builder, light, overlay, red, green, blue, alpha);
         }
     }
 
-    public static void renderGeckoRecursively(GeoBone bone, MatrixStack stack, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        stack.pushPose();
+    public static void renderGeckoRecursively(GeoBone bone, MatrixStack stack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+        stack.push();
         RenderUtils.translate(bone, stack);
         RenderUtils.moveToPivot(bone, stack);
         RenderUtils.rotate(bone, stack);
@@ -76,99 +83,104 @@ public class HUClientUtil {
 
         if (!bone.isHidden) {
             for (GeoCube cube : bone.childCubes) {
-                stack.pushPose();
+                stack.push();
                 RenderUtils.moveToPivot(cube, stack);
                 RenderUtils.rotate(cube, stack);
                 RenderUtils.moveBackFromPivot(cube, stack);
-                Matrix3f matrix3f = stack.last().normal();
-                Matrix4f matrix4f = stack.last().pose();
+                Matrix3f matrix3f = stack.peek().getNormal();
+                Matrix4f matrix4f = stack.peek().getModel();
 
                 for (GeoQuad quad : cube.quads) {
                     if (quad == null) {
                         continue;
                     }
-                    Vector3f normal = quad.normal.copy();
+                    Vec3f normal = quad.normal.copy();
                     normal.transform(matrix3f);
-                    if ((cube.size.y() == 0 || cube.size.z() == 0) && normal.x() < 0) {
-                        normal.mul(-1, 1, 1);
+                    if ((cube.size.y() == 0 || cube.size.z() == 0) && normal.getX() < 0) {
+                        normal.multiplyComponentwise(-1, 1, 1);
                     }
-                    if ((cube.size.x() == 0 || cube.size.z() == 0) && normal.y() < 0) {
-                        normal.mul(1, -1, 1);
+                    if ((cube.size.x() == 0 || cube.size.z() == 0) && normal.getY() < 0) {
+                        normal.multiplyComponentwise(1, -1, 1);
                     }
-                    if ((cube.size.x() == 0 || cube.size.y() == 0) && normal.z() < 0) {
-                        normal.mul(1, 1, -1);
+                    if ((cube.size.x() == 0 || cube.size.y() == 0) && normal.getZ() < 0) {
+                        normal.multiplyComponentwise(1, 1, -1);
                     }
 
                     for (GeoVertex vertex : quad.vertices) {
                         Vector4f vector4f = new Vector4f(vertex.position.x(), vertex.position.y(), vertex.position.z(),
                                 1.0F);
                         vector4f.transform(matrix4f);
-                        bufferIn.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha,
-                                vertex.textureU, vertex.textureV, packedOverlayIn, packedLightIn, normal.x(), normal.y(),
-                                normal.z());
+                        bufferIn.vertex(vector4f.getX(), vector4f.getY(), vector4f.getZ(), red, green, blue, alpha,
+                                vertex.textureU, vertex.textureV, packedOverlayIn, packedLightIn, normal.getX(), normal.getY(),
+                                normal.getZ());
                     }
                 }
-                stack.popPose();
+                stack.pop();
             }
             for (GeoBone childBone : bone.childBones) {
                 renderGeckoRecursively(childBone, stack, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
             }
         }
 
-        stack.popPose();
+        stack.pop();
     }
 
     public static int getLivingOverlay(LivingEntity entity) {
-        return LivingRenderer.getOverlayCoords(entity, 0.0F);
+        return LivingEntityRenderer.getOverlay(entity, 0.0F);
     }
 
-    public static void renderAura(MatrixStack matrixStack, IVertexBuilder builder, AxisAlignedBB box, float shrinkValue, Color color, int packedLightIn, int ticksExisted) {
-        matrixStack.pushPose();
+    public static void renderAura(MatrixStack matrixStack, VertexConsumer builder, Box box, float shrinkValue, Color color, int packedLightIn, int ticksExisted) {
+        matrixStack.push();
         for (int i = 0; i < 5; i++) {
             float angle = ticksExisted * 4 + i * 180;
-            matrixStack.mulPose(new Quaternion(angle, -angle, angle, true));
-            HUClientUtil.renderFilledBox(matrixStack, builder, box.deflate(shrinkValue), 1f, 1f, 1f, 1f, packedLightIn);
+            matrixStack.multiply(new Quaternion(angle, -angle, angle, true));
+            HUClientUtil.renderFilledBox(matrixStack, builder, box.contract(shrinkValue), 1f, 1f, 1f, 1f, packedLightIn);
             for (int j = 0; j < 5; j++) {
                 float angleJ = ticksExisted * 4 + j * 180;
-                matrixStack.mulPose(new Quaternion(angleJ, -angleJ, angleJ, true));
+                matrixStack.multiply(new Quaternion(angleJ, -angleJ, angleJ, true));
                 HUClientUtil.renderFilledBox(matrixStack, builder, box, color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F, packedLightIn);
             }
         }
-        matrixStack.popPose();
+        matrixStack.pop();
     }
 
-    public static void drawArmWithLightning(MatrixStack matrix, IRenderTypeBuffer bufferIn, PlayerRenderer renderer, AbstractClientPlayerEntity player, HandSide side, double y , int packedLightIn, Color color) {
+    public static void drawArmWithLightning(MatrixStack matrix, VertexConsumerProvider bufferIn, PlayerEntityRenderer renderer, AbstractClientPlayerEntity player, Arm side, double y , int packedLightIn, Color color) {
         for (int i = 0; i < 3; i++) {
-            matrix.pushPose();
-            renderer.getModel().translateToHand(side, matrix);
+            matrix.push();
+            renderer.getModel().setArmAngle(side, matrix);
             matrix.scale(0.05F, 0.06F, 0.05F);
-            matrix.translate(i * (side == HandSide.LEFT ? 1 : -1), 10, 0);
-            renderLightning(player.level.random, matrix, bufferIn, packedLightIn, y, i, color);
-            matrix.popPose();
+            matrix.translate(i * (side == Arm.LEFT ? 1 : -1), 10, 0);
+            renderLightning(player.world.random, matrix, bufferIn, packedLightIn, y, i, color);
+            matrix.pop();
         }
     }
 
-    public static void renderCape(LivingRenderer<? extends LivingEntity, ? extends BipedModel<?>> renderer, LivingEntity entity, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, float partialTicks, ResourceLocation texture) {
+    public static ModelPart getSuitModelPart(boolean slim) {
+        EntityModelLoader modelSet = MinecraftClient.getInstance().getEntityModelLoader();
+        return slim ? modelSet.getModelPart(HUClientListener.SUIT_SLIM) : modelSet.getModelPart(HUClientListener.SUIT);
+    }
+
+    public static void renderCape(LivingEntityRenderer<? extends LivingEntity, ? extends BipedEntityModel<?>> renderer, LivingEntity entity, MatrixStack matrix, VertexConsumerProvider bufferIn, int packedLightIn, float partialTicks, Identifier texture) {
         if (renderer != null) {
-            if (entity.getItemBySlot(EquipmentSlotType.CHEST).getItem() instanceof ElytraItem || entity instanceof ClientPlayerEntity && ((PlayerEntity) entity).isModelPartShown(PlayerModelPart.CAPE) && ((ClientPlayerEntity) entity).getCloakTextureLocation() != null) {
+            if (entity.getEquippedStack(EquipmentSlot.CHEST).getItem() instanceof ElytraItem || entity instanceof ClientPlayerEntity && ((PlayerEntity) entity).isPartVisible(PlayerModelPart.CAPE) && ((ClientPlayerEntity) entity).getCapeTexture() != null) {
                 return;
             }
-            final ModelCape model = new ModelCape();
-            matrix.pushPose();
-            renderer.getModel().body.translateAndRotate(matrix);
+            final CapeModel model = new CapeModel(MinecraftClient.getInstance().getEntityModelLoader().getModelPart(HUClientListener.CAPE));
+            matrix.push();
+            renderer.getModel().body.rotate(matrix);
             matrix.translate(0, -0.04F, 0.05F);
             matrix.scale(0.9F, 0.9F, 0.9F);
             if (entity.isFallFlying()) {
-                model.cape.xRot = 0F;
-                model.cape.yRot = 0F;
-                model.cape.zRot = 0F;
+                model.cape.pitch = 0F;
+                model.cape.yaw = 0F;
+                model.cape.roll = 0F;
             }
             if (entity instanceof PlayerEntity) {
                 PlayerEntity player = (PlayerEntity) entity;
-                double d0 = MathHelper.lerp(partialTicks, player.xCloakO, player.xCloak) - MathHelper.lerp(partialTicks, player.xo, player.getX());
-                double d1 = MathHelper.lerp(partialTicks, player.yCloakO, player.yCloak) - MathHelper.lerp(partialTicks, player.yo, player.getY());
-                double d2 = MathHelper.lerp(partialTicks, player.zCloakO, player.zCloak) - MathHelper.lerp(partialTicks, player.zo, player.getZ());
-                float f = player.yBodyRotO + (player.yBodyRot - player.yBodyRotO);
+                double d0 = MathHelper.lerp(partialTicks, player.prevCapeX, player.capeX) - MathHelper.lerp(partialTicks, player.prevX, player.getX());
+                double d1 = MathHelper.lerp(partialTicks, player.prevCapeY, player.capeY) - MathHelper.lerp(partialTicks, player.prevY, player.getY());
+                double d2 = MathHelper.lerp(partialTicks, player.prevCapeZ, player.capeZ) - MathHelper.lerp(partialTicks, player.prevZ, player.getZ());
+                float f = player.prevBodyYaw + (player.bodyYaw - player.prevBodyYaw);
                 double d3 = MathHelper.sin(f * ((float) Math.PI / 180F));
                 double d4 = -MathHelper.cos(f * ((float) Math.PI / 180F));
                 float f1 = (float) d1 * 10.0F;
@@ -181,12 +193,12 @@ public class HUClientUtil {
                     f2 = 0.0F;
                 }
 
-                float f4 = MathHelper.lerp(partialTicks, player.oBob, player.bob);
-                f1 = f1 + MathHelper.sin(MathHelper.lerp(partialTicks, player.walkDistO, player.walkDist) * 6.0F) * 32.0F * f4;
+                float f4 = MathHelper.lerp(partialTicks, player.prevStrideDistance, player.strideDistance);
+                f1 = f1 + MathHelper.sin(MathHelper.lerp(partialTicks, player.prevHorizontalSpeed, player.horizontalSpeed) * 6.0F) * 32.0F * f4;
 
-                model.cape.xRot = (float) -Math.toRadians(6.0F + f2 / 2.0F + f1);
-                model.cape.yRot = (float) Math.toRadians(180.0F - f3 / 2.0F);
-                model.cape.zRot = (float) Math.toRadians(f3 / 2.0F);
+                model.cape.pitch = (float) -Math.toRadians(6.0F + f2 / 2.0F + f1);
+                model.cape.yaw = (float) Math.toRadians(180.0F - f3 / 2.0F);
+                model.cape.roll = (float) Math.toRadians(f3 / 2.0F);
 
                 IFlyingAbility b = IFlyingAbility.getFlyingAbility(player);
                 player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
@@ -198,70 +210,76 @@ public class HUClientUtil {
                         }
                 });
             }
-            model.renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entityTranslucent(texture)), packedLightIn, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
-            matrix.popPose();
+            model.render(matrix, bufferIn.getBuffer(RenderLayer.getEntityTranslucent(texture)), packedLightIn, OverlayTexture.DEFAULT_UV, 1F, 1F, 1F, 1F);
+            matrix.pop();
         }
     }
 
-    public static void renderFilledBox(MatrixStack matrixStack, IVertexBuilder builder, AxisAlignedBB box, float red, float green, float blue, float alpha, int combinedLightIn) {
-        Matrix4f matrix = matrixStack.last().pose();
-        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+    public static void renderFilledBox(MatrixStack matrixStack, VertexConsumer builder, Box box, float red, float green, float blue, float alpha, int combinedLightIn) {
+        Matrix4f matrix = matrixStack.peek().getModel();
+        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).light(combinedLightIn).next();
+        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).light(combinedLightIn).next();
+        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).light(combinedLightIn).next();
+        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).light(combinedLightIn).next();
 
         //uv2 = lightmap i think
 
-        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).light(combinedLightIn).next();
+        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).light(combinedLightIn).next();
+        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).light(combinedLightIn).next();
+        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).light(combinedLightIn).next();
 
-        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).light(combinedLightIn).next();
+        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).light(combinedLightIn).next();
+        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).light(combinedLightIn).next();
+        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).light(combinedLightIn).next();
 
-        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).light(combinedLightIn).next();
+        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).light(combinedLightIn).next();
+        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).light(combinedLightIn).next();
+        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).light(combinedLightIn).next();
 
-        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).light(combinedLightIn).next();
+        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).light(combinedLightIn).next();
+        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).light(combinedLightIn).next();
+        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).light(combinedLightIn).next();
 
-        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).light(combinedLightIn).next();
+        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).light(combinedLightIn).next();
+        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).light(combinedLightIn).next();
+        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).light(combinedLightIn).next();
     }
 
-    public static void hideSuitPlayerWear(PlayerEntity player, PlayerModel model) {
-        if (player.getItemBySlot(HEAD).getItem() instanceof SuitItem) {
+    public static void hideSuitPlayerWear(PlayerEntity player, PlayerEntityModel model) {
+        if (player.getEquippedStack(HEAD).getItem() instanceof SuitItem) {
             model.hat.visible = false;
         }
-        if (player.getItemBySlot(CHEST).getItem() instanceof SuitItem) {
+        if (player.getEquippedStack(CHEST).getItem() instanceof SuitItem) {
             model.jacket.visible = false;
             model.rightSleeve.visible = false;
             model.leftSleeve.visible = false;
         }
 
-        if (player.getItemBySlot(FEET).getItem() instanceof SuitItem
-                || player.getItemBySlot(LEGS).getItem() instanceof SuitItem) {
+        if (player.getEquippedStack(FEET).getItem() instanceof SuitItem
+                || player.getEquippedStack(LEGS).getItem() instanceof SuitItem) {
             model.rightPants.visible = false;
             model.leftPants.visible = false;
         }
     }
 
-    public static class CustomRenderState extends RenderState.TexturingState {
-        public CustomRenderState(Runnable start, Runnable end) {
-            super("offset_texturing_custom", start, end);
+    public static class HURenderStateShard extends RenderPhase {
+        public HURenderStateShard(String p_110161_, Runnable p_110162_, Runnable p_110163_) {
+            super(p_110161_, p_110162_, p_110163_);
+        }
+
+        public static class CustomRenderState extends RenderPhase.Texturing {
+            public CustomRenderState(Runnable start, Runnable end) {
+                super("offset_texturing_custom", start, end);
+            }
         }
     }
 
-    public static ModelRenderer getModelRendererById(PlayerModel model, String name) {
+    public static ModelPart getModelRendererById(PlayerEntityModel model, String name) {
         switch (name) {
             case "bipedHead": return model.head;
             case "bipedBody": return model.body;
@@ -272,32 +290,32 @@ public class HUClientUtil {
         }
     }
 
-    public static void resetModelRenderer(ModelRenderer renderer) {
-        renderer.xRot = renderer.yRot = renderer.zRot = 0.0F;
-        renderer.setPos(0, 0, 0);
+    public static void resetModelRenderer(ModelPart renderer) {
+        renderer.pitch = renderer.yaw = renderer.roll = 0.0F;
+        renderer.setPivot(0, 0, 0);
     }
 
-    public static void copyAnglesToWear(PlayerModel model) {
-        model.hat.copyFrom(model.head);
-        model.jacket.copyFrom(model.body);
-        model.rightSleeve.copyFrom(model.rightArm);
-        model.leftSleeve.copyFrom(model.leftArm);
-        model.leftPants.copyFrom(model.leftLeg);
-        model.rightPants.copyFrom(model.rightLeg);
+    public static void copyAnglesToWear(PlayerEntityModel model) {
+        model.hat.copyTransform(model.head);
+        model.jacket.copyTransform(model.body);
+        model.rightSleeve.copyTransform(model.rightArm);
+        model.leftSleeve.copyTransform(model.leftArm);
+        model.leftPants.copyTransform(model.leftLeg);
+        model.rightPants.copyTransform(model.rightLeg);
     }
 
-    public static void copyModelRotations(ModelRenderer to, ModelRenderer from) {
-        to.xRot = from.xRot;
-        to.yRot = from.yRot;
-        to.zRot = from.zRot;
+    public static void copyModelRotations(ModelPart to, ModelPart from) {
+        to.pitch = from.pitch;
+        to.yaw = from.yaw;
+        to.roll = from.roll;
     }
 
-    public static void renderLightning(Random random, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn, double y, int j, Color color) {
+    public static void renderLightning(Random random, MatrixStack matrixStackIn, VertexConsumerProvider bufferIn, int packedLightIn, double y, int j, Color color) {
         float[] afloat = new float[8], afloat1 = new float[8];
         float f = 0.0F;
         float f1 = 0.0F;
-        IVertexBuilder builder = bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER);
-        Matrix4f m4f = matrixStackIn.last().pose();
+        VertexConsumer builder = bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER);
+        Matrix4f m4f = matrixStackIn.peek().getModel();
         long seed = random.nextLong();
         Random randPrev = new Random(seed), rand = new Random(seed);
 
@@ -336,52 +354,50 @@ public class HUClientUtil {
         }
     }
 
-    private static void renderLightningPart(Matrix4f matrix4f, IVertexBuilder builder, float x, float z, int y, float y2, float x2, float z2, float additional, boolean p_229116_12_, boolean p_229116_13_, boolean p_229116_14_, boolean p_229116_15_, int packedLight, Color color) {
-        builder.vertex(matrix4f, x + (p_229116_12_ ? additional : -additional), y * y2, z + (p_229116_13_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).uv2(packedLight).endVertex();
-        builder.vertex(matrix4f, x2 + (p_229116_12_ ? additional : -additional), (y + 1) * y2, z2 + (p_229116_13_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).uv2(packedLight).endVertex();
-        builder.vertex(matrix4f, x2 + (p_229116_14_ ? additional : -additional), (y + 1) * y2, z2 + (p_229116_15_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).uv2(packedLight).endVertex();
-        builder.vertex(matrix4f, x + (p_229116_14_ ? additional : -additional), y * y2, z + (p_229116_15_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).uv2(packedLight).endVertex();
+    private static void renderLightningPart(Matrix4f matrix4f, VertexConsumer builder, float x, float z, int y, float y2, float x2, float z2, float additional, boolean p_229116_12_, boolean p_229116_13_, boolean p_229116_14_, boolean p_229116_15_, int packedLight, Color color) {
+        builder.vertex(matrix4f, x + (p_229116_12_ ? additional : -additional), y * y2, z + (p_229116_13_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).light(packedLight).next();
+        builder.vertex(matrix4f, x2 + (p_229116_12_ ? additional : -additional), (y + 1) * y2, z2 + (p_229116_13_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).light(packedLight).next();
+        builder.vertex(matrix4f, x2 + (p_229116_14_ ? additional : -additional), (y + 1) * y2, z2 + (p_229116_15_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).light(packedLight).next();
+        builder.vertex(matrix4f, x + (p_229116_14_ ? additional : -additional), y * y2, z + (p_229116_15_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).light(packedLight).next();
     }
 
-    public static class HURenderTypes extends RenderType {
+    public static class HURenderTypes extends RenderLayer {
 
-        public HURenderTypes(String nameIn, VertexFormat formatIn, int drawModeIn, int bufferSizeIn, boolean useDelegateIn, boolean needsSortingIn, Runnable setupTaskIn, Runnable clearTaskIn) {
+        public HURenderTypes(String nameIn, VertexFormat formatIn, VertexFormat.DrawMode drawModeIn, int bufferSizeIn, boolean useDelegateIn, boolean needsSortingIn, Runnable setupTaskIn, Runnable clearTaskIn) {
             super(nameIn, formatIn, drawModeIn, bufferSizeIn, useDelegateIn, needsSortingIn, setupTaskIn, clearTaskIn);
         }
 
-        public static final RenderType LASER = create(HeroesUnited.MODID + ":laser", DefaultVertexFormats.POSITION_COLOR_LIGHTMAP, 7, 256, State.builder()
-                .setTextureState(RenderState.NO_TEXTURE)
-                .setCullState(RenderState.CULL)
-                .setAlphaState(DEFAULT_ALPHA)
-                .setTransparencyState(RenderState.LIGHTNING_TRANSPARENCY)
-                .createCompositeState(true));
+        public static final RenderLayer LASER = of(HeroesUnited.MODID + ":laser", VertexFormats.POSITION_COLOR_LIGHT, VertexFormat.DrawMode.QUADS, 256, false, true, MultiPhaseParameters.builder()
+                .texture(RenderPhase.NO_TEXTURE)
+                .cull(RenderPhase.ENABLE_CULLING)
+                .transparency(RenderPhase.LIGHTNING_TRANSPARENCY)
+                .build(true));
 
-        public static RenderType getLight(ResourceLocation texture) {
-            RenderType.State render = RenderType.State.builder().setTextureState(new RenderState.TextureState(texture, false, false))
-                    .setTransparencyState(LIGHTNING_TRANSPARENCY)
-                    .setAlphaState(DEFAULT_ALPHA)
-                    .setLightmapState(LIGHTMAP).createCompositeState(false);
-            return create(HeroesUnited.MODID + ":light", DefaultVertexFormats.NEW_ENTITY, 7, 256, true, true, render);
+        public static RenderLayer getLight(Identifier texture) {
+            RenderLayer.MultiPhaseParameters render = RenderLayer.MultiPhaseParameters.builder().texture(new RenderPhase.Texture(texture, false, false))
+                    .transparency(LIGHTNING_TRANSPARENCY)
+                    .lightmap(ENABLE_LIGHTMAP).build(false);
+            return of(HeroesUnited.MODID + ":light", VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL, VertexFormat.DrawMode.QUADS, 256, true, true, render);
         }
 
-        public static RenderType getEntityCutout(ResourceLocation locationIn, Runnable start, Runnable end) {
-            RenderType.State render = RenderType.State.builder().setTextureState(new RenderState.TextureState(locationIn, false, false)).setTexturingState(new CustomRenderState(start, end)).setTransparencyState(NO_TRANSPARENCY).setDiffuseLightingState(RenderState.DIFFUSE_LIGHTING).setAlphaState(DEFAULT_ALPHA).setLightmapState(LIGHTMAP).setOverlayState(OVERLAY).createCompositeState(true);
-            return create(HeroesUnited.MODID + ":entity_cutout", DefaultVertexFormats.NEW_ENTITY, 7, 256, false, true, render);
+        public static RenderLayer getEntityCutout(Identifier locationIn, Runnable start, Runnable end) {
+            RenderLayer.MultiPhaseParameters render = RenderLayer.MultiPhaseParameters.builder().texture(new RenderPhase.Texture(locationIn, false, false)).texturing(new HURenderStateShard.CustomRenderState(start, end)).transparency(NO_TRANSPARENCY).lightmap(ENABLE_LIGHTMAP).overlay(ENABLE_OVERLAY_COLOR).build(true);
+            return of(HeroesUnited.MODID + ":entity_cutout", VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL, VertexFormat.DrawMode.QUADS, 256, false, true, render);
         }
 
-        public static RenderType sunRenderer(ResourceLocation p_230168_0_) {
-            RenderType.State rendertype$state = RenderType.State.builder().setTextureState(new RenderState.TextureState(p_230168_0_, false, false)).setTransparencyState(TRANSLUCENT_TRANSPARENCY).setDiffuseLightingState(NO_DIFFUSE_LIGHTING).setAlphaState(DEFAULT_ALPHA).setCullState(NO_CULL).setLightmapState(NO_LIGHTMAP).setOverlayState(OVERLAY).createCompositeState(true);
-            return create("sun_renderer", DefaultVertexFormats.NEW_ENTITY, 7, 256, true, true, rendertype$state);
+        public static RenderLayer sunRenderer(Identifier p_230168_0_) {
+            RenderLayer.MultiPhaseParameters rendertype$state = RenderLayer.MultiPhaseParameters.builder().texture(new RenderPhase.Texture(p_230168_0_, false, false)).transparency(TRANSLUCENT_TRANSPARENCY).cull(DISABLE_CULLING).lightmap(DISABLE_LIGHTMAP).overlay(ENABLE_OVERLAY_COLOR).build(true);
+            return of("sun_renderer", VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL, VertexFormat.DrawMode.QUADS, 256, true, true, rendertype$state);
         }
     }
 
-    public static ResourceLocation fileToTexture(File file) {
+    public static Identifier fileToTexture(File file) {
         NativeImage nativeImage = null;
         try {
             nativeImage = NativeImage.read(new FileInputStream(file));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return Minecraft.getInstance().getTextureManager().register("file_" + System.currentTimeMillis(), new DynamicTexture(nativeImage));
+        return MinecraftClient.getInstance().getTextureManager().registerDynamicTexture("file_" + System.currentTimeMillis(), new NativeImageBackedTexture(nativeImage));
     }
 }

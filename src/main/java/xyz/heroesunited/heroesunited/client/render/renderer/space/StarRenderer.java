@@ -1,8 +1,8 @@
 package xyz.heroesunited.heroesunited.client.render.renderer.space;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
 import xyz.heroesunited.heroesunited.client.render.model.space.StarModel;
 
 public abstract class StarRenderer extends CelestialBodyRenderer{
@@ -14,8 +14,8 @@ public abstract class StarRenderer extends CelestialBodyRenderer{
     }
 
     @Override
-    public void render(MatrixStack matrixStack, IRenderTypeBuffer buffers, int packedLight, float partialTicks) {
+    public void render(MatrixStack matrixStack, VertexConsumerProvider buffers, int packedLight, float partialTicks) {
         starModel.prepareModel(partialTicks);
-        starModel.renderToBuffer(matrixStack,buffers.getBuffer(getRenderType()),packedLight, OverlayTexture.NO_OVERLAY, 1f,1f, 1f, 1f);
+        starModel.render(matrixStack,buffers.getBuffer(getRenderType()),packedLight, OverlayTexture.DEFAULT_UV, 1f,1f, 1f, 1f);
     }
 }

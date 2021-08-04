@@ -1,22 +1,22 @@
 package xyz.heroesunited.heroesunited.mixin.client;
 
-import net.minecraft.client.particle.TexturedParticle;
+import net.minecraft.client.particle.BillboardParticle;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
-@Mixin(TexturedParticle.class)
+@Mixin(BillboardParticle.class)
 public abstract class MixinTexturedParticle {
 
-    @Shadow public abstract float getQuadSize(float p_217561_1_);
+    @Shadow public abstract float getSize(float tickDelta);
 
-    @Redirect(method = "render(Lcom/mojang/blaze3d/vertex/IVertexBuilder;Lnet/minecraft/client/renderer/ActiveRenderInfo;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/particle/TexturedParticle;getQuadSize(F)F"))
-    private float changeQuadSize(TexturedParticle texturedParticle, float partialTicks) {
-        if (((AccessorParticle) this).getLevel().dimension().equals(HeroesUnited.SPACE)) {
-            return this.getQuadSize(partialTicks) *0.01F;
+    @Redirect(method = "buildGeometry(Lnet/minecraft/client/render/VertexConsumer;Lnet/minecraft/client/render/Camera;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/particle/BillboardParticle;getSize(F)F"))
+    private float changeSize(BillboardParticle texturedParticle, float partialTicks) {
+        if (((AccessorParticle) this).getLevel().getRegistryKey().equals(HeroesUnited.SPACE)) {
+            return this.getSize(partialTicks) *0.01F;
         }
-        return this.getQuadSize(partialTicks);
+        return this.getSize(partialTicks);
     }
 }

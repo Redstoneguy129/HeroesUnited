@@ -1,9 +1,8 @@
 package xyz.heroesunited.heroesunited.common.networking.client;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.Identifier;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
 import java.util.function.Supplier;
@@ -12,27 +11,27 @@ public class ClientSetAnimation {
 
     public int entityId;
     public String name;
-    public ResourceLocation animationFile;
+    public Identifier animationFile;
     public boolean loop;
 
-    public ClientSetAnimation(int entityId, String name, ResourceLocation animationFile, boolean loop) {
+    public ClientSetAnimation(int entityId, String name, Identifier animationFile, boolean loop) {
         this.entityId = entityId;
         this.name = name;
         this.animationFile = animationFile;
         this.loop = loop;
     }
 
-    public ClientSetAnimation(PacketBuffer buffer) {
+    public ClientSetAnimation(PacketByteBuf buffer) {
         this.entityId = buffer.readInt();
-        this.name = buffer.readUtf(32767);
-        this.animationFile = new ResourceLocation(buffer.readUtf(32767));
+        this.name = buffer.readString(32767);
+        this.animationFile = new Identifier(buffer.readString(32767));
         this.loop = buffer.readBoolean();
     }
 
-    public void toBytes(PacketBuffer buffer) {
+    public void toBytes(PacketByteBuf buffer) {
         buffer.writeInt(this.entityId);
-        buffer.writeUtf(this.name);
-        buffer.writeUtf(this.animationFile.toString());
+        buffer.writeString(this.name);
+        buffer.writeString(this.animationFile.toString());
         buffer.writeBoolean(this.loop);
     }
 

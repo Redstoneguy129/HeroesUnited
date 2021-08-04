@@ -4,9 +4,9 @@ import com.google.common.collect.Lists;
 import net.arikia.dev.drpc.DiscordEventHandlers;
 import net.arikia.dev.drpc.DiscordRPC;
 import net.arikia.dev.drpc.DiscordRichPresence;
-import net.minecraft.client.Minecraft;
-import net.minecraft.resources.IResource;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.resource.Resource;
+import net.minecraft.util.Identifier;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -35,16 +35,16 @@ public class HURichPresence {
     private List<String> list = Lists.newArrayList();
 
     public HURichPresence(String clientID) {
-        this.list.addAll(getListFromTXT(new ResourceLocation(HeroesUnited.MODID, "splash.txt")));
-        this.list.addAll(getListFromTXT(new ResourceLocation("texts/splashes.txt")));
+        this.list.addAll(getListFromTXT(new Identifier(HeroesUnited.MODID, "splash.txt")));
+        this.list.addAll(getListFromTXT(new Identifier("texts/splashes.txt")));
         DiscordEventHandlers handlers = new DiscordEventHandlers.Builder().setReadyEventHandler(user -> HeroesUnited.LOGGER.info(String.format("Logged into Discord as %s!", user.username + "#" + user.discriminator))).build();
         DiscordRPC.discordInitialize(clientID, handlers, true);
         DiscordRPC.discordClearPresence();
     }
 
-    private List<String> getListFromTXT(ResourceLocation resourceLocation) {
+    private List<String> getListFromTXT(Identifier resourceLocation) {
         try {
-            IResource iresource = Minecraft.getInstance().getResourceManager().getResource(resourceLocation);
+            Resource iresource = MinecraftClient.getInstance().getResourceManager().getResource(resourceLocation);
             BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(iresource.getInputStream(), StandardCharsets.UTF_8));
             return bufferedreader.lines().map(String::trim).filter((p_215277_0_) -> p_215277_0_.hashCode() != 125780783).collect(Collectors.toList());
         } catch (IOException ignored) {

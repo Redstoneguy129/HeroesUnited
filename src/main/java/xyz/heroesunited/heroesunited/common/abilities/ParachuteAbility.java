@@ -1,14 +1,14 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.PlayerEntityRenderer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -32,12 +32,12 @@ public class ParachuteAbility extends JSONAbility {
     @Override
     public void action(PlayerEntity player) {
         if (usingParachute(player)) {
-            Vector3d vec = player.getDeltaMovement();
+            Vec3d vec = player.getVelocity();
             if(vec.y > -1){
                 player.fallDistance = 0;
             }
             vec = vec.multiply(0.99F, 0.93F, 0.99F);
-            player.setDeltaMovement(vec.x, vec.y, vec.z);
+            player.setVelocity(vec.x, vec.y, vec.z);
             syncToAll(player);
         } else {
             setEnabled(player, false);
@@ -45,24 +45,24 @@ public class ParachuteAbility extends JSONAbility {
     }
 
     public boolean usingParachute(PlayerEntity player) {
-        return player.getDeltaMovement().y < 0F && !player.abilities.flying && !player.isOnGround() && !player.isInWater() && !player.isFallFlying() && getEnabled() && player.level.dimension() != HeroesUnited.SPACE;
+        return player.getVelocity().y < 0F && !player.abilities.flying && !player.isOnGround() && !player.isTouchingWater() && !player.isFallFlying() && getEnabled() && player.world.getRegistryKey() != HeroesUnited.SPACE;
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void render(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void render(PlayerEntityRenderer renderer, MatrixStack matrix, VertexConsumerProvider bufferIn, int packedLightIn, AbstractClientPlayerEntity player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         if(usingParachute(player))
-            new ParachuteModel().renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(HeroesUnited.MODID, "textures/suits/parachute.png"))), packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+            new ParachuteModel().render(matrix, bufferIn.getBuffer(RenderLayer.getEntityTranslucent(new Identifier(HeroesUnited.MODID, "textures/suits/parachute.png"))), packedLightIn, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
     }
 
 	@OnlyIn(Dist.CLIENT)
     @Override
     public void setRotationAngles(HUSetRotationAnglesEvent event) {
         if(usingParachute(event.getPlayer())){
-            event.getPlayerModel().leftLeg.xRot = 0;
-            event.getPlayerModel().rightLeg.xRot = 0;
-            event.getPlayerModel().leftArm.xRot = 0;
-            event.getPlayerModel().rightArm.xRot = 0;
+            event.getPlayerModel().leftLeg.pitch = 0;
+            event.getPlayerModel().rightLeg.pitch = 0;
+            event.getPlayerModel().leftArm.pitch = 0;
+            event.getPlayerModel().rightArm.pitch = 0;
         }
     }
 }

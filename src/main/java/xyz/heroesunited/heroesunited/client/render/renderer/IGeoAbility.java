@@ -1,12 +1,13 @@
 package xyz.heroesunited.heroesunited.client.render.renderer;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.IAnimatableModel;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
@@ -14,28 +15,28 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
 public interface IGeoAbility extends IAnimatable {
 
     @OnlyIn(Dist.CLIENT)
-    ResourceLocation getTexture();
+    Identifier getTexture();
 
     @OnlyIn(Dist.CLIENT)
-    ResourceLocation getModelPath();
+    Identifier getModelPath();
 
     @OnlyIn(Dist.CLIENT)
-    ResourceLocation getAnimationFile();
+    Identifier getAnimationFile();
 
     default <A extends IGeoAbility> AnimatedGeoModel<A> getGeoModel() {
         return new AnimatedGeoModel<A>() {
             @Override
-            public ResourceLocation getModelLocation(A ability) {
+            public Identifier getModelLocation(A ability) {
                 return ability.getModelPath();
             }
 
             @Override
-            public ResourceLocation getTextureLocation(A ability) {
+            public Identifier getTextureLocation(A ability) {
                 return ability.getTexture();
             }
 
             @Override
-            public ResourceLocation getAnimationFileLocation(A ability) {
+            public Identifier getAnimationFileLocation(A ability) {
                 return ability.getAnimationFile();
             }
         };
@@ -46,7 +47,7 @@ public interface IGeoAbility extends IAnimatable {
         return true;
     }
 
-    default void renderGeoAbilityRenderer(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, GeoModel model, AnimationEvent event, AbstractClientPlayerEntity player, GeoAbilityRenderer renderer) {
+    default void renderGeoAbilityRenderer(MatrixStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, GeoModel model, AnimationEvent event, AbstractClientPlayerEntity player, GeoAbilityRenderer renderer) {
 
     }
 }

@@ -1,6 +1,6 @@
 package xyz.heroesunited.heroesunited.common.events;
 
-import net.minecraft.world.DimensionType;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.eventbus.api.Event;
 
 /**

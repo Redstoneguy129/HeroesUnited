@@ -1,9 +1,9 @@
 package xyz.heroesunited.heroesunited.client;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Identifier;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -64,7 +64,7 @@ public class HorasInfo {
             this.name = name;
             this.description = description;
             this.entityType = entityType;
-            assert Minecraft.getInstance().level != null;
+            assert MinecraftClient.getInstance().world != null;
             aliens.add(this);
         }
 
@@ -91,7 +91,7 @@ public class HorasInfo {
             this.name = name;
             this.description = description;
             this.entityType = entityType;
-            assert Minecraft.getInstance().level != null;
+            assert MinecraftClient.getInstance().world != null;
             evos.add(this);
         }
 
@@ -118,7 +118,7 @@ public class HorasInfo {
             this.name = name;
             this.description = description;
             this.entityType = entityType;
-            assert Minecraft.getInstance().level != null;
+            assert MinecraftClient.getInstance().world != null;
             ghosts.add(this);
         }
 
@@ -139,9 +139,9 @@ public class HorasInfo {
     public static class PlanetInfo {
 
         private final String name, description;
-        private final ResourceLocation dimensionID, planetImage;
+        private final Identifier dimensionID, planetImage;
 
-        public PlanetInfo(String name, String description, ResourceLocation dimensionID, ResourceLocation planetImage) {
+        public PlanetInfo(String name, String description, Identifier dimensionID, Identifier planetImage) {
             this.name = name;
             this.description = description;
             this.dimensionID = dimensionID;
@@ -157,11 +157,11 @@ public class HorasInfo {
             return this.description;
         }
 
-        public ResourceLocation getDimensionID() {
+        public Identifier getDimensionID() {
             return this.dimensionID;
         }
 
-        public ResourceLocation getPlanetImage() {
+        public Identifier getPlanetImage() {
             return this.planetImage;
         }
     }
@@ -170,9 +170,9 @@ public class HorasInfo {
     public static class DimensionInfo {
 
         private final String name, description;
-        private final ResourceLocation dimensionID, dimensionImage;
+        private final Identifier dimensionID, dimensionImage;
 
-        public DimensionInfo(String name, String description, ResourceLocation dimensionID, ResourceLocation dimensionImage) {
+        public DimensionInfo(String name, String description, Identifier dimensionID, Identifier dimensionImage) {
             this.name = name;
             this.description = description;
             this.dimensionID = dimensionID;
@@ -188,11 +188,11 @@ public class HorasInfo {
             return this.description;
         }
 
-        public ResourceLocation getDimensionID() {
+        public Identifier getDimensionID() {
             return this.dimensionID;
         }
 
-        public ResourceLocation getDimensionImage() {
+        public Identifier getDimensionImage() {
             return this.dimensionImage;
         }
     }

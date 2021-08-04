@@ -2,42 +2,41 @@ package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-
 import javax.annotation.Nullable;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 import java.util.List;
 import java.util.Map;
 
 public class Superpower implements IAbilityProvider {
 
-    private final ResourceLocation name;
+    private final Identifier name;
     public JsonObject jsonObject;
     private List<AbilityCreator> containedAbilities;
 
-    public Superpower(ResourceLocation name) {
+    public Superpower(Identifier name) {
         this.name = name;
     }
 
-    public Superpower(ResourceLocation name, List<AbilityCreator> containedAbilities) {
+    public Superpower(Identifier name, List<AbilityCreator> containedAbilities) {
         this.name = name;
         this.containedAbilities = containedAbilities;
     }
 
-    public Superpower(ResourceLocation name, JsonObject jsonObject) {
+    public Superpower(Identifier name, JsonObject jsonObject) {
         this(name, AbilityHelper.parseAbilityCreators(jsonObject, name));
         this.jsonObject = jsonObject;
     }
 
-    public ITextComponent getDisplayName() {
-        return new TranslationTextComponent(Util.makeDescriptionId("superpowers", name));
+    public Text getDisplayName() {
+        return new TranslatableText(Util.createTranslationKey("superpowers", name));
     }
 
     @Nullable
-    public ResourceLocation getRegistryName() {
+    public Identifier getRegistryName() {
         return name;
     }
 

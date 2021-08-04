@@ -1,11 +1,11 @@
 package xyz.heroesunited.heroesunited.client.events;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.PlayerEntityRenderer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.Cancelable;
 
@@ -19,14 +19,14 @@ import net.minecraftforge.eventbus.api.Cancelable;
 @Cancelable
 public class HUChangeRendererEvent extends PlayerEvent {
 
-    private final PlayerRenderer renderer;
+    private final PlayerEntityRenderer renderer;
     private final MatrixStack stack;
-    private final IRenderTypeBuffer buffers;
-    private final IVertexBuilder builder;
+    private final VertexConsumerProvider buffers;
+    private final VertexConsumer builder;
     private final int light, overlay;
     private final float limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, partialTicks;
 
-    public HUChangeRendererEvent(AbstractClientPlayerEntity playerEntity, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, IVertexBuilder builder, int light, int overlay, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public HUChangeRendererEvent(AbstractClientPlayerEntity playerEntity, PlayerEntityRenderer renderer, MatrixStack stack, VertexConsumerProvider buffers, VertexConsumer builder, int light, int overlay, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         super(playerEntity);
         this.renderer = renderer;
         this.stack = stack;
@@ -39,7 +39,7 @@ public class HUChangeRendererEvent extends PlayerEvent {
         this.ageInTicks = ageInTicks;
         this.netHeadYaw = netHeadYaw;
         this.headPitch = headPitch;
-        this.partialTicks = Minecraft.getInstance().getFrameTime();
+        this.partialTicks = MinecraftClient.getInstance().getTickDelta();
     }
 
     @Override
@@ -47,7 +47,7 @@ public class HUChangeRendererEvent extends PlayerEvent {
         return (AbstractClientPlayerEntity) super.getPlayer();
     }
 
-    public PlayerRenderer getRenderer() {
+    public PlayerEntityRenderer getRenderer() {
         return renderer;
     }
 
@@ -55,11 +55,11 @@ public class HUChangeRendererEvent extends PlayerEvent {
         return stack;
     }
 
-    public IRenderTypeBuffer getBuffers() {
+    public VertexConsumerProvider getBuffers() {
         return buffers;
     }
 
-    public IVertexBuilder getBuilder() {
+    public VertexConsumer getBuilder() {
         return builder;
     }
 

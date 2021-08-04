@@ -1,10 +1,8 @@
 package xyz.heroesunited.heroesunited.common.networking.client;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.capabilities.hudata.HUDataCap;
 
@@ -15,26 +13,26 @@ public class ClientSyncHUData {
     public int entityId;
     public String ability;
     public String id;
-    public CompoundNBT nbt;
+    public NbtCompound nbt;
 
-    public ClientSyncHUData(int entityId, String ability, String id, CompoundNBT nbt) {
+    public ClientSyncHUData(int entityId, String ability, String id, NbtCompound nbt) {
         this.entityId = entityId;
         this.ability = ability;
         this.id = id;
         this.nbt = nbt;
     }
 
-    public ClientSyncHUData(PacketBuffer buf) {
+    public ClientSyncHUData(PacketByteBuf buf) {
         this.entityId = buf.readInt();
-        this.ability = buf.readUtf(32767);
-        this.id = buf.readUtf(32767);
+        this.ability = buf.readString(32767);
+        this.id = buf.readString(32767);
         this.nbt = buf.readNbt();
     }
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(PacketByteBuf buf) {
         buf.writeInt(this.entityId);
-        buf.writeUtf(this.ability);
-        buf.writeUtf(this.id);
+        buf.writeString(this.ability);
+        buf.writeString(this.id);
         buf.writeNbt(this.nbt);
     }
 

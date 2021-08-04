@@ -1,7 +1,7 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.gson.JsonArray;
-import net.minecraft.util.JSONUtils;
+import net.minecraft.util.JsonHelper;
 
 public class HideLayerAbility extends JSONAbility {
 
@@ -12,7 +12,7 @@ public class HideLayerAbility extends JSONAbility {
     public boolean layerNameIs(String name) {
         if (getEnabled()) {
             if (getJsonObject().has("layers")) {
-                JsonArray jsonArray = JSONUtils.getAsJsonArray(getJsonObject(), "layers");
+                JsonArray jsonArray = JsonHelper.getArray(getJsonObject(), "layers");
                 for (int i = 0; i < jsonArray.size(); i++) {
                     String layer = jsonArray.get(i).getAsString();
                     if (layer.equals(name)) {
@@ -20,7 +20,7 @@ public class HideLayerAbility extends JSONAbility {
                     }
                 }
             } else {
-                return JSONUtils.getAsString(getJsonObject(), "layer").equals(name);
+                return JsonHelper.getString(getJsonObject(), "layer").equals(name);
             }
         }
         return false;

@@ -6,9 +6,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.JSONUtils;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.util.JsonHelper;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
@@ -18,15 +18,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class JsonConditionManager implements INBTSerializable<CompoundNBT> {
+public class JsonConditionManager implements INBTSerializable<NbtCompound> {
 
     protected HashMap<String, Boolean> methodConditions = Maps.newHashMap();
 
     protected HashMap<Map.Entry<JsonObject, UUID>, Boolean> conditions = Maps.newHashMap();
 
     public void registerConditions(JsonObject jsonObject) {
-        if (JSONUtils.isValidNode(jsonObject, "conditions")) {
-            JsonArray jsonArray = JSONUtils.getAsJsonArray(jsonObject, "conditions");
+        if (JsonHelper.hasElement(jsonObject, "conditions")) {
+            JsonArray jsonArray = JsonHelper.getArray(jsonObject, "conditions");
             for (JsonElement jsonElement : jsonArray) {
                 JsonObject jsonCondition = jsonElement.getAsJsonObject();
                 if (getFromJson(jsonCondition) != null) {
@@ -48,16 +48,16 @@ public class JsonConditionManager implements INBTSerializable<CompoundNBT> {
         HashMap<String, Boolean> methodConditions = Maps.newHashMap();
 
         for (Map.Entry<JsonObject, UUID> entry : this.conditions.keySet()) {
-            boolean b = JSONUtils.getAsBoolean(entry.getKey(), "invert", false) != getFromJson(entry.getKey()).getBiFunction().apply(player, entry.getKey());
+            boolean b = JsonHelper.getBoolean(entry.getKey(), "invert", false) != getFromJson(entry.getKey()).getBiFunction().apply(player, entry.getKey());
             if (b != this.conditions.get(entry)) {
                 this.conditions.put(entry, b);
                 this.sync(player);
             }
             if (entry.getKey().has("method")) {
-                String method = JSONUtils.getAsString(entry.getKey(), "method");
+                String method = JsonHelper.getString(entry.getKey(), "method");
                 methodConditions.put(method, methodConditions.containsKey(method) ? methodConditions.get(method) && b : b);
             } else {
-                JsonArray methods = JSONUtils.getAsJsonArray(entry.getKey(), "methods");
+                JsonArray methods = JsonHelper.getArray(entry.getKey(), "methods");
                 for (JsonElement method : methods) {
                     methodConditions.put(method.getAsString(), methodConditions.containsKey(method.getAsString()) ? methodConditions.get(method.getAsString()) && b : b);
                 }
@@ -91,17 +91,17 @@ public class JsonConditionManager implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public NbtCompound serializeNBT() {
+        NbtCompound nbt = new NbtCompound();
 
-        CompoundNBT methodConditions = new CompoundNBT();
+        NbtCompound methodConditions = new NbtCompound();
         this.methodConditions.forEach(methodConditions::putBoolean);
         nbt.put("methodConditions", methodConditions);
 
-        ListNBT list = new ListNBT();
+        NbtList list = new NbtList();
         if (!conditions.isEmpty()) {
             for (Map.Entry<Map.Entry<JsonObject, UUID>, Boolean> entry : conditions.entrySet()) {
-                CompoundNBT conditionTag = new CompoundNBT();
+                NbtCompound conditionTag = new NbtCompound();
                 conditionTag.putBoolean("Active", entry.getValue());
                 conditionTag.putString("JsonObject", entry.getKey().getKey().toString());
                 list.add(conditionTag);
@@ -113,17 +113,17 @@ public class JsonConditionManager implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(NbtCompound nbt) {
         this.conditions.clear();
         this.methodConditions.clear();
 
-        CompoundNBT methodConditions = nbt.getCompound("methodConditions");
-        for (String id : methodConditions.getAllKeys()) {
+        NbtCompound methodConditions = nbt.getCompound("methodConditions");
+        for (String id : methodConditions.getKeys()) {
             this.methodConditions.put(id, methodConditions.getBoolean(id));
         }
-        ListNBT list = nbt.getList("Conditions", Constants.NBT.TAG_COMPOUND);
+        NbtList list = nbt.getList("Conditions", Constants.NBT.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++) {
-            CompoundNBT conditionTag = list.getCompound(i);
+            NbtCompound conditionTag = list.getCompound(i);
             if (conditionTag.contains("JsonObject")) {
                 JsonObject jsonObject = new JsonParser().parse(conditionTag.getString("JsonObject")).getAsJsonObject();
                 if (getFromJson(jsonObject) != null) {

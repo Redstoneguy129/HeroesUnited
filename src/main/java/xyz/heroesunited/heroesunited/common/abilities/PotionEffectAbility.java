@@ -1,9 +1,9 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.JsonHelper;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class PotionEffectAbility extends JSONAbility {
@@ -15,8 +15,8 @@ public class PotionEffectAbility extends JSONAbility {
     public void action(PlayerEntity player) {
         super.action(player);
         if (getEnabled()) {
-            player.addEffect(new EffectInstance(ForgeRegistries.POTIONS.getValue(new ResourceLocation(JSONUtils.getAsString(getJsonObject(), "effect"))),
-                    JSONUtils.getAsInt(getJsonObject(), "duration", 20), JSONUtils.getAsInt(getJsonObject(), "amplifier", 0), false, JSONUtils.getAsBoolean(getJsonObject(), "visible", false), JSONUtils.getAsBoolean(getJsonObject(), "show_icon", true)));
+            player.addStatusEffect(new StatusEffectInstance(ForgeRegistries.POTIONS.getValue(new Identifier(JsonHelper.getString(getJsonObject(), "effect"))),
+                    JsonHelper.getInt(getJsonObject(), "duration", 20), JsonHelper.getInt(getJsonObject(), "amplifier", 0), false, JsonHelper.getBoolean(getJsonObject(), "visible", false), JsonHelper.getBoolean(getJsonObject(), "show_icon", true)));
         }
     }
 }

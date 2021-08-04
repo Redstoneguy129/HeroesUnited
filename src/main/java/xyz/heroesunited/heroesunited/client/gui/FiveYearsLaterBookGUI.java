@@ -1,17 +1,17 @@
 package xyz.heroesunited.heroesunited.client.gui;
 
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.gui.screen.ConfirmOpenLinkScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.TranslationTextComponent;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import net.minecraft.client.gui.screen.ConfirmChatLinkScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 
 public class FiveYearsLaterBookGUI extends Screen {
 
@@ -20,7 +20,7 @@ public class FiveYearsLaterBookGUI extends Screen {
     private int pageNum = 0;
 
     public FiveYearsLaterBookGUI() {
-        super(new TranslationTextComponent("screen.heroesunited.fiveyearslater"));
+        super(new TranslatableText("screen.heroesunited.fiveyearslater"));
     }
 
     @Override
@@ -45,16 +45,16 @@ public class FiveYearsLaterBookGUI extends Screen {
         } catch (ArrayIndexOutOfBoundsException e) {
             page = pages[0];
         }
-        matrixStack.pushPose();
-        this.minecraft.getTextureManager().bind(new ResourceLocation(HeroesUnited.MODID, String.format("textures/gui/comic/5yl%s.png", page)));
-        blit(matrixStack, xSize, ySize, 0, 0, 200, 260, 200, 260);
+        matrixStack.push();
+        this.client.getTextureManager().bind(new Identifier(HeroesUnited.MODID, String.format("textures/gui/comic/5yl%s.png", page)));
+        drawTexture(matrixStack, xSize, ySize, 0, 0, 200, 260, 200, 260);
         this.buttons.clear();
-        this.addButton(new Button(xSize - 20, ySize, 20, 20, new TranslationTextComponent("<"), b -> backPage()));
-        this.addButton(new Button(xSize + 200, ySize, 20, 20, new TranslationTextComponent(">"), b -> nextPage()));
+        this.addButton(new ButtonWidget(xSize - 20, ySize, 20, 20, new TranslatableText("<"), b -> backPage()));
+        this.addButton(new ButtonWidget(xSize + 200, ySize, 20, 20, new TranslatableText(">"), b -> nextPage()));
         if (pageNum == pages.length - 1) {
-            this.addButton(new Button(xSize + 25, ySize + (260 / 2) + 50, 150, 20, new TranslationTextComponent("Check Out The 5YL Comic!"), b -> minecraft.setScreen(new ConfirmOpenLinkScreen(this::confirmCallback, "https://www.theinktank.co/5yearslater", true))));
+            this.addButton(new ButtonWidget(xSize + 25, ySize + (260 / 2) + 50, 150, 20, new TranslatableText("Check Out The 5YL Comic!"), b -> client.setScreen(new ConfirmChatLinkScreen(this::confirmCallback, "https://www.theinktank.co/5yearslater", true))));
         }
-        matrixStack.popPose();
+        matrixStack.pop();
         super.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
@@ -62,7 +62,7 @@ public class FiveYearsLaterBookGUI extends Screen {
         this.getMinecraft().setScreen(null);
         if (will) {
             try {
-                Util.getPlatform().openUri(new URI("https://www.theinktank.co/5yearslater"));
+                Util.getOperatingSystem().open(new URI("https://www.theinktank.co/5yearslater"));
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }

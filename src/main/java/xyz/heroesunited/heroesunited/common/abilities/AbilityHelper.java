@@ -4,14 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
@@ -21,6 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.attribute.EntityAttributeInstance;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.JsonHelper;
 
 public class AbilityHelper {
 
@@ -67,27 +67,27 @@ public class AbilityHelper {
         return map;
     }
 
-    public static void addTheme(ResourceLocation theme) {
+    public static void addTheme(Identifier theme) {
         if (!AbilitiesScreen.themes.contains(theme)) {
             AbilitiesScreen.themes.add(theme);
         }
     }
 
-    public static void setAttribute(LivingEntity entity, Attribute attribute, UUID uuid, double amount, AttributeModifier.Operation operation) {
+    public static void setAttribute(LivingEntity entity, EntityAttribute attribute, UUID uuid, double amount, EntityAttributeModifier.Operation operation) {
         setAttribute(entity, "hudefault", attribute, uuid, amount, operation);
     }
 
     //For remove modifier set amount to 0
-    public static void setAttribute(LivingEntity entity, String name, Attribute attribute, UUID uuid, double amount, AttributeModifier.Operation operation) {
-        ModifiableAttributeInstance instance = entity.getAttribute(attribute);
+    public static void setAttribute(LivingEntity entity, String name, EntityAttribute attribute, UUID uuid, double amount, EntityAttributeModifier.Operation operation) {
+        EntityAttributeInstance instance = entity.getAttributeInstance(attribute);
 
-        if (instance == null || entity.level.isClientSide) {
+        if (instance == null || entity.world.isClient) {
             return;
         }
 
-        AttributeModifier modifier = instance.getModifier(uuid);
+        EntityAttributeModifier modifier = instance.getModifier(uuid);
 
-        if (amount == 0 || modifier != null && (modifier.getAmount() != amount || modifier.getOperation() != operation)) {
+        if (amount == 0 || modifier != null && (modifier.getValue() != amount || modifier.getOperation() != operation)) {
             instance.removeModifier(uuid);
             return;
         }
@@ -95,23 +95,23 @@ public class AbilityHelper {
         modifier = instance.getModifier(uuid);
 
         if (modifier == null) {
-            modifier = new AttributeModifier(uuid, name, amount, operation);
-            instance.addTransientModifier(modifier);
+            modifier = new EntityAttributeModifier(uuid, name, amount, operation);
+            instance.addTemporaryModifier(modifier);
         }
     }
 
-    public static List<AbilityCreator> parseAbilityCreators(JsonObject json, ResourceLocation resourceLocation) {
+    public static List<AbilityCreator> parseAbilityCreators(JsonObject json, Identifier resourceLocation) {
         List<AbilityCreator> abilityList = Lists.newArrayList();
         if (json.has("abilities")) {
-            JsonObject abilities = JSONUtils.getAsJsonObject(json, "abilities");
+            JsonObject abilities = JsonHelper.getObject(json, "abilities");
             abilities.entrySet().forEach((e) -> {
                 if (e.getValue() instanceof JsonObject) {
                     JsonObject o = (JsonObject) e.getValue();
-                    AbilityType ability = AbilityType.ABILITIES.getValue(new ResourceLocation(JSONUtils.getAsString(o, "ability")));
+                    AbilityType ability = AbilityType.ABILITIES.getValue(new Identifier(JsonHelper.getString(o, "ability")));
                     if (ability != null) {
                         abilityList.add(new AbilityCreator(e.getKey(), ability).setJsonObject(o));
                     } else
-                        HeroesUnited.LOGGER.error("Couldn't read ability {} in {}", JSONUtils.getAsString(o, "ability"), resourceLocation);
+                        HeroesUnited.LOGGER.error("Couldn't read ability {} in {}", JsonHelper.getString(o, "ability"), resourceLocation);
                 }
             });
         }

@@ -1,7 +1,7 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.JSONUtils;
+import net.minecraft.util.JsonHelper;
 
 public class FlightAbility extends JSONAbility implements IFlyingAbility {
 
@@ -16,16 +16,16 @@ public class FlightAbility extends JSONAbility implements IFlyingAbility {
 
     @Override
     public boolean renderFlying(PlayerEntity player) {
-        return getJsonObject() != null && JSONUtils.getAsBoolean(this.getJsonObject(), "render", true);
+        return getJsonObject() != null && JsonHelper.getBoolean(this.getJsonObject(), "render", true);
     }
 
     @Override
     public boolean rotateArms(PlayerEntity player) {
-        return getJsonObject() != null && JSONUtils.getAsBoolean(this.getJsonObject(), "rotateArms", false);
+        return getJsonObject() != null && JsonHelper.getBoolean(this.getJsonObject(), "rotateArms", false);
     }
 
     @Override
     public boolean setDefaultRotationAngles(PlayerEntity player) {
-        return getJsonObject() == null || JSONUtils.getAsBoolean(this.getJsonObject(), "setDefaultRotationAngles", true);
+        return getJsonObject() == null || JsonHelper.getBoolean(this.getJsonObject(), "setDefaultRotationAngles", true);
     }
 }

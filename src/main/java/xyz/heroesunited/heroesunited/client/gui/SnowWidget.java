@@ -1,18 +1,18 @@
 package xyz.heroesunited.heroesunited.client.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Quaternion;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.util.HUCalendarHelper;
 
 import java.util.Random;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Quaternion;
 
 public class SnowWidget {
-    private static ResourceLocation snow = new ResourceLocation(HeroesUnited.MODID, "textures/gui/snow.png");
+    private static Identifier snow = new Identifier(HeroesUnited.MODID, "textures/gui/snow.png");
     private static Random rand = new Random();
     private int height, x, y, index, rotation, friction, frictionTemp;
     private boolean dead;
@@ -28,11 +28,11 @@ public class SnowWidget {
 
     public void drawSnowflake(MatrixStack stack) {
         if (this.isDead()) return;
-        stack.pushPose();
+        stack.push();
         stack.translate((float) this.x, (float) this.y, 0);
-        stack.mulPose(new Quaternion(0, 0, this.rotation, true));
-        AbstractGui.blit(stack, 0, 0, 16 * this.index, 0, 16, 16, 96, 16);
-        stack.popPose();
+        stack.multiply(new Quaternion(0, 0, this.rotation, true));
+        DrawableHelper.drawTexture(stack, 0, 0, 16 * this.index, 0, 16, 16, 96, 16);
+        stack.pop();
         if (this.frictionTemp-- <= 0) {
             this.frictionTemp = this.friction;
             this.y++;
@@ -44,7 +44,7 @@ public class SnowWidget {
 
     public static void drawSnowOnScreen(MatrixStack stack, int width, int height) {
         if (!HUCalendarHelper.isSnowTime()) return;
-        Minecraft.getInstance().getTextureManager().bind(snow);
+        MinecraftClient.getInstance().getTextureManager().bind(snow);
         RenderSystem.color4f(1, 1, 1, 1);
         int i = 0;
         for (SnowWidget snow : cloud) {

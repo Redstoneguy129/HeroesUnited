@@ -1,8 +1,8 @@
 package xyz.heroesunited.heroesunited.common.capabilities.hudata;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.INBT;
-import net.minecraft.util.Direction;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.util.math.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
 
 import static xyz.heroesunited.heroesunited.common.capabilities.hudata.HUDataCap.CAPABILITY;
 
-public class HUDataProvider implements ICapabilitySerializable<INBT> {
+public class HUDataProvider implements ICapabilitySerializable<NbtElement> {
 
     private final LazyOptional<IHUDataCap> instance;
 
@@ -20,12 +20,12 @@ public class HUDataProvider implements ICapabilitySerializable<INBT> {
     }
 
     @Override
-    public INBT serializeNBT() {
+    public NbtElement serializeNBT() {
         return CAPABILITY.getStorage().writeNBT(CAPABILITY, instance.orElseThrow(() -> new IllegalArgumentException("HUDataCap must not be empty")), null);
     }
 
     @Override
-    public void deserializeNBT(INBT nbt) {
+    public void deserializeNBT(NbtElement nbt) {
         CAPABILITY.getStorage().readNBT(CAPABILITY, instance.orElseThrow(() -> new IllegalArgumentException("HUDataCap must not be empty!")), null, nbt);
     }
 

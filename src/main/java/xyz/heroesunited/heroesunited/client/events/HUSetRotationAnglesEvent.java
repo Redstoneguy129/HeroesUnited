@@ -1,8 +1,8 @@
 package xyz.heroesunited.heroesunited.client.events;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
 /**
@@ -11,10 +11,10 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
  */
 public class HUSetRotationAnglesEvent extends PlayerEvent {
 
-    private final PlayerModel playerModel;
+    private final PlayerEntityModel playerModel;
     private final float limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, partialTicks;
 
-    public HUSetRotationAnglesEvent(AbstractClientPlayerEntity playerEntity, PlayerModel playerModel, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public HUSetRotationAnglesEvent(AbstractClientPlayerEntity playerEntity, PlayerEntityModel playerModel, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         super(playerEntity);
         this.playerModel = playerModel;
         this.limbSwing = limbSwing;
@@ -22,7 +22,7 @@ public class HUSetRotationAnglesEvent extends PlayerEvent {
         this.ageInTicks = ageInTicks;
         this.netHeadYaw = netHeadYaw;
         this.headPitch = headPitch;
-        this.partialTicks = Minecraft.getInstance().getFrameTime();
+        this.partialTicks = MinecraftClient.getInstance().getTickDelta();
     }
 
     @Override
@@ -30,7 +30,7 @@ public class HUSetRotationAnglesEvent extends PlayerEvent {
         return (AbstractClientPlayerEntity) super.getPlayer();
     }
 
-    public PlayerModel getPlayerModel() {
+    public PlayerEntityModel getPlayerModel() {
         return this.playerModel;
     }
 

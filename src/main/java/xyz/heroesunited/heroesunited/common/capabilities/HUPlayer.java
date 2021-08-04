@@ -1,17 +1,17 @@
 package xyz.heroesunited.heroesunited.common.capabilities;
 
 import com.google.common.collect.Maps;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.ItemStackHelper;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fmllegacy.network.NetworkDirection;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import software.bernie.geckolib3.core.AnimationState;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
@@ -34,26 +34,26 @@ public class HUPlayer implements IHUPlayer {
     public final AccessoriesInventory inventory;
     private final PlayerEntity player;
     private final AnimationFactory factory = new AnimationFactory(this);
-    protected Map<ResourceLocation, Level> superpowerLevels;
+    protected Map<Identifier, Level> superpowerLevels;
     private int theme;
     private float slowMo = 20F;
     private boolean flying, intangible;
-    private ResourceLocation animationFile;
+    private Identifier animationFile;
     private final AnimatedGeoModel<IHUPlayer> modelProvider = new AnimatedGeoModel<IHUPlayer>() {
 
         @Override
-        public ResourceLocation getModelLocation(IHUPlayer o) {
-            return new ResourceLocation(HeroesUnited.MODID, "geo/player.geo.json");
+        public Identifier getModelLocation(IHUPlayer o) {
+            return new Identifier(HeroesUnited.MODID, "geo/player.geo.json");
         }
 
         @Override
-        public ResourceLocation getTextureLocation(IHUPlayer o) {
-            return ((ClientPlayerEntity) player).getSkinTextureLocation();
+        public Identifier getTextureLocation(IHUPlayer o) {
+            return ((ClientPlayerEntity) player).getSkinTexture();
         }
 
         @Override
-        public ResourceLocation getAnimationFileLocation(IHUPlayer o) {
-            return animationFile != null ? animationFile : new ResourceLocation(HeroesUnited.MODID, "animations/player.animation.json");
+        public Identifier getAnimationFileLocation(IHUPlayer o) {
+            return animationFile != null ? animationFile : new Identifier(HeroesUnited.MODID, "animations/player.animation.json");
         }
     };
 
@@ -68,18 +68,18 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
-    public Map<ResourceLocation, Level> getSuperpowerLevels() {
+    public Map<Identifier, Level> getSuperpowerLevels() {
         return superpowerLevels;
     }
 
     @Override
-    public void setAnimation(String name, ResourceLocation animationFile, boolean loop) {
+    public void setAnimation(String name, Identifier animationFile, boolean loop) {
         this.animationFile = animationFile;
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             getController().markNeedsReload();
             getController().setAnimation(new AnimationBuilder().addAnimation(name, loop));
         });
-        if (!player.level.isClientSide) {
+        if (!player.world.isClient) {
             HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSetAnimation(player.getId(), name, animationFile, loop));
         }
         syncToAll();
@@ -103,7 +103,7 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public void setFlying(boolean flying) {
         this.flying = flying;
-        if (!player.level.isClientSide)
+        if (!player.world.isClient)
             HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getId(), HUTypes.FLYING, flying));
     }
 
@@ -115,7 +115,7 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public void setIntangible(boolean intangible) {
         this.intangible = intangible;
-        if (!player.level.isClientSide)
+        if (!player.world.isClient)
             HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getId(), HUTypes.INTAGIBLE, intangible));
     }
 
@@ -142,7 +142,7 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public IHUPlayer sync() {
         if (player instanceof ServerPlayerEntity) {
-            HUNetworking.INSTANCE.sendTo(new ClientSyncHUPlayer(player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+            HUNetworking.INSTANCE.sendTo(new ClientSyncHUPlayer(player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).networkHandler.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
         }
         return this;
     }
@@ -150,9 +150,9 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public IHUPlayer syncToAll() {
         this.sync();
-        for (PlayerEntity player : this.player.level.players()) {
+        for (PlayerEntity player : this.player.world.getPlayers()) {
             if (player instanceof ServerPlayerEntity) {
-                HUNetworking.INSTANCE.sendTo(new ClientSyncHUPlayer(this.player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                HUNetworking.INSTANCE.sendTo(new ClientSyncHUPlayer(this.player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).networkHandler.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
             }
         }
         return this;
@@ -187,14 +187,14 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public AnimationController getController() {
-        return getFactory().getOrCreateAnimationData(player.getUUID().hashCode()).getAnimationControllers().get("controller");
+        return getFactory().getOrCreateAnimationData(player.getUuid().hashCode()).getAnimationControllers().get("controller");
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public NbtCompound serializeNBT() {
+        NbtCompound nbt = new NbtCompound();
 
-        CompoundNBT levels = new CompoundNBT();
+        NbtCompound levels = new NbtCompound();
         superpowerLevels.forEach((resourceLocation, level) -> levels.put(resourceLocation.toString(), level.writeNBT()));
         nbt.put("levels", levels);
         nbt.putBoolean("Flying", this.flying);
@@ -204,16 +204,16 @@ public class HUPlayer implements IHUPlayer {
         if (this.animationFile != null) {
             nbt.putString("AnimationFile", this.animationFile.toString());
         }
-        ItemStackHelper.saveAllItems(nbt, this.inventory.getItems());
+        Inventories.writeNbt(nbt, this.inventory.getItems());
         return nbt;
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
-        CompoundNBT levels = nbt.getCompound("levels");
+    public void deserializeNBT(NbtCompound nbt) {
+        NbtCompound levels = nbt.getCompound("levels");
         superpowerLevels.clear();
-        for (String key : levels.getAllKeys()) {
-            superpowerLevels.put(new ResourceLocation(key), Level.readFromNBT(levels.getCompound(key)));
+        for (String key : levels.getKeys()) {
+            superpowerLevels.put(new Identifier(key), Level.readFromNBT(levels.getCompound(key)));
         }
         if (nbt.contains("Flying")) {
             this.flying = nbt.getBoolean("Flying");
@@ -228,10 +228,10 @@ public class HUPlayer implements IHUPlayer {
             this.theme = nbt.getInt("Theme");
         }
         if (nbt.contains("AnimationFile")) {
-            this.animationFile = new ResourceLocation(nbt.getString("AnimationFile"));
+            this.animationFile = new Identifier(nbt.getString("AnimationFile"));
         }
         inventory.getItems().clear();
-        ItemStackHelper.loadAllItems(nbt, inventory.getItems());
+        Inventories.readNbt(nbt, inventory.getItems());
 
     }
 }

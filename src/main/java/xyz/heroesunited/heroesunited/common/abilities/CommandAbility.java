@@ -1,16 +1,16 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.ICommandSource;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.server.ServerWorld;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
 import java.util.UUID;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.command.CommandOutput;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.JsonHelper;
 
-public class CommandAbility extends JSONAbility implements ICommandSource {
+public class CommandAbility extends JSONAbility implements CommandOutput {
 
     public CommandAbility() {
         super(AbilityType.COMMAND);
@@ -18,28 +18,28 @@ public class CommandAbility extends JSONAbility implements ICommandSource {
 
     @Override
     public void action(PlayerEntity player) {
-        if (player.level.getServer() != null && getEnabled()) {
-            player.level.getServer().getCommands().performCommand(new CommandSource(this, player.position(), player.getRotationVector(), player.level instanceof ServerWorld ? (ServerWorld) player.level : null, 4, player.getName().getString(), player.getDisplayName(), player.level.getServer(), player), JSONUtils.getAsString(getJsonObject(), "command", "/say Hello World"));
+        if (player.world.getServer() != null && getEnabled()) {
+            player.world.getServer().getCommandManager().execute(new ServerCommandSource(this, player.getPos(), player.getRotationClient(), player.world instanceof ServerWorld ? (ServerWorld) player.world : null, 4, player.getName().getString(), player.getDisplayName(), player.world.getServer(), player), JsonHelper.getString(getJsonObject(), "command", "/say Hello World"));
         }
     }
 
     @Override
-    public void sendMessage(ITextComponent component, UUID uuid) {
+    public void sendSystemMessage(Text component, UUID uuid) {
         HeroesUnited.LOGGER.error(name + " error: " + component.getString());
     }
 
     @Override
-    public boolean acceptsSuccess() {
+    public boolean shouldReceiveFeedback() {
         return false;
     }
 
     @Override
-    public boolean acceptsFailure() {
+    public boolean shouldTrackOutput() {
         return true;
     }
 
     @Override
-    public boolean shouldInformAdmins() {
+    public boolean shouldBroadcastConsoleToOps() {
         return false;
     }
 }

@@ -2,15 +2,15 @@ package xyz.heroesunited.heroesunited.common.capabilities.ability;
 
 import com.google.common.collect.Maps;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fmllegacy.network.NetworkDirection;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
@@ -48,7 +48,7 @@ public class HUAbilityCap implements IHUAbilityCap {
             activeAbilities.put(id, ability);
             ability.name = id;
             ability.onActivated(player);
-            if (!player.level.isClientSide)
+            if (!player.world.isClient)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientEnableAbility(player.getId(), id, ability.serializeNBT()));
         }
     }
@@ -58,7 +58,7 @@ public class HUAbilityCap implements IHUAbilityCap {
         if (activeAbilities.containsKey(id)) {
             activeAbilities.get(id).onDeactivated(player);
             activeAbilities.remove(id);
-            if (!player.level.isClientSide)
+            if (!player.world.isClient)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientDisableAbility(player.getId(), id));
         }
     }
@@ -74,7 +74,7 @@ public class HUAbilityCap implements IHUAbilityCap {
             containedAbilities.put(id, ability);
             ability.name = id;
             syncToAll();
-            if (!player.level.isClientSide)
+            if (!player.world.isClient)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getId(), this.getAbilities()));
         }
     }
@@ -98,7 +98,7 @@ public class HUAbilityCap implements IHUAbilityCap {
             disable(id);
             syncToAll();
             HUPlayer.getCap(player).syncToAll();
-            if (!player.level.isClientSide)
+            if (!player.world.isClient)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getId(), this.getAbilities()));
         }
     }
@@ -110,7 +110,7 @@ public class HUAbilityCap implements IHUAbilityCap {
                 ability.onKeyInput(player, map);
             }
         });
-        for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
+        for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
             if (Suit.getSuitItem(equipmentSlot, player) != null) {
                 Suit.getSuitItem(equipmentSlot, player).getSuit().onKeyInput(player, equipmentSlot, map);
             }
@@ -127,7 +127,7 @@ public class HUAbilityCap implements IHUAbilityCap {
     @Override
     public IHUAbilityCap sync() {
         if (player instanceof ServerPlayerEntity) {
-            HUNetworking.INSTANCE.sendTo(new ClientSyncAbilityCap(player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+            HUNetworking.INSTANCE.sendTo(new ClientSyncAbilityCap(player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).networkHandler.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
         }
         return this;
     }
@@ -136,18 +136,18 @@ public class HUAbilityCap implements IHUAbilityCap {
     public IHUAbilityCap syncToAll() {
         this.sync();
         HUPlayer.getCap(player).syncToAll();
-        for (PlayerEntity player : this.player.level.players()) {
+        for (PlayerEntity player : this.player.world.getPlayers()) {
             if (player instanceof ServerPlayerEntity) {
-                HUNetworking.INSTANCE.sendTo(new ClientSyncAbilityCap(this.player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                HUNetworking.INSTANCE.sendTo(new ClientSyncAbilityCap(this.player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).networkHandler.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
             }
         }
         return this;
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
-        CompoundNBT activeAbilities = new CompoundNBT(), abilities = new CompoundNBT();
+    public NbtCompound serializeNBT() {
+        NbtCompound nbt = new NbtCompound();
+        NbtCompound activeAbilities = new NbtCompound(), abilities = new NbtCompound();
         this.activeAbilities.forEach((id, ability) -> activeAbilities.put(id, ability.serializeNBT()));
         this.containedAbilities.forEach((id, ability) -> abilities.put(id, ability.serializeNBT()));
 
@@ -157,23 +157,23 @@ public class HUAbilityCap implements IHUAbilityCap {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
-        CompoundNBT activeAbilities = nbt.getCompound("ActiveAbilities"), abilities = nbt.getCompound("Abilities");
+    public void deserializeNBT(NbtCompound nbt) {
+        NbtCompound activeAbilities = nbt.getCompound("ActiveAbilities"), abilities = nbt.getCompound("Abilities");
         this.activeAbilities.clear();
         this.containedAbilities.clear();
 
-        for (String id : activeAbilities.getAllKeys()) {
-            CompoundNBT tag = activeAbilities.getCompound(id);
-            AbilityType abilityType = AbilityType.ABILITIES.getValue(new ResourceLocation(tag.getString("AbilityType")));
+        for (String id : activeAbilities.getKeys()) {
+            NbtCompound tag = activeAbilities.getCompound(id);
+            AbilityType abilityType = AbilityType.ABILITIES.getValue(new Identifier(tag.getString("AbilityType")));
             if (abilityType != null) {
                 Ability ability = abilityType.create(id);
                 ability.deserializeNBT(tag);
                 this.activeAbilities.put(id, ability);
             }
         }
-        for (String id : abilities.getAllKeys()) {
-            CompoundNBT tag = abilities.getCompound(id);
-            AbilityType abilityType = AbilityType.ABILITIES.getValue(new ResourceLocation(tag.getString("AbilityType")));
+        for (String id : abilities.getKeys()) {
+            NbtCompound tag = abilities.getCompound(id);
+            AbilityType abilityType = AbilityType.ABILITIES.getValue(new Identifier(tag.getString("AbilityType")));
             if (abilityType != null) {
                 Ability ability = abilityType.create(id);
                 ability.deserializeNBT(tag);

@@ -1,8 +1,8 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.SoundEvent;
-import xyz.heroesunited.heroesunited.common.objects.HUSounds;
+import net.minecraft.sound.SoundEvent;
+import xyz.heroesunited.heroesunited.HeroesUnited;
 
 public interface IFlyingAbility {
 
@@ -21,7 +21,7 @@ public interface IFlyingAbility {
     }
 
     default SoundEvent getSoundEvent() {
-        return HUSounds.FLYING;
+        return HeroesUnited.FLYING;
     }
 
     static IFlyingAbility getFlyingAbility(PlayerEntity player) {

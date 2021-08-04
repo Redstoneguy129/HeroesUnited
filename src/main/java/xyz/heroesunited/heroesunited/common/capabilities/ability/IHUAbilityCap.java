@@ -1,6 +1,6 @@
 package xyz.heroesunited.heroesunited.common.capabilities.ability;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraftforge.common.util.INBTSerializable;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public interface IHUAbilityCap extends INBTSerializable<CompoundNBT> {
+public interface IHUAbilityCap extends INBTSerializable<NbtCompound> {
 
     /**
      * Using for toggle abilities in Suits or default abilities

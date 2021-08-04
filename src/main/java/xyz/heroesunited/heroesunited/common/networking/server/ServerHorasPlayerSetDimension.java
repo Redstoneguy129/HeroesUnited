@@ -1,50 +1,42 @@
 package xyz.heroesunited.heroesunited.common.networking.server;
 
-import net.minecraft.block.AirBlock;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.Identifier;
 import net.minecraftforge.common.util.ITeleporter;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ServerHorasPlayerSetDimension {
-    private final ResourceLocation world;
+    private final Identifier world;
     private final int horasID;
 
-    public ServerHorasPlayerSetDimension(PacketBuffer buffer) {
-        world = buffer.readResourceLocation();
+    public ServerHorasPlayerSetDimension(PacketByteBuf buffer) {
+        world = buffer.readIdentifier();
         horasID = buffer.readInt();
     }
 
-    public ServerHorasPlayerSetDimension(ResourceLocation world, int horasID) {
+    public ServerHorasPlayerSetDimension(Identifier world, int horasID) {
         this.world = world;
         this.horasID = horasID;
     }
 
-    public void toBytes(PacketBuffer buffer) {
-        buffer.writeResourceLocation(world);
+    public void toBytes(PacketByteBuf buffer) {
+        buffer.writeIdentifier(world);
         buffer.writeInt(horasID);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            ServerPlayerEntity playerEntity = ctx.get().getSender();
+            ServerPlayer playerEntity = ctx.get().getSender();
             if (playerEntity != null) {
                 Horas horas = (Horas) playerEntity.level.getEntity(horasID);
                 final BlockPos[] horasPos = {new BlockPos(0, 0, 0)};
-                playerEntity.changeDimension(playerEntity.getCommandSenderWorld().getServer().getLevel(RegistryKey.create(Registry.DIMENSION_REGISTRY, this.world)), new ITeleporter() {
+                playerEntity.changeDimension(playerEntity.getCommandSenderWorld().getServer().getLevel(ResourceKey.create(Registry.DIMENSION_REGISTRY, this.world)), new ITeleporter() {
                     @Override
-                    public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld world, float yaw, Function<Boolean, Entity> repositionEntity) {
+                    public Entity placeEntity(Entity entity, ServerLevel currentWorld, ServerLevel world, float yaw, Function<Boolean, Entity> repositionEntity) {
                         int attempts = 0;
                         boolean foundPos = false;
                         BlockPos locatedPos = new BlockPos(entity.getX(), entity.getY(), entity.getZ());
@@ -100,9 +92,9 @@ public class ServerHorasPlayerSetDimension {
                     }
                 });
                 if (horas != null) {
-                    horas.changeDimension(playerEntity.getCommandSenderWorld().getServer().getLevel(RegistryKey.create(Registry.DIMENSION_REGISTRY, this.world)), new ITeleporter() {
+                    horas.changeDimension(playerEntity.getCommandSenderWorld().getServer().getLevel(ResourceKey.create(Registry.DIMENSION_REGISTRY, this.world)), new ITeleporter() {
                         @Override
-                        public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld world, float yaw, Function<Boolean, Entity> repositionEntity) {
+                        public Entity placeEntity(Entity entity, ServerLevel currentWorld, ServerLevel world, float yaw, Function<Boolean, Entity> repositionEntity) {
                             Entity repositionedEntity = repositionEntity.apply(false);
                             repositionedEntity.setPos(horasPos[0].getX(), horasPos[0].getY(), horasPos[0].getZ());
                             return repositionedEntity;

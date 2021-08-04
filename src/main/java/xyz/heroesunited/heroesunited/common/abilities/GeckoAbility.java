@@ -1,15 +1,15 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.PlayerEntityRenderer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Arm;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.JsonHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import software.bernie.geckolib3.core.manager.AnimationData;
@@ -26,17 +26,17 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void render(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void render(PlayerEntityRenderer renderer, MatrixStack matrix, VertexConsumerProvider bufferIn, int packedLightIn, AbstractClientPlayerEntity player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         if (getEnabled()) {
             GeoAbilityRenderer abilityRenderer = new GeoAbilityRenderer(getGeoModel());
             abilityRenderer.setCurrentAbility(player, this, renderer.getModel());
-            abilityRenderer.renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entityTranslucent(abilityRenderer.getTextureLocation(this))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+            abilityRenderer.render(matrix, bufferIn.getBuffer(RenderLayer.getEntityTranslucent(abilityRenderer.getTextureLocation(this))), packedLightIn, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
         }
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side) {
+    public void renderFirstPersonArm(PlayerEntityRenderer renderer, MatrixStack matrix, VertexConsumerProvider bufferIn, int packedLightIn, AbstractClientPlayerEntity player, Arm side) {
         if (getEnabled()) {
             GeoAbilityRenderer abilityRenderer = new GeoAbilityRenderer(getGeoModel());
             abilityRenderer.setCurrentAbility(player, this, renderer.getModel());
@@ -53,31 +53,31 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public ResourceLocation getTexture() {
+    public Identifier getTexture() {
         if (this.getJsonObject() != null && this.getJsonObject().has("texture")) {
-            if (JSONUtils.getAsString(this.getJsonObject(), "texture").equals("player")) {
-                return Minecraft.getInstance().player.getSkinTextureLocation();
+            if (JsonHelper.getString(this.getJsonObject(), "texture").equals("player")) {
+                return MinecraftClient.getInstance().player.getSkinTexture();
             } else {
-                return new ResourceLocation(JSONUtils.getAsString(this.getJsonObject(), "texture"));
+                return new Identifier(JsonHelper.getString(this.getJsonObject(), "texture"));
             }
-        } else return new ResourceLocation(getSuitOrSuperpowerName().getNamespace(), "textures/ability/" + getSuitOrSuperpowerName().getPath() + "_" + this.name + ".png");
+        } else return new Identifier(getSuitOrSuperpowerName().getNamespace(), "textures/ability/" + getSuitOrSuperpowerName().getPath() + "_" + this.name + ".png");
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public ResourceLocation getModelPath() {
-        ResourceLocation res = new ResourceLocation(getSuitOrSuperpowerName().getNamespace(), "geo/" + getSuitOrSuperpowerName().getPath() + "_" + this.name + ".geo.json");
-        return this.getJsonObject() != null ? new ResourceLocation(JSONUtils.getAsString(this.getJsonObject(), "model", res.toString())) : res;
+    public Identifier getModelPath() {
+        Identifier res = new Identifier(getSuitOrSuperpowerName().getNamespace(), "geo/" + getSuitOrSuperpowerName().getPath() + "_" + this.name + ".geo.json");
+        return this.getJsonObject() != null ? new Identifier(JsonHelper.getString(this.getJsonObject(), "model", res.toString())) : res;
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public ResourceLocation getAnimationFile() {
-        return new ResourceLocation(getSuitOrSuperpowerName().getNamespace(), "animations/" + getSuitOrSuperpowerName().getPath() + "_" + this.name + ".animation.json");
+    public Identifier getAnimationFile() {
+        return new Identifier(getSuitOrSuperpowerName().getNamespace(), "animations/" + getSuitOrSuperpowerName().getPath() + "_" + this.name + ".animation.json");
     }
 
-    private ResourceLocation getSuitOrSuperpowerName() {
+    private Identifier getSuitOrSuperpowerName() {
         String str = getAdditionalData().contains("Suit") ? getAdditionalData().getString("Suit") : getAdditionalData().getString("Superpower");
-        return new ResourceLocation(str);
+        return new Identifier(str);
     }
 }

@@ -1,10 +1,10 @@
 package xyz.heroesunited.heroesunited.client.events;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.util.HandSide;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.PlayerEntityRenderer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Arm;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.Cancelable;
 
@@ -14,14 +14,14 @@ import net.minecraftforge.eventbus.api.Cancelable;
  */
 public abstract class HURenderPlayerHandEvent extends PlayerEvent {
 
-    private final PlayerRenderer renderer;
-    private final HandSide side;
+    private final PlayerEntityRenderer renderer;
+    private final Arm side;
     private final MatrixStack stack;
-    private final IRenderTypeBuffer buffers;
+    private final VertexConsumerProvider buffers;
     private final int light;
     private final AbstractClientPlayerEntity player;
 
-    public HURenderPlayerHandEvent(AbstractClientPlayerEntity player, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, int light, HandSide side) {
+    public HURenderPlayerHandEvent(AbstractClientPlayerEntity player, PlayerEntityRenderer renderer, MatrixStack stack, VertexConsumerProvider buffers, int light, Arm side) {
         super(player);
         this.player = player;
         this.renderer = renderer;
@@ -31,7 +31,7 @@ public abstract class HURenderPlayerHandEvent extends PlayerEvent {
         this.side = side;
     }
 
-    public PlayerRenderer getRenderer() {
+    public PlayerEntityRenderer getRenderer() {
         return renderer;
     }
 
@@ -39,7 +39,7 @@ public abstract class HURenderPlayerHandEvent extends PlayerEvent {
         return player;
     }
 
-    public HandSide getSide() {
+    public Arm getSide() {
         return side;
     }
 
@@ -47,7 +47,7 @@ public abstract class HURenderPlayerHandEvent extends PlayerEvent {
         return stack;
     }
 
-    public IRenderTypeBuffer getBuffers() {
+    public VertexConsumerProvider getBuffers() {
         return buffers;
     }
 
@@ -61,7 +61,7 @@ public abstract class HURenderPlayerHandEvent extends PlayerEvent {
      */
     @Cancelable
     public static class Pre extends HURenderPlayerHandEvent {
-        public Pre(AbstractClientPlayerEntity player, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, int light, HandSide side) {
+        public Pre(AbstractClientPlayerEntity player, PlayerEntityRenderer renderer, MatrixStack stack, VertexConsumerProvider buffers, int light, Arm side) {
             super(player, renderer, stack, buffers, light, side);
         }
     }
@@ -71,7 +71,7 @@ public abstract class HURenderPlayerHandEvent extends PlayerEvent {
      * Can be used to render own hand.
      */
     public static class Post extends HURenderPlayerHandEvent {
-        public Post(AbstractClientPlayerEntity player, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, int light, HandSide side) {
+        public Post(AbstractClientPlayerEntity player, PlayerEntityRenderer renderer, MatrixStack stack, VertexConsumerProvider buffers, int light, Arm side) {
             super(player, renderer, stack, buffers, light, side);
         }
     }

@@ -1,24 +1,24 @@
 package xyz.heroesunited.heroesunited.common.space;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistry;
 
 public class CelestialBody extends ForgeRegistryEntry<CelestialBody> {
     public static IForgeRegistry<CelestialBody> CELESTIAL_BODIES;
 
-    protected Vector3d coordinates;
+    protected Vec3d coordinates;
 
 
-    public CelestialBody(Vector3d coordinates) {
+    public CelestialBody(Vec3d coordinates) {
         this.coordinates = coordinates;
     }
 
 
-    public Vector3d getCoordinates() {
+    public Vec3d getCoordinates() {
         return coordinates;
     }
 
@@ -26,19 +26,19 @@ public class CelestialBody extends ForgeRegistryEntry<CelestialBody> {
 
     public void entityInside(Entity entity){}
 
-    public CompoundNBT writeNBT() {
-        CompoundNBT compound = new CompoundNBT();
+    public NbtCompound writeNBT() {
+        NbtCompound compound = new NbtCompound();
         compound.putDouble("x", coordinates.x);
         compound.putDouble("y", coordinates.y);
         compound.putDouble("z", coordinates.z);
         return compound;
     }
 
-    public AxisAlignedBB getHitbox(){
+    public Box getHitbox(){
         return null;
     }
 
-    public void readNBT(CompoundNBT nbt) {
-        coordinates = new Vector3d(nbt.getDouble("x"), nbt.getDouble("y"), nbt.getDouble("z"));
+    public void readNBT(NbtCompound nbt) {
+        coordinates = new Vec3d(nbt.getDouble("x"), nbt.getDouble("y"), nbt.getDouble("z"));
     }
 }

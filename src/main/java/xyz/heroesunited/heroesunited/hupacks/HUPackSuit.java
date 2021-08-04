@@ -3,10 +3,6 @@ package xyz.heroesunited.heroesunited.hupacks;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import net.minecraft.resources.IResource;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.suit.JsonSuit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
@@ -18,29 +14,33 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import net.minecraft.resource.Resource;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.JsonHelper;
 
 public class HUPackSuit {
 
-    private static Map<ResourceLocation, Function<Map.Entry<ResourceLocation, JsonObject>, Suit>> suitTypes = Maps.newHashMap();
+    private static Map<Identifier, Function<Map.Entry<Identifier, JsonObject>, Suit>> suitTypes = Maps.newHashMap();
 
     public static void init() {
-        registerSuitType(new ResourceLocation(HeroesUnited.MODID, "default"), JsonSuit::new);
+        registerSuitType(new Identifier(HeroesUnited.MODID, "default"), JsonSuit::new);
 
-        IResourceManager resourceManager = HUPacks.getInstance().getResourceManager();
-        LinkedHashMap<ResourceLocation, JsonObject> suits = Maps.newLinkedHashMap();
+        ResourceManager resourceManager = HUPacks.getInstance().getResourceManager();
+        LinkedHashMap<Identifier, JsonObject> suits = Maps.newLinkedHashMap();
 
-        for (ResourceLocation resourcelocation : resourceManager.listResources("husuits", (name) -> name.endsWith(".json") && !name.startsWith("_"))) {
+        for (Identifier resourcelocation : resourceManager.findResources("husuits", (name) -> name.endsWith(".json") && !name.startsWith("_"))) {
             String s = resourcelocation.getPath();
-            ResourceLocation id = new ResourceLocation(resourcelocation.getNamespace(), s.substring("husuits/".length(), s.length() - ".json".length()));
+            Identifier id = new Identifier(resourcelocation.getNamespace(), s.substring("husuits/".length(), s.length() - ".json".length()));
 
-            try (IResource iresource = resourceManager.getResource(resourcelocation)) {
-                suits.put(id, JSONUtils.fromJson(HUPacks.GSON, new BufferedReader(new InputStreamReader(iresource.getInputStream(), StandardCharsets.UTF_8)), JsonObject.class));
+            try (Resource iresource = resourceManager.getResource(resourcelocation)) {
+                suits.put(id, JsonHelper.deserialize(HUPacks.GSON, new BufferedReader(new InputStreamReader(iresource.getInputStream(), StandardCharsets.UTF_8)), JsonObject.class));
             } catch (Throwable throwable) {
                 HeroesUnited.LOGGER.error("Couldn't read hupack suit {} from {}", id, resourcelocation, throwable);
             }
         }
 
-        for (Map.Entry<ResourceLocation, JsonObject> map : suits.entrySet()) {
+        for (Map.Entry<Identifier, JsonObject> map : suits.entrySet()) {
             try {
                 Suit suit = parse(map);
                 if (suit != null) {
@@ -53,17 +53,17 @@ public class HUPackSuit {
         }
     }
 
-    public static void registerSuitType(ResourceLocation resourceLocation, Function<Map.Entry<ResourceLocation, JsonObject>, Suit> function) {
+    public static void registerSuitType(Identifier resourceLocation, Function<Map.Entry<Identifier, JsonObject>, Suit> function) {
         Objects.requireNonNull(resourceLocation);
         Objects.requireNonNull(function);
         suitTypes.put(resourceLocation, function);
     }
 
-    public static Suit parse(Map.Entry<ResourceLocation, JsonObject> map) {
-        Function<Map.Entry<ResourceLocation, JsonObject>, Suit> function = suitTypes.get(new ResourceLocation(JSONUtils.getAsString(map.getValue(), "type")));
+    public static Suit parse(Map.Entry<Identifier, JsonObject> map) {
+        Function<Map.Entry<Identifier, JsonObject>, Suit> function = suitTypes.get(new Identifier(JsonHelper.getString(map.getValue(), "type")));
 
         if (function == null) {
-            throw new JsonParseException("The type of a suit '" + JSONUtils.getAsString(map.getValue(), "type") + "' doesn't exist!");
+            throw new JsonParseException("The type of a suit '" + JsonHelper.getString(map.getValue(), "type") + "' doesn't exist!");
         }
 
         Suit suit = function.apply(map);

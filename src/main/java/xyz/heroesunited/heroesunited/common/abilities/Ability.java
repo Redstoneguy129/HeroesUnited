@@ -2,30 +2,30 @@ package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.PlayerEntityRenderer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Arm;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.JsonHelper;
+import net.minecraft.util.registry.Registry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.InputUpdateEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.registries.ForgeRegistries;
 import xyz.heroesunited.heroesunited.client.events.HUChangeRendererEvent;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
@@ -41,18 +41,18 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public abstract class Ability implements INBTSerializable<CompoundNBT> {
+public abstract class Ability implements INBTSerializable<NbtCompound> {
 
     public String name;
     public final AbilityType type;
-    protected CompoundNBT additionalData = new CompoundNBT();
+    protected NbtCompound additionalData = new NbtCompound();
     protected JsonObject jsonObject;
     protected HUDataManager dataManager = new HUDataManager() {
         @Override
         public <T> void updateData(Entity entity, String id, HUData<T> data, T value) {
-            for (PlayerEntity mpPlayer : entity.level.players()) {
+            for (PlayerEntity mpPlayer : entity.world.getPlayers()) {
                 if (mpPlayer instanceof ServerPlayerEntity) {
-                    HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(entity.getId(), name, id, data.serializeNBT(id, value)), ((ServerPlayerEntity) mpPlayer).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                    HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(entity.getId(), name, id, data.serializeNBT(id, value)), ((ServerPlayerEntity) mpPlayer).networkHandler.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                 }
             }
         }
@@ -83,7 +83,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     @Nullable
-    public List<ITextComponent> getHoveredDescription() {
+    public List<Text> getHoveredDescription() {
         return getJsonObject() != null && getJsonObject().has("description") ? HUJsonUtils.parseDescriptionLines(jsonObject.get("description")) : null;
     }
 
@@ -112,7 +112,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void render(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void render(PlayerEntityRenderer renderer, MatrixStack matrix, VertexConsumerProvider bufferIn, int packedLightIn, AbstractClientPlayerEntity player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -132,7 +132,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side) {
+    public void renderFirstPersonArm(PlayerEntityRenderer renderer, MatrixStack matrix, VertexConsumerProvider bufferIn, int packedLightIn, AbstractClientPlayerEntity player, Arm side) {
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -147,32 +147,32 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     @OnlyIn(Dist.CLIENT)
     public void drawIcon(MatrixStack stack, int x, int y) {
         if (getJsonObject() != null) {
-            JsonObject icon = JSONUtils.getAsJsonObject(getJsonObject(), "icon", null);
+            JsonObject icon = JsonHelper.getObject(getJsonObject(), "icon", null);
             if (icon != null) {
-                String type = JSONUtils.getAsString(icon, "type");
+                String type = JsonHelper.getString(icon, "type");
                 if (type.equals("texture")) {
-                    ResourceLocation texture = new ResourceLocation(JSONUtils.getAsString(icon, "texture"));
-                    int width = JSONUtils.getAsInt(icon, "width", 16);
-                    int height = JSONUtils.getAsInt(icon, "height", 16);
-                    int textureWidth = JSONUtils.getAsInt(icon, "texture_width", 256);
-                    int textureHeight = JSONUtils.getAsInt(icon, "texture_height", 256);
-                    Minecraft.getInstance().getTextureManager().bind(texture);
-                    AbstractGui.blit(stack, x, y, JSONUtils.getAsInt(icon, "u"), JSONUtils.getAsInt(icon, "v"), width, height, textureWidth, textureHeight);
+                    Identifier texture = new Identifier(JsonHelper.getString(icon, "texture"));
+                    int width = JsonHelper.getInt(icon, "width", 16);
+                    int height = JsonHelper.getInt(icon, "height", 16);
+                    int textureWidth = JsonHelper.getInt(icon, "texture_width", 256);
+                    int textureHeight = JsonHelper.getInt(icon, "texture_height", 256);
+                    MinecraftClient.getInstance().getTextureManager().bind(texture);
+                    DrawableHelper.drawTexture(stack, x, y, JsonHelper.getInt(icon, "u"), JsonHelper.getInt(icon, "v"), width, height, textureWidth, textureHeight);
                 } else if (type.equals("item")) {
-                    String item = JSONUtils.getAsString(icon, "item");
-                    Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(item))), x, y);
+                    String item = JsonHelper.getString(icon, "item");
+                    MinecraftClient.getInstance().getItemRenderer().renderInGui(new ItemStack(Registry.ITEM.get(new Identifier(item))), x, y);
                 }
             } else {
-                Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(new ItemStack(Items.APPLE), x, y);
+                MinecraftClient.getInstance().getItemRenderer().renderInGui(new ItemStack(Items.APPLE), x, y);
             }
         } else {
-            Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(new ItemStack(Items.DIAMOND), x, y);
+            MinecraftClient.getInstance().getItemRenderer().renderInGui(new ItemStack(Items.DIAMOND), x, y);
         }
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public NbtCompound serializeNBT() {
+        NbtCompound nbt = new NbtCompound();
         nbt.putString("AbilityType", this.type.getRegistryName().toString());
         nbt.put("HUData", this.dataManager.serializeNBT());
         nbt.put("Conditions", this.conditionManager.serializeNBT());
@@ -184,7 +184,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(NbtCompound nbt) {
         this.dataManager.deserializeNBT(nbt.getCompound("HUData"));
         this.conditionManager.deserializeNBT(nbt.getCompound("Conditions"));
         this.additionalData = nbt.getCompound("AdditionalData");
@@ -193,11 +193,11 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         }
     }
 
-    public ITextComponent getTitle() {
+    public Text getTitle() {
         if (getJsonObject() != null && getJsonObject().has("title")) {
-            return ITextComponent.Serializer.fromJson(JSONUtils.getAsJsonObject(getJsonObject(), "title"));
+            return Text.Serializer.fromJson(JsonHelper.getObject(getJsonObject(), "title"));
         } else {
-            return new TranslationTextComponent(name);
+            return new TranslatableText(name);
         }
     }
 
@@ -205,16 +205,16 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         return conditionManager;
     }
 
-    public CompoundNBT getAdditionalData() {
+    public NbtCompound getAdditionalData() {
         return additionalData;
     }
 
     public boolean isHidden(PlayerEntity player) {
-        return getJsonObject() != null && JSONUtils.getAsBoolean(getJsonObject(), "hidden", false) && this.conditionManager.isEnabled(player, "isHidden");
+        return getJsonObject() != null && JsonHelper.getBoolean(getJsonObject(), "hidden", false) && this.conditionManager.isEnabled(player, "isHidden");
     }
 
     public boolean alwaysActive(PlayerEntity player) {
-        return getJsonObject() != null && JSONUtils.getAsBoolean(getJsonObject(), "active", false) && this.conditionManager.isEnabled(player, "alwaysActive");
+        return getJsonObject() != null && JsonHelper.getBoolean(getJsonObject(), "active", false) && this.conditionManager.isEnabled(player, "alwaysActive");
     }
 
     public JsonObject getJsonObject() {
@@ -233,29 +233,29 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
                     }
                 }
                 if (entity instanceof ServerPlayerEntity) {
-                    HUNetworking.INSTANCE.sendTo(new ClientSyncAbilityCreators(entity.getId(), name, jsonObject), ((ServerPlayerEntity) entity).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                    HUNetworking.INSTANCE.sendTo(new ClientSyncAbilityCreators(entity.getId(), name, jsonObject), ((ServerPlayerEntity) entity).networkHandler.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                 }
             }
         }
         return this;
     }
 
-    public Ability setAdditionalData(CompoundNBT nbt) {
+    public Ability setAdditionalData(NbtCompound nbt) {
         this.additionalData = nbt;
         return this;
     }
 
     public void sync(PlayerEntity player) {
         if (player instanceof ServerPlayerEntity) {
-            HUNetworking.INSTANCE.sendTo(new ClientSyncAbility(player.getId(), this.name, this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+            HUNetworking.INSTANCE.sendTo(new ClientSyncAbility(player.getId(), this.name, this.serializeNBT()), ((ServerPlayerEntity) player).networkHandler.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
         }
     }
 
     public void syncToAll(PlayerEntity player) {
         this.sync(player);
-        for (PlayerEntity mpPlayer : player.level.players()) {
+        for (PlayerEntity mpPlayer : player.world.getPlayers()) {
             if (mpPlayer instanceof ServerPlayerEntity) {
-                HUNetworking.INSTANCE.sendTo(new ClientSyncAbility(player.getId(), this.name, this.serializeNBT()), ((ServerPlayerEntity) mpPlayer).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                HUNetworking.INSTANCE.sendTo(new ClientSyncAbility(player.getId(), this.name, this.serializeNBT()), ((ServerPlayerEntity) mpPlayer).networkHandler.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
             }
         }
     }

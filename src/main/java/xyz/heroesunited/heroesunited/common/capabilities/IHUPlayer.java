@@ -1,7 +1,7 @@
 package xyz.heroesunited.heroesunited.common.capabilities;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.Identifier;
 import net.minecraftforge.common.util.INBTSerializable;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.controller.AnimationController;
@@ -10,14 +10,14 @@ import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesInvento
 
 import java.util.Map;
 
-public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable {
+public interface IHUPlayer extends INBTSerializable<NbtCompound>, IAnimatable {
 
-    Map<ResourceLocation, Level> getSuperpowerLevels();
+    Map<Identifier, Level> getSuperpowerLevels();
 
     /**
      * Can be used for custom player animations
      */
-    void setAnimation(String name, ResourceLocation animationFile, boolean loop);
+    void setAnimation(String name, Identifier animationFile, boolean loop);
 
     AnimatedGeoModel<IHUPlayer> getAnimatedModel();
 

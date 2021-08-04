@@ -1,18 +1,19 @@
 package xyz.heroesunited.heroesunited.common.objects.items;
 
 import com.google.common.collect.Lists;
-import net.minecraft.client.util.ITooltipFlag;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StringUtils;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.util.ChatUtil;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
@@ -26,26 +27,26 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
     protected String name;
 
     public DefaultAccessoryItem(EquipmentAccessoriesSlot accessorySlot, String name) {
-        this(new Properties(), accessorySlot, "");
+        this(new Settings(), accessorySlot, name);
     }
 
-    public DefaultAccessoryItem(Properties properties, EquipmentAccessoriesSlot accessorySlot) {
+    public DefaultAccessoryItem(Settings properties, EquipmentAccessoriesSlot accessorySlot) {
         this(properties, accessorySlot, "");
     }
 
-    public DefaultAccessoryItem(Properties properties, EquipmentAccessoriesSlot accessorySlot, String name) {
-        super(properties.tab(HeroesUnited.ACCESSORIES).stacksTo(1));
+    public DefaultAccessoryItem(Settings properties, EquipmentAccessoriesSlot accessorySlot, String name) {
+        super(properties.group(HeroesUnited.ACCESSORIES).maxCount(1));
         this.accessorySlot = accessorySlot;
         this.name = name;
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-        if (!StringUtils.isNullOrEmpty(name)) {
-            tooltip.add(new StringTextComponent("Made For " + name).withStyle(TextFormatting.ITALIC));
+    @Environment(EnvType.CLIENT)
+    public void appendTooltip(ItemStack stack, World worldIn, List<Text> tooltip, TooltipContext flagIn) {
+        if (!ChatUtil.isEmpty(name)) {
+            tooltip.add(new LiteralText("Made For " + name).formatted(Formatting.ITALIC));
         }
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+        super.appendTooltip(stack, worldIn, tooltip, flagIn);
     }
 
     @Override
@@ -71,7 +72,7 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
         return parts;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     @Override
     public float getScale(ItemStack stack) {
         if (accessorySlot == EquipmentAccessoriesSlot.JACKET) {
@@ -81,7 +82,7 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
     }
 
     @Override
-    public ResourceLocation getTexture(ItemStack stack, PlayerEntity player, EquipmentAccessoriesSlot slot) {
+    public Identifier getTexture(ItemStack stack, PlayerEntity player, EquipmentAccessoriesSlot slot) {
         String slim = HUPlayerUtil.haveSmallArms(player) ? "_slim" : "";
         String name = slot.name().toLowerCase();
         if (slot.equals(EquipmentAccessoriesSlot.LEFT_WRIST) || slot.equals(EquipmentAccessoriesSlot.RIGHT_WRIST)) {
@@ -89,9 +90,9 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
         }
 
         if (EquipmentAccessoriesSlot.getAccessoriesForChest().contains(slot)) {
-            return new ResourceLocation(this.getRegistryName().getNamespace(), String.format("textures/accessories/%s/%s.png", this.getRegistryName().getPath(), name + slim));
+            return new Identifier(Registry.ITEM.getId(this).getNamespace(), String.format("textures/accessories/%s/%s.png", Registry.ITEM.getId(this).getPath(), name + slim));
         } else {
-            return new ResourceLocation(this.getRegistryName().getNamespace(), String.format("textures/accessories/%s/%s.png", this.getRegistryName().getPath(), name));
+            return new Identifier(Registry.ITEM.getId(this).getNamespace(), String.format("textures/accessories/%s/%s.png", Registry.ITEM.getId(this).getPath(), name));
         }
     }
 

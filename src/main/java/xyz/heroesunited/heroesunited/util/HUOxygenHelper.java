@@ -13,10 +13,10 @@ public class HUOxygenHelper {
 
     public static boolean canBreath(LivingEntity entity){
 
-        boolean canBreath = !entity.level.dimension().equals(HeroesUnited.SPACE);
+        boolean canBreath = !entity.world.getRegistryKey().equals(HeroesUnited.SPACE);
 
-        if(Planet.PLANETS_MAP.containsKey(entity.level.dimension())){
-            Planet planet = Planet.PLANETS_MAP.get(entity.level.dimension());
+        if(Planet.PLANETS_MAP.containsKey(entity.world.getRegistryKey())){
+            Planet planet = Planet.PLANETS_MAP.get(entity.world.getRegistryKey());
             canBreath = planet.hasOxygen();
         }
 

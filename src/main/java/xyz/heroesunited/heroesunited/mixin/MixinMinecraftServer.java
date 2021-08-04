@@ -1,8 +1,8 @@
 package xyz.heroesunited.heroesunited.mixin;
 
-import net.minecraft.resources.ResourcePackList;
+import net.minecraft.resource.DataPackSettings;
+import net.minecraft.resource.ResourcePackManager;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.datafix.codec.DatapackCodec;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
@@ -15,9 +15,9 @@ import xyz.heroesunited.heroesunited.util.HUTickrate;
 @Mixin(MinecraftServer.class)
 public class MixinMinecraftServer {
 
-    @Inject(at = @At("HEAD"), method = "configurePackRepository(Lnet/minecraft/resources/ResourcePackList;Lnet/minecraft/util/datafix/codec/DatapackCodec;Z)Lnet/minecraft/util/datafix/codec/DatapackCodec;")
-    private static void configurePackRepository(ResourcePackList resourcePacks, DatapackCodec codec, boolean p_240772_2_, CallbackInfoReturnable<DatapackCodec> callbackInfoReturnable) {
-        resourcePacks.addPackFinder(new HUPacks.HUPackFinder());
+    @Inject(at = @At("HEAD"), method = "loadDataPacks(Lnet/minecraft/resource/ResourcePackManager;Lnet/minecraft/resource/DataPackSettings;Z)Lnet/minecraft/resource/DataPackSettings;")
+    private static void configurePackRepository(ResourcePackManager resourcePackManager, DataPackSettings dataPackSettings, boolean safeMode, CallbackInfoReturnable<DataPackSettings> cir) {
+        resourcePackManager.addPackFinder(new HUPacks.HUPackFinder());
     }
 
     @ModifyConstant(method = "runServer()V", constant = @Constant(longValue = 50L))

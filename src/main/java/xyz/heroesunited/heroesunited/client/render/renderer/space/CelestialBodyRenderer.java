@@ -1,12 +1,12 @@
 package xyz.heroesunited.heroesunited.client.render.renderer.space;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.util.ResourceLocation;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 
 import java.util.HashMap;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 
 public abstract class CelestialBodyRenderer {
 
@@ -24,11 +24,11 @@ public abstract class CelestialBodyRenderer {
     public CelestialBodyRenderer() {
     }
 
-    public abstract ResourceLocation getTextureLocation();
+    public abstract Identifier getTextureLocation();
 
-    public abstract void render(MatrixStack matrixStack, IRenderTypeBuffer buffers, int packedLight, float partialTicks);
+    public abstract void render(MatrixStack matrixStack, VertexConsumerProvider buffers, int packedLight, float partialTicks);
 
-    protected RenderType getRenderType(){
-        return RenderType.entitySolid(getTextureLocation());
+    protected RenderLayer getRenderType(){
+        return RenderLayer.getEntitySolid(getTextureLocation());
     }
 }

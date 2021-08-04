@@ -1,33 +1,33 @@
 package xyz.heroesunited.heroesunited.common.objects.container;
 
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ItemStackHelper;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
+import net.minecraft.util.collection.DefaultedList;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 
-public class AccessoriesInventory implements IInventory {
+public class AccessoriesInventory implements Inventory {
 
-    private NonNullList<ItemStack> items;
+    private DefaultedList<ItemStack> items;
     private PlayerEntity player;
 
     public AccessoriesInventory(PlayerEntity player) {
         this.player = player;
-        this.items = NonNullList.withSize(9, ItemStack.EMPTY);
+        this.items = DefaultedList.ofSize(9, ItemStack.EMPTY);
     }
 
     public boolean haveStack(EquipmentAccessoriesSlot slot) {
-        return getItem(slot.getSlot()) != null && !getItem(slot.getSlot()).isEmpty();
+        return getStack(slot.getSlot()) != null && !getStack(slot.getSlot()).isEmpty();
     }
 
-    public NonNullList<ItemStack> getItems() {
+    public DefaultedList<ItemStack> getItems() {
         return this.items;
     }
 
     @Override
-    public int getContainerSize() {
+    public int size() {
         return items.size();
     }
 
@@ -42,28 +42,28 @@ public class AccessoriesInventory implements IInventory {
     }
 
     @Override
-    public ItemStack getItem(int index) {
-        return index >= getContainerSize() ? ItemStack.EMPTY : this.items.get(index);
+    public ItemStack getStack(int index) {
+        return index >= size() ? ItemStack.EMPTY : this.items.get(index);
     }
 
     @Override
-    public ItemStack removeItem(int index, int count) {
+    public ItemStack removeStack(int index, int count) {
         ItemStack itemstack = this.items.get(index);
         if (!itemstack.isEmpty()) {
             if (itemstack.getCount() > count) {
-                itemstack = ItemStackHelper.removeItem(this.items, index, count);
-            } else setItem(index, ItemStack.EMPTY);
-            setChanged();
+                itemstack = Inventories.splitStack(this.items, index, count);
+            } else setStack(index, ItemStack.EMPTY);
+            markDirty();
             return itemstack;
         } else return ItemStack.EMPTY;
     }
 
     @Override
-    public ItemStack removeItemNoUpdate(int i) {
+    public ItemStack removeStack(int i) {
         if (!this.items.get(i).isEmpty()) {
             ItemStack itemstack = this.items.get(i);
-            setItem(i, ItemStack.EMPTY);
-            setChanged();
+            setStack(i, ItemStack.EMPTY);
+            markDirty();
             return itemstack;
         } else {
             return ItemStack.EMPTY;
@@ -71,32 +71,32 @@ public class AccessoriesInventory implements IInventory {
     }
 
     @Override
-    public void setItem(int i, ItemStack itemStack) {
+    public void setStack(int i, ItemStack itemStack) {
         this.items.set(i, itemStack);
-        setChanged();
+        markDirty();
     }
 
     @Override
-    public void setChanged() {
+    public void markDirty() {
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(IHUPlayer::syncToAll);
     }
 
     @Override
-    public boolean stillValid(PlayerEntity playerEntity) {
+    public boolean canPlayerUse(PlayerEntity playerEntity) {
         return true;
     }
 
     public void copy(AccessoriesInventory inv) {
-        for(int i = 0; i < this.getContainerSize(); ++i) {
-            setItem(i, inv.getItem(i));
+        for(int i = 0; i < this.size(); ++i) {
+            setStack(i, inv.getStack(i));
         }
     }
 
     @Override
-    public void clearContent() {
+    public void clear() {
         for (int i = 0; i < items.size(); i++) {
-            setItem(i, ItemStack.EMPTY);
+            setStack(i, ItemStack.EMPTY);
         }
-        setChanged();
+        markDirty();
     }
 }

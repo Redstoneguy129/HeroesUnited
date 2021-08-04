@@ -1,19 +1,19 @@
 package xyz.heroesunited.heroesunited.common.capabilities.hudata;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import xyz.heroesunited.heroesunited.common.events.HUDataRegister;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUData;
 import xyz.heroesunited.heroesunited.util.hudata.HUData;
 import xyz.heroesunited.heroesunited.util.hudata.HUDataManager;
 
-public class HUDataCap implements IHUDataCap, INBTSerializable<CompoundNBT> {
+public class HUDataCap implements IHUDataCap, INBTSerializable<NbtCompound> {
 
     @CapabilityInject(IHUDataCap.class)
     public static Capability<IHUDataCap> CAPABILITY;
@@ -23,7 +23,7 @@ public class HUDataCap implements IHUDataCap, INBTSerializable<CompoundNBT> {
         this.dataManager = new HUDataManager() {
             @Override
             public <T> void updateData(Entity entity, String id, HUData<T> data, T value) {
-                if (!entity.level.isClientSide) {
+                if (!entity.world.isClient) {
                     HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new ClientSyncHUData(entity.getId(), "heroesunited:hudata_sync", id, data.serializeNBT(id, value)));
                 }
             }
@@ -36,12 +36,12 @@ public class HUDataCap implements IHUDataCap, INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
+    public NbtCompound serializeNBT() {
         return this.dataManager.serializeNBT();
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(NbtCompound nbt) {
         this.dataManager.deserializeNBT(nbt);
     }
 

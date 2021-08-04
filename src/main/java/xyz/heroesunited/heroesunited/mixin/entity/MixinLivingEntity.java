@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.heroesunited.heroesunited.client.events.HUEyeHeightEvent;
 import xyz.heroesunited.heroesunited.common.events.HUCancelSprinting;
 
-
 @Mixin(LivingEntity.class)
 public abstract class MixinLivingEntity extends Entity {
 
@@ -29,8 +28,8 @@ public abstract class MixinLivingEntity extends Entity {
     }
 
     @Inject(method = "getEyeHeight", at = @At("RETURN"), cancellable = true)
-    private void onGetEyeHeight(Pose pose, EntitySize size, CallbackInfoReturnable<Float> info) {
-        if (pose != Pose.SLEEPING) {
+    private void onGetEyeHeight(EntityPose pose, EntityDimensions size, CallbackInfoReturnable<Float> info) {
+        if (pose != EntityPose.SLEEPING) {
             HUEyeHeightEvent event = new HUEyeHeightEvent((LivingEntity) (Object) this, info.getReturnValueF());
             MinecraftForge.EVENT_BUS.post(event);
             info.setReturnValue(event.getNewEyeHeight());

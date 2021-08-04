@@ -1,7 +1,7 @@
 package xyz.heroesunited.heroesunited.util;
 
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.entity.model.PlayerEntityModel;
 
 public enum PlayerPart {
 
@@ -13,17 +13,17 @@ public enum PlayerPart {
     RIGHT_LEG, RIGHT_LEG_WEAR,
     LEFT_LEG, LEFT_LEG_WEAR;
 
-    public void setVisibility(PlayerModel model, boolean visible) {
-        ModelRenderer modelRenderer = getModelRendererByPart(model);
+    public void setVisibility(PlayerEntityModel model, boolean visible) {
+        ModelPart modelRenderer = getModelRendererByPart(model);
         if (modelRenderer == null) {
-            model.setAllVisible(visible);
+            model.setVisible(visible);
         } else {
             modelRenderer.visible = visible;
         }
         return;
     }
 
-    public ModelRenderer getModelRendererByPart(PlayerModel model) {
+    public ModelPart getModelRendererByPart(PlayerEntityModel model) {
         switch (this) {
             case HEAD:
                 return model.head;

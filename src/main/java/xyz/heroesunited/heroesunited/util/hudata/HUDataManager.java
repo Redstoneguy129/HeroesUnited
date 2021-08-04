@@ -2,12 +2,12 @@ package xyz.heroesunited.heroesunited.util.hudata;
 
 import com.google.common.collect.Maps;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.Map;
 
-public class HUDataManager implements INBTSerializable<CompoundNBT> {
+public class HUDataManager implements INBTSerializable<NbtCompound> {
 
     protected Map<String, HUData<?>> dataMap = Maps.newHashMap();
 
@@ -27,7 +27,7 @@ public class HUDataManager implements INBTSerializable<CompoundNBT> {
         }
     }
 
-    public <T> T read(Entity entity, String id, CompoundNBT nbt) {
+    public <T> T read(Entity entity, String id, NbtCompound nbt) {
         HUData<T> data = getHUData(id);
         assert data != null;
         T old = data.getValue();
@@ -60,8 +60,8 @@ public class HUDataManager implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public NbtCompound serializeNBT() {
+        NbtCompound nbt = new NbtCompound();
         for (Map.Entry<String, HUData<?>> e : dataMap.entrySet()) {
             HUData data = e.getValue();
             if (data.canBeSaved() && data.getValue() != null) {
@@ -72,7 +72,7 @@ public class HUDataManager implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(NbtCompound nbt) {
         for (Map.Entry<String, HUData<?>> e : dataMap.entrySet()) {
             HUData data = e.getValue();
             if (data.canBeSaved()) {

@@ -1,11 +1,11 @@
 package xyz.heroesunited.heroesunited.client.render.renderer.space;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.render.model.space.PlanetModel;
 
@@ -15,22 +15,22 @@ public class MercuryRenderer extends PlanetRenderer {
     }
 
     @Override
-    public ResourceLocation getTextureLocation() {
-        return new ResourceLocation(HeroesUnited.MODID, "textures/planets/mercury.png");
+    public Identifier getTextureLocation() {
+        return new Identifier(HeroesUnited.MODID, "textures/planets/mercury.png");
     }
 
     @Override
-    public void render(MatrixStack matrixStack, IRenderTypeBuffer buffers, int packedLight, float partialTicks) {
+    public void render(MatrixStack matrixStack, VertexConsumerProvider buffers, int packedLight, float partialTicks) {
 
         matrixStack.scale(0.75F, 0.75F, 0.75F);
         matrixStack.translate(0, -1, 0);
-        IVertexBuilder buffer = buffers.getBuffer(RenderType.entityTranslucent(getTextureLocation()));
+        VertexConsumer buffer = buffers.getBuffer(RenderLayer.getEntityTranslucent(getTextureLocation()));
         planetModel.prepareModel(partialTicks);
-        planetModel.renderToBuffer(matrixStack, buffer, packedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+        planetModel.render(matrixStack, buffer, packedLight, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
     }
 
     @Override
-    protected RenderType getRenderType() {
-        return RenderType.entityTranslucent(getTextureLocation());
+    protected RenderLayer getRenderType() {
+        return RenderLayer.getEntityTranslucent(getTextureLocation());
     }
 }

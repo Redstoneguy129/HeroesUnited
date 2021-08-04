@@ -1,13 +1,13 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.gson.JsonObject;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.JSONUtils;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 
 import java.util.Map;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.JsonHelper;
 
 public abstract class JSONAbility extends Ability {
 
@@ -79,7 +79,7 @@ public abstract class JSONAbility extends Ability {
 
     public int getKey() {
         if (getJsonObject().has("key")) {
-            return JSONUtils.getAsInt(JSONUtils.getAsJsonObject(this.getJsonObject(), "key"), "id");
+            return JsonHelper.getInt(JsonHelper.getObject(this.getJsonObject(), "key"), "id");
         } else {
             return -1;
         }
@@ -90,9 +90,9 @@ public abstract class JSONAbility extends Ability {
         if (getEnabled() != enabled && b && this.dataManager.<Integer>getValue("cooldown") == 0) {
             this.dataManager.set(player, "enabled", enabled);
             action(player);
-            player.refreshDimensions();
+            player.calculateDimensions();
             if (!enabled && getJsonObject().has("maxCooldown")) {
-                this.dataManager.set(player, "cooldown", JSONUtils.getAsInt(getJsonObject(), "maxCooldown"));
+                this.dataManager.set(player, "cooldown", JsonHelper.getInt(getJsonObject(), "maxCooldown"));
             }
         }
     }
@@ -100,7 +100,7 @@ public abstract class JSONAbility extends Ability {
     @Override
     public Ability setJsonObject(Entity entity, JsonObject jsonObject) {
         if (jsonObject != null && jsonObject.has("key")) {
-            this.actionType = ActionType.getById(JSONUtils.getAsString(JSONUtils.getAsJsonObject(jsonObject, "key"), "pressType", "toggle"));
+            this.actionType = ActionType.getById(JsonHelper.getString(JsonHelper.getObject(jsonObject, "key"), "pressType", "toggle"));
         }
         return super.setJsonObject(entity, jsonObject);
     }
@@ -110,14 +110,14 @@ public abstract class JSONAbility extends Ability {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = super.serializeNBT();
+    public NbtCompound serializeNBT() {
+        NbtCompound nbt = super.serializeNBT();
         nbt.putString("actionType", actionType.name().toLowerCase());
         return nbt;
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(NbtCompound nbt) {
         super.deserializeNBT(nbt);
         this.actionType = ActionType.getById(nbt.getString("actionType"));
     }

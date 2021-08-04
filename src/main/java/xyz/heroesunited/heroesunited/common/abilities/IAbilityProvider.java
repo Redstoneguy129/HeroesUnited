@@ -1,8 +1,7 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import net.minecraft.entity.player.PlayerEntity;
-
 import java.util.Map;
+import net.minecraft.entity.player.PlayerEntity;
 
 public interface IAbilityProvider {
 

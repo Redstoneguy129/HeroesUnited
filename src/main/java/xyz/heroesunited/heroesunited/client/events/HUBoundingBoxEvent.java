@@ -1,6 +1,6 @@
 package xyz.heroesunited.heroesunited.client.events;
 
-import net.minecraft.entity.EntitySize;
+import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
@@ -10,24 +10,24 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
  */
 public class HUBoundingBoxEvent extends PlayerEvent {
 
-    private final EntitySize oldSize;
-    private EntitySize newSize;
+    private final EntityDimensions oldSize;
+    private EntityDimensions newSize;
 
-    public HUBoundingBoxEvent(PlayerEntity entity, EntitySize oldSize) {
+    public HUBoundingBoxEvent(PlayerEntity entity, EntityDimensions oldSize) {
         super(entity);
         this.oldSize = oldSize;
         this.newSize = oldSize;
     }
 
-    public EntitySize getNewSize() {
+    public EntityDimensions getNewSize() {
         return newSize;
     }
 
-    public EntitySize getOldSize() {
+    public EntityDimensions getOldSize() {
         return oldSize;
     }
 
-    public void setNewSize(EntitySize newSize) {
+    public void setNewSize(EntityDimensions newSize) {
         this.newSize = newSize;
     }
 }

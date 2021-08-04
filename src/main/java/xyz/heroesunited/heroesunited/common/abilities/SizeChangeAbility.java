@@ -1,8 +1,8 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.JSONUtils;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.JsonHelper;
 import net.minecraft.util.math.MathHelper;
 
 public class SizeChangeAbility extends JSONAbility {
@@ -21,15 +21,15 @@ public class SizeChangeAbility extends JSONAbility {
     public void setSize(PlayerEntity player, float value) {
         if (this.size != value) {
             this.size = value;
-            if (player.level.isClientSide) {
-                player.refreshDimensions();
+            if (player.world.isClient) {
+                player.calculateDimensions();
             }
         }
     }
 
     public float getRightSize(PlayerEntity player) {
         if (getJsonObject() != null && getJsonObject().has("size")) {
-            return JSONUtils.getAsFloat(getJsonObject(), "size");
+            return JsonHelper.getFloat(getJsonObject(), "size");
         }
         return 0.25f;
     }
@@ -40,7 +40,7 @@ public class SizeChangeAbility extends JSONAbility {
 
     public boolean changeSizeInRender() {
         if (getJsonObject() != null && getJsonObject().has("sizeInRenderer")) {
-            return JSONUtils.getAsBoolean(getJsonObject(), "sizeInRenderer");
+            return JsonHelper.getBoolean(getJsonObject(), "sizeInRenderer");
         }
         return true;
     }
@@ -55,14 +55,14 @@ public class SizeChangeAbility extends JSONAbility {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = super.serializeNBT();
+    public NbtCompound serializeNBT() {
+        NbtCompound nbt = super.serializeNBT();
         nbt.putFloat("Size", this.size);
         return nbt;
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(NbtCompound nbt) {
         super.deserializeNBT(nbt);
         this.size = nbt.getFloat("Size");
     }

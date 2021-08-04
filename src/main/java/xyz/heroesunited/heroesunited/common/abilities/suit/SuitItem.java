@@ -1,19 +1,20 @@
 package xyz.heroesunited.heroesunited.common.abilities.suit;
 
 import com.google.common.collect.Maps;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ArmorItem;
-import net.minecraft.item.IArmorMaterial;
+import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.text.Text;
 import net.minecraft.util.*;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -39,7 +40,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     private AnimationFactory factory = new AnimationFactory(this);
     protected final Suit suit;
 
-    public SuitItem(IArmorMaterial materialIn, EquipmentSlotType slot, Properties builder, Suit suit) {
+    public SuitItem(ArmorMaterial materialIn, EquipmentSlot slot, Settings builder, Suit suit) {
         super(materialIn, slot, builder);
         this.suit = suit;
     }
@@ -54,7 +55,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
         suit.getAbilities(player).forEach((id, a) -> {
             a.getAdditionalData().putString("Suit", this.getRegistryName().toString());
             if (suit instanceof JsonSuit && a.getJsonObject().has("slot")) {
-                a.getAdditionalData().putString("Slot", JSONUtils.getAsString(a.getJsonObject(), "slot"));
+                a.getAdditionalData().putString("Slot", JsonHelper.getString(a.getJsonObject(), "slot"));
             }
             map.put(id, a);
         });
@@ -63,7 +64,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World p_77624_2_, List<ITextComponent> tooltip, ITooltipFlag p_77624_4_) {
+    public void appendTooltip(ItemStack stack, @Nullable World p_77624_2_, List<Text> tooltip, TooltipContext p_77624_4_) {
         if (getSuit().getDescription(stack) != null) tooltip.addAll(getSuit().getDescription(stack));
     }
 
@@ -81,15 +82,15 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     @Override
     public void onArmorTick(ItemStack item, World world, PlayerEntity player) {
         if (!getSuit().canEquip(player)) {
-            ItemStack stack = player.getItemBySlot(slot);
+            ItemStack stack = player.getEquippedStack(slot);
             player.inventory.add(stack);
-            player.setItemSlot(slot, ItemStack.EMPTY);
+            player.equipStack(slot, ItemStack.EMPTY);
         }
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public <A extends BipedModel<?>> A getArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlotType armorSlot, A _default) {
+    public <A extends BipedEntityModel<?>> A getArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlot armorSlot, A _default) {
         try {
             GeoArmorRenderer renderer = getArmorRenderer();
             renderer.setCurrentItem(entity, stack, armorSlot);
@@ -98,8 +99,8 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
         } catch (GeckoLibException | IllegalArgumentException e) {
             if (stack != ItemStack.EMPTY) {
                 if (stack.getItem() instanceof SuitItem) {
-                    BipedModel model = getSuit().getArmorModel(entity, stack, armorSlot, _default);
-                    model.copyPropertiesTo(_default);
+                    BipedEntityModel model = getSuit().getArmorModel(entity, stack, armorSlot, _default);
+                    model.setAttributes(_default);
                     return (A) model;
                 }
             }
@@ -109,11 +110,11 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
 
     @Nullable
     @Override
-    public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlotType slot, String type) {
+    public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
         try {
             GeoArmorRenderer renderer = getArmorRenderer();
-            ResourceLocation location = renderer.getTextureLocation((ArmorItem) stack.getItem());
-            if (Minecraft.getInstance().getResourceManager().hasResource(location)) {
+            Identifier location = renderer.getTextureLocation((ArmorItem) stack.getItem());
+            if (MinecraftClient.getInstance().getResourceManager().containsResource(location)) {
                 return location.toString();
             } else {
                 throw new GeckoLibException(location,
@@ -126,9 +127,9 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
 
     @Nullable
     @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt) {
+    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable NbtCompound nbt) {
         if (getSuit() instanceof JsonSuit) {
-            return new ICapabilitySerializable<CompoundNBT>() {
+            return new ICapabilitySerializable<NbtCompound>() {
 
                 public LazyOptional<SuitCapability> lazyOptional = LazyOptional.of(() -> new SuitCapability(stack));
 
@@ -140,12 +141,12 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
 
 
                 @Override
-                public CompoundNBT serializeNBT() {
+                public NbtCompound serializeNBT() {
                     return ((JsonSuit) SuitItem.this.getSuit()).getConditionManager().serializeNBT();
                 }
 
                 @Override
-                public void deserializeNBT(CompoundNBT nbt) {
+                public void deserializeNBT(NbtCompound nbt) {
                     ((JsonSuit) SuitItem.this.getSuit()).getConditionManager().deserializeNBT(nbt);
                 }
             };
@@ -155,15 +156,15 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     }
 
     @Override
-    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        ItemStack stack = playerIn.getItemInHand(handIn);
-        ItemStack armorStack = playerIn.getItemBySlot(slot);
+    public TypedActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
+        ItemStack stack = playerIn.getStackInHand(handIn);
+        ItemStack armorStack = playerIn.getEquippedStack(slot);
         if (getSuit().canEquip(playerIn) && armorStack.isEmpty()) {
-            playerIn.setItemSlot(slot, stack.copy());
+            playerIn.equipStack(slot, stack.copy());
             stack.setCount(0);
-            return ActionResult.sidedSuccess(stack, worldIn.isClientSide());
+            return TypedActionResult.success(stack, worldIn.isClient());
         } else {
-            return ActionResult.fail(stack);
+            return TypedActionResult.fail(stack);
         }
     }
 

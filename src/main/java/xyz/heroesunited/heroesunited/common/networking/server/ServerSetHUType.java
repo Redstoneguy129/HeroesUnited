@@ -1,9 +1,8 @@
 package xyz.heroesunited.heroesunited.common.networking.server;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.HUTypes;
@@ -21,19 +20,19 @@ public class ServerSetHUType {
         this.value = value;
     }
 
-    public ServerSetHUType(PacketBuffer buffer) {
-        this.type = buffer.readEnum(HUTypes.class);
+    public ServerSetHUType(PacketByteBuf buffer) {
+        this.type = buffer.readEnumConstant(HUTypes.class);
         this.value = buffer.readBoolean();
     }
 
-    public void toBytes(PacketBuffer buffer) {
-        buffer.writeEnum(this.type);
+    public void toBytes(PacketByteBuf buffer) {
+        buffer.writeEnumConstant(this.type);
         buffer.writeBoolean(this.value);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            PlayerEntity player = ctx.get().getSender();
+            Player player = ctx.get().getSender();
 
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((a) -> {
                 HUTypes.set(player, this.type, this.value, true);

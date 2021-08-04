@@ -2,16 +2,16 @@ package xyz.heroesunited.heroesunited.common.objects.entities;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MoverType;
+import net.minecraft.entity.MovementType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.util.ActionResultType;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.Packet;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
 import javax.annotation.Nullable;
@@ -25,13 +25,13 @@ public class Spaceship extends Entity {
     }
 
     @Override
-    public ActionResultType interact(PlayerEntity p_184230_1_, Hand p_184230_2_) {
-        if (p_184230_1_.isSecondaryUseActive()) {
-            return ActionResultType.PASS;
-        } else if (!this.level.isClientSide) {
-            return p_184230_1_.startRiding(this) ? ActionResultType.CONSUME : ActionResultType.PASS;
+    public ActionResult interact(PlayerEntity p_184230_1_, Hand p_184230_2_) {
+        if (p_184230_1_.shouldCancelInteraction()) {
+            return ActionResult.PASS;
+        } else if (!this.world.isClient) {
+            return p_184230_1_.startRiding(this) ? ActionResult.CONSUME : ActionResult.PASS;
         } else {
-            return ActionResultType.SUCCESS;
+            return ActionResult.SUCCESS;
         }
     }
 
@@ -43,10 +43,10 @@ public class Spaceship extends Entity {
     @Override
     public Entity changeDimension(ServerWorld world, net.minecraftforge.common.util.ITeleporter teleporter) {
         ArrayList<Entity> entities = new ArrayList<>();
-        entities.addAll(getPassengers());
-        Spaceship entity = (Spaceship) super.changeDimension(world, teleporter);
+        entities.addAll(getPassengerList());
+        Spaceship entity = (Spaceship) super.moveToWorld(world, teleporter);
         for (Entity entity2 : entities) {
-            entity2.changeDimension(world, teleporter).startRiding(entity);
+            entity2.moveToWorld(world, teleporter).startRiding(entity);
         }
         return entity;
     }
@@ -54,85 +54,85 @@ public class Spaceship extends Entity {
     @Override
     public void tick() {
         super.tick();
-        if (this.getControllingPassenger() != null && this.getControllingPassenger() instanceof PlayerEntity) {
-            PlayerEntity playerEntity = (PlayerEntity) this.getControllingPassenger();
+        if (this.getPrimaryPassenger() != null && this.getPrimaryPassenger() instanceof PlayerEntity) {
+            PlayerEntity playerEntity = (PlayerEntity) this.getPrimaryPassenger();
             if (isRocket()) {
-                if (level.dimension() == HeroesUnited.SPACE) {
-                    this.setRot(playerEntity.yRot, playerEntity.xRot);
-                    Vector3d vector3d = getLookAngle().multiply(playerEntity.zza, playerEntity.zza, playerEntity.zza);
-                    setDeltaMovement(vector3d.x, vector3d.y, vector3d.z);
+                if (world.getRegistryKey() == HeroesUnited.SPACE) {
+                    this.setRotation(playerEntity.getYaw(), playerEntity.getPitch());
+                    Vec3d vector3d = getRotationVector().multiply(playerEntity.forwardSpeed, playerEntity.forwardSpeed, playerEntity.forwardSpeed);
+                    setVelocity(vector3d.x, vector3d.y, vector3d.z);
                 } else {
-                    if (playerEntity.zza > 0) {
-                        setDeltaMovement(0, getDeltaMovement().z + playerEntity.zza * 10, 0);
+                    if (playerEntity.forwardSpeed > 0) {
+                        setVelocity(0, getVelocity().z + playerEntity.forwardSpeed * 10, 0);
                     } else {
-                        if (getDeltaMovement().y > -0.8) {
-                            setDeltaMovement(getDeltaMovement().x, getDeltaMovement().y - 0.1, getDeltaMovement().z);
+                        if (getVelocity().y > -0.8) {
+                            setVelocity(getVelocity().x, getVelocity().y - 0.1, getVelocity().z);
                         } else {
-                            setDeltaMovement(getDeltaMovement().x, getDeltaMovement().y, getDeltaMovement().z);
+                            setVelocity(getVelocity().x, getVelocity().y, getVelocity().z);
                         }
                     }
                 }
             } else {
-                this.setRot(playerEntity.yRot, playerEntity.xRot);
-                Vector3d vector3d = getLookAngle().multiply(playerEntity.zza * 10, playerEntity.zza * 10, playerEntity.zza * 10);
-                setDeltaMovement(vector3d.x, vector3d.y, vector3d.z);
+                this.setRotation(playerEntity.getYaw(), playerEntity.getPitch());
+                Vec3d vector3d = getRotationVector().multiply(playerEntity.forwardSpeed * 10, playerEntity.forwardSpeed * 10, playerEntity.forwardSpeed * 10);
+                setVelocity(vector3d.x, vector3d.y, vector3d.z);
             }
-            this.move(MoverType.SELF, this.getDeltaMovement());
+            this.move(MovementType.SELF, this.getVelocity());
         }
     }
 
     @Override
     @Nullable
-    public Entity getControllingPassenger() {
-        List<Entity> list = this.getPassengers();
+    public Entity getPrimaryPassenger() {
+        List<Entity> list = this.getPassengerList();
         return list.isEmpty() ? null : list.get(0);
     }
 
     @Override
-    public boolean canCollideWith(Entity p_241849_1_) {
+    public boolean collidesWith(Entity p_241849_1_) {
         return canVehicleCollide(this, p_241849_1_);
     }
 
     public static boolean canVehicleCollide(Entity p_242378_0_, Entity p_242378_1_) {
-        return (p_242378_1_.canBeCollidedWith() || p_242378_1_.isPushable()) && !p_242378_0_.isPassengerOfSameVehicle(p_242378_1_);
+        return (p_242378_1_.isCollidable() || p_242378_1_.isPushable()) && !p_242378_0_.isConnectedThroughVehicle(p_242378_1_);
     }
 
     @Override
-    public double getPassengersRidingOffset() {
-        return getBbHeight() / getType().getHeight() * 8;
+    public double getMountedHeightOffset() {
+        return getHeight() / getType().getHeight() * 8;
     }
 
     @Override
-    public void push(Entity p_70108_1_) {
+    public void pushAwayFrom(Entity p_70108_1_) {
     }
 
     @Override
-    public boolean canBeCollidedWith() {
+    public boolean isCollidable() {
         return true;
     }
 
     @Override
-    protected void defineSynchedData() {
+    protected void initDataTracker() {
 
     }
 
     @Override
-    public boolean isPickable() {
+    public boolean collides() {
         return true;
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT p_70037_1_) {
+    protected void readCustomDataFromNbt(NbtCompound p_70037_1_) {
 
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT p_213281_1_) {
+    protected void writeCustomDataToNbt(NbtCompound p_213281_1_) {
 
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> createSpawnPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 }

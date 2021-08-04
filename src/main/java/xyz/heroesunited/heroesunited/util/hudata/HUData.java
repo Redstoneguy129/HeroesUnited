@@ -1,10 +1,9 @@
 package xyz.heroesunited.heroesunited.util.hudata;
 
 import com.google.gson.JsonObject;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.JSONUtils;
-
 import java.util.UUID;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.JsonHelper;
 
 public class HUData<T> {
 
@@ -41,29 +40,29 @@ public class HUData<T> {
     public Object getFromJson(JsonObject json, String id, T defaultValue) {
         if (json.has(id)) {
             if (defaultValue instanceof Boolean) {
-                return JSONUtils.getAsBoolean(json, id);
+                return JsonHelper.getBoolean(json, id);
             } else if (defaultValue instanceof Integer) {
-                return JSONUtils.getAsInt(json, id);
+                return JsonHelper.getInt(json, id);
             } else if (defaultValue instanceof String) {
-                return JSONUtils.getAsString(json, id);
+                return JsonHelper.getString(json, id);
             } else if (defaultValue instanceof Float) {
-                return JSONUtils.getAsFloat(json, id);
+                return JsonHelper.getFloat(json, id);
             } else if (defaultValue instanceof Double) {
-                return (double) JSONUtils.getAsFloat(json, id);
+                return (double) JsonHelper.getFloat(json, id);
             } else if (defaultValue instanceof Long) {
-                return JSONUtils.getAsLong(json, id);
+                return JsonHelper.getLong(json, id);
             } else if (defaultValue instanceof UUID) {
-                return UUID.fromString(JSONUtils.getAsString(json, id));
+                return UUID.fromString(JsonHelper.getString(json, id));
             }
         }
         return defaultValue;
     }
 
-    public CompoundNBT serializeNBT(String id, T value) {
-        return this.serializeNBT(new CompoundNBT(), id, value);
+    public NbtCompound serializeNBT(String id, T value) {
+        return this.serializeNBT(new NbtCompound(), id, value);
     }
 
-    public CompoundNBT serializeNBT(CompoundNBT nbt, String id, T value) {
+    public NbtCompound serializeNBT(NbtCompound nbt, String id, T value) {
         if (value instanceof Boolean) {
             nbt.putBoolean(id, (Boolean) value);
         } else if (value instanceof Integer) {
@@ -77,12 +76,12 @@ public class HUData<T> {
         } else if (value instanceof Long) {
             nbt.putLong(id, (Long) value);
         } else if (value instanceof UUID) {
-            nbt.putUUID(id, (UUID) value);
+            nbt.putUuid(id, (UUID) value);
         }
         return nbt;
     }
 
-    public Object deserializeNBT(CompoundNBT nbt, String id, T defaultValue) {
+    public Object deserializeNBT(NbtCompound nbt, String id, T defaultValue) {
         if (nbt.contains(id)) {
             if (defaultValue instanceof Boolean) {
                 return nbt.getBoolean(id);
@@ -97,7 +96,7 @@ public class HUData<T> {
             } else if (defaultValue instanceof Long) {
                 return nbt.getLong(id);
             } else if (defaultValue instanceof UUID) {
-                return nbt.getUUID(id);
+                return nbt.getUuid(id);
             }
         }
         return defaultValue;

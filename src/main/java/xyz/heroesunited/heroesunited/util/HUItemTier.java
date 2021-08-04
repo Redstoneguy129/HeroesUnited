@@ -1,11 +1,10 @@
 package xyz.heroesunited.heroesunited.util;
 
-import net.minecraft.item.IItemTier;
-import net.minecraft.item.crafting.Ingredient;
-
 import java.util.function.Supplier;
+import net.minecraft.item.ToolMaterial;
+import net.minecraft.recipe.Ingredient;
 
-public class HUItemTier implements IItemTier {
+public class HUItemTier implements ToolMaterial {
 
     private final int harvestLevel, maxUses, enchantability;
     private final float efficiency, attackDamage;
@@ -21,27 +20,27 @@ public class HUItemTier implements IItemTier {
     }
 
     @Override
-    public int getUses() {
+    public int getDurability() {
         return maxUses;
     }
 
     @Override
-    public float getSpeed() {
+    public float getMiningSpeedMultiplier() {
         return efficiency;
     }
 
     @Override
-    public float getAttackDamageBonus() {
+    public float getAttackDamage() {
         return attackDamage;
     }
 
     @Override
-    public int getLevel() {
+    public int getMiningLevel() {
         return harvestLevel;
     }
 
     @Override
-    public int getEnchantmentValue() {
+    public int getEnchantability() {
         return enchantability;
     }
 

@@ -1,181 +1,117 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
-        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1+', changing: true
-        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
-        classpath "com.github.jengelman.gradle.plugins:shadow:4.0.4"
-    }
+plugins {
+	id 'fabric-loom' version '0.9-SNAPSHOT'
+	id 'maven-publish'
+	id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
-apply plugin: 'maven-publish'
-apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'org.spongepowered.mixin'
-apply plugin: 'idea'
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_16
 
-version = build_version
+version = project.build_version
 group = "xyz.heroesunited"
 archivesBaseName = "heroesunited"
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+loom {
+	mixin {
+		defaultRefmapName = "heroesunited-refmap.json"
+	}
+}
 
-minecraft {
-    mappings channel: 'official', version: "$project.minecraft_version"
-    //accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-    runs {
-        client {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            arg "-mixin.config=heroesunited.mixins.json"
-            mods {
-                heroesunited {
-                    source sourceSets.main
-                }
-            }
-        }
+processResources {
+	inputs.property "version", project.version
 
-        clientWithCredentials {
-            parent runs.client
-            args '--username', 'jeb_', '--uuid', '853c80ef-3c37-49fd-aa49-938b674adae6', "-mixin.config=heroesunited.mixins.json"
-        }
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
+}
 
-        server {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            arg "-mixin.config=heroesunited.mixins.json"
-            mods {
-                heroesunited {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-            args '--mod', 'heroesunited', '--all', '--output', file('src/generated/resources/')
-
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            arg "-mixin.config=heroesunited.mixins.json"
-            mods {
-                heroesunited {
-                    source sourceSets.main
-                }
-            }
-        }
-    }
+tasks.withType(JavaCompile).configureEach {
+	it.options.encoding = "UTF-8"
+	it.options.release = 16
 }
 
 configurations {
-    shade
-    compile.extendsFrom(shade)
+	shade
 }
 
 shadowJar {
-    configurations = [project.configurations.shade]
-    exclude 'com/sun/jna/**'
-    exclude 'software/bernie/example/**'
-    exclude 'assets/geckolib3/**'
-    relocate 'software.bernie.geckolib', 'software.bernie.HU.geckolib'
+	configurations = [project.configurations.shade]
+	from sourceSets.main.allSource
+	exclude 'com/sun/jna/**'
+	exclude 'software/bernie/example/**'
+	exclude 'assets/geckolib3/**'
+	relocate 'software.bernie.geckolib', 'software.bernie.HU.geckolib'
 
-    classifier ''
-}
-
-repositories {
-    maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
-    maven { url 'https://jitpack.io' }
-    maven { url "https://www.cursemaven.com" }
-}
-
-dependencies {
-    minecraft "net.minecraftforge:forge:$project.minecraft_version-$project.forge_version"
-    annotationProcessor 'org.spongepowered:mixin:0.8.2:processor'
-
-    compileOnly fg.deobf('curse.maven:obfuscate-289380:3148131')
-
-    implementation 'com.github.Vatuu:discord-rpc:1.6.2'
-    implementation fg.deobf("software.bernie.geckolib:geckolib-forge-1.16.5:$project.geckolib_version")
-
-    shade 'com.github.Vatuu:discord-rpc:1.6.2'
-    shade 'com.github.Vatuu:discord-rpc-binaries:3.4.0'
-    shade fg.deobf("software.bernie.geckolib:geckolib-forge-1.16.5:$project.geckolib_version")
+	classifier ''
 }
 
 task deobfJar(type: Jar) {
-    from sourceSets.main.output
-    classifier = 'deobf'
+	from sourceSets.main.output
+	classifier = 'deobf'
 }
 
 task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allJava
+	classifier = 'sources'
+	from sourceSets.main.allJava
 }
+
 
 artifacts {
-    archives deobfJar
-    archives sourcesJar
-    archives tasks.shadowJar
-}
-
-reobf {
-    shadowJar {
-        dependsOn tasks.createMcpToSrg
-        mappings = tasks.createMcpToSrg.outputs.files.singleFile
-    }
-}
-
-jar {
-    manifest {
-        attributes([
-                "Specification-Title"     : "${archivesBaseName}",
-                "Specification-Vendor"    : "${archivesBaseName}sareus",
-                "Specification-Version"   : "1",
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : "${version}",
-                "Implementation-Vendor"   : "${archivesBaseName}sareus",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "MixinConfigs"            : "heroesunited.mixins.json"
-        ])
-    }
+	archives deobfJar
+	archives sourcesJar
+	archives shadowJar
 }
 
 
-mixin {
-    add sourceSets.main, "heroesunited.refmap.json"
+java {
+	withSourcesJar()
+}
+
+remapJar {
+	dependsOn(shadowJar)
+	input.set(shadowJar.archivePath)
+}
+
+
+repositories {
+	maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
+	maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+	modImplementation 'com.github.Vatuu:discord-rpc:1.6.2'
+	modImplementation "software.bernie.geckolib:geckolib-fabric-1.17:$project.geckolib_version:dev"
+
+	shade 'com.github.Vatuu:discord-rpc:1.6.2'
+	shade 'com.github.Vatuu:discord-rpc-binaries:3.4.0'
+	shade "software.bernie.geckolib:geckolib-fabric-1.17:$project.geckolib_version:dev"
 }
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact shadowJar
-            artifact deobfJar
-            artifact sourcesJar
-            artifactId = "hu-core"
-        }
-    }
-    repositories {
-        maven {
-            def explodingCreeperURL = System.getenv("explodingCreeperURL")
-            url = explodingCreeperURL
-            credentials {
-                def envUsername = System.getenv("explodingCreeperUser")
-                def envPassword = System.getenv("explodingCreeperPassword")
-                username = envUsername
-                password = envPassword
-            }
-        }
-    }
+	publications {
+		mavenJava(MavenPublication) {
+			artifact shadowJar
+			artifact deobfJar
+			artifact sourcesJar
+			artifactId = "fabric-hu-core"
+		}
+	}
+	repositories {
+		maven {
+			def repsyURL = System.getenv("repsyURL")
+			url = repsyURL
+			credentials {
+				def envUsername = System.getenv("repsyUser")
+				def envPassword = System.getenv("repsyPassword")
+				username = envUsername
+				password = envPassword
+			}
+		}
+	}
 }
+

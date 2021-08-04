@@ -1,42 +1,44 @@
 package xyz.heroesunited.heroesunited.client.render.model.space;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.model.Dilation;
+import net.minecraft.client.model.ModelData;
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.model.ModelPartBuilder;
+import net.minecraft.client.model.ModelPartData;
+import net.minecraft.client.model.ModelTransform;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
 
 public class MoonModel extends SatelliteModel{
 
 
-    private final ModelRenderer moon;
+    private final ModelPart moon;
     private float counter = 0;
 
     public MoonModel() {
-        super(RenderType::entityCutoutNoCull);
-
-        texWidth = 128;
-        texHeight = 128;
-
-        moon = new ModelRenderer(this);
-        moon.setPos(0.0F, 0.0F, 0.0F);
-        moon.texOffs(0, 32).addBox(0,0,0, 16.0F, 16.0F, 16.0F, -6.0F, false);
+        super(RenderLayer::getEntityCutoutNoCull);
+        ModelData mesh = new ModelData();
+        ModelPartData root = mesh.getRoot();
+        root.addChild("planet", ModelPartBuilder.create().uv(0, 32).cuboid(0,0,0, 16.0F, 16.0F, 16.0F, new Dilation(-6.0F)), ModelTransform.NONE);
+        moon = root.createPart(128, 128);
     }
 
     @Override
     public void prepareModel(float partialTicks) {
-        if(!Minecraft.getInstance().isPaused()){
+        if(!MinecraftClient.getInstance().isPaused()){
             if (counter < 360) {
                 counter += 0.01;
             } else {
                 counter = 0;
             }
         }
-        moon.yRot = (float) (Math.toRadians(-counter));
+        moon.yaw = (float) (Math.toRadians(-counter));
     }
 
     @Override
-    public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
+    public void render(MatrixStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
         moon.render(matrixStack, buffer, packedLight, packedOverlay);
     }
 }

@@ -1,76 +1,83 @@
 package xyz.heroesunited.heroesunited.client.render.model;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.Model;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.Dilation;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.model.ModelData;
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.model.ModelPartBuilder;
+import net.minecraft.client.model.ModelPartData;
+import net.minecraft.client.model.ModelTransform;
+import net.minecraft.client.model.TexturedModelData;
+import net.minecraft.client.model.geom.builders.*;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
 
 public class ParachuteModel extends Model {
-    private final ModelRenderer parachute;
-    private final ModelRenderer cube_r1;
-    private final ModelRenderer cube_r2;
-    private final ModelRenderer cube_r3;
-    private final ModelRenderer cube_r4;
-    private final ModelRenderer cube_r5;
-    private final ModelRenderer cube_r6;
 
-    public ParachuteModel() {
-        super(RenderType::entityTranslucent);
-        texWidth = 140;
-        texHeight = 128;
+    private final ModelPart parachute;
 
-        parachute = new ModelRenderer(this);
-        parachute.setPos(0.0F, 0.0F, 0.0F);
-        parachute.texOffs(0, 0).addBox(3.0F, -0.475F, 2.25F, 0.25F, 1.675F, 0.25F, 0.0F, false);
-        parachute.texOffs(0, 0).addBox(-3.25F, -0.475F, 2.25F, 0.25F, 1.675F, 0.25F, 0.0F, true);
-        parachute.texOffs(0, 0).addBox(-15.5735F, -42.0659F, -13.0405F, 31.1469F, 1.0F, 35.475F, 0.0F, false);
+    public ParachuteModel(ModelPart root) {
+		super(RenderLayer::getEntityTranslucent);
+        parachute = root.getChild("parachute");
+    }
 
-        cube_r1 = new ModelRenderer(this);
-        cube_r1.setPos(23.3572F, -34.2292F, -12.3155F);
-        parachute.addChild(cube_r1);
-        setRotationAngle(cube_r1, 0.0F, 0.0F, 0.6981F);
-        cube_r1.texOffs(0, 91).addBox(-11.0F, -1.0F, -0.725F, 12.0F, 1.0F, 35.475F, 0.0F, true);
+    public static TexturedModelData createLayerDefinition() {
+        ModelData mesh = new ModelData();
+        ModelPartData parts = mesh.getRoot();
 
-        cube_r2 = new ModelRenderer(this);
-        cube_r2.setPos(-23.3572F, -34.2292F, -12.3155F);
-        parachute.addChild(cube_r2);
-        setRotationAngle(cube_r2, 0.0F, 0.0F, -0.6981F);
-        cube_r2.texOffs(0, 91).addBox(-1.0F, -1.0F, -0.725F, 12.0F, 1.0F, 35.475F, 0.0F, false);
+        ModelPartData parachute = parts.addChild("parachute", ModelPartBuilder.create()
+		        .uv(0, 0)
+		        .mirrored(false)
+		        .cuboid(3.25F, 0.2F, 2.25F, 0.0F, 1.0F, 0.0F, Dilation.NONE.add(0.0F))
+		.uv(0, 0)
+		        .mirrored(true)
+		        .cuboid(-3.0F, 0.2F, 2.25F, 0.0F, 1.0F, 0.0F, Dilation.NONE.add(0.0F))
+		.uv(0, 0)
+		        .mirrored(false)
+		        .cuboid(-15.4266F, -42.0659F, -13.0405F, 31.0F, 1.0F, 35.0F, Dilation.NONE.add(0.0F)),
+		    ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F));
 
-        cube_r3 = new ModelRenderer(this);
-        cube_r3.setPos(3.0F, 1.2F, 4.65F);
-        parachute.addChild(cube_r3);
-        setRotationAngle(cube_r3, -0.7418F, 0.9599F, -0.1047F);
-        cube_r3.texOffs(0, 0).addBox(0.0F, -44.675F, 0.0F, 0.25F, 44.675F, 0.25F, 0.0F, false);
+		ModelPartData cube_r1 = parachute.addChild("cube_r1", ModelPartBuilder.create()
+		        .uv(0, 91)
+		        .mirrored(true)
+		        .cuboid(-11.0F, -1.0F, -0.725F, 12.0F, 1.0F, 35.0F, Dilation.NONE.add(0.0F)),
+		    ModelTransform.of(23.3572F, -34.2292F, -12.3155F, 0.0F, 0.0F, 0.6981F));
 
-        cube_r4 = new ModelRenderer(this);
-        cube_r4.setPos(-3.0F, 1.2F, 4.65F);
-        parachute.addChild(cube_r4);
-        setRotationAngle(cube_r4, -0.7418F, -0.9599F, 0.1047F);
-        cube_r4.texOffs(0, 0).addBox(-0.25F, -44.675F, 0.0F, 0.25F, 44.675F, 0.25F, 0.0F, true);
+		parachute.addChild("cube_r2", ModelPartBuilder.create()
+		        .uv(0, 91)
+		        .mirrored(false)
+		        .cuboid(-1.0F, -1.0F, -0.725F, 12.0F, 1.0F, 35.0F, Dilation.NONE.add(0.0F)),
+		    ModelTransform.of(-23.3572F, -34.2292F, -12.3155F, 0.0F, 0.0F, -0.6981F));
 
-        cube_r5 = new ModelRenderer(this);
-        cube_r5.setPos(2.95F, -0.475F, 2.35F);
-        parachute.addChild(cube_r5);
-        setRotationAngle(cube_r5, 0.6545F, -0.9599F, 0.0F);
-        cube_r5.texOffs(0, 0).addBox(0.0F, -42.175F, -0.25F, 0.25F, 42.175F, 0.25F, 0.0F, false);
+		parachute.addChild("cube_r3", ModelPartBuilder.create()
+		        .uv(0, 0)
+		        .mirrored(false)
+		        .cuboid(0.25F, -44.0F, 0.0F, 0.0F, 44.0F, 0.0F, Dilation.NONE.add(0.0F)),
+		    ModelTransform.of(3.0F, 1.2F, 4.65F, -0.7418F, 0.9599F, -0.1047F));
 
-        cube_r6 = new ModelRenderer(this);
-        cube_r6.setPos(-2.95F, -0.475F, 2.35F);
-        parachute.addChild(cube_r6);
-        setRotationAngle(cube_r6, 0.6545F, 0.9599F, 0.0F);
-        cube_r6.texOffs(0, 0).addBox(-0.25F, -42.175F, -0.25F, 0.25F, 42.175F, 0.25F, 0.0F, true);
+		parachute.addChild("cube_r4", ModelPartBuilder.create()
+		        .uv(0, 0)
+		        .mirrored(true)
+		        .cuboid(0.0F, -44.0F, 0.0F, 0.0F, 44.0F, 0.0F, Dilation.NONE.add(0.0F)),
+		    ModelTransform.of(-3.0F, 1.2F, 4.65F, -0.7418F, -0.9599F, 0.1047F));
+
+		parachute.addChild("cube_r5", ModelPartBuilder.create()
+		        .uv(0, 0)
+		        .mirrored(false)
+		        .cuboid(0.25F, -42.0F, -0.25F, 0.0F, 42.0F, 0.0F, Dilation.NONE.add(0.0F)),
+		    ModelTransform.of(2.95F, -0.475F, 2.35F, 0.6545F, -0.9599F, 0.0F));
+
+		parachute.addChild("cube_r6", ModelPartBuilder.create()
+		        .uv(0, 0)
+		        .mirrored(true)
+		        .cuboid(0.0F, -42.0F, -0.25F, 0.0F, 42.0F, 0.0F, Dilation.NONE.add(0.0F)),
+		    ModelTransform.of(-2.95F, -0.475F, 2.35F, 0.6545F, 0.9599F, 0.0F));
+        return TexturedModelData.of(mesh, 140, 128);
     }
 
     @Override
-    public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
+    public void render(MatrixStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         parachute.render(matrixStack, buffer, packedLight, packedOverlay);
-    }
-
-    public void setRotationAngle(ModelRenderer modelRenderer, float x, float y, float z) {
-        modelRenderer.xRot = x;
-        modelRenderer.yRot = y;
-        modelRenderer.zRot = z;
     }
 }

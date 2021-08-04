@@ -3,7 +3,7 @@ package xyz.heroesunited.heroesunited.common.events;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.WorldAccess;
 import net.minecraftforge.event.world.BlockEvent;
 
 /**
@@ -14,7 +14,7 @@ public class HUCancelBlockCollision extends BlockEvent {
 
     private Entity entity;
 
-    public HUCancelBlockCollision(IWorld world, BlockPos pos, BlockState state, Entity entity) {
+    public HUCancelBlockCollision(WorldAccess world, BlockPos pos, BlockState state, Entity entity) {
         super(world, pos, state);
         this.entity = entity;
     }

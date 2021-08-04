@@ -1,13 +1,11 @@
 package xyz.heroesunited.heroesunited.util;
 
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.IArmorMaterial;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.SoundEvent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.item.ArmorMaterial;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.sound.SoundEvent;
 
-public class HUArmorMaterial implements IArmorMaterial {
+public class HUArmorMaterial implements ArmorMaterial {
 
     private static final int[] MAX_DAMAGE_ARRAY = new int[]{13, 15, 16, 11};
     private final String name;
@@ -29,17 +27,17 @@ public class HUArmorMaterial implements IArmorMaterial {
     }
 
     @Override
-    public int getDurabilityForSlot(EquipmentSlotType slotIn) {
-        return MAX_DAMAGE_ARRAY[slotIn.getIndex()] * this.maxDamageFactor;
+    public int getDurability(EquipmentSlot slotIn) {
+        return MAX_DAMAGE_ARRAY[slotIn.getEntitySlotId()] * this.maxDamageFactor;
     }
 
     @Override
-    public int getDefenseForSlot(EquipmentSlotType slotIn) {
-        return this.damageReductionAmountArray[slotIn.getIndex()];
+    public int getProtectionAmount(EquipmentSlot slotIn) {
+        return this.damageReductionAmountArray[slotIn.getEntitySlotId()];
     }
 
     @Override
-    public int getEnchantmentValue() {
+    public int getEnchantability() {
         return enchantability;
     }
 
@@ -53,7 +51,6 @@ public class HUArmorMaterial implements IArmorMaterial {
         return repairMaterial;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public String getName() {
         return this.name;
