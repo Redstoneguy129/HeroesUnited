@@ -36,6 +36,7 @@ public class HUItems {
     public static final GeckoAccessory MACHETE = register("machete", new GeckoAccessory(EquipmentAccessoriesSlot.WRIST, "FalloutWolfGod"));
     public static final GeckoAccessory LARA_CROFT = register("lara_croft", new GeckoAccessory(EquipmentAccessoriesSlot.WRIST, "CandyFreak"));
     public static final GeckoAccessory ZEK_GLASSES = register("zek_glasses", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "Zekeram12"));
+    public static final GeckoAccessory PERRY_THE_PLATYPUS_HAT = register("perry_the_platypus_hat", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "Mr Ali S"));
     public static final GeckoAccessory CAPTAIN_REX = register("captain_rex", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "Zekeram12"));
     public static final GeckoAccessory CAP_SHIELD_ACCESSORY = register("cap_shield", new GeckoAccessory(EquipmentAccessoriesSlot.TSHIRT, "El Dunchess"));
     public static final GeckoAccessory GREEN_GOGGLES = register("green_goggles", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "artman") {
