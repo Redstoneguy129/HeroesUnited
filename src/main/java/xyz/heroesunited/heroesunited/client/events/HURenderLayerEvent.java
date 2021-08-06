@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.entity.model.EntityModel;
+import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraftforge.eventbus.api.Cancelable;
@@ -14,15 +15,16 @@ import net.minecraftforge.eventbus.api.Event;
 
 /**
  * Just event.
+ * @TO-DO remake this, or make clear
  */
 public abstract class HURenderLayerEvent<T extends LivingEntity, M extends EntityModel<T>> extends Event {
 
-    private final T livingEntity;
-    private final LivingRenderer<T, M> renderer;
-    private final MatrixStack matrixStack;
-    private final IRenderTypeBuffer bufferIn;
-    private final int packedLightIn;
-    private float limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch;
+    protected final T livingEntity;
+    protected final LivingRenderer<T, M> renderer;
+    protected final MatrixStack matrixStack;
+    protected final IRenderTypeBuffer bufferIn;
+    protected final int packedLightIn;
+    protected float limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch;
 
     public HURenderLayerEvent(LivingRenderer<T, M> renderer, T livingEntity, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         this.livingEntity = livingEntity;
@@ -96,35 +98,41 @@ public abstract class HURenderLayerEvent<T extends LivingEntity, M extends Entit
     }
 
     @Cancelable
-    public static class Accessories extends Player {
+    public static class Accessories extends HURenderLayerEvent<AbstractClientPlayerEntity, PlayerModel<AbstractClientPlayerEntity>> {
+
         public Accessories(PlayerRenderer renderer, AbstractClientPlayerEntity player, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
             super(renderer, player, matrixStack, bufferIn, packedLightIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
         }
-    }
 
-    public static class Player extends HURenderLayerEvent {
-
-        private final PlayerRenderer renderer;
-        private final AbstractClientPlayerEntity player;
-
-        public Player(PlayerRenderer renderer, AbstractClientPlayerEntity player, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-            super(renderer, player, matrixStack, bufferIn, packedLightIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
-            this.player = player;
-            this.renderer = renderer;
+        @Override
+        public PlayerRenderer getRenderer() {
+            return (PlayerRenderer) renderer;
         }
 
         public AbstractClientPlayerEntity getPlayer() {
-            return player;
-        }
-
-        public PlayerRenderer getRenderer() {
-            return renderer;
+            return livingEntity;
         }
     }
 
-    public static class Armor extends HURenderLayerEvent {
+    public static class Player extends HURenderLayerEvent<AbstractClientPlayerEntity, PlayerModel<AbstractClientPlayerEntity>> {
 
-        public Armor(LivingRenderer renderer, LivingEntity livingEntity, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+        public Player(PlayerRenderer renderer, AbstractClientPlayerEntity player, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+            super(renderer, player, matrixStack, bufferIn, packedLightIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+        }
+
+        @Override
+        public PlayerRenderer getRenderer() {
+            return (PlayerRenderer) renderer;
+        }
+
+        public AbstractClientPlayerEntity getPlayer() {
+            return livingEntity;
+        }
+    }
+
+    public static class Armor<T extends LivingEntity> extends HURenderLayerEvent<T, BipedModel<T>> {
+
+        public Armor(LivingRenderer renderer, T livingEntity, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
             super(renderer, livingEntity, matrixStack, bufferIn, packedLightIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
         }
 
