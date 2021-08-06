@@ -28,8 +28,8 @@ public class AbilityHelper {
         return HUAbilityCap.getCap(player).getActiveAbilities().containsKey(name);
     }
 
-    public static <T extends Ability> T getAnotherAbilityFromMap(PlayerEntity player, T ability) {
-        for (Ability newAbility : getAbilityMap(player).values()) {
+    public static <T extends Ability> T getAnotherAbilityFromMap(List<Ability> abilities, T ability) {
+        for (Ability newAbility : abilities) {
             if (newAbility.type.equals(ability.type) && newAbility.name.equals(ability.name)) {
                 return (T) newAbility;
             }

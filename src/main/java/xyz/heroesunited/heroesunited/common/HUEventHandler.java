@@ -1,6 +1,8 @@
 package xyz.heroesunited.heroesunited.common;
 
 import com.google.gson.JsonObject;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.LivingEntity;
@@ -13,6 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.*;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.registry.Registry;
@@ -21,6 +24,7 @@ import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.OreFeatureConfig;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.util.ITeleporter;
@@ -41,8 +45,6 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.network.messages.SyncAnimationMsg;
 import software.bernie.geckolib3.util.GeckoLibUtil;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.client.events.HUBoundingBoxEvent;
-import xyz.heroesunited.heroesunited.client.events.HUEyeHeightEvent;
 import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
@@ -62,6 +64,7 @@ import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.common.space.Planet;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
+import xyz.heroesunited.heroesunited.mixin.client.InvokerActiveRenderInfo;
 import xyz.heroesunited.heroesunited.mixin.entity.AccessorLivingEntity;
 import xyz.heroesunited.heroesunited.util.HUOxygenHelper;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
@@ -81,14 +84,13 @@ import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOO
 
 public class HUEventHandler {
 
-
     @SubscribeEvent
     public void playerSize(EntityEvent.Size event) {
         if (event.getEntity().isAddedToWorld() && event.getEntity() instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) event.getEntity();
-            IFlyingAbility ability = IFlyingAbility.getFlyingAbility(player);
+            IFlyingAbility flying = IFlyingAbility.getFlyingAbility(player);
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
-                if ((ability != null && ability.isFlying(player)) || a.isFlying()) {
+                if ((flying != null && flying.isFlying(player)) || a.isFlying()) {
                     if (!player.isOnGround() && player.isSprinting()) {
                         if (event.getOldSize().fixed) {
                             event.setNewSize(EntitySize.fixed(0.6F, 0.6F));
@@ -99,32 +101,19 @@ public class HUEventHandler {
                     }
                 }
             });
+            for (Ability ability : AbilityHelper.getAbilities(player)) {
+                if (ability instanceof SizeChangeAbility) {
+                    float size = ((SizeChangeAbility) ability).getSize();
+                    if (size != 1.0F) {
+                        event.setNewSize(event.getNewSize().scale(size));
+                        event.setNewEyeHeight(event.getNewEyeHeight() * size);
+                    }
+                }
+            }
         }
         if (event.getEntity().level.dimension().equals(HeroesUnited.SPACE)) {
             event.setNewSize(event.getNewSize().scale(0.01F, 0.01F));
             event.setNewEyeHeight(event.getNewEyeHeight() * 0.01F);
-        }
-    }
-
-    @SubscribeEvent
-    public void changeEyeheight(HUEyeHeightEvent event) {
-        for (Ability ability : AbilityHelper.getAbilities(event.getEntityLiving())) {
-            if (event.getEntityLiving() instanceof PlayerEntity && ability instanceof SizeChangeAbility) {
-                float height = ((SizeChangeAbility) ability).getSize();
-                if (height != 1.0F) {
-                    event.setNewEyeHeight(event.getOldEyeHeight() * height);
-                }
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public void changeBoundingBox(HUBoundingBoxEvent event) {
-        for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
-            if (ability instanceof SizeChangeAbility) {
-                float size = ((SizeChangeAbility) ability).getSize();
-                event.setNewSize(event.getOldSize().scale(size, size));
-            }
         }
     }
 
