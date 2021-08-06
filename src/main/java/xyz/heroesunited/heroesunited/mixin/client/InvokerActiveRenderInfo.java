@@ -16,4 +16,7 @@ public interface InvokerActiveRenderInfo {
 
     @Invoker("setPosition")
     void invokeSetPosition(Vector3d vector3d);
+
+    @Invoker("setRotation")
+    void invokeSetRotation(float yRot, float xRot);
 }
