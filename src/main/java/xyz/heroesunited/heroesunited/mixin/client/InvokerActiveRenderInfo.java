@@ -13,4 +13,7 @@ public interface InvokerActiveRenderInfo {
 
     @Invoker("move")
     void invokeMove(double x, double y, double z);
+
+    @Invoker("setPosition")
+    void invokeSetPosition(Vector3d vector3d);
 }
