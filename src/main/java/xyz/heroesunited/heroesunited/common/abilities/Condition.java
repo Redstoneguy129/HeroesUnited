@@ -16,6 +16,7 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryBuilder;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.Level;
@@ -91,6 +92,8 @@ public class Condition extends ForgeRegistryEntry<Condition> {
         return false;
     }, HeroesUnited.MODID, "ability_enabled");
 
+    public static final Condition HAS_SUIT = new Condition((player, e) -> Suit.getSuit(player) != null, HeroesUnited.MODID, "has_suit");
+
     @SubscribeEvent
     public static void registerConditions(RegistryEvent.Register<Condition> e) {
         e.getRegistry().register(HAS_SUPERPOWERS);
@@ -99,5 +102,7 @@ public class Condition extends ForgeRegistryEntry<Condition> {
         e.getRegistry().register(HAS_LEVEL);
         e.getRegistry().register(HAS_ITEM);
         e.getRegistry().register(ABILITY_ENABLED);
+        e.getRegistry().register(HAS_SUIT);
+
     }
 }
