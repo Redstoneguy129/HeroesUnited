@@ -1,7 +1,6 @@
 package xyz.heroesunited.heroesunited.client;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
@@ -63,9 +62,6 @@ import xyz.heroesunited.heroesunited.common.networking.server.ServerKeyInput;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccessoriesInv;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
-import xyz.heroesunited.heroesunited.common.space.Planet;
-import xyz.heroesunited.heroesunited.common.space.Satellite;
-import xyz.heroesunited.heroesunited.common.space.Star;
 import xyz.heroesunited.heroesunited.mixin.client.InvokerKeyBinding;
 import xyz.heroesunited.heroesunited.util.*;
 
@@ -73,7 +69,6 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 @OnlyIn(Dist.CLIENT)
 public class HUClientEventHandler {
@@ -83,8 +78,7 @@ public class HUClientEventHandler {
     private final List<String> playerBones = Arrays.asList("bipedHead", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg");
     private final ArrayList<LivingRenderer> entitiesWithLayer = Lists.newArrayList();
     public static List<AbilityKeyBinding> ABILITY_KEYS = Lists.newArrayList();
-    public static Map<Integer, Boolean> KEY_STATE = Maps.newHashMap();
-    public static KeyMap MAP = new KeyMap();
+    public static KeyMap KEY_MAP = new KeyMap();
 
     public HUClientEventHandler() {
         if (Minecraft.getInstance() != null) {
@@ -132,9 +126,9 @@ public class HUClientEventHandler {
         }
 
         for (AbilityKeyBinding key : ABILITY_KEYS) {
-            sendToggleKey(e.getKey(), e.getAction(), key, key.index);
+            sendToggleKey(key, key.index);
         }
-        sendToggleKey(e.getKey(), e.getAction(), mc.options.keyJump, 7);
+        sendToggleKey(mc.options.keyJump, 7);
     }
 
     @SubscribeEvent
@@ -152,7 +146,6 @@ public class HUClientEventHandler {
 
             IRenderTypeBuffer.Impl buffers = Minecraft.getInstance().renderBuffers().bufferSource();
 
-
             Vector3d view = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
             matrixStack.translate(-view.x(), -view.y(), -view.z());
 
@@ -165,12 +158,8 @@ public class HUClientEventHandler {
 
                 IVertexBuilder buffer = buffers.getBuffer(RenderType.LINES);
                 matrixStack.popPose();
-                if (Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes() && celestialBody instanceof Planet)
-                    WorldRenderer.renderLineBox(matrixStack, buffer,  ((Planet)celestialBody).getHitbox(), 1, 1, 1, 1);
-                if (Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes() && celestialBody instanceof Star)
-                    WorldRenderer.renderLineBox(matrixStack, buffer,  ((Star)celestialBody).getHitbox(), 1, 1, 1, 1);
-                if (Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes() && celestialBody instanceof Satellite)
-                    WorldRenderer.renderLineBox(matrixStack, buffer,  ((Satellite)celestialBody).getHitbox(), 1, 1, 1, 1);
+                if (Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes())
+                    WorldRenderer.renderLineBox(matrixStack, buffer,  celestialBody.getHitbox(), 1, 1, 1, 1);
             }
 
             matrixStack.popPose();
@@ -183,23 +172,16 @@ public class HUClientEventHandler {
     public void onKeyInput(InputEvent.MouseInputEvent e) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.screen != null) return;
-        sendToggleKey(e.getButton(), e.getAction(), mc.options.keyAttack, 8);
-        sendToggleKey(e.getButton(), e.getAction(), mc.options.keyUse, 9);
+        sendToggleKey(mc.options.keyAttack, 8);
+        sendToggleKey(mc.options.keyUse, 9);
     }
 
-    public static void sendToggleKey(int key, int action, KeyBinding keyBind, int index) {
-        if (action < GLFW.GLFW_REPEAT && key == keyBind.getKey().getValue()) {
-            if (!KEY_STATE.containsKey(key)) {
-                KEY_STATE.put(key, false);
-            }
-            MAP.put(index, action == GLFW.GLFW_PRESS && keyBind.isDown());
-
-            if (KEY_STATE.get(key) != (action == GLFW.GLFW_PRESS)) {
-                HUNetworking.INSTANCE.sendToServer(new ServerKeyInput(MAP));
-                Minecraft.getInstance().player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> cap.onKeyInput(MAP));
-            }
-            KEY_STATE.put(key, action == GLFW.GLFW_PRESS);
+    public static void sendToggleKey(KeyBinding keyBind, int index) {
+        if (KEY_MAP.get(index) == keyBind.isDown()) {
+            HUNetworking.INSTANCE.sendToServer(new ServerKeyInput(KEY_MAP));
+            Minecraft.getInstance().player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> cap.onKeyInput(KEY_MAP));
         }
+        KEY_MAP.put(index, keyBind.isDown());
     }
 
     /*@SubscribeEvent
@@ -228,9 +210,6 @@ public class HUClientEventHandler {
         if (event.getEntity().level.dimension().equals(HeroesUnited.SPACE)) {
             event.getMatrixStack().popPose();
         }
-        if (entitiesWithLayer.contains(event.getRenderer())) return;
-        event.getRenderer().addLayer(new HULayerRenderer(event.getRenderer()));
-        entitiesWithLayer.add(event.getRenderer());
     }
 
 
@@ -261,13 +240,11 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void onRenderHULayer(HURenderLayerEvent.Accessories event) {
-        if (event.getLivingEntity() instanceof PlayerEntity) {
-            for (Ability ability : AbilityHelper.getAbilities(event.getLivingEntity())) {
-                if (ability instanceof HideLayerAbility && ((HideLayerAbility) ability).getEnabled()) {
-                    String layer = JSONUtils.getAsString(ability.getJsonObject(), "layer");
-                    if (layer.equals("accessories")) {
-                        event.setCanceled(true);
-                    }
+        for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
+            if (ability instanceof HideLayerAbility && ((HideLayerAbility) ability).getEnabled()) {
+                String layer = JSONUtils.getAsString(ability.getJsonObject(), "layer");
+                if (layer.equals("accessories")) {
+                    event.setCanceled(true);
                 }
             }
         }
@@ -400,7 +377,6 @@ public class HUClientEventHandler {
             for (String s : playerBones) {
                 GeoBone bone = cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap)).getBone(s).get();
                 ModelRenderer renderer = HUClientUtil.getModelRendererById(event.getPlayerModel(), s);
-                ((IHUModelRenderer) renderer).setSize(new Vector3f(1f, 1f, 1f));
                 if (cap.getController().getCurrentAnimation() != null && cap.getController().getAnimationState() == AnimationState.Running) {
                     for (BoneAnimation boneAnimation : cap.getController().getCurrentAnimation().boneAnimations) {
                         if (boneAnimation.boneName.equals(s)) {

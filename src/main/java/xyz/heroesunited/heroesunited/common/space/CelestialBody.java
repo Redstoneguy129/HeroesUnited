@@ -35,7 +35,7 @@ public class CelestialBody extends ForgeRegistryEntry<CelestialBody> {
     }
 
     public AxisAlignedBB getHitbox(){
-        return null;
+        return AxisAlignedBB.ofSize(0, 0, 0);
     }
 
     public void readNBT(CompoundNBT nbt) {

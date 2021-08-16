@@ -41,7 +41,6 @@ import xyz.heroesunited.heroesunited.client.events.HUChangeRendererEvent;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.client.render.model.ModelCape;
 import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
-import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
 import java.awt.*;
@@ -49,8 +48,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Random;
-
-import static net.minecraft.inventory.EquipmentSlotType.*;
 
 @OnlyIn(Dist.CLIENT)
 public class HUClientUtil {
@@ -210,8 +207,6 @@ public class HUClientUtil {
         builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
         builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
 
-        //uv2 = lightmap i think
-
         builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
         builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
         builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
@@ -236,29 +231,6 @@ public class HUClientUtil {
         builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
         builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
         builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-    }
-
-    public static void hideSuitPlayerWear(PlayerEntity player, PlayerModel model) {
-        if (player.getItemBySlot(HEAD).getItem() instanceof SuitItem) {
-            model.hat.visible = false;
-        }
-        if (player.getItemBySlot(CHEST).getItem() instanceof SuitItem) {
-            model.jacket.visible = false;
-            model.rightSleeve.visible = false;
-            model.leftSleeve.visible = false;
-        }
-
-        if (player.getItemBySlot(FEET).getItem() instanceof SuitItem
-                || player.getItemBySlot(LEGS).getItem() instanceof SuitItem) {
-            model.rightPants.visible = false;
-            model.leftPants.visible = false;
-        }
-    }
-
-    public static class CustomRenderState extends RenderState.TexturingState {
-        public CustomRenderState(Runnable start, Runnable end) {
-            super("offset_texturing_custom", start, end);
-        }
     }
 
     public static ModelRenderer getModelRendererById(PlayerModel model, String name) {
@@ -365,7 +337,7 @@ public class HUClientUtil {
         }
 
         public static RenderType getEntityCutout(ResourceLocation locationIn, Runnable start, Runnable end) {
-            RenderType.State render = RenderType.State.builder().setTextureState(new RenderState.TextureState(locationIn, false, false)).setTexturingState(new CustomRenderState(start, end)).setTransparencyState(NO_TRANSPARENCY).setDiffuseLightingState(RenderState.DIFFUSE_LIGHTING).setAlphaState(DEFAULT_ALPHA).setLightmapState(LIGHTMAP).setOverlayState(OVERLAY).createCompositeState(true);
+            RenderType.State render = RenderType.State.builder().setTextureState(new RenderState.TextureState(locationIn, false, false)).setTexturingState(new RenderState.TexturingState("offset_texturing_custom", start, end)).setTransparencyState(NO_TRANSPARENCY).setDiffuseLightingState(RenderState.DIFFUSE_LIGHTING).setAlphaState(DEFAULT_ALPHA).setLightmapState(LIGHTMAP).setOverlayState(OVERLAY).createCompositeState(true);
             return create(HeroesUnited.MODID + ":entity_cutout", DefaultVertexFormats.NEW_ENTITY, 7, 256, false, true, render);
         }
 

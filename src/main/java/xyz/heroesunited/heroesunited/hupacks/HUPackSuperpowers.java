@@ -26,7 +26,7 @@ import xyz.heroesunited.heroesunited.common.events.HURegisterSuperpower;
 import java.util.Map;
 
 public class HUPackSuperpowers extends JsonReloadListener {
-    private static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private static HUPackSuperpowers INSTANCE;
     private Map<ResourceLocation, Superpower> registeredSuperpowers = Maps.newHashMap();
 
