@@ -177,11 +177,11 @@ public class HUClientEventHandler {
     }
 
     public static void sendToggleKey(KeyBinding keyBind, int index) {
-        if (KEY_MAP.get(index) == keyBind.isDown()) {
+        if (KEY_MAP.get(index) != keyBind.isDown()) {
+            KEY_MAP.put(index, keyBind.isDown());
             HUNetworking.INSTANCE.sendToServer(new ServerKeyInput(KEY_MAP));
             Minecraft.getInstance().player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> cap.onKeyInput(KEY_MAP));
         }
-        KEY_MAP.put(index, keyBind.isDown());
     }
 
     /*@SubscribeEvent
