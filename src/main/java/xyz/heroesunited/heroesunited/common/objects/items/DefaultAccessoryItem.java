@@ -51,7 +51,7 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
     @Override
     public List<PlayerPart> getHiddenParts() {
         List<PlayerPart> parts = Lists.newArrayList();
-        if (this == HUItems.FINN_ARM) {
+        if (this == HUItems.FINN_ARM || this == HUItems.MADNESSCLAW) {
             parts.add(PlayerPart.RIGHT_ARM);
             parts.add(PlayerPart.RIGHT_ARM_WEAR);
         }

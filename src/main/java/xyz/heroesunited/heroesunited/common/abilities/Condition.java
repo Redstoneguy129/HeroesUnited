@@ -88,7 +88,6 @@ public class Condition extends ForgeRegistryEntry<Condition> {
         return b;
     }, HeroesUnited.MODID, "has_item");
 
-
     public static final Condition ABILITY_ENABLED = new Condition((player, jsonObject) -> {
         Ability ability = AbilityHelper.getActiveAbilityMap(player).getOrDefault(JSONUtils.getAsString(jsonObject, "ability"), null);
         if (ability instanceof JSONAbility) {

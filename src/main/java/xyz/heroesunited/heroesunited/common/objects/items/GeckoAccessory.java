@@ -50,7 +50,7 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
         if (EquipmentAccessoriesSlot.getWristAccessories().contains(accessorySlot)) {
             HandSide side = slot == EquipmentAccessoriesSlot.LEFT_WRIST.getSlot() ? HandSide.LEFT : HandSide.RIGHT;
             ItemCameraTransforms.TransformType transformType = side == HandSide.LEFT ? ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND : ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
-            if (stack.getItem() == HUItems.FINN_ARM) {
+            if (stack.getItem() == HUItems.FINN_ARM || stack.getItem() == HUItems.MADNESSCLAW) {
                 transformType = ItemCameraTransforms.TransformType.HEAD;
             }
 

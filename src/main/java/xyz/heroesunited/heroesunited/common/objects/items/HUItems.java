@@ -38,6 +38,9 @@ public class HUItems {
     public static final GeckoAccessory ZEK_GLASSES = register("zek_glasses", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "Zekeram12"));
     public static final GeckoAccessory PERRY_THE_PLATYPUS_HAT = register("perry_the_platypus_hat", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "Mr Ali S"));
     public static final GeckoAccessory CAPTAIN_REX = register("captain_rex", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "Zekeram12"));
+    public static final GeckoAccessory PERRY_TAIL = register("perry_tail", new GeckoAccessory(EquipmentAccessoriesSlot.TSHIRT, "Mr Ali S"));
+    public static final GeckoAccessory MADNESSCOMBAT = register("madnesscombat", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "Mattetull"));
+    public static final GeckoAccessory MADNESSCLAW = register("madnessclaw", new GeckoAccessory(EquipmentAccessoriesSlot.RIGHT_WRIST, "Mattetull"));
     public static final GeckoAccessory CAP_SHIELD_ACCESSORY = register("cap_shield", new GeckoAccessory(EquipmentAccessoriesSlot.TSHIRT, "El Dunchess"));
     public static final GeckoAccessory GREEN_GOGGLES = register("green_goggles", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "artman") {
         @Override

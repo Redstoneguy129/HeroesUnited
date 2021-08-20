@@ -1,0 +1,27 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.perry_tail",
+				"texture_width": 64,
+				"texture_height": 64,
+				"visible_bounds_width": 3,
+				"visible_bounds_height": 2.5,
+				"visible_bounds_offset": [0, 0.75, 0]
+			},
+			"bones": [
+				{
+					"name": "armorBody",
+					"pivot": [0, 0, 0],
+					"cubes": [
+						{"origin": [-4.75, -3.80149, 3.13253], "size": [9.5, 10, 7.25], "inflate": -2.01, "pivot": [0, 10.19851, 6.63253], "rotation": [-42.5, 0, 0], "uv": [32, 0]},
+						{"origin": [-4.75, -3.80149, 3.13253], "size": [9.5, 10, 7.25], "inflate": -2.2, "pivot": [0, 10.19851, 6.63253], "rotation": [-42.5, 0, 0], "uv": [25, 27]},
+						{"origin": [-4.75, 0.76646, 3.10075], "size": [9.5, 10, 7.25], "inflate": -2, "pivot": [0, 7.76646, 6.60075], "rotation": [-62.5, 0, 0], "uv": [0, 17]},
+						{"origin": [-4.75, 0.40746, 3.10944], "size": [9.5, 10.3, 7.25], "inflate": -2.2, "pivot": [0, 7.70746, 6.60944], "rotation": [-62.5, 0, 0], "uv": [0, 0]}
+					]
+				}
+			]
+		}
+	]
+}

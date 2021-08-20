@@ -36,7 +36,7 @@ import java.util.Map;
 
 public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable {
 
-    private AnimationFactory factory = new AnimationFactory(this);
+    private final AnimationFactory factory = new AnimationFactory(this);
     protected final Suit suit;
 
     public SuitItem(IArmorMaterial materialIn, EquipmentSlotType slot, Properties builder, Suit suit) {
@@ -44,6 +44,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
         this.suit = suit;
     }
 
+    @Nonnull
     public Suit getSuit() {
         return suit;
     }
