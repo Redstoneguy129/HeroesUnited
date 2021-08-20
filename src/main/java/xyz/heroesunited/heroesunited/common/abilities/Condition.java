@@ -2,9 +2,13 @@ package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.netty.util.internal.StringUtil;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.ITag;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
@@ -64,6 +68,7 @@ public class Condition extends ForgeRegistryEntry<Condition> {
         }
         return false;
     }, HeroesUnited.MODID, "has_level");
+
     public static final Condition HAS_ITEM = new Condition((player, e) -> {
         Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(JSONUtils.getAsString(e, "item")));
         boolean b = false;
@@ -92,7 +97,24 @@ public class Condition extends ForgeRegistryEntry<Condition> {
         return false;
     }, HeroesUnited.MODID, "ability_enabled");
 
-    public static final Condition HAS_SUIT = new Condition((player, e) -> Suit.getSuit(player) != null, HeroesUnited.MODID, "has_suit");
+    public static final Condition HAS_SUIT = new Condition((player, e) -> {
+        String suitName = JSONUtils.getAsString(e, "suit", "");
+        if (!StringUtil.isNullOrEmpty(suitName)) {
+            return Suit.getSuit(player).getRegistryName().toString().equals(suitName);
+        }
+        return Suit.getSuit(player) != null;
+    }, HeroesUnited.MODID, "has_suit");
+
+    public static final Condition IS_IN_FLUID = new Condition((player, e) -> {
+        for(ITag.INamedTag<Fluid> tag : FluidTags.getWrappers()) {
+            if (tag.getName().getPath().equals(JSONUtils.getAsString(e, "fluid"))) {
+                return player.isEyeInFluid(tag);
+            }
+        }
+        return false;
+    }, HeroesUnited.MODID, "is_in_fluid");
+
+    public static final Condition IS_SPRINTING = new Condition((player, e) -> player.isSprinting(), HeroesUnited.MODID, "has_superpowers");
 
     @SubscribeEvent
     public static void registerConditions(RegistryEvent.Register<Condition> e) {
@@ -103,6 +125,7 @@ public class Condition extends ForgeRegistryEntry<Condition> {
         e.getRegistry().register(HAS_ITEM);
         e.getRegistry().register(ABILITY_ENABLED);
         e.getRegistry().register(HAS_SUIT);
-
+        e.getRegistry().register(IS_IN_FLUID);
+        e.getRegistry().register(IS_SPRINTING);
     }
 }
