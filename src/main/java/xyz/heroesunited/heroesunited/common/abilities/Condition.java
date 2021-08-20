@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import io.netty.util.internal.StringUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.tags.FluidTags;
@@ -69,6 +68,7 @@ public class Condition extends ForgeRegistryEntry<Condition> {
         }
         return false;
     }, HeroesUnited.MODID, "has_level");
+
     public static final Condition HAS_ITEM = new Condition((player, e) -> {
         Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(JSONUtils.getAsString(e, "item")));
         boolean b = false;
@@ -113,6 +113,8 @@ public class Condition extends ForgeRegistryEntry<Condition> {
         return false;
     }, HeroesUnited.MODID, "is_in_fluid");
 
+    public static final Condition IS_SPRINTING = new Condition((player, e) -> player.isSprinting(), HeroesUnited.MODID, "has_superpowers");
+
     @SubscribeEvent
     public static void registerConditions(RegistryEvent.Register<Condition> e) {
         e.getRegistry().register(HAS_SUPERPOWERS);
@@ -123,5 +125,6 @@ public class Condition extends ForgeRegistryEntry<Condition> {
         e.getRegistry().register(ABILITY_ENABLED);
         e.getRegistry().register(HAS_SUIT);
         e.getRegistry().register(IS_IN_FLUID);
+        e.getRegistry().register(IS_SPRINTING);
     }
 }
