@@ -113,7 +113,7 @@ public class Condition extends ForgeRegistryEntry<Condition> {
         return false;
     }, HeroesUnited.MODID, "is_in_fluid");
 
-    public static final Condition IS_SPRINTING = new Condition((player, e) -> player.isSprinting(), HeroesUnited.MODID, "has_superpowers");
+    public static final Condition IS_SPRINTING = new Condition((player, e) -> player.isSprinting(), HeroesUnited.MODID, "is_sprinting");
 
     @SubscribeEvent
     public static void registerConditions(RegistryEvent.Register<Condition> e) {
