@@ -6,11 +6,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.fml.network.PacketDistributor;
 import xyz.heroesunited.heroesunited.common.events.HUDataRegister;
-import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
-import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUData;
-import xyz.heroesunited.heroesunited.util.hudata.HUData;
 import xyz.heroesunited.heroesunited.util.hudata.HUDataManager;
 
 public class HUDataCap implements IHUDataCap, INBTSerializable<CompoundNBT> {
@@ -20,14 +16,7 @@ public class HUDataCap implements IHUDataCap, INBTSerializable<CompoundNBT> {
     private final HUDataManager dataManager;
 
     public HUDataCap(Entity entity) {
-        this.dataManager = new HUDataManager() {
-            @Override
-            public <T> void updateData(Entity entity, String id, HUData<T> data, T value) {
-                if (!entity.level.isClientSide) {
-                    HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new ClientSyncHUData(entity.getId(), "heroesunited:hudata_sync", id, data.serializeNBT(id, value)));
-                }
-            }
-        };
+        this.dataManager = new HUDataManager();
         MinecraftForge.EVENT_BUS.post(new HUDataRegister(entity, this.dataManager));
     }
 

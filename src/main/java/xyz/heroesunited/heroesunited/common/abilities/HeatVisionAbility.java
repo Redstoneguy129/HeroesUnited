@@ -26,21 +26,21 @@ public class HeatVisionAbility extends JSONAbility {
         super.registerData();
         this.dataManager.register("timer", 0);
         this.dataManager.register("prev_timer", 0);
-        this.dataManager.register("type", "default", true, true);
+        this.dataManager.register("type", "default", true);
     }
 
     @Override
     public void action(PlayerEntity player) {
         super.action(player);
-        this.dataManager.set(player, "prev_timer", this.dataManager.getValue("timer"));
+        this.dataManager.set("prev_timer", this.dataManager.getValue("timer"));
         if (getEnabled() && this.dataManager.<Integer>getValue("timer") < JSONUtils.getAsInt(getJsonObject(), "maxTimer", 10)) {
-            this.dataManager.set(player, "timer", this.dataManager.<Integer>getValue("timer") + 1);
+            this.dataManager.set("timer", this.dataManager.<Integer>getValue("timer") + 1);
         }
         if (this.dataManager.<Integer>getValue("timer") >= JSONUtils.getAsInt(getJsonObject(), "maxTimer", 10)) {
             HUPlayerUtil.makeLaserLooking(player, JSONUtils.getAsFloat(getJsonObject(), "distance", 20));
         }
         if (!getEnabled() && this.dataManager.<Integer>getValue("timer") != 0) {
-            this.dataManager.set(player, "timer", this.dataManager.<Integer>getValue("timer") - 1);
+            this.dataManager.set("timer", this.dataManager.<Integer>getValue("timer") - 1);
         }
     }
 
@@ -48,7 +48,7 @@ public class HeatVisionAbility extends JSONAbility {
     @Override
     public void render(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         super.render(renderer, matrix, bufferIn, packedLightIn, player, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
-        float alpha = (this.dataManager.<Integer>getValue("prev_timer") + (this.dataManager.<Integer>getValue("timer") - this.dataManager.<Integer>getValue("prev_timer")) * partialTicks) / 10;
+        float alpha = (this.dataManager.<Integer>getValue("prev_timer") + (this.dataManager.<Integer>getValue("timer") - this.dataManager.<Integer>getValue("prev_timer")) * partialTicks) / JSONUtils.getAsInt(getJsonObject(), "maxTimer", 10);
         Color color = HUJsonUtils.getColor(getJsonObject());
         double distance = player.position().add(0, player.getEyeHeight(), 0).distanceTo(player.getLookAngle().scale(JSONUtils.getAsFloat(getJsonObject(), "distance", 20)));
         if (this.dataManager.<String>getValue("type").equals("cyclop")) {

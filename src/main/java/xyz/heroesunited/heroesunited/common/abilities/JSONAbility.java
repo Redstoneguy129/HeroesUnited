@@ -88,11 +88,11 @@ public abstract class JSONAbility extends Ability {
     public void setEnabled(PlayerEntity player, boolean enabled) {
         boolean b = !enabled || this.conditionManager.isEnabled(player, "canBeEnabled");
         if (getEnabled() != enabled && b && this.dataManager.<Integer>getValue("cooldown") == 0) {
-            this.dataManager.set(player, "enabled", enabled);
+            this.dataManager.set("enabled", enabled);
             action(player);
             player.refreshDimensions();
-            if (!enabled && getJsonObject().has("maxCooldown")) {
-                this.dataManager.set(player, "cooldown", JSONUtils.getAsInt(getJsonObject(), "maxCooldown"));
+            if (!enabled && getMaxCooldown() != 0) {
+                this.dataManager.set("cooldown", getMaxCooldown());
             }
         }
     }
@@ -105,6 +105,7 @@ public abstract class JSONAbility extends Ability {
         return super.setJsonObject(entity, jsonObject);
     }
 
+    @Override
     public boolean getEnabled() {
         return this.dataManager.<Boolean>getValue("enabled");
     }

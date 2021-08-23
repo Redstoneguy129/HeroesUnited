@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.ResourceLoadProgressGui;
 import net.minecraft.client.gui.screen.CustomizeSkinScreen;
 import net.minecraft.client.gui.widget.button.Button;
@@ -22,10 +23,7 @@ import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Quaternion;
@@ -91,6 +89,19 @@ public class HUClientEventHandler {
                 ClientRegistry.registerKeyBinding(keyBinding);
                 ABILITY_KEYS.add(keyBinding);
             }
+        }
+    }
+
+    @SubscribeEvent
+    public void mouseScroll(InputEvent.MouseScrollEvent e) {
+        if (InputMappings.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_ALT) ||
+                InputMappings.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_RIGHT_ALT)) {
+            if (e.getScrollDelta() > 0) {
+                AbilitiesScreen.INDEX--;
+            } else {
+                AbilitiesScreen.INDEX++;
+            }
+            e.setCanceled(true);
         }
     }
 
@@ -228,7 +239,7 @@ public class HUClientEventHandler {
             if (a instanceof SizeChangeAbility && ((SizeChangeAbility) a).changeSizeInRender()) {
                 if (event instanceof RenderPlayerEvent.Pre) {
                     event.getMatrixStack().pushPose();
-                    float size = ((SizeChangeAbility) a).getSize();
+                    float size = ((SizeChangeAbility) a).getRenderSize(event.getPartialRenderTick());
                     event.getMatrixStack().scale(size, size, size);
                 }
                 if (event instanceof RenderPlayerEvent.Post) {
@@ -241,7 +252,7 @@ public class HUClientEventHandler {
     @SubscribeEvent
     public void onRenderHULayer(HURenderLayerEvent.Accessories event) {
         for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
-            if (ability instanceof HideLayerAbility && ((HideLayerAbility) ability).getEnabled()) {
+            if (ability instanceof HideLayerAbility && ability.getEnabled()) {
                 String layer = JSONUtils.getAsString(ability.getJsonObject(), "layer");
                 if (layer.equals("accessories")) {
                     event.setCanceled(true);
@@ -460,7 +471,7 @@ public class HUClientEventHandler {
                 double distance = Minecraft.getInstance().hitResult.getLocation().distanceTo(player.position().add(0, player.getEyeHeight(), 0));
                 AxisAlignedBB box = new AxisAlignedBB(0.1F, -0.25, 0, 0, -0.25, -distance).inflate(0.03125D);
                 Color color = HUJsonUtils.getColor(a.getJsonObject());
-                if (a instanceof EnergyLaserAbility && ((JSONAbility) a).getEnabled()) {
+                if (a instanceof EnergyLaserAbility && a.getEnabled()) {
                     event.getMatrixStack().pushPose();
                     event.getMatrixStack().translate(player.getMainArm() == HandSide.RIGHT ? 0.3F : -0.3F, 0, 0);
                     HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, 1, event.getLight());
@@ -475,7 +486,7 @@ public class HUClientEventHandler {
                         AxisAlignedBB box1 = new AxisAlignedBB(-0.15F, -0.11F, 0, 0.15F, -0.11F, -distance).inflate(0.0625D);
                         HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box1.deflate(0.0625D / 2), 1F, 1F, 1F, alpha, event.getLight());
                         HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box1, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255F, alpha * 0.5F, event.getLight());
-                        if (((HeatVisionAbility) a).getEnabled()) {
+                        if (a.getEnabled()) {
                             event.setCanceled(true);
                         }
                         return;
@@ -486,7 +497,7 @@ public class HUClientEventHandler {
                             event.getMatrixStack().translate(i == 0 ? 0.2F : -0.3F, 0.25, 0);
                             HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, alpha, event.getLight());
                             HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.03125D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, alpha * 0.5F, event.getLight());
-                            if (((HeatVisionAbility) a).getEnabled()) {
+                            if (a.getEnabled()) {
                                 event.setCanceled(true);
                             }
                             event.getMatrixStack().popPose();
@@ -498,33 +509,49 @@ public class HUClientEventHandler {
         }
     }
 
-    /*@SubscribeEvent
+    @SubscribeEvent
     public void onGameOverlayPost(RenderGameOverlayEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
-        if(event.getType() == RenderGameOverlayEvent.ElementType.HOTBAR && mc.player.isAddedToWorld() && mc.player.isAlive()) {
+        if(event.getType() == RenderGameOverlayEvent.ElementType.HOTBAR && mc.player != null && mc.player.isAlive()) {
             List<Ability> abilities = AbilitiesScreen.getCurrentDisplayedAbilities(mc.player);
-            final ResourceLocation widgets = new ResourceLocation("textures/gui/widgets.png");
-            for (int i = 0; i < abilities.size(); i++) {
-                Ability ability = abilities.get(i);
-                if (ability instanceof JSONAbility && !ability.isHidden(mc.player)) {
-                    renderAbility(ability, i, mc, event.getWindow(), event.getMatrixStack(), widgets);
+            if (abilities.size() > 0) {
+                final ResourceLocation widgets = new ResourceLocation(HeroesUnited.MODID, "textures/gui/widgets.png");
+                int y = event.getWindow().getGuiScaledHeight() / 3;
+
+                RenderSystem.enableBlend();
+                RenderSystem.defaultBlendFunc();
+
+                mc.getTextureManager().bind(widgets);
+                AbstractGui.blit(event.getMatrixStack(), 0, y, 0, 0, 22, 102, 64, 128);
+
+                for (int i = 0; i < abilities.size(); i++) {
+                    Ability ability = AbilityHelper.getAnotherAbilityFromMap(AbilityHelper.getAbilities(mc.player), abilities.get(i));
+                    int abilityY = y + 3 + i * 20;
+                    event.getMatrixStack().pushPose();
+                    event.getMatrixStack().translate(0, 0, 500D);
+                    ability.drawIcon(event.getMatrixStack(), 3, abilityY);
+                    event.getMatrixStack().popPose();
+                    mc.getTextureManager().bind(widgets);
+
+                    if (ability.getMaxCooldown() != 0) {
+                        int progress = (int) (ability.getDataManager().<Integer>getValue("prev_cooldown") + (ability.getDataManager().<Integer>getValue("cooldown") - ability.getDataManager().<Integer>getValue("prev_cooldown")) * event.getPartialTicks()) / ability.getMaxCooldown() * 16;
+                        if (progress > 0) {
+                            AbstractGui.blit(event.getMatrixStack(), 3, abilityY, 46, 0, progress, 16, 64, 128);
+                        }
+                    }
+                    if (AbilityHelper.getActiveAbilityMap(mc.player).containsValue(ability)) {
+                        if (ability.getEnabled()) {
+                            RenderSystem.color4f(0.5f, 1f, 0.5f, 1f);
+                        }
+                        AbstractGui.blit(event.getMatrixStack(), -1, abilityY - 4, 22, 0, 24, 24, 64, 128);
+                        RenderSystem.color4f(1f, 1f, 1f, 1f);
+                    }
                 }
+                RenderSystem.color4f(1f, 1f, 1f, 1f);
+                RenderSystem.disableBlend();
             }
         }
     }
-
-    private void renderAbility(Ability ability, int index, Minecraft mc, MainWindow window, MatrixStack matrixStack, ResourceLocation widgets) {
-        int startX = window.getGuiScaledWidth() / 2 + 70 - index * 24;
-        int startY = window.getGuiScaledHeight() - 65;
-
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        mc.getTextureManager().bind(widgets);
-        AbstractGui.blit(matrixStack, startX - 2, startY, 53, 22, 29, 24, 256, 256);
-        RenderSystem.color3f(1f, 1f, 1f);
-        ability.drawIcon(matrixStack, startX + 8, startY + 4);
-        RenderSystem.disableBlend();
-    }*/
 
     public static class AbilityKeyBinding extends KeyBinding {
 

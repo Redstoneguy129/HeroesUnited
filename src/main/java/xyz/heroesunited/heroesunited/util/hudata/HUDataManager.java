@@ -1,9 +1,12 @@
 package xyz.heroesunited.heroesunited.util.hudata;
 
 import com.google.common.collect.Maps;
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.fml.network.PacketDistributor;
+import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUData;
 
 import java.util.Map;
 
@@ -12,43 +15,37 @@ public class HUDataManager implements INBTSerializable<CompoundNBT> {
     protected Map<String, HUData<?>> dataMap = Maps.newHashMap();
 
     public <T> void register(String id, T defaultValue) {
-        dataMap.put(id, new HUData(defaultValue, true, false));
+        dataMap.put(id, new HUData<>(id, defaultValue, false));
     }
 
-    public <T> void register(String id, T defaultValue, boolean saving, boolean json) {
-        dataMap.put(id, new HUData(defaultValue, saving, json));
+    public <T> void register(String id, T defaultValue, boolean json) {
+        dataMap.put(id, new HUData<>(id, defaultValue, json));
     }
 
-    public <T> void set(Entity entity, String id, T value) {
-        HUData<T> data = getHUData(id);
+    public <T> void set(String id, T value) {
+        HUData<T> data = getData(id);
         if (!value.equals(data.getValue())) {
             data.setValue(value);
-            updateData(entity, id, data, value);
+            data.setDirty(true);
         }
     }
 
-    public <T> T read(Entity entity, String id, CompoundNBT nbt) {
-        HUData<T> data = getHUData(id);
-        assert data != null;
-        T old = data.getValue();
-        T value = (T) data.deserializeNBT(nbt, id, data.getDefaultValue());
-
-        if (!old.equals(value)) {
-            data.setValue(value);
-            updateData(entity, id, data, value);
-
-            return value;
+    public <T> void assignValue(HUData<T> data, CompoundNBT nbt) {
+        if (data != null) {
+            T value = (T) data.deserializeNBT(nbt, data.getKey(), data.getDefaultValue());
+            if (!value.equals(data.getValue())) {
+                data.setValue(value);
+                data.setDirty(false);
+            }
         }
-
-        return old;
     }
 
     public <T> T getValue(String id) {
-        HUData<T> data = getHUData(id);
+        HUData<T> data = getData(id);
         return data.getValue();
     }
 
-    public <T> HUData<T> getHUData(String id) {
+    public <T> HUData<T> getData(String id) {
         return (HUData<T>) dataMap.get(id);
     }
 
@@ -56,16 +53,21 @@ public class HUDataManager implements INBTSerializable<CompoundNBT> {
         return this.dataMap;
     }
 
-    public <T> void updateData(Entity entity, String id, HUData<T> data, T value) {
+    public void syncToAll(PlayerEntity player, String abilityName) {
+        for (HUData<?> value : this.dataMap.values()) {
+            if (value.isDirty() && !player.level.isClientSide) {
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getId(), abilityName, value.getKey(), serializeNBT()));
+                value.setDirty(false);
+            }
+        }
     }
 
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT nbt = new CompoundNBT();
-        for (Map.Entry<String, HUData<?>> e : dataMap.entrySet()) {
-            HUData data = e.getValue();
-            if (data.canBeSaved() && data.getValue() != null) {
-                data.serializeNBT(nbt, e.getKey(), data.getValue());
+        for (HUData data : dataMap.values()) {
+            if (data.getValue() != null) {
+                data.serializeNBT(nbt, data.getKey(), data.getValue());
             }
         }
         return nbt;
@@ -73,11 +75,8 @@ public class HUDataManager implements INBTSerializable<CompoundNBT> {
 
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
-        for (Map.Entry<String, HUData<?>> e : dataMap.entrySet()) {
-            HUData data = e.getValue();
-            if (data.canBeSaved()) {
-                data.setValue(data.deserializeNBT(nbt, e.getKey(), data.getDefaultValue()));
-            }
+        for (HUData data : dataMap.values()) {
+            data.setValue(data.deserializeNBT(nbt, data.getKey(), data.getDefaultValue()));
         }
     }
 }

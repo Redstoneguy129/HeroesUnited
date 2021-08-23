@@ -70,7 +70,7 @@ public class AbilitiesScreen extends Screen {
             minecraft.getSoundManager().play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }));
         List<Ability> abilities = getCurrentDisplayedAbilities(this.minecraft.player);
-        for (int i = 0; i < abilities.size(); i++) {
+        for (int i = 0; i < (abilities.size() >= 5 ? 4 : abilities.size()); i++) {
             this.addButton(new AbilityButton(left, top, i, this, abilities.get(i)));
         }
     }
@@ -94,7 +94,7 @@ public class AbilitiesScreen extends Screen {
         list.add(abilities.get(INDEX));
 
         int i = INDEX + 1, added = 1;
-        while (list.size() < 4 && added < abilities.size()) {
+        while (list.size() < 5 && added < abilities.size()) {
             if (i >= abilities.size()) {
                 i = 0;
             }

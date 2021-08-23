@@ -32,7 +32,6 @@ import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbility;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityCreators;
-import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUData;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 import xyz.heroesunited.heroesunited.util.hudata.HUData;
 import xyz.heroesunited.heroesunited.util.hudata.HUDataManager;
@@ -47,16 +46,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     public final AbilityType type;
     protected CompoundNBT additionalData = new CompoundNBT();
     protected JsonObject jsonObject;
-    protected HUDataManager dataManager = new HUDataManager() {
-        @Override
-        public <T> void updateData(Entity entity, String id, HUData<T> data, T value) {
-            for (PlayerEntity mpPlayer : entity.level.players()) {
-                if (mpPlayer instanceof ServerPlayerEntity) {
-                    HUNetworking.INSTANCE.sendTo(new ClientSyncHUData(entity.getId(), name, id, data.serializeNBT(id, value)), ((ServerPlayerEntity) mpPlayer).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
-                }
-            }
-        }
-    };
+    protected HUDataManager dataManager = new HUDataManager();
     protected JsonConditionManager conditionManager = new JsonConditionManager() {
         @Override
         public void sync(PlayerEntity player) {
@@ -75,7 +65,9 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     public void registerData() {
+        this.dataManager.register("prev_cooldown", 0);
         this.dataManager.register("cooldown", 0);
+        this.dataManager.register("maxCooldown", 0, true);
     }
 
     public boolean canActivate(PlayerEntity player) {
@@ -91,8 +83,9 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     public void onUpdate(PlayerEntity player) {
+        this.dataManager.set("prev_cooldown", this.dataManager.<Integer>getValue("cooldown"));
         if (this.dataManager.<Integer>getValue("cooldown") > 0) {
-            this.dataManager.set(player, "cooldown", this.dataManager.<Integer>getValue("cooldown") - 1);
+            this.dataManager.set("cooldown", this.dataManager.<Integer>getValue("cooldown") - 1);
         }
         this.conditionManager.update(player);
     }
@@ -146,6 +139,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
     @OnlyIn(Dist.CLIENT)
     public void drawIcon(MatrixStack stack, int x, int y) {
+        Minecraft.getInstance().getItemRenderer().blitOffset -= 100f;
         if (getJsonObject() != null) {
             JsonObject icon = JSONUtils.getAsJsonObject(getJsonObject(), "icon", null);
             if (icon != null) {
@@ -168,6 +162,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         } else {
             Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(new ItemStack(Items.DIAMOND), x, y);
         }
+        Minecraft.getInstance().getItemRenderer().blitOffset += 100f;
     }
 
     @Override
@@ -209,6 +204,14 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         return additionalData;
     }
 
+    public int getMaxCooldown() {
+        return this.dataManager.<Integer>getValue("maxCooldown");
+    }
+
+    public boolean getEnabled() {
+        return false;
+    }
+
     public boolean isHidden(PlayerEntity player) {
         return getJsonObject() != null && JSONUtils.getAsBoolean(getJsonObject(), "hidden", false) && this.conditionManager.isEnabled(player, "isHidden");
     }
@@ -229,7 +232,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
                 for (Map.Entry<String, HUData<?>> entry : this.dataManager.getHUDataMap().entrySet()) {
                     HUData data = entry.getValue();
                     if (data.isJson()) {
-                        this.dataManager.set(entity, entry.getKey(), data.getFromJson(jsonObject, entry.getKey(), entry.getValue().getDefaultValue()));
+                        this.dataManager.set(entry.getKey(), data.getFromJson(jsonObject, entry.getKey(), entry.getValue().getDefaultValue()));
                     }
                 }
                 if (entity instanceof ServerPlayerEntity) {

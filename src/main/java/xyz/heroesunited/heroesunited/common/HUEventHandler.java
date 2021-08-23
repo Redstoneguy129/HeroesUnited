@@ -46,6 +46,7 @@ import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
+import xyz.heroesunited.heroesunited.common.capabilities.hudata.HUDataCap;
 import xyz.heroesunited.heroesunited.common.command.HUCoreCommand;
 import xyz.heroesunited.heroesunited.common.events.HUCancelBlockCollision;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
@@ -122,7 +123,11 @@ public class HUEventHandler {
                         HUNetworking.INSTANCE.sendTo(new ClientSyncCelestialBody(celestialBody.writeNBT(), celestialBody.getRegistryName()), ((ServerPlayerEntity) mpPlayer).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                     }
                 }
-            AbilityHelper.getAbilities(event.player).forEach(type -> type.onUpdate(event.player, event.side));
+            for (Ability a : AbilityHelper.getAbilities(event.player)) {
+                a.onUpdate(event.player, event.side);
+                a.getDataManager().syncToAll(event.player, a.name);
+            }
+            event.player.getCapability(HUDataCap.CAPABILITY).ifPresent(a -> a.getDataManager().syncToAll(event.player, null));
             HUTickrate.tick(event.player, event.side);
         }
     }

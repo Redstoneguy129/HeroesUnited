@@ -8,14 +8,21 @@ import java.util.UUID;
 
 public class HUData<T> {
 
+    protected final String key;
+    protected final boolean json;
     private T value, defaultValue;
-    protected boolean json, saving;
+    private boolean dirty;
 
-    public HUData(T defaultValue, boolean saving, boolean json) {
+    public HUData(String key, T defaultValue, boolean json) {
+        this.key = key;
         this.defaultValue = defaultValue;
         this.value = defaultValue;
         this.json = json;
-        this.saving = saving;
+        this.dirty = true;
+    }
+
+    public String getKey() {
+        return key;
     }
 
     public void setValue(T valueIn) {
@@ -34,8 +41,12 @@ public class HUData<T> {
         return json;
     }
 
-    public boolean canBeSaved() {
-        return this.saving;
+    public boolean isDirty() {
+        return this.dirty;
+    }
+
+    public void setDirty(boolean dirty) {
+        this.dirty = dirty;
     }
 
     public Object getFromJson(JsonObject json, String id, T defaultValue) {
