@@ -11,10 +11,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.client.gui.FiveYearsLaterBookGUI;
 
-public class ComicItem extends Item {
+public class ComicItem extends HUItem {
 
     public ComicItem() {
-        super(new Item.Properties().stacksTo(1));
+        super(HUItems.HORAS, new Item.Properties().stacksTo(1));
     }
 
     @OnlyIn(Dist.CLIENT)

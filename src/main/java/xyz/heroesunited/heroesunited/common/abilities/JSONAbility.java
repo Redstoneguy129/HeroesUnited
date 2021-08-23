@@ -91,8 +91,8 @@ public abstract class JSONAbility extends Ability {
             this.dataManager.set("enabled", enabled);
             action(player);
             player.refreshDimensions();
-            if (!enabled && getMaxCooldown() != 0) {
-                this.dataManager.set("cooldown", getMaxCooldown());
+            if (!enabled && getMaxCooldown(player) != 0) {
+                this.dataManager.set("cooldown", getMaxCooldown(player));
             }
         }
     }

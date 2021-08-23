@@ -533,8 +533,8 @@ public class HUClientEventHandler {
                     event.getMatrixStack().popPose();
                     mc.getTextureManager().bind(widgets);
 
-                    if (ability.getMaxCooldown() != 0) {
-                        int progress = (int) (ability.getDataManager().<Integer>getValue("prev_cooldown") + (ability.getDataManager().<Integer>getValue("cooldown") - ability.getDataManager().<Integer>getValue("prev_cooldown")) * event.getPartialTicks()) / ability.getMaxCooldown() * 16;
+                    if (ability.getMaxCooldown(mc.player) != 0) {
+                        int progress = (int) (ability.getDataManager().<Integer>getValue("prev_cooldown") + (ability.getDataManager().<Integer>getValue("cooldown") - ability.getDataManager().<Integer>getValue("prev_cooldown")) * event.getPartialTicks()) / ability.getMaxCooldown(mc.player) * 16;
                         if (progress > 0) {
                             AbstractGui.blit(event.getMatrixStack(), 3, abilityY, 46, 0, progress, 16, 64, 128);
                         }

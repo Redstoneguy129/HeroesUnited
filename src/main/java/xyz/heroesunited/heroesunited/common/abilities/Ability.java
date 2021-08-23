@@ -204,7 +204,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
         return additionalData;
     }
 
-    public int getMaxCooldown() {
+    public int getMaxCooldown(PlayerEntity player) {
         return this.dataManager.<Integer>getValue("maxCooldown");
     }
 
