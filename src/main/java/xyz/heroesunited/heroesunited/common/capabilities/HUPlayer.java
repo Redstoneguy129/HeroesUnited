@@ -133,6 +133,7 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public IHUPlayer copy(IHUPlayer cap) {
+        this.deserializeNBT(cap.serializeNBT());
         this.theme = cap.getTheme();
         this.inventory.copy(cap.getInventory());
         this.flying = false;

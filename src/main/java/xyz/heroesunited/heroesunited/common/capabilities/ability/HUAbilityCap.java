@@ -118,6 +118,7 @@ public class HUAbilityCap implements IHUAbilityCap {
     }
 
     public IHUAbilityCap copy(IHUAbilityCap cap) {
+        this.deserializeNBT(cap.serializeNBT());
         this.activeAbilities = cap.getActiveAbilities();
         this.containedAbilities = cap.getAbilities();
         this.sync();

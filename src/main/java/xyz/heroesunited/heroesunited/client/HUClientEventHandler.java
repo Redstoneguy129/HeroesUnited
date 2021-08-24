@@ -60,6 +60,7 @@ import xyz.heroesunited.heroesunited.common.networking.server.ServerKeyInput;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccessoriesInv;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
+import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.mixin.client.InvokerKeyBinding;
 import xyz.heroesunited.heroesunited.util.*;
 
@@ -130,9 +131,12 @@ public class HUClientEventHandler {
         }
 
         if (ABILITIES_SCREEN.consumeClick()) {
-            mc.player.level.playSound(mc.player, mc.player.getX(), mc.player.getY(), mc.player.getZ(), SoundEvents.STONE_BUTTON_CLICK_ON, SoundCategory.NEUTRAL, 1, 0);
-            mc.setScreen(new AbilitiesScreen());
-        } else if (ACCESSORIES_SCREEN.consumeClick()) {
+            if (!HUPackSuperpowers.hasSuperpowers(mc.player) || !JSONUtils.getAsBoolean(HUPackSuperpowers.getSuperpowersJSONS().get(HUPackSuperpowers.getSuperpower(mc.player)), "block_screen", false)) {
+                mc.player.level.playSound(mc.player, mc.player.getX(), mc.player.getY(), mc.player.getZ(), SoundEvents.STONE_BUTTON_CLICK_ON, SoundCategory.NEUTRAL, 1, 0);
+                mc.setScreen(new AbilitiesScreen());
+            }
+        }
+        if (ACCESSORIES_SCREEN.consumeClick()) {
             HUNetworking.INSTANCE.sendToServer(new ServerOpenAccessoriesInv());
         }
 
@@ -534,17 +538,13 @@ public class HUClientEventHandler {
                     mc.getTextureManager().bind(widgets);
 
                     if (ability.getMaxCooldown(mc.player) != 0) {
-                        int progress = (int) (ability.getDataManager().<Integer>getValue("prev_cooldown") + (ability.getDataManager().<Integer>getValue("cooldown") - ability.getDataManager().<Integer>getValue("prev_cooldown")) * event.getPartialTicks()) / ability.getMaxCooldown(mc.player) * 16;
+                        int progress = (int) ((ability.getDataManager().<Integer>getValue("prev_cooldown") + (ability.getDataManager().<Integer>getValue("cooldown") - ability.getDataManager().<Integer>getValue("prev_cooldown")) * event.getPartialTicks()) / ability.getMaxCooldown(mc.player) * 16);
                         if (progress > 0) {
                             AbstractGui.blit(event.getMatrixStack(), 3, abilityY, 46, 0, progress, 16, 64, 128);
                         }
                     }
-                    if (AbilityHelper.getActiveAbilityMap(mc.player).containsValue(ability)) {
-                        if (ability.getEnabled()) {
-                            RenderSystem.color4f(0.5f, 1f, 0.5f, 1f);
-                        }
+                    if (ability.getEnabled()) {
                         AbstractGui.blit(event.getMatrixStack(), -1, abilityY - 4, 22, 0, 24, 24, 64, 128);
-                        RenderSystem.color4f(1f, 1f, 1f, 1f);
                     }
                 }
                 RenderSystem.color4f(1f, 1f, 1f, 1f);

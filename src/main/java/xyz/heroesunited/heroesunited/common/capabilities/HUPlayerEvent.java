@@ -16,7 +16,6 @@ import net.minecraftforge.fml.network.NetworkDirection;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCapProvider;
-import xyz.heroesunited.heroesunited.common.capabilities.ability.IHUAbilityCap;
 import xyz.heroesunited.heroesunited.common.capabilities.hudata.HUDataProvider;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilities;
@@ -32,21 +31,13 @@ public class HUPlayerEvent {
             event.addCapability(new ResourceLocation(HeroesUnited.MODID, "huplayer"), new HUPlayerProvider((PlayerEntity) event.getObject()));
             event.addCapability(new ResourceLocation(HeroesUnited.MODID, "huability"), new HUAbilityCapProvider((PlayerEntity) event.getObject()));
         }
-        if (event.getObject() instanceof Entity) {
-            event.addCapability(new ResourceLocation(HeroesUnited.MODID, "hudata"), new HUDataProvider(event.getObject()));
-        }
+        event.addCapability(new ResourceLocation(HeroesUnited.MODID, "hudata"), new HUDataProvider(event.getObject()));
     }
 
     @SubscribeEvent
     public void clonePlayer(PlayerEvent.Clone event) {
-        IHUAbilityCap newACap = HUAbilityCap.getCap(event.getPlayer());
-        IHUAbilityCap oldACap = HUAbilityCap.getCap(event.getOriginal());
-        IHUPlayer newCap = HUPlayer.getCap(event.getPlayer());
-        IHUPlayer oldCap = HUPlayer.getCap(event.getOriginal());
-        newCap.deserializeNBT(oldCap.serializeNBT());
-        newACap.deserializeNBT(oldACap.serializeNBT());
-        newCap.copy(oldCap);
-        newACap.copy(oldACap);
+        HUPlayer.getCap(event.getPlayer()).copy(HUPlayer.getCap(event.getOriginal()));
+        HUAbilityCap.getCap(event.getPlayer()).copy(HUAbilityCap.getCap(event.getOriginal()));
     }
 
     @SubscribeEvent
