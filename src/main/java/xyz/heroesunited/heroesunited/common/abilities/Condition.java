@@ -11,14 +11,9 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ITag;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ForgeRegistryEntry;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryBuilder;
+import net.minecraftforge.registries.*;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
@@ -26,15 +21,15 @@ import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.Level;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 
-import java.util.Map;
-import java.util.UUID;
 import java.util.function.BiFunction;
 
 @Mod.EventBusSubscriber(modid = HeroesUnited.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Condition extends ForgeRegistryEntry<Condition> {
 
-    public static IForgeRegistry<Condition> CONDITIONS;
-    private BiFunction<PlayerEntity, JsonObject, Boolean> biFunction;
+    public static final DeferredRegister<Condition> CONDITIONS = DeferredRegister.create(Condition.class, HeroesUnited.MODID);
+    public static final Lazy<IForgeRegistry<Condition>> REGISTRY = Lazy.of(CONDITIONS.makeRegistry("conditions", () -> new RegistryBuilder<Condition>().setType(Condition.class).setIDRange(0, 2048)));
+
+    private final BiFunction<PlayerEntity, JsonObject, Boolean> biFunction;
 
     public Condition(BiFunction<PlayerEntity, JsonObject, Boolean> biFunction) {
         this.biFunction = biFunction;
@@ -45,31 +40,23 @@ public class Condition extends ForgeRegistryEntry<Condition> {
         this.setRegistryName(modid, name);
     }
 
-    public void whenSetEnabled(JSONAbility ability, Map.Entry<JsonObject, UUID> e, PlayerEntity player, boolean enabled) {
-    }
-
     public BiFunction<PlayerEntity, JsonObject, Boolean> getBiFunction() {
         return biFunction;
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onRegisterNewRegistries(RegistryEvent.NewRegistry e) {
-        CONDITIONS = new RegistryBuilder<Condition>().setName(new ResourceLocation(HeroesUnited.MODID, "conditions")).setType(Condition.class).setIDRange(0, 2048).create();
-    }
-
-    public static final Condition HAS_SUPERPOWERS = new Condition((player, e) -> HUPackSuperpowers.hasSuperpowers(player), HeroesUnited.MODID, "has_superpowers");
-    public static final Condition HAS_SUPERPOWER = new Condition((player, e) -> HUPackSuperpowers.hasSuperpower(player, new ResourceLocation(JSONUtils.getAsString(e, "superpower"))), HeroesUnited.MODID, "has_superpower");
-    public static final Condition ACTIVATED_ABILITY = new Condition((player, e) -> AbilityHelper.getEnabled(JSONUtils.getAsString(e, "ability"), player), HeroesUnited.MODID, "activated_ability");
-    public static final Condition HAS_LEVEL = new Condition((player, e) -> {
+    public static final Condition HAS_SUPERPOWERS = register("has_superpowers", new Condition((player, e) -> HUPackSuperpowers.hasSuperpowers(player)));
+    public static final Condition HAS_SUPERPOWER = register("has_superpower", new Condition((player, e) -> HUPackSuperpowers.hasSuperpower(player, new ResourceLocation(JSONUtils.getAsString(e, "superpower")))));
+    public static final Condition ACTIVATED_ABILITY = register("activated_ability", new Condition((player, e) -> AbilityHelper.getEnabled(JSONUtils.getAsString(e, "ability"), player)));
+    public static final Condition HAS_LEVEL = register("has_level", new Condition((player, e) -> {
         IHUPlayer hu = HUPlayer.getCap(player);
         if (hu != null) {
             Level level = hu.getSuperpowerLevels().get(new ResourceLocation(JSONUtils.getAsString(e, "superpower")));
-            return level.getLevel() == JSONUtils.getAsInt(e, "level");
+            return level.getLevel() >= JSONUtils.getAsInt(e, "level");
         }
         return false;
-    }, HeroesUnited.MODID, "has_level");
+    }));
 
-    public static final Condition HAS_ITEM = new Condition((player, e) -> {
+    public static final Condition HAS_ITEM = register("has_item", new Condition((player, e) -> {
         Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(JSONUtils.getAsString(e, "item")));
         boolean b = false;
         if (e.has("slots")) {
@@ -86,45 +73,37 @@ public class Condition extends ForgeRegistryEntry<Condition> {
             }
         }
         return b;
-    }, HeroesUnited.MODID, "has_item");
+    }));
 
-    public static final Condition ABILITY_ENABLED = new Condition((player, jsonObject) -> {
-        Ability ability = AbilityHelper.getActiveAbilityMap(player).getOrDefault(JSONUtils.getAsString(jsonObject, "ability"), null);
-        if (ability instanceof JSONAbility) {
-            return ((JSONAbility) ability).getEnabled();
+    public static final Condition ABILITY_ENABLED = register("ability_enabled", new Condition((player, e) -> {
+        Ability ability = AbilityHelper.getActiveAbilityMap(player).getOrDefault(JSONUtils.getAsString(e, "ability"), null);
+        if (ability != null) {
+            return ability.getEnabled();
         }
         return false;
-    }, HeroesUnited.MODID, "ability_enabled");
+    }));
 
-    public static final Condition HAS_SUIT = new Condition((player, e) -> {
+    public static final Condition HAS_SUIT = register("has_suit", new Condition((player, e) -> {
         String suitName = JSONUtils.getAsString(e, "suit", "");
         if (!StringUtil.isNullOrEmpty(suitName)) {
             return Suit.getSuit(player).getRegistryName().toString().equals(suitName);
         }
         return Suit.getSuit(player) != null;
-    }, HeroesUnited.MODID, "has_suit");
+    }));
 
-    public static final Condition IS_IN_FLUID = new Condition((player, e) -> {
+    public static final Condition IS_IN_FLUID = register("is_in_fluid", new Condition((player, e) -> {
         for(ITag.INamedTag<Fluid> tag : FluidTags.getWrappers()) {
             if (tag.getName().getPath().equals(JSONUtils.getAsString(e, "fluid"))) {
                 return player.isEyeInFluid(tag);
             }
         }
         return false;
-    }, HeroesUnited.MODID, "is_in_fluid");
+    }));
 
-    public static final Condition IS_SPRINTING = new Condition((player, e) -> player.isSprinting(), HeroesUnited.MODID, "is_sprinting");
+    public static final Condition IS_SPRINTING = register("is_sprinting", new Condition((player, e) -> player.isSprinting()));
 
-    @SubscribeEvent
-    public static void registerConditions(RegistryEvent.Register<Condition> e) {
-        e.getRegistry().register(HAS_SUPERPOWERS);
-        e.getRegistry().register(HAS_SUPERPOWER);
-        e.getRegistry().register(ACTIVATED_ABILITY);
-        e.getRegistry().register(HAS_LEVEL);
-        e.getRegistry().register(HAS_ITEM);
-        e.getRegistry().register(ABILITY_ENABLED);
-        e.getRegistry().register(HAS_SUIT);
-        e.getRegistry().register(IS_IN_FLUID);
-        e.getRegistry().register(IS_SPRINTING);
+    private static Condition register(String name, Condition condition) {
+        CONDITIONS.register(name, () -> condition);
+        return condition;
     }
 }

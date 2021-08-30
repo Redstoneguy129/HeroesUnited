@@ -1,7 +1,6 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -10,7 +9,6 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 
 import java.util.function.Supplier;
 
-@Mod.EventBusSubscriber(modid = HeroesUnited.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class AbilityType extends ForgeRegistryEntry<AbilityType> {
 
     public static final DeferredRegister<AbilityType> ABILITY_TYPES = DeferredRegister.create(AbilityType.class, HeroesUnited.MODID);

@@ -37,7 +37,7 @@ public class JsonConditionManager implements INBTSerializable<CompoundNBT> {
     }
 
     public static Condition getFromJson(JsonObject jsonObject) {
-        return Condition.CONDITIONS.getValue(HUJsonUtils.getAsResourceLocation(jsonObject, "type"));
+        return Condition.REGISTRY.get().getValue(HUJsonUtils.getAsResourceLocation(jsonObject, "type"));
     }
 
     public void addCondition(JsonObject jsonObject, boolean active) {

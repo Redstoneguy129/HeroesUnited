@@ -46,6 +46,7 @@ import xyz.heroesunited.heroesunited.client.render.renderer.space.*;
 import xyz.heroesunited.heroesunited.common.HUConfig;
 import xyz.heroesunited.heroesunited.common.HUEventHandler;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
+import xyz.heroesunited.heroesunited.common.abilities.Condition;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUCapStorage;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
@@ -102,6 +103,7 @@ public class HeroesUnited {
         HUPaintings.PAINTINGS.register(bus);
         HUContainers.CONTAINERS.register(bus);
         AbilityType.ABILITY_TYPES.register(bus);
+        Condition.CONDITIONS.register(bus);
 
         MinecraftForge.EVENT_BUS.register(new HUEventHandler());
         MinecraftForge.EVENT_BUS.register(new HUPlayerEvent());
