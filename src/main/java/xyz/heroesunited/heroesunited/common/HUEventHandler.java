@@ -177,25 +177,30 @@ public class HUEventHandler {
                 entity.setNoGravity(false);
                 if (Planet.PLANETS_MAP.containsKey(entity.level.dimension()) && entity.position().y > 10050 && !entity.level.isClientSide) {
                     Planet planet = Planet.PLANETS_MAP.get(entity.level.dimension());
-                    entity.changeDimension(((ServerWorld) entity.level).getServer().getLevel(HeroesUnited.SPACE), new ITeleporter() {
-                        @Override
-                        public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
-                            Entity repositionedEntity = repositionEntity.apply(false);
-                            repositionedEntity.teleportTo(planet.getOutCoordinates().x, planet.getOutCoordinates().y, planet.getOutCoordinates().z);
+                    if (entity.getVehicle() == null) {
+                        entity.changeDimension(((ServerWorld) entity.level).getServer().getLevel(HeroesUnited.SPACE), new ITeleporter() {
+                            @Override
+                            public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
+                                Entity repositionedEntity = repositionEntity.apply(false);
 
-                            if (repositionedEntity.getVehicle() != null) {
-                                repositionedEntity.getVehicle().changeDimension(((ServerWorld) entity.getVehicle().level).getServer().getLevel(HeroesUnited.SPACE), new ITeleporter() {
-                                    @Override
-                                    public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
-                                        Entity repositionedEntity = repositionEntity.apply(false);
-                                        repositionedEntity.setPos(planet.getOutCoordinates().x, planet.getOutCoordinates().y, planet.getOutCoordinates().z);
-                                        return repositionedEntity;
-                                    }
-                                });
+                                repositionedEntity.teleportTo(planet.getOutCoordinates().x, planet.getOutCoordinates().y, planet.getOutCoordinates().z);
+                                repositionedEntity.setNoGravity(false);
+                                return repositionedEntity;
                             }
-                            return repositionedEntity;
-                        }
-                    });
+                        });
+                    } else {
+                        entity.getVehicle().changeDimension(((ServerWorld) entity.level).getServer().getLevel(HeroesUnited.SPACE), new ITeleporter() {
+                            @Override
+                            public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
+                                Entity repositionedEntity = repositionEntity.apply(false);
+
+                                repositionedEntity.teleportTo(planet.getOutCoordinates().x, planet.getOutCoordinates().y, planet.getOutCoordinates().z);
+                                repositionedEntity.setNoGravity(false);
+                                return repositionedEntity;
+                            }
+                        });
+                    }
+
                 }
             }
             if (entity instanceof PlayerEntity) {
