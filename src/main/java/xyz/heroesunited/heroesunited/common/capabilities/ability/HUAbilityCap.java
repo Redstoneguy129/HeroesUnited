@@ -165,7 +165,7 @@ public class HUAbilityCap implements IHUAbilityCap {
 
         for (String id : activeAbilities.getAllKeys()) {
             CompoundNBT tag = activeAbilities.getCompound(id);
-            AbilityType abilityType = AbilityType.ABILITIES.getValue(new ResourceLocation(tag.getString("AbilityType")));
+            AbilityType abilityType = AbilityType.ABILITIES.get().getValue(new ResourceLocation(tag.getString("AbilityType")));
             if (abilityType != null) {
                 Ability ability = abilityType.create(id);
                 ability.deserializeNBT(tag);
@@ -174,7 +174,7 @@ public class HUAbilityCap implements IHUAbilityCap {
         }
         for (String id : abilities.getAllKeys()) {
             CompoundNBT tag = abilities.getCompound(id);
-            AbilityType abilityType = AbilityType.ABILITIES.getValue(new ResourceLocation(tag.getString("AbilityType")));
+            AbilityType abilityType = AbilityType.ABILITIES.get().getValue(new ResourceLocation(tag.getString("AbilityType")));
             if (abilityType != null) {
                 Ability ability = abilityType.create(id);
                 ability.deserializeNBT(tag);

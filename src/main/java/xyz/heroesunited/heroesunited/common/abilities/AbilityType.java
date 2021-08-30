@@ -1,10 +1,11 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegistryBuilder;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
 import java.util.function.Supplier;
@@ -12,8 +13,10 @@ import java.util.function.Supplier;
 @Mod.EventBusSubscriber(modid = HeroesUnited.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class AbilityType extends ForgeRegistryEntry<AbilityType> {
 
-    public static IForgeRegistry<AbilityType> ABILITIES;
-    private Supplier<Ability> supplier;
+    public static final DeferredRegister<AbilityType> ABILITY_TYPES = DeferredRegister.create(AbilityType.class, HeroesUnited.MODID);
+    public static final Lazy<IForgeRegistry<AbilityType>> ABILITIES = Lazy.of(ABILITY_TYPES.makeRegistry("ability_types", () -> new RegistryBuilder<AbilityType>().setType(AbilityType.class).setIDRange(0, 2048)));
+
+    private final Supplier<Ability> supplier;
 
     public AbilityType(Supplier<Ability> supplier) {
         this.supplier = supplier;
@@ -30,40 +33,26 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
         return a;
     }
 
-    public static final AbilityType ATTRIBUTE_MODIFIER = new AbilityType(AttributeModifierAbility::new, HeroesUnited.MODID, "attribute_modifier");
-    public static final AbilityType FLIGHT = new AbilityType(FlightAbility::new, HeroesUnited.MODID, "flight");
-    public static final AbilityType SLOW_MO = new AbilityType(SlowMoAbility::new, HeroesUnited.MODID, "slow_mo");
-    public static final AbilityType GECKO = new AbilityType(GeckoAbility::new, HeroesUnited.MODID, "gecko");
-    public static final AbilityType HIDE_BODY_PARTS = new AbilityType(HideBodyPartsAbility::new, HeroesUnited.MODID, "hide_body_parts");
-    public static final AbilityType ROTATE_PARTS = new AbilityType(RotatePartsAbility::new, HeroesUnited.MODID, "rotate_parts");
-    public static final AbilityType SIZE_CHANGE = new AbilityType(SizeChangeAbility::new, HeroesUnited.MODID, "size_change");
-    public static final AbilityType COMMAND = new AbilityType(CommandAbility::new, HeroesUnited.MODID, "command");
-    public static final AbilityType DAMAGE_IMMUNITY = new AbilityType(DamageImmunityAbility::new, HeroesUnited.MODID, "damage_immunity");
-    public static final AbilityType POTION_EFFECT = new AbilityType(PotionEffectAbility::new, HeroesUnited.MODID, "potion_effect");
-    public static final AbilityType ENERGY_LASER = new AbilityType(EnergyLaserAbility::new, HeroesUnited.MODID, "energy_laser");
-    public static final AbilityType HEAT_VISION = new AbilityType(HeatVisionAbility::new, HeroesUnited.MODID, "heat_vision");
-    public static final AbilityType OXYGEN = new AbilityType(OxygenAbility::new, HeroesUnited.MODID, "oxygen");
-    public static final AbilityType PROJECTILE = new AbilityType(ProjectileAbility::new, HeroesUnited.MODID, "projectile");
-    public static final AbilityType HIDE_LAYER = new AbilityType(HideLayerAbility::new, HeroesUnited.MODID, "hide_layer");
-    public static final AbilityType PARACHUTE = new AbilityType(ParachuteAbility::new, HeroesUnited.MODID, "parachute");
+    public static final AbilityType ATTRIBUTE_MODIFIER = register("attribute_modifier", AttributeModifierAbility::new);
+    public static final AbilityType FLIGHT = register("flight", FlightAbility::new);
+    public static final AbilityType SLOW_MO = register("slow_mo", SlowMoAbility::new);
+    public static final AbilityType GECKO = register("gecko", GeckoAbility::new);
+    public static final AbilityType HIDE_BODY_PARTS = register("hide_body_parts", HideBodyPartsAbility::new);
+    public static final AbilityType ROTATE_PARTS = register("rotate_parts", RotatePartsAbility::new);
+    public static final AbilityType SIZE_CHANGE = register("size_change", SizeChangeAbility::new);
+    public static final AbilityType COMMAND = register("command", CommandAbility::new);
+    public static final AbilityType DAMAGE_IMMUNITY = register("damage_immunity", DamageImmunityAbility::new);
+    public static final AbilityType POTION_EFFECT = register("potion_effect", PotionEffectAbility::new);
+    public static final AbilityType ENERGY_LASER = register("energy_laser", EnergyLaserAbility::new);
+    public static final AbilityType HEAT_VISION = register("heat_vision", HeatVisionAbility::new);
+    public static final AbilityType OXYGEN = register("oxygen", OxygenAbility::new);
+    public static final AbilityType PROJECTILE = register("projectile", ProjectileAbility::new);
+    public static final AbilityType HIDE_LAYER = register("hide_layer", HideLayerAbility::new);
+    public static final AbilityType PARACHUTE = register("parachute", ParachuteAbility::new);
 
-    @SubscribeEvent
-    public static void registerAbilityTypes(RegistryEvent.Register<AbilityType> e) {
-        e.getRegistry().register(ATTRIBUTE_MODIFIER);
-        e.getRegistry().register(FLIGHT);
-        e.getRegistry().register(SLOW_MO);
-        e.getRegistry().register(GECKO);
-        e.getRegistry().register(HIDE_BODY_PARTS);
-        e.getRegistry().register(SIZE_CHANGE);
-        e.getRegistry().register(COMMAND);
-        e.getRegistry().register(DAMAGE_IMMUNITY);
-        e.getRegistry().register(ROTATE_PARTS);
-        e.getRegistry().register(POTION_EFFECT);
-        e.getRegistry().register(ENERGY_LASER);
-        e.getRegistry().register(HEAT_VISION);
-        e.getRegistry().register(OXYGEN);
-        e.getRegistry().register(PROJECTILE);
-        e.getRegistry().register(HIDE_LAYER);
-        e.getRegistry().register(PARACHUTE);
+    private static AbilityType register(String name, Supplier<Ability> ability) {
+        AbilityType type = new AbilityType(ability);
+        ABILITY_TYPES.register(name, () -> type);
+        return type;
     }
 }

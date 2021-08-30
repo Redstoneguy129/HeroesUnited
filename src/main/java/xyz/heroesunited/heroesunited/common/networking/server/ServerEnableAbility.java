@@ -38,7 +38,7 @@ public class ServerEnableAbility {
             PlayerEntity player = ctx.get().getSender();
             if (player != null) {
                 player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
-                    Ability ability = AbilityType.ABILITIES.getValue(new ResourceLocation(this.data.getString("AbilityType"))).create(this.id);
+                    Ability ability = AbilityType.ABILITIES.get().getValue(new ResourceLocation(this.data.getString("AbilityType"))).create(this.id);
                     if (ability != null) {
                         if (this.data.contains("JsonObject"))
                             ability.setJsonObject(player, new JsonParser().parse(this.data.getString("JsonObject")).getAsJsonObject());

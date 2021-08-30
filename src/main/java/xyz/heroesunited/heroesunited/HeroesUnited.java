@@ -101,6 +101,7 @@ public class HeroesUnited {
         HUItems.ITEMS.register(bus);
         HUPaintings.PAINTINGS.register(bus);
         HUContainers.CONTAINERS.register(bus);
+        AbilityType.ABILITY_TYPES.register(bus);
 
         MinecraftForge.EVENT_BUS.register(new HUEventHandler());
         MinecraftForge.EVENT_BUS.register(new HUPlayerEvent());
@@ -142,7 +143,6 @@ public class HeroesUnited {
     }
 
     public void onRegisterNewRegistries(RegistryEvent.NewRegistry e) {
-        AbilityType.ABILITIES = new RegistryBuilder<AbilityType>().setName(new ResourceLocation(HeroesUnited.MODID, "ability_types")).setType(AbilityType.class).setIDRange(0, 2048).create();
         CelestialBody.CELESTIAL_BODIES = new RegistryBuilder<CelestialBody>().setName(new ResourceLocation(HeroesUnited.MODID, "celestial_bodies")).setType(CelestialBody.class).setIDRange(0, Integer.MAX_VALUE).create();
     }
 

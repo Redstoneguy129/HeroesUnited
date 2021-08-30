@@ -127,7 +127,7 @@ public class HUEventHandler {
                 a.onUpdate(event.player, event.side);
                 a.getDataManager().syncToAll(event.player, a.name);
             }
-            event.player.getCapability(HUDataCap.CAPABILITY).ifPresent(a -> a.getDataManager().syncToAll(event.player, null));
+            event.player.getCapability(HUDataCap.CAPABILITY).ifPresent(a -> a.getDataManager().syncToAll(event.player, ""));
             HUTickrate.tick(event.player, event.side);
         }
     }

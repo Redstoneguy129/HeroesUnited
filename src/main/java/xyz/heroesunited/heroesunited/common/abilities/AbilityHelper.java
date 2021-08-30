@@ -107,7 +107,7 @@ public class AbilityHelper {
             abilities.entrySet().forEach((e) -> {
                 if (e.getValue() instanceof JsonObject) {
                     JsonObject o = (JsonObject) e.getValue();
-                    AbilityType ability = AbilityType.ABILITIES.getValue(new ResourceLocation(JSONUtils.getAsString(o, "ability")));
+                    AbilityType ability = AbilityType.ABILITIES.get().getValue(new ResourceLocation(JSONUtils.getAsString(o, "ability")));
                     if (ability != null) {
                         abilityList.add(new AbilityCreator(e.getKey(), ability).setJsonObject(o));
                     } else

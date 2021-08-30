@@ -30,16 +30,13 @@ public class CelestialBodies {
     public static Planet NEPTUNE = register("neptune", new Planet(null, new Vector3d(200,0,0).yRot(new Random().nextInt(360)),3,0.00005F, SUN));
     public static CelestialBody KUIPER_BELT = register("kuiper_belt", new CelestialBody(new Vector3d(0,0,0)));
 
-
-
     private static <T extends CelestialBody> T register(String name, T celestialBody) {
         CELESTIAL_BODIES.put( name, celestialBody);
         return celestialBody;
     }
 
-
     @SubscribeEvent
-    public static void registerAbilityTypes(RegistryEvent.Register<CelestialBody> e) {
+    public static void registerCelestialBodies(RegistryEvent.Register<CelestialBody> e) {
         CELESTIAL_BODIES.forEach((name, celestialBody)->{
             celestialBody.setRegistryName(HeroesUnited.MODID, name);
             e.getRegistry().register(celestialBody);

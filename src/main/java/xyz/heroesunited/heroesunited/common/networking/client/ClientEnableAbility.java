@@ -43,7 +43,7 @@ public class ClientEnableAbility {
             Entity entity = Minecraft.getInstance().level.getEntity(this.entityId);
             if (entity instanceof AbstractClientPlayerEntity) {
                 entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
-                    Ability ability = AbilityType.ABILITIES.getValue(new ResourceLocation(this.nbt.getString("AbilityType"))).create(this.name);
+                    Ability ability = AbilityType.ABILITIES.get().getValue(new ResourceLocation(this.nbt.getString("AbilityType"))).create(this.name);
                     if (ability != null) {
                         if (this.nbt.contains("JsonObject")) {
                             ability.setJsonObject(entity, new JsonParser().parse(this.nbt.getString("JsonObject")).getAsJsonObject());
