@@ -47,6 +47,7 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
     public static final AbilityType PROJECTILE = register("projectile", ProjectileAbility::new);
     public static final AbilityType HIDE_LAYER = register("hide_layer", HideLayerAbility::new);
     public static final AbilityType PARACHUTE = register("parachute", ParachuteAbility::new);
+    public static final AbilityType CANCEL_SPRINT = register("cancel_sprint", CancelSprintAbility::new);
 
     private static AbilityType register(String name, Supplier<Ability> ability) {
         AbilityType type = new AbilityType(ability);
