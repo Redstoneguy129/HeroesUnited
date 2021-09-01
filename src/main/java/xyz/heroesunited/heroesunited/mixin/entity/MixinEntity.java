@@ -1,12 +1,12 @@
 package xyz.heroesunited.heroesunited.mixin.entity;
 
-import net.minecraft.entity.*;
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntitySize;
+import net.minecraft.entity.Pose;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import xyz.heroesunited.heroesunited.common.events.HUCancelSprinting;
 
 @Mixin(Entity.class)
 public class MixinEntity {

@@ -29,6 +29,7 @@ import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.registries.ForgeRegistries;
 import xyz.heroesunited.heroesunited.client.events.HUChangeRendererEvent;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
+import xyz.heroesunited.heroesunited.common.events.HUCancelSprinting;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbility;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityCreators;
@@ -102,6 +103,9 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
     public void onKeyInput(PlayerEntity player, Map<Integer, Boolean> map) {
         map.keySet().forEach((i) -> toggle(player, i, map.get(i)));
+    }
+
+    public void cancelSprinting(HUCancelSprinting event) {
     }
 
     @OnlyIn(Dist.CLIENT)

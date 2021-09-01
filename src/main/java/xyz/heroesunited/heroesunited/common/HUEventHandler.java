@@ -49,6 +49,7 @@ import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.capabilities.hudata.HUDataCap;
 import xyz.heroesunited.heroesunited.common.command.HUCoreCommand;
 import xyz.heroesunited.heroesunited.common.events.HUCancelBlockCollision;
+import xyz.heroesunited.heroesunited.common.events.HUCancelSprinting;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncCelestialBody;
 import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
@@ -111,6 +112,11 @@ public class HUEventHandler {
             event.setNewSize(event.getNewSize().scale(0.01F, 0.01F));
             event.setNewEyeHeight(event.getNewEyeHeight() * 0.01F);
         }
+    }
+
+    @SubscribeEvent
+    public void cancelSprinting(HUCancelSprinting event) {
+        AbilityHelper.getAbilities(event.getEntity()).forEach(a -> a.cancelSprinting(event));
     }
 
     @SubscribeEvent
