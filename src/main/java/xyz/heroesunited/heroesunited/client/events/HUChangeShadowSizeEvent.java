@@ -1,9 +1,9 @@
 package xyz.heroesunited.heroesunited.client.events;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.entity.Entity;
-import net.minecraft.world.IWorldReader;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.LevelReader;
 import net.minecraftforge.event.entity.EntityEvent;
 
 /**
@@ -12,15 +12,15 @@ import net.minecraftforge.event.entity.EntityEvent;
  */
 public class HUChangeShadowSizeEvent extends EntityEvent {
 
-    private final MatrixStack matrixStack;
-    private final IRenderTypeBuffer bufferIn;
+    private final PoseStack matrixStack;
+    private final MultiBufferSource bufferIn;
     private final float partialTicks;
     private final float darkness;
-    private final IWorldReader world;
+    private final LevelReader world;
     private final float defaultSize;
     private float size;
 
-    public HUChangeShadowSizeEvent(MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, Entity entity, float darkness, float partialTicks, IWorldReader world, float size) {
+    public HUChangeShadowSizeEvent(PoseStack matrixStack, MultiBufferSource renderTypeBuffer, Entity entity, float darkness, float partialTicks, LevelReader world, float size) {
         super(entity);
         this.defaultSize = size;
         this.size = defaultSize;
@@ -31,7 +31,7 @@ public class HUChangeShadowSizeEvent extends EntityEvent {
         this.world = world;
     }
 
-    public MatrixStack getMatrixStack() {
+    public PoseStack getMatrixStack() {
         return matrixStack;
     }
 
@@ -43,11 +43,11 @@ public class HUChangeShadowSizeEvent extends EntityEvent {
         return partialTicks;
     }
 
-    public IRenderTypeBuffer getBufferIn() {
+    public MultiBufferSource getBufferIn() {
         return bufferIn;
     }
 
-    public IWorldReader getWorld() {
+    public LevelReader getWorld() {
         return world;
     }
 

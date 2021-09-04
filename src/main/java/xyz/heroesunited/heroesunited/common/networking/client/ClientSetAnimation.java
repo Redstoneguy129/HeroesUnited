@@ -1,9 +1,9 @@
 package xyz.heroesunited.heroesunited.common.networking.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
 import java.util.function.Supplier;
@@ -22,14 +22,14 @@ public class ClientSetAnimation {
         this.loop = loop;
     }
 
-    public ClientSetAnimation(PacketBuffer buffer) {
+    public ClientSetAnimation(FriendlyByteBuf buffer) {
         this.entityId = buffer.readInt();
         this.name = buffer.readUtf(32767);
         this.animationFile = new ResourceLocation(buffer.readUtf(32767));
         this.loop = buffer.readBoolean();
     }
 
-    public void toBytes(PacketBuffer buffer) {
+    public void toBytes(FriendlyByteBuf buffer) {
         buffer.writeInt(this.entityId);
         buffer.writeUtf(this.name);
         buffer.writeUtf(this.animationFile.toString());

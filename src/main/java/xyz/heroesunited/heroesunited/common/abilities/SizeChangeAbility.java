@@ -1,8 +1,8 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 
 public class SizeChangeAbility extends JSONAbility {
 
@@ -18,21 +18,21 @@ public class SizeChangeAbility extends JSONAbility {
     }
 
     @Override
-    public void action(PlayerEntity player) {
+    public void action(Player player) {
         this.dataManager.set("prev_size", getSize());
         this.setSize(player, getEnabled() ? getRightSize(player) : 1F);
     }
 
-    public void setSize(PlayerEntity player, float value) {
+    public void setSize(Player player, float value) {
         if (getSize() != value) {
-            this.dataManager.set("size", getSize() + (value - getSize()) / JSONUtils.getAsFloat(getJsonObject(), "animationDeceleration", 4.0F));
+            this.dataManager.set("size", getSize() + (value - getSize()) / GsonHelper.getAsFloat(getJsonObject(), "animationDeceleration", 4.0F));
             player.refreshDimensions();
         }
     }
 
-    public float getRightSize(PlayerEntity player) {
+    public float getRightSize(Player player) {
         if (getJsonObject() != null && getJsonObject().has("size")) {
-            return JSONUtils.getAsFloat(getJsonObject(), "size");
+            return GsonHelper.getAsFloat(getJsonObject(), "size");
         }
         return 0.25f;
     }
@@ -42,12 +42,12 @@ public class SizeChangeAbility extends JSONAbility {
     }
 
     public float getSize() {
-        return MathHelper.clamp(this.dataManager.<Float>getValue("size"), 0.25F, 16F);
+        return Mth.clamp(this.dataManager.<Float>getValue("size"), 0.25F, 16F);
     }
 
     public boolean changeSizeInRender() {
         if (getJsonObject() != null && getJsonObject().has("sizeInRenderer")) {
-            return JSONUtils.getAsBoolean(getJsonObject(), "sizeInRenderer");
+            return GsonHelper.getAsBoolean(getJsonObject(), "sizeInRenderer");
         }
         return true;
     }

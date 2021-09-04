@@ -1,21 +1,21 @@
 package xyz.heroesunited.heroesunited.common.objects.items;
 
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.item.Items;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import xyz.heroesunited.heroesunited.common.objects.entities.HUEntities;
 
 import java.util.Objects;
@@ -26,40 +26,40 @@ public class HorasItem extends HUItem {
     }
 
     @Override
-    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
+    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
         ItemStack itemstack = playerIn.getItemInHand(handIn);
-        RayTraceResult rtr = getPlayerPOVHitResult(worldIn, playerIn, RayTraceContext.FluidMode.SOURCE_ONLY);
-        if (rtr.getType() != RayTraceResult.Type.BLOCK && !worldIn.isClientSide) {
-            BlockPos pos = ((BlockRayTraceResult) rtr).getBlockPos();
-            if (worldIn.mayInteract(playerIn, pos) && playerIn.mayUseItemAt(pos, ((BlockRayTraceResult) rtr).getDirection(), itemstack)) {
-                if (HUEntities.HORAS.spawn((ServerWorld) worldIn, itemstack, playerIn, pos, SpawnReason.SPAWN_EGG, false, false) == null) {
-                    return ActionResult.pass(itemstack);
+        HitResult rtr = getPlayerPOVHitResult(worldIn, playerIn, ClipContext.Fluid.SOURCE_ONLY);
+        if (rtr.getType() != HitResult.Type.BLOCK && !worldIn.isClientSide) {
+            BlockPos pos = ((BlockHitResult) rtr).getBlockPos();
+            if (worldIn.mayInteract(playerIn, pos) && playerIn.mayUseItemAt(pos, ((BlockHitResult) rtr).getDirection(), itemstack)) {
+                if (HUEntities.HORAS.spawn((ServerLevel) worldIn, itemstack, playerIn, pos, MobSpawnType.SPAWN_EGG, false, false) == null) {
+                    return InteractionResultHolder.pass(itemstack);
                 } else {
                     itemstack.shrink(1);
                     playerIn.awardStat(Stats.ITEM_USED.get(this));
-                    return ActionResult.consume(itemstack);
+                    return InteractionResultHolder.consume(itemstack);
                 }
             } else {
-                return ActionResult.fail(itemstack);
+                return InteractionResultHolder.fail(itemstack);
             }
         } else {
-            return ActionResult.success(itemstack);
+            return InteractionResultHolder.success(itemstack);
         }
     }
 
     @Override
-    public ActionResultType useOn(ItemUseContext context) {
-        World world = context.getLevel();
+    public InteractionResult useOn(UseOnContext context) {
+        Level world = context.getLevel();
         if (!world.isClientSide) {
             ItemStack itemstack = context.getItemInHand();
             BlockPos pos = context.getClickedPos();
             Direction direction = context.getClickedFace();
             BlockPos pos1 = world.getBlockState(pos).getCollisionShape(world, pos).isEmpty() ? pos : pos.offset(direction.getNormal());
-            if (HUEntities.HORAS.spawn((ServerWorld) world, itemstack, context.getPlayer(), pos1, SpawnReason.SPAWN_EGG, true, !Objects.equals(pos, pos1) && direction == Direction.UP) != null) {
+            if (HUEntities.HORAS.spawn((ServerLevel) world, itemstack, context.getPlayer(), pos1, MobSpawnType.SPAWN_EGG, true, !Objects.equals(pos, pos1) && direction == Direction.UP) != null) {
                 itemstack.shrink(1);
             }
-            return ActionResultType.CONSUME;
+            return InteractionResult.CONSUME;
         }
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 }

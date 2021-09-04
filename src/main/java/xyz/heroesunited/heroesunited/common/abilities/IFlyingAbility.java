@@ -1,22 +1,22 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.player.Player;
 import xyz.heroesunited.heroesunited.common.objects.HUSounds;
 
 public interface IFlyingAbility {
 
-    boolean isFlying(PlayerEntity player);
+    boolean isFlying(Player player);
 
-    default boolean renderFlying(PlayerEntity player) {
+    default boolean renderFlying(Player player) {
         return true;
     }
 
-    default boolean rotateArms(PlayerEntity player) {
+    default boolean rotateArms(Player player) {
         return false;
     }
 
-    default boolean setDefaultRotationAngles(PlayerEntity player) {
+    default boolean setDefaultRotationAngles(Player player) {
         return true;
     }
 
@@ -24,7 +24,7 @@ public interface IFlyingAbility {
         return HUSounds.FLYING;
     }
 
-    static IFlyingAbility getFlyingAbility(PlayerEntity player) {
+    static IFlyingAbility getFlyingAbility(Player player) {
         for (Ability ability : AbilityHelper.getAbilities(player)) {
             if (ability instanceof IFlyingAbility) {
                 return (IFlyingAbility) ability;

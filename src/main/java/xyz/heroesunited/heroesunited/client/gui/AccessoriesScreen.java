@@ -1,31 +1,31 @@
 package xyz.heroesunited.heroesunited.client.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.gui.screen.inventory.InventoryScreen;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesContainer;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 
 import java.util.List;
 
-public class AccessoriesScreen extends ContainerScreen<AccessoriesContainer> {
+public class AccessoriesScreen extends AbstractContainerScreen<AccessoriesContainer> {
 
     private float oldMouseX, oldMouseY;
 
     private static final ResourceLocation INVENTORY_GUI_TEXTURE = new ResourceLocation(HeroesUnited.MODID + ":textures/gui/accessories_gui.png");
 
-    public AccessoriesScreen(AccessoriesContainer screenContainer, PlayerInventory inv, ITextComponent titleIn) {
+    public AccessoriesScreen(AccessoriesContainer screenContainer, Inventory inv, Component titleIn) {
         super(screenContainer, inv, titleIn);
     }
 
     @Override
-    public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
         SnowWidget.drawSnowOnScreen(matrix, this.width, this.height);
         this.renderBackground(matrix);
         super.render(matrix, mouseX, mouseY, partialTicks);
@@ -35,15 +35,15 @@ public class AccessoriesScreen extends ContainerScreen<AccessoriesContainer> {
     }
 
     @Override
-    protected void renderLabels(MatrixStack matrixStack, int x, int y) {
+    protected void renderLabels(PoseStack matrixStack, int x, int y) {
     }
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float partialTicks, int x, int y) {
+    protected void renderBg(PoseStack matrixStack, float partialTicks, int x, int y) {
         int left = this.getGuiLeft();
         int top = this.getGuiTop();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bind(INVENTORY_GUI_TEXTURE);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, INVENTORY_GUI_TEXTURE);
         this.blit(matrixStack, left, top, 0, 0, this.getXSize(), this.getYSize());
         InventoryScreen.renderEntityInInventory(left + 51, top + 75, 30, (float) (left + 51) - this.oldMouseX, (float) (top + 75 - 50) - this.oldMouseY, this.minecraft.player);
 
@@ -54,7 +54,7 @@ public class AccessoriesScreen extends ContainerScreen<AccessoriesContainer> {
                 EquipmentAccessoriesSlot accessoriesSlot = EquipmentAccessoriesSlot.getFromSlotIndex(i);
                 if (accessoriesSlot != EquipmentAccessoriesSlot.WRIST) {
                     ResourceLocation resourceLocation = new ResourceLocation(HeroesUnited.MODID, "textures/gui/accessories_slots/" + accessoriesSlot.name().toLowerCase() + ".png");
-                    this.minecraft.getTextureManager().bind(resourceLocation);
+                    RenderSystem.setShaderTexture(0, resourceLocation);
                     if (accessoriesSlot == EquipmentAccessoriesSlot.GLOVES) {
                         this.blit(matrixStack, left + 77, top + 44, 0, 0, 16, 16, 16, 16);
                     } else {

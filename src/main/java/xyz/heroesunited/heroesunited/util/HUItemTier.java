@@ -1,11 +1,11 @@
 package xyz.heroesunited.heroesunited.util;
 
-import net.minecraft.item.IItemTier;
-import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.function.Supplier;
 
-public class HUItemTier implements IItemTier {
+public class HUItemTier implements Tier {
 
     private final int harvestLevel, maxUses, enchantability;
     private final float efficiency, attackDamage;

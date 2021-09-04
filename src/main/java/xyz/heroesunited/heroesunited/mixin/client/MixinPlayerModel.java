@@ -1,9 +1,9 @@
 package xyz.heroesunited.heroesunited.mixin.client;
 
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,14 +19,14 @@ import xyz.heroesunited.heroesunited.util.HUClientUtil;
 public abstract class MixinPlayerModel {
     @Shadow @Final private boolean slim;
 
-    @Shadow protected abstract Iterable<ModelRenderer> bodyParts();
+    @Shadow protected abstract Iterable<ModelPart> bodyParts();
 
     @Inject(method = "setupAnim", at = @At(value = "HEAD"))
     private void setRotationAngles(LivingEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
-        if (!(entityIn instanceof PlayerEntity)) return;
+        if (!(entityIn instanceof Player)) return;
         PlayerModel model = (PlayerModel) (Object) this;
         HUClientUtil.resetModelRenderer(model.head);
-        for (ModelRenderer renderer : bodyParts()) {
+        for (ModelPart renderer : bodyParts()) {
             HUClientUtil.resetModelRenderer(renderer);
         }
         model.rightArm.setPos(-5F, this.slim ? 2.5F : 2F, 0F);

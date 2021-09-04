@@ -1,16 +1,16 @@
 package xyz.heroesunited.heroesunited.util.hudata;
 
 import com.google.common.collect.Maps;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUData;
 
 import java.util.Map;
 
-public class HUDataManager implements INBTSerializable<CompoundNBT> {
+public class HUDataManager implements INBTSerializable<CompoundTag> {
 
     protected Map<String, HUData<?>> dataMap = Maps.newHashMap();
 
@@ -30,7 +30,7 @@ public class HUDataManager implements INBTSerializable<CompoundNBT> {
         }
     }
 
-    public <T> void assignValue(HUData<T> data, CompoundNBT nbt) {
+    public <T> void assignValue(HUData<T> data, CompoundTag nbt) {
         if (data != null) {
             T value = (T) data.deserializeNBT(nbt, data.getKey(), data.getDefaultValue());
             if (!value.equals(data.getValue())) {
@@ -53,7 +53,7 @@ public class HUDataManager implements INBTSerializable<CompoundNBT> {
         return this.dataMap;
     }
 
-    public void syncToAll(PlayerEntity player, String abilityName) {
+    public void syncToAll(Player player, String abilityName) {
         for (HUData<?> value : this.dataMap.values()) {
             if (value.isDirty() && !player.level.isClientSide) {
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getId(), abilityName, value.getKey(), serializeNBT()));
@@ -63,8 +63,8 @@ public class HUDataManager implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag nbt = new CompoundTag();
         for (HUData data : dataMap.values()) {
             if (data.getValue() != null) {
                 data.serializeNBT(nbt, data.getKey(), data.getValue());
@@ -74,7 +74,7 @@ public class HUDataManager implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(CompoundTag nbt) {
         for (HUData data : dataMap.values()) {
             data.setValue(data.deserializeNBT(nbt, data.getKey(), data.getDefaultValue()));
         }

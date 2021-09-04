@@ -1,16 +1,16 @@
 package xyz.heroesunited.heroesunited.mixin.client;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import net.minecraft.client.world.DimensionRenderInfo;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.DimensionSpecialEffects;
+import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(DimensionRenderInfo.class)
+@Mixin(DimensionSpecialEffects.class)
 public interface AccessorDimensionRenderInfo {
 
     @Accessor("EFFECTS")
-    static Object2ObjectMap<ResourceLocation, DimensionRenderInfo> getEffects() {
+    static Object2ObjectMap<ResourceLocation, DimensionSpecialEffects> getEffects() {
         throw new AssertionError();
     }
 }

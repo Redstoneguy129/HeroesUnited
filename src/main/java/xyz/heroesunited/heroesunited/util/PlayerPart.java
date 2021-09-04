@@ -1,7 +1,7 @@
 package xyz.heroesunited.heroesunited.util;
 
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
 
 public enum PlayerPart {
 
@@ -14,7 +14,7 @@ public enum PlayerPart {
     LEFT_LEG, LEFT_LEG_WEAR;
 
     public void setVisibility(PlayerModel model, boolean visible) {
-        ModelRenderer modelRenderer = getModelRendererByPart(model);
+        ModelPart modelRenderer = getModelRendererByPart(model);
         if (modelRenderer == null) {
             model.setAllVisible(visible);
         } else {
@@ -23,7 +23,7 @@ public enum PlayerPart {
         return;
     }
 
-    public ModelRenderer getModelRendererByPart(PlayerModel model) {
+    public ModelPart getModelRendererByPart(PlayerModel model) {
         switch (this) {
             case HEAD:
                 return model.head;

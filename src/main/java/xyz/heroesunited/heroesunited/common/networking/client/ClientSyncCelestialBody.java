@@ -1,29 +1,29 @@
 package xyz.heroesunited.heroesunited.common.networking.client;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 
 import java.util.function.Supplier;
 
 public class ClientSyncCelestialBody {
 
-    private CompoundNBT nbt;
+    private CompoundTag nbt;
     private ResourceLocation celestialBodyKey;
 
-    public ClientSyncCelestialBody(CompoundNBT nbt, ResourceLocation celestialBodyKey) {
+    public ClientSyncCelestialBody(CompoundTag nbt, ResourceLocation celestialBodyKey) {
         this.nbt = nbt;
         this.celestialBodyKey = celestialBodyKey;
     }
 
-    public ClientSyncCelestialBody(PacketBuffer buffer) {
+    public ClientSyncCelestialBody(FriendlyByteBuf buffer) {
         celestialBodyKey = buffer.readResourceLocation();
         nbt = buffer.readNbt();
     }
 
-    public void toBytes(PacketBuffer buffer) {
+    public void toBytes(FriendlyByteBuf buffer) {
         buffer.writeResourceLocation(celestialBodyKey);
         buffer.writeNbt(nbt);
     }

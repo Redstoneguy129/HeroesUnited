@@ -1,6 +1,6 @@
 package xyz.heroesunited.heroesunited.common.objects.items;
 
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 import software.bernie.geckolib3.core.AnimationState;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;

@@ -1,5 +1,7 @@
 {
   "name": "heroesunited:mars",
+  "height": 256,
+  "min_y": 0,
   "gravity": -0.777,
   "ultrawarm": true,
   "natural": false,

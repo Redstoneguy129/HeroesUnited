@@ -6,15 +6,15 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.IArmorMaterial;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -49,34 +49,34 @@ public class JsonSuit extends Suit {
 
     @Override
     public void registerItems(IForgeRegistry<Item> e) {
-        JsonObject slots = JSONUtils.getAsJsonObject(jsonObject, "slots", null);
+        JsonObject slots = GsonHelper.getAsJsonObject(jsonObject, "slots", null);
         if (slots != null) {
             if (slots.has("head")) {
-                e.register(helmet = createItem(this, EquipmentSlotType.HEAD, slots));
+                e.register(helmet = createItem(this, EquipmentSlot.HEAD, slots));
             }
             if (slots.has("chest")) {
-                e.register(chestplate = createItem(this, EquipmentSlotType.CHEST, slots));
+                e.register(chestplate = createItem(this, EquipmentSlot.CHEST, slots));
             }
             if (slots.has("legs")) {
-                e.register(legs = createItem(this, EquipmentSlotType.LEGS, slots));
+                e.register(legs = createItem(this, EquipmentSlot.LEGS, slots));
             }
             if (slots.has("feet")) {
-                e.register(boots = createItem(this, EquipmentSlotType.FEET, slots));
+                e.register(boots = createItem(this, EquipmentSlot.FEET, slots));
             }
         } else {
-            e.register(helmet = createItem(this, EquipmentSlotType.HEAD));
-            e.register(chestplate = createItem(this, EquipmentSlotType.CHEST));
-            e.register(legs = createItem(this, EquipmentSlotType.LEGS));
-            e.register(boots = createItem(this, EquipmentSlotType.FEET));
+            e.register(helmet = createItem(this, EquipmentSlot.HEAD));
+            e.register(chestplate = createItem(this, EquipmentSlot.CHEST));
+            e.register(legs = createItem(this, EquipmentSlot.LEGS));
+            e.register(boots = createItem(this, EquipmentSlot.FEET));
         }
     }
 
-    protected SuitItem createItem(Suit suit, EquipmentSlotType slot, JsonObject slots) {
-        return (SuitItem) new SuitItem(suit.getSuitMaterial(), slot, new Item.Properties().stacksTo(1).tab(suit.getItemGroup()), suit).setRegistryName(suit.getRegistryName().getNamespace(), suit.getRegistryName().getPath() + "_" + JSONUtils.getAsString(slots, slot.getName().toLowerCase()));
+    protected SuitItem createItem(Suit suit, EquipmentSlot slot, JsonObject slots) {
+        return (SuitItem) new SuitItem(suit.getSuitMaterial(), slot, new Item.Properties().stacksTo(1).tab(suit.getItemGroup()), suit).setRegistryName(suit.getRegistryName().getNamespace(), suit.getRegistryName().getPath() + "_" + GsonHelper.getAsString(slots, slot.getName().toLowerCase()));
     }
 
     @Override
-    public Map<String, Ability> getAbilities(PlayerEntity player) {
+    public Map<String, Ability> getAbilities(Player player) {
         Map<String, Ability> map = Maps.newHashMap();
         AbilityHelper.parseAbilityCreators(jsonObject, getRegistryName()).forEach(a -> {
             Ability ability = a.getAbilityType().create(a.getKey());
@@ -89,15 +89,15 @@ public class JsonSuit extends Suit {
     }
 
     @Override
-    public boolean canEquip(PlayerEntity player) {
+    public boolean canEquip(Player player) {
         return super.canEquip(player) && this.conditionManager.isEnabled(player, "equip");
     }
 
     @Override
-    public IArmorMaterial getSuitMaterial() {
+    public ArmorMaterial getSuitMaterial() {
         if (jsonObject.has("armor_material")) {
             JsonElement materialJson = jsonObject.get("armor_material");
-            IArmorMaterial material = materialJson.isJsonPrimitive() ? HUJsonUtils.getArmorMaterial(materialJson.getAsString()) : HUJsonUtils.parseArmorMaterial(materialJson.getAsJsonObject(), false);
+            ArmorMaterial material = materialJson.isJsonPrimitive() ? HUJsonUtils.getArmorMaterial(materialJson.getAsString()) : HUJsonUtils.parseArmorMaterial(materialJson.getAsJsonObject(), false);
             if (material == null)
                 throw new JsonParseException("Armor material with name '" + materialJson.getAsString() + "' cannot be found!");
             return material;
@@ -107,36 +107,36 @@ public class JsonSuit extends Suit {
 
     @Override
     public boolean canBreathOnSpace() {
-        return JSONUtils.getAsBoolean(jsonObject, "breath_in_space", super.canBreathOnSpace());
+        return GsonHelper.getAsBoolean(jsonObject, "breath_in_space", super.canBreathOnSpace());
     }
 
     @Override
-    public ItemGroup getItemGroup() {
+    public CreativeModeTab getItemGroup() {
         return jsonObject.has("itemGroup") ? HUJsonUtils.getItemGroup(jsonObject, "itemGroup") : super.getItemGroup();
     }
 
     @Override
-    public List<ITextComponent> getDescription(ItemStack stack) {
+    public List<Component> getDescription(ItemStack stack) {
         return jsonObject.has("description") ? HUJsonUtils.parseDescriptionLines(jsonObject.get("description")) : super.getDescription(stack);
     }
 
     @Override
-    public boolean canCombineWithAbility(Ability type, PlayerEntity player) {
+    public boolean canCombineWithAbility(Ability type, Player player) {
         return super.canCombineWithAbility(type, player) && this.conditionManager.isEnabled(player, "canCombineWithAbility");
     }
 
     @Override
-    public float getScale(EquipmentSlotType slot) {
-        return jsonObject.has("scale") ? JSONUtils.getAsFloat(jsonObject, "scale") : super.getScale(slot);
+    public float getScale(EquipmentSlot slot) {
+        return jsonObject.has("scale") ? GsonHelper.getAsFloat(jsonObject, "scale") : super.getScale(slot);
     }
 
     @Override
-    public List<EquipmentAccessoriesSlot> getSlotForHide(EquipmentSlotType slot) {
+    public List<EquipmentAccessoriesSlot> getSlotForHide(EquipmentSlot slot) {
         List<EquipmentAccessoriesSlot> list = Lists.newArrayList();
         if (jsonObject.has("hide_accessories")) {
-            JsonObject jsonObject = JSONUtils.getAsJsonObject(this.jsonObject, "hide_accessories");
+            JsonObject jsonObject = GsonHelper.getAsJsonObject(this.jsonObject, "hide_accessories");
             for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
-                if (e.getValue() instanceof JsonArray && slot.equals(EquipmentSlotType.byName(e.getKey()))) {
+                if (e.getValue() instanceof JsonArray && slot.equals(EquipmentSlot.byName(e.getKey()))) {
                     for (int i = 0; i < ((JsonArray) e.getValue()).size(); i++) {
                         list.add(EquipmentAccessoriesSlot.getFromSlotIndex(((JsonArray)e.getValue()).get(i).getAsInt()));
                     }
@@ -148,22 +148,22 @@ public class JsonSuit extends Suit {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void setRotationAngles(HUSetRotationAnglesEvent event, EquipmentSlotType slot) {
+    public void setRotationAngles(HUSetRotationAnglesEvent event, EquipmentSlot slot) {
         super.setRotationAngles(event, slot);
         if (jsonObject.has("visibility_parts")) {
-            JsonObject overrides = JSONUtils.getAsJsonObject(jsonObject, "visibility_parts");
+            JsonObject overrides = GsonHelper.getAsJsonObject(jsonObject, "visibility_parts");
 
             for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
                 PlayerPart part = PlayerPart.getByName(entry.getKey());
                 if (part != null) {
                     if (entry.getValue() instanceof JsonObject) {
                         JsonObject json = (JsonObject) entry.getValue();
-                        if (slot.equals(EquipmentSlotType.byName(JSONUtils.getAsString(json, "slot")))) {
-                            part.setVisibility(event.getPlayerModel(), JSONUtils.getAsBoolean(json, "show"));
+                        if (slot.equals(EquipmentSlot.byName(GsonHelper.getAsString(json, "slot")))) {
+                            part.setVisibility(event.getPlayerModel(), GsonHelper.getAsBoolean(json, "show"));
                         }
                     } else {
                         if (hasArmorOn(event.getPlayer())) {
-                            part.setVisibility(event.getPlayerModel(), JSONUtils.getAsBoolean(overrides, entry.getKey()));
+                            part.setVisibility(event.getPlayerModel(), GsonHelper.getAsBoolean(overrides, entry.getKey()));
                         }
                     }
                 }

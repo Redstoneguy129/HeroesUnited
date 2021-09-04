@@ -1,19 +1,21 @@
 package xyz.heroesunited.heroesunited;
 
-import net.arikia.dev.drpc.DiscordRPC;
-import net.minecraft.client.gui.ScreenManager;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
@@ -22,8 +24,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -39,8 +39,11 @@ import xyz.heroesunited.heroesunited.client.HUClientEventHandler;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
 import xyz.heroesunited.heroesunited.client.SpaceDimensionRenderInfo;
 import xyz.heroesunited.heroesunited.client.gui.AccessoriesScreen;
-import xyz.heroesunited.heroesunited.client.render.model.space.EarthModel;
-import xyz.heroesunited.heroesunited.client.render.model.space.SunModel;
+import xyz.heroesunited.heroesunited.client.render.model.CapeModel;
+import xyz.heroesunited.heroesunited.client.render.model.HorasModel;
+import xyz.heroesunited.heroesunited.client.render.model.ParachuteModel;
+import xyz.heroesunited.heroesunited.client.render.model.SuitModel;
+import xyz.heroesunited.heroesunited.client.render.model.space.*;
 import xyz.heroesunited.heroesunited.client.render.renderer.*;
 import xyz.heroesunited.heroesunited.client.render.renderer.space.*;
 import xyz.heroesunited.heroesunited.common.HUConfig;
@@ -48,13 +51,9 @@ import xyz.heroesunited.heroesunited.common.HUEventHandler;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.Condition;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
-import xyz.heroesunited.heroesunited.common.capabilities.HUCapStorage;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerEvent;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
-import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.IHUAbilityCap;
-import xyz.heroesunited.heroesunited.common.capabilities.hudata.HUDataCap;
 import xyz.heroesunited.heroesunited.common.capabilities.hudata.IHUDataCap;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
@@ -70,6 +69,7 @@ import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.mixin.client.AccessorDimensionRenderInfo;
 import xyz.heroesunited.heroesunited.mixin.client.AccessorModelBakery;
+import xyz.heroesunited.heroesunited.util.HUModelLayers;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
 import xyz.heroesunited.heroesunited.util.compat.ObfuscateHandler;
 
@@ -79,10 +79,11 @@ import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOO
 @Mod(HeroesUnited.MODID)
 public class HeroesUnited {
 
-    public static final RegistryKey<World> SPACE = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(HeroesUnited.MODID,"space"));
-    public static final RegistryKey<World> MARS = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(HeroesUnited.MODID,"mars"));
     public static final String MODID = "heroesunited";
     public static final Logger LOGGER = LogManager.getLogger();
+
+    public static final ResourceKey<Level> SPACE = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(HeroesUnited.MODID,"space"));
+    public static final ResourceKey<Level> MARS = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(HeroesUnited.MODID,"mars"));
 
     public HeroesUnited() {
         final IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -111,18 +112,6 @@ public class HeroesUnited {
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, HUConfig.CLIENT_SPEC);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            CelestialBodyRenderer.registerRenderer(new SunRenderer(), CelestialBodies.SUN);
-            CelestialBodyRenderer.registerRenderer(new MercuryRenderer(), CelestialBodies.MERCURY);
-            CelestialBodyRenderer.registerRenderer(new VenusRenderer(), CelestialBodies.VENUS);
-            CelestialBodyRenderer.registerRenderer(new EarthRenderer(), CelestialBodies.EARTH);
-            CelestialBodyRenderer.registerRenderer(new MoonRenderer(), CelestialBodies.MOON);
-            CelestialBodyRenderer.registerRenderer(new MarsRenderer(), CelestialBodies.MARS);
-            CelestialBodyRenderer.registerRenderer(new AsteroidsBeltRenderer(), CelestialBodies.ASTEROIDS_BELT);
-            CelestialBodyRenderer.registerRenderer(new JupiterRenderer(), CelestialBodies.JUPITER);
-            CelestialBodyRenderer.registerRenderer(new SaturnRenderer(), CelestialBodies.SATURN);
-            CelestialBodyRenderer.registerRenderer(new UranusRenderer(), CelestialBodies.URANUS);
-            CelestialBodyRenderer.registerRenderer(new NeptuneRenderer(), CelestialBodies.NEPTUNE);
-            CelestialBodyRenderer.registerRenderer(new KuiperBeltRenderer(), CelestialBodies.KUIPER_BELT);
             AccessorModelBakery.getUnreferencedTex().add(SunModel.SUN_TEXTURE_MATERIAL);
             AccessorModelBakery.getUnreferencedTex().add(EarthModel.EARTH_TEXTURE_MATERIAL);
             AccessorDimensionRenderInfo.getEffects().put(new ResourceLocation(MODID,"space"), new SpaceDimensionRenderInfo());
@@ -150,24 +139,69 @@ public class HeroesUnited {
 
     @SubscribeEvent
     public void commonSetup(final FMLCommonSetupEvent event) {
-        CapabilityManager.INSTANCE.register(IHUPlayer.class, new HUCapStorage<>(), () -> new HUPlayer(null));
-        CapabilityManager.INSTANCE.register(IHUAbilityCap.class, new HUCapStorage<>(), () -> new HUAbilityCap(null));
-        CapabilityManager.INSTANCE.register(IHUDataCap.class, new HUCapStorage<>(), () -> new HUDataCap(null));
-
         HUNetworking.registerMessages();
         LOGGER.info(MODID + ": common is ready!");
     }
 
+
+    @SubscribeEvent
+    public void registerCapabilities(final RegisterCapabilitiesEvent event) {
+        event.register(IHUPlayer.class);
+        event.register(IHUDataCap.class);
+        event.register(IHUAbilityCap.class);
+        LOGGER.info(MODID + ": capabilities is registered!");
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public void registerLayerDefinitions(final EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(HUModelLayers.CAPE, CapeModel::createLayerDefinition);
+        event.registerLayerDefinition(HUModelLayers.PARACHUTE, ParachuteModel::createLayerDefinition);
+        event.registerLayerDefinition(HUModelLayers.HORAS, HorasModel::createLayerDefinition);
+        event.registerLayerDefinition(HUModelLayers.SUIT, () -> LayerDefinition.create(SuitModel.createMesh(CubeDeformation.NONE, false), 64, 64));
+        event.registerLayerDefinition(HUModelLayers.SUIT_SLIM, () -> LayerDefinition.create(SuitModel.createMesh(CubeDeformation.NONE, true), 64, 64));
+
+        event.registerLayerDefinition(HUModelLayers.ASTEROIDS_BELT, AsteroidsBeltRenderer::createLayerDefinition);
+        event.registerLayerDefinition(HUModelLayers.EARTH, EarthModel::createLayerDefinition);
+        event.registerLayerDefinition(HUModelLayers.PLANET, PlanetModel::createLayerDefinition);
+        event.registerLayerDefinition(HUModelLayers.KUIPER, KuiperBeltRenderer::createLayerDefinition);
+        event.registerLayerDefinition(HUModelLayers.MOON, MoonModel::createLayerDefinition);
+        event.registerLayerDefinition(HUModelLayers.SATURN, SaturnModel::createLayerDefinition);
+        event.registerLayerDefinition(HUModelLayers.SUN, SunModel::createLayerDefinition);
+        event.registerLayerDefinition(HUModelLayers.VENUS, VenusModel::createLayerDefinition);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public void registerRenderers(final EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(HUEntities.HORAS, HorasRenderer::new);
+        event.registerEntityRenderer(HUEntities.ENERGY_BLAST, EnergyBlastRenderer::new);
+        event.registerEntityRenderer(HUEntities.SPACESHIP, SpaceshipRenderer::new);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public void registerLayers(final EntityRenderersEvent.AddLayers event) {
+        GeckoSuitRenderer.registerArmorRenderer(SuitItem.class, new GeckoSuitRenderer());
+
+        CelestialBodyRenderer.registerRenderer(new SunRenderer(event.getEntityModels().bakeLayer(HUModelLayers.SUN)), CelestialBodies.SUN);
+        CelestialBodyRenderer.registerRenderer(new MercuryRenderer(event.getEntityModels().bakeLayer(HUModelLayers.PLANET)), CelestialBodies.MERCURY);
+        CelestialBodyRenderer.registerRenderer(new VenusRenderer(event.getEntityModels().bakeLayer(HUModelLayers.VENUS)), CelestialBodies.VENUS);
+        CelestialBodyRenderer.registerRenderer(new EarthRenderer(event.getEntityModels().bakeLayer(HUModelLayers.EARTH)), CelestialBodies.EARTH);
+        CelestialBodyRenderer.registerRenderer(new MoonRenderer(event.getEntityModels().bakeLayer(HUModelLayers.MOON)), CelestialBodies.MOON);
+        CelestialBodyRenderer.registerRenderer(new MarsRenderer(event.getEntityModels().bakeLayer(HUModelLayers.PLANET)), CelestialBodies.MARS);
+        CelestialBodyRenderer.registerRenderer(new AsteroidsBeltRenderer(event.getEntityModels().bakeLayer(HUModelLayers.ASTEROIDS_BELT)), CelestialBodies.ASTEROIDS_BELT);
+        CelestialBodyRenderer.registerRenderer(new JupiterRenderer(event.getEntityModels().bakeLayer(HUModelLayers.PLANET)), CelestialBodies.JUPITER);
+        CelestialBodyRenderer.registerRenderer(new SaturnRenderer(event.getEntityModels().bakeLayer(HUModelLayers.SATURN)), CelestialBodies.SATURN);
+        CelestialBodyRenderer.registerRenderer(new UranusRenderer(event.getEntityModels().bakeLayer(HUModelLayers.PLANET)), CelestialBodies.URANUS);
+        CelestialBodyRenderer.registerRenderer(new NeptuneRenderer(event.getEntityModels().bakeLayer(HUModelLayers.PLANET)), CelestialBodies.NEPTUNE);
+        CelestialBodyRenderer.registerRenderer(new KuiperBeltRenderer(event.getEntityModels().bakeLayer(HUModelLayers.KUIPER)), CelestialBodies.KUIPER_BELT);
+    }
+
     @OnlyIn(Dist.CLIENT)
     private void clientSetup(final FMLClientSetupEvent event) {
-        Runtime.getRuntime().addShutdownHook(new Thread(DiscordRPC::discordShutdown));
         HUPacks.HUPackFinder.createFoldersAndLoadThemes();
-        ClientRegistry.registerEntityShader(Horas.class, new ResourceLocation(MODID, "shaders/post/horas.json"));
-        RenderingRegistry.registerEntityRenderingHandler(HUEntities.HORAS, HorasRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(HUEntities.ENERGY_BLAST, EnergyBlastRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(HUEntities.SPACESHIP, SpaceshipRenderer::new);
-        GeckoSuitRenderer.registerArmorRenderer(SuitItem.class, new GeckoSuitRenderer());
-        ScreenManager.register(HUContainers.ACCESSORIES, AccessoriesScreen::new);
+        MenuScreens.register(HUContainers.ACCESSORIES, AccessoriesScreen::new);
 
         new HorasInfo.DimensionInfo("Overworld", "Default      Dimension", new ResourceLocation("overworld"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/overworld.png"));
         new HorasInfo.DimensionInfo("Nether", "Default      Dimension", new ResourceLocation("the_nether"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/the_nether.png"));
@@ -178,9 +212,7 @@ public class HeroesUnited {
             MinecraftForge.EVENT_BUS.register(new ObfuscateHandler());
         }
 
-        if (!HURichPresence.isHiddenRPC()) {
-            HURichPresence.getPresence().setDiscordRichPresence("In the Menus", null, HURichPresence.MiniLogos.NONE, null);
-        }
+        HURichPresence.getPresence().setDiscordRichPresence("In the Menus", null, HURichPresence.MiniLogos.NONE, null);
 
         LOGGER.info(MODID + ": client is ready!");
     }
@@ -204,7 +236,7 @@ public class HeroesUnited {
         }
     }
 
-    public static final ItemGroup ACCESSORIES = new ItemGroup(ItemGroup.TABS.length, "accessories") {
+    public static final CreativeModeTab ACCESSORIES = new CreativeModeTab(CreativeModeTab.TABS.length, "accessories") {
 
         @Override
         public ItemStack makeIcon() {

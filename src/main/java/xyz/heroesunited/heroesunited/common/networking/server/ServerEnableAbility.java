@@ -1,11 +1,11 @@
 package xyz.heroesunited.heroesunited.common.networking.server;
 
 import com.google.gson.JsonParser;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
@@ -16,26 +16,26 @@ import java.util.function.Supplier;
 public class ServerEnableAbility {
 
     public String id;
-    public CompoundNBT data;
+    public CompoundTag data;
 
-    public ServerEnableAbility(String id, CompoundNBT data) {
+    public ServerEnableAbility(String id, CompoundTag data) {
         this.id = id;
         this.data = data;
     }
 
-    public ServerEnableAbility(PacketBuffer buf) {
+    public ServerEnableAbility(FriendlyByteBuf buf) {
         this.id = buf.readUtf(32767);
         this.data = buf.readNbt();
     }
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeUtf(this.id);
         buf.writeNbt(this.data);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            PlayerEntity player = ctx.get().getSender();
+            Player player = ctx.get().getSender();
             if (player != null) {
                 player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
                     Ability ability = AbilityType.ABILITIES.get().getValue(new ResourceLocation(this.data.getString("AbilityType"))).create(this.id);

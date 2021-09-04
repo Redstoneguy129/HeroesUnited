@@ -2,25 +2,25 @@ package xyz.heroesunited.heroesunited.common.abilities.suit;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.LivingRenderer;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.*;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -33,7 +33,7 @@ import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
 import software.bernie.geckolib3.util.GeoUtils;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
-import xyz.heroesunited.heroesunited.client.render.model.ModelSuit;
+import xyz.heroesunited.heroesunited.client.render.model.SuitModel;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
@@ -61,33 +61,33 @@ public abstract class Suit {
     }
 
     public void registerItems(IForgeRegistry<Item> e) {
-        e.register(helmet = createItem(this, EquipmentSlotType.HEAD));
-        e.register(chestplate = createItem(this, EquipmentSlotType.CHEST));
-        e.register(legs = createItem(this, EquipmentSlotType.LEGS));
-        e.register(boots = createItem(this, EquipmentSlotType.FEET));
+        e.register(helmet = createItem(this, EquipmentSlot.HEAD));
+        e.register(chestplate = createItem(this, EquipmentSlot.CHEST));
+        e.register(legs = createItem(this, EquipmentSlot.LEGS));
+        e.register(boots = createItem(this, EquipmentSlot.FEET));
     }
 
-    protected SuitItem createItem(Suit suit, EquipmentSlotType slot) {
+    protected SuitItem createItem(Suit suit, EquipmentSlot slot) {
         return this.createItem(suit, slot, slot.getName());
     }
 
-    protected SuitItem createItem(Suit suit, EquipmentSlotType slot, String name) {
+    protected SuitItem createItem(Suit suit, EquipmentSlot slot, String name) {
         return (SuitItem) new SuitItem(suit.getSuitMaterial(), slot, new Item.Properties().stacksTo(1).tab(suit.getItemGroup()), suit).setRegistryName(suit.getRegistryName().getNamespace(), suit.getRegistryName().getPath() + "_" + name);
     }
 
-    public boolean canEquip(PlayerEntity player) {
+    public boolean canEquip(Player player) {
         return true;
     }
 
-    public IArmorMaterial getSuitMaterial() {
-        return ArmorMaterial.IRON;
+    public ArmorMaterial getSuitMaterial() {
+        return ArmorMaterials.IRON;
     }
 
-    public ItemGroup getItemGroup() {
-        return ItemGroup.TAB_COMBAT;
+    public CreativeModeTab getItemGroup() {
+        return CreativeModeTab.TAB_COMBAT;
     }
 
-    public List<ITextComponent> getDescription(ItemStack stack) {
+    public List<Component> getDescription(ItemStack stack) {
         return null;
     }
 
@@ -96,40 +96,40 @@ public abstract class Suit {
         return registryName;
     }
 
-    public Map<String, Ability> getAbilities(PlayerEntity player) {
+    public Map<String, Ability> getAbilities(Player player) {
         return Maps.newHashMap();
     }
 
-    public void onActivated(PlayerEntity player, EquipmentSlotType slot) {
+    public void onActivated(Player player, EquipmentSlot slot) {
     }
 
-    public void onUpdate(PlayerEntity player, EquipmentSlotType slot) {
+    public void onUpdate(Player player, EquipmentSlot slot) {
     }
 
-    public void onDeactivated(PlayerEntity player, EquipmentSlotType slot) {
+    public void onDeactivated(Player player, EquipmentSlot slot) {
     }
 
-    public void onKeyInput(PlayerEntity player, EquipmentSlotType slot, Map<Integer, Boolean> map) {
+    public void onKeyInput(Player player, EquipmentSlot slot, Map<Integer, Boolean> map) {
     }
 
-    public boolean canCombineWithAbility(Ability type, PlayerEntity player) {
+    public boolean canCombineWithAbility(Ability type, Player player) {
         return true;
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void setRotationAngles(HUSetRotationAnglesEvent event, EquipmentSlotType slot) {
+    public void setRotationAngles(HUSetRotationAnglesEvent event, EquipmentSlot slot) {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderLayer(@Nullable LivingRenderer<? extends LivingEntity, ? extends BipedModel<?>> entityRenderer, @Nullable LivingEntity entity, EquipmentSlotType slot, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void renderLayer(@Nullable LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> entityRenderer, @Nullable LivingEntity entity, EquipmentSlot slot, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         HUPackLayers.Layer layer = HUPackLayers.getInstance().getLayer(this.getRegistryName());
-        if (layer != null && layer.getTexture("cape") != null && slot.equals(EquipmentSlotType.CHEST)) {
+        if (layer != null && layer.getTexture("cape") != null && slot.equals(EquipmentSlot.CHEST)) {
             HUClientUtil.renderCape(entityRenderer, entity, matrix, bufferIn, packedLightIn, partialTicks, layer.getTexture("cape"));
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    public float getScale(EquipmentSlotType slot) {
+    public float getScale(EquipmentSlot slot) {
         return 0.1F;
     }
 
@@ -140,8 +140,8 @@ public abstract class Suit {
 
     @SuppressWarnings("unchecked")
     @OnlyIn(Dist.CLIENT)
-    public BipedModel<?> getArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlotType slot, BipedModel _default) {
-        ModelSuit suitModel = new ModelSuit(getScale(slot), isSmallArms(entity));
+    public HumanoidModel<?> getArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlot slot, HumanoidModel _default) {
+        SuitModel suitModel = new SuitModel(HUClientUtil.getSuitModelPart(entity), isSmallArms(entity));
         switch (slot) {
             case HEAD:
                 suitModel.hat.visible = suitModel.head.visible = true;
@@ -161,23 +161,23 @@ public abstract class Suit {
 
     @OnlyIn(Dist.CLIENT)
     @Nullable
-    public String getSuitTexture(ItemStack stack, Entity entity, EquipmentSlotType slot) {
+    public String getSuitTexture(ItemStack stack, Entity entity, EquipmentSlot slot) {
         HUPackLayers.Layer layer = HUPackLayers.getInstance().getLayer(this.getRegistryName());
         if (layer != null) {
-            String tex = slot != EquipmentSlotType.LEGS ? layer.getTexture("layer_0").toString() : layer.getTexture("layer_1").toString();
-            if (slot.equals(EquipmentSlotType.CHEST) && isSmallArms(entity) && layer.getTexture("smallArms") != null)
+            String tex = slot != EquipmentSlot.LEGS ? layer.getTexture("layer_0").toString() : layer.getTexture("layer_1").toString();
+            if (slot.equals(EquipmentSlot.CHEST) && isSmallArms(entity) && layer.getTexture("smallArms") != null)
                 tex = layer.getTexture("smallArms").toString();
             return tex;
         } else {
-            String tex = slot != EquipmentSlotType.LEGS ? "layer_0" : "layer_1";
-            if (slot == EquipmentSlotType.CHEST && isSmallArms(entity)) tex = "smallarms";
+            String tex = slot != EquipmentSlot.LEGS ? "layer_0" : "layer_1";
+            if (slot == EquipmentSlot.CHEST && isSmallArms(entity)) tex = "smallarms";
             return this.getRegistryName().getNamespace() + ":textures/suits/" + this.getRegistryName().getPath() + "/" + tex + ".png";
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side) {
-        EquipmentSlotType slot = EquipmentSlotType.CHEST;
+    public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
+        EquipmentSlot slot = EquipmentSlot.CHEST;
         try {
             ItemStack stack = player.getItemBySlot(slot);
             if (stack.getItem() instanceof SuitItem) {
@@ -190,7 +190,7 @@ public abstract class Suit {
                 geo.applyEntityStats(renderer.getModel());
                 if (model.topLevelBones.isEmpty())
                     throw new GeckoLibException(getRegistryName(), "Model doesn't have any parts");
-                GeoBone bone = model.getBone(side == HandSide.LEFT ? geo.leftArmBone : geo.rightArmBone).get();
+                GeoBone bone = model.getBone(side == HumanoidArm.LEFT ? geo.leftArmBone : geo.rightArmBone).get();
                 geo.attackTime = 0.0F;
                 geo.crouching = false;
                 geo.swimAmount = 0.0F;
@@ -201,9 +201,9 @@ public abstract class Suit {
                         Arrays.asList(stack, player, slot));
                 geo.getGeoModelProvider().setLivingAnimations(suitItem, geo.getUniqueID(suitItem), itemEvent);
 
-                ModelRenderer modelRenderer = side == HandSide.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
+                ModelPart modelRenderer = side == HumanoidArm.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
                 GeoUtils.copyRotations(modelRenderer, bone);
-                bone.setPositionX(side == HandSide.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
+                bone.setPositionX(side == HumanoidArm.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
                 bone.setPositionY(2 - modelRenderer.y);
                 bone.setPositionZ(modelRenderer.z);
                 bone.setHidden(false);
@@ -212,8 +212,8 @@ public abstract class Suit {
                     throw new GeckoLibException(getRegistryName(), "Model doesn't have any parts");
 
                 matrix.pushPose();
-                Minecraft.getInstance().textureManager.bind(geo.getTextureLocation(suitItem));
-                IVertexBuilder builder = bufferIn.getBuffer(RenderType.entityTranslucent(geo.getTextureLocation(suitItem)));
+                RenderSystem.setShaderTexture(0, geo.getTextureLocation(suitItem));
+                VertexConsumer builder = bufferIn.getBuffer(RenderType.entityTranslucent(geo.getTextureLocation(suitItem)));
                 Color renderColor = geo.getRenderColor(suitItem, 0, matrix, null, builder, packedLightIn);
                 geo.renderRecursively(bone, matrix, builder, packedLightIn, OverlayTexture.NO_OVERLAY, (float) renderColor.getRed() / 255f, (float) renderColor.getGreen() / 255f, (float) renderColor.getBlue() / 255f, (float) renderColor.getAlpha() / 255);
                 matrix.popPose();
@@ -222,9 +222,9 @@ public abstract class Suit {
                 matrix.popPose();
             }
 		} catch (GeckoLibException | IllegalArgumentException e) {
-			ModelSuit suitModel = new ModelSuit(getScale(slot), isSmallArms(player));
+            SuitModel suitModel = new SuitModel(HUClientUtil.getSuitModelPart(player), isSmallArms(player));
 			suitModel.copyPropertiesFrom(renderer.getModel());
-			suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(getSuitTexture(player.getItemBySlot(EquipmentSlotType.CHEST), player, EquipmentSlotType.CHEST)))), packedLightIn, player);
+			suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(getSuitTexture(player.getItemBySlot(EquipmentSlot.CHEST), player, EquipmentSlot.CHEST)))), packedLightIn, player);
         }
 	}
 
@@ -255,22 +255,22 @@ public abstract class Suit {
     public boolean hasArmorOn(LivingEntity entity) {
         boolean hasArmorOn = true;
 
-        if (getHelmet() != null && (entity.getItemBySlot(EquipmentSlotType.HEAD).isEmpty() || entity.getItemBySlot(EquipmentSlotType.HEAD).getItem() != getHelmet()))
+        if (getHelmet() != null && (entity.getItemBySlot(EquipmentSlot.HEAD).isEmpty() || entity.getItemBySlot(EquipmentSlot.HEAD).getItem() != getHelmet()))
             hasArmorOn = false;
 
-        if (getChestplate() != null && (entity.getItemBySlot(EquipmentSlotType.CHEST).isEmpty() || entity.getItemBySlot(EquipmentSlotType.CHEST).getItem() != getChestplate()))
+        if (getChestplate() != null && (entity.getItemBySlot(EquipmentSlot.CHEST).isEmpty() || entity.getItemBySlot(EquipmentSlot.CHEST).getItem() != getChestplate()))
             hasArmorOn = false;
 
-        if (getLegs() != null && (entity.getItemBySlot(EquipmentSlotType.LEGS).isEmpty() || entity.getItemBySlot(EquipmentSlotType.LEGS).getItem() != getLegs()))
+        if (getLegs() != null && (entity.getItemBySlot(EquipmentSlot.LEGS).isEmpty() || entity.getItemBySlot(EquipmentSlot.LEGS).getItem() != getLegs()))
             hasArmorOn = false;
 
-        if (getBoots() != null && (entity.getItemBySlot(EquipmentSlotType.FEET).isEmpty() || entity.getItemBySlot(EquipmentSlotType.FEET).getItem() != getBoots()))
+        if (getBoots() != null && (entity.getItemBySlot(EquipmentSlot.FEET).isEmpty() || entity.getItemBySlot(EquipmentSlot.FEET).getItem() != getBoots()))
             hasArmorOn = false;
 
         return hasArmorOn;
     }
 
-    public List<EquipmentAccessoriesSlot> getSlotForHide(EquipmentSlotType slot) {
+    public List<EquipmentAccessoriesSlot> getSlotForHide(EquipmentSlot slot) {
         List<EquipmentAccessoriesSlot> list = Lists.newArrayList();
         for (int i = 0; i <= 8; ++i) {
             list.add(EquipmentAccessoriesSlot.getFromSlotIndex(i));
@@ -283,7 +283,7 @@ public abstract class Suit {
         suit.registerItems(ForgeRegistries.ITEMS);
     }
 
-    public static SuitItem getSuitItem(EquipmentSlotType slot, LivingEntity entity) {
+    public static SuitItem getSuitItem(EquipmentSlot slot, LivingEntity entity) {
         ItemStack stack = entity.getItemBySlot(slot);
         if (stack.getItem() instanceof SuitItem) {
             SuitItem suitItem = (SuitItem) stack.getItem();
@@ -295,8 +295,8 @@ public abstract class Suit {
     }
 
     public static Suit getSuit(LivingEntity entity) {
-        for (EquipmentSlotType slot : EquipmentSlotType.values()) {
-            if (slot.getType() == EquipmentSlotType.Group.ARMOR) {
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            if (slot.getType() == EquipmentSlot.Type.ARMOR) {
                 Item item = entity.getItemBySlot(slot).getItem();
                 if (item instanceof SuitItem) {
                     SuitItem suitItem = (SuitItem) item;

@@ -1,8 +1,8 @@
 package xyz.heroesunited.heroesunited.mixin;
 
-import net.minecraft.resources.ResourcePackList;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.datafix.codec.DatapackCodec;
+import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.world.level.DataPackConfig;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
@@ -15,8 +15,8 @@ import xyz.heroesunited.heroesunited.util.HUTickrate;
 @Mixin(MinecraftServer.class)
 public class MixinMinecraftServer {
 
-    @Inject(at = @At("HEAD"), method = "configurePackRepository(Lnet/minecraft/resources/ResourcePackList;Lnet/minecraft/util/datafix/codec/DatapackCodec;Z)Lnet/minecraft/util/datafix/codec/DatapackCodec;")
-    private static void configurePackRepository(ResourcePackList resourcePacks, DatapackCodec codec, boolean p_240772_2_, CallbackInfoReturnable<DatapackCodec> callbackInfoReturnable) {
+    @Inject(at = @At("HEAD"), method = "configurePackRepository(Lnet/minecraft/server/packs/repository/PackRepository;Lnet/minecraft/world/level/DataPackConfig;Z)Lnet/minecraft/world/level/DataPackConfig;")
+    private static void configurePackRepository(PackRepository resourcePacks, DataPackConfig codec, boolean p_240772_2_, CallbackInfoReturnable<DataPackConfig> callbackInfoReturnable) {
         resourcePacks.addPackFinder(new HUPacks.HUPackFinder());
     }
 

@@ -1,20 +1,21 @@
 package xyz.heroesunited.heroesunited.client.render.renderer;
 
-import net.minecraft.client.renderer.entity.BipedRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.client.render.model.ModelHoras;
+import xyz.heroesunited.heroesunited.client.render.model.HorasModel;
 import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
 import xyz.heroesunited.heroesunited.util.HUCalendarHelper;
+import xyz.heroesunited.heroesunited.util.HUModelLayers;
 
 @OnlyIn(Dist.CLIENT)
-public class HorasRenderer extends BipedRenderer<Horas, ModelHoras> {
+public class HorasRenderer extends HumanoidMobRenderer<Horas, HorasModel> {
 
-    public HorasRenderer(EntityRendererManager manager) {
-        super(manager, new ModelHoras(), 0.0F);
+    public HorasRenderer(EntityRendererProvider.Context context) {
+        super(context, new HorasModel(context.bakeLayer(HUModelLayers.HORAS)), 0.0F);
     }
 
     @Override

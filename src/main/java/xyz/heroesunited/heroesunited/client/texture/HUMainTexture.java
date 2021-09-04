@@ -1,7 +1,7 @@
 package xyz.heroesunited.heroesunited.client.texture;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class HUMainTexture {
 

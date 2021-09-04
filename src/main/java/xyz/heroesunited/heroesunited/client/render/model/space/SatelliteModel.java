@@ -1,8 +1,8 @@
 package xyz.heroesunited.heroesunited.client.render.model.space;
 
+import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.Model;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Function;
 

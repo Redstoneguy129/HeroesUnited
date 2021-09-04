@@ -1,9 +1,9 @@
 package xyz.heroesunited.heroesunited.common.objects.items;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.Items;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.DeferredRegister;
@@ -15,9 +15,9 @@ public class HUItems {
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, HeroesUnited.MODID);
 
-    public static final Item TITANIUM_INGOT = register("titanium_ingot", new HUItem(Items.NETHERITE_INGOT, new Item.Properties().tab(ItemGroup.TAB_MATERIALS)));
+    public static final Item TITANIUM_INGOT = register("titanium_ingot", new HUItem(Items.NETHERITE_INGOT, new Item.Properties().tab(CreativeModeTab.TAB_MATERIALS)));
     public static final Item HEROES_UNITED = register("heroes_united", new Item(new Item.Properties().stacksTo(1)));
-    public static final Item HORAS = register("horas", new HorasItem(new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_MISC)));
+    public static final Item HORAS = register("horas", new HorasItem(new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC)));
     public static final ComicItem COMIC_ITEM = registerSpecial("comic", new ComicItem());
 
     public static final TheOneRingAccessory THE_ONE_RING_ACCESSORY = register("the_one_ring", new TheOneRingAccessory());

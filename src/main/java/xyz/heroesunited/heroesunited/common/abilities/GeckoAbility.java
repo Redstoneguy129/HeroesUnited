@@ -1,15 +1,15 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import software.bernie.geckolib3.core.manager.AnimationData;
@@ -26,7 +26,7 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void render(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void render(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         if (getEnabled()) {
             GeoAbilityRenderer abilityRenderer = new GeoAbilityRenderer(getGeoModel());
             abilityRenderer.setCurrentAbility(player, this, renderer.getModel());
@@ -36,7 +36,7 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side) {
+    public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
         if (getEnabled()) {
             GeoAbilityRenderer abilityRenderer = new GeoAbilityRenderer(getGeoModel());
             abilityRenderer.setCurrentAbility(player, this, renderer.getModel());
@@ -55,10 +55,10 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
     @Override
     public ResourceLocation getTexture() {
         if (this.getJsonObject() != null && this.getJsonObject().has("texture")) {
-            if (JSONUtils.getAsString(this.getJsonObject(), "texture").equals("player")) {
+            if (GsonHelper.getAsString(this.getJsonObject(), "texture").equals("player")) {
                 return Minecraft.getInstance().player.getSkinTextureLocation();
             } else {
-                return new ResourceLocation(JSONUtils.getAsString(this.getJsonObject(), "texture"));
+                return new ResourceLocation(GsonHelper.getAsString(this.getJsonObject(), "texture"));
             }
         } else return new ResourceLocation(getSuitOrSuperpowerName().getNamespace(), "textures/ability/" + getSuitOrSuperpowerName().getPath() + "_" + this.name + ".png");
     }
@@ -67,7 +67,7 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
     @Override
     public ResourceLocation getModelPath() {
         ResourceLocation res = new ResourceLocation(getSuitOrSuperpowerName().getNamespace(), "geo/" + getSuitOrSuperpowerName().getPath() + "_" + this.name + ".geo.json");
-        return this.getJsonObject() != null ? new ResourceLocation(JSONUtils.getAsString(this.getJsonObject(), "model", res.toString())) : res;
+        return this.getJsonObject() != null ? new ResourceLocation(GsonHelper.getAsString(this.getJsonObject(), "model", res.toString())) : res;
     }
 
     @OnlyIn(Dist.CLIENT)

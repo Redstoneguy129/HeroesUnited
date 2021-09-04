@@ -1,4 +1,10 @@
 {
+  "noise_caves_enabled": true,
+  "deepslate_enabled": true,
+  "ore_veins_enabled": true,
+  "noodle_caves_enabled": true,
+  "min_surface_level": 50,
+  "aquifers_enabled": false,
   "bedrock_roof_position": -1,
   "bedrock_floor_position": 0,
   "sea_level": 0,
@@ -10,6 +16,8 @@
     "density_factor": 1.0,
     "density_offset": -0.5,
     "simplex_surface_noise": true,
+    "random_density_offset": true,
+    "min_y": 0,
     "bottom_slide": {
       "target": -30,
       "size": 0,

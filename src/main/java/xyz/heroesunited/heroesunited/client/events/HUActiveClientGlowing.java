@@ -1,6 +1,6 @@
 package xyz.heroesunited.heroesunited.client.events;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 import net.minecraftforge.eventbus.api.Event;
 
 /**

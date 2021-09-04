@@ -1,7 +1,7 @@
 package xyz.heroesunited.heroesunited.client.events;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraftforge.eventbus.api.Event;
 
 /**
@@ -13,9 +13,9 @@ public class HUChangeBlockLightEvent extends Event {
     private final int defaultValue;
     private int value;
     private BlockPos pos;
-    private IBlockReader world;
+    private BlockGetter world;
 
-    public HUChangeBlockLightEvent(int defaultValue, BlockPos pos, IBlockReader world) {
+    public HUChangeBlockLightEvent(int defaultValue, BlockPos pos, BlockGetter world) {
         this.defaultValue = defaultValue;
         this.value = defaultValue;
         this.pos = pos;
@@ -38,7 +38,7 @@ public class HUChangeBlockLightEvent extends Event {
         return pos;
     }
 
-    public IBlockReader getWorld() {
+    public BlockGetter getWorld() {
         return world;
     }
 }

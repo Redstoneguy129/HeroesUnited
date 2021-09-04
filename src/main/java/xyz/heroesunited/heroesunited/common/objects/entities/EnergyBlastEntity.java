@@ -1,32 +1,32 @@
 package xyz.heroesunited.heroesunited.common.objects.entities;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.projectile.ThrowableEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.IntNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.ThrowableProjectile;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
 
-public class EnergyBlastEntity extends ThrowableEntity {
+public class EnergyBlastEntity extends ThrowableProjectile {
 
     private float damage;
     private Color color;
     private float gravity;
     private int lifetime;
 
-    public EnergyBlastEntity(EntityType<EnergyBlastEntity> type, World worldIn) {
+    public EnergyBlastEntity(EntityType<EnergyBlastEntity> type, Level worldIn) {
         super(type, worldIn);
         this.damage = 4;
         this.color = Color.RED;
@@ -34,7 +34,7 @@ public class EnergyBlastEntity extends ThrowableEntity {
         this.lifetime = 60;
     }
 
-    public EnergyBlastEntity(World world, LivingEntity entity, float damage, Color color, int lifetime) {
+    public EnergyBlastEntity(Level world, LivingEntity entity, float damage, Color color, int lifetime) {
         super(HUEntities.ENERGY_BLAST, entity, world);
         this.damage = damage;
         this.color = color;
@@ -50,13 +50,13 @@ public class EnergyBlastEntity extends ThrowableEntity {
     }
 
     @Override
-    protected void onHit(RayTraceResult result) {
+    protected void onHit(HitResult result) {
         if (result == null || !isAlive())
             return;
 
-        if (result.getType() == RayTraceResult.Type.ENTITY) {
-            if (((EntityRayTraceResult) result).getEntity() == getOwner()) return;
-            ((EntityRayTraceResult) result).getEntity().hurt(DamageSource.thrown(this, getOwner()), damage);
+        if (result.getType() == HitResult.Type.ENTITY) {
+            if (((EntityHitResult) result).getEntity() == getOwner()) return;
+            ((EntityHitResult) result).getEntity().hurt(DamageSource.thrown(this, getOwner()), damage);
         }
 
         if (!this.level.isClientSide) this.removeAfterChangingDimensions();
@@ -72,20 +72,20 @@ public class EnergyBlastEntity extends ThrowableEntity {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundNBT compound) {
+    public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putFloat("Damage", damage);
         compound.putFloat("Gravity", gravity);
         compound.putInt("Lifetime", lifetime);
-        ListNBT listNBT = new ListNBT();
-        listNBT.add(IntNBT.valueOf(this.color.getRed()));
-        listNBT.add(IntNBT.valueOf(this.color.getGreen()));
-        listNBT.add(IntNBT.valueOf(this.color.getBlue()));
+        ListTag listNBT = new ListTag();
+        listNBT.add(IntTag.valueOf(this.color.getRed()));
+        listNBT.add(IntTag.valueOf(this.color.getGreen()));
+        listNBT.add(IntTag.valueOf(this.color.getBlue()));
         compound.put("Color", listNBT);
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundNBT compound) {
+    public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         if (compound.contains("Damage")) {
             this.damage = compound.getFloat("Damage");
@@ -97,7 +97,7 @@ public class EnergyBlastEntity extends ThrowableEntity {
             this.lifetime = compound.getInt("Lifetime");
         }
         if (compound.contains("Color")) {
-            ListNBT listNBT = compound.getList("Color", Constants.NBT.TAG_INT);
+            ListTag listNBT = compound.getList("Color", Constants.NBT.TAG_INT);
             this.color = new Color(listNBT.getInt(0), listNBT.getInt(1), listNBT.getInt(2));
         }
     }
@@ -119,7 +119,7 @@ public class EnergyBlastEntity extends ThrowableEntity {
 
     @Nonnull
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 }

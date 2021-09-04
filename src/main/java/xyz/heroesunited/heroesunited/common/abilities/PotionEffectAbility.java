@@ -1,9 +1,9 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class PotionEffectAbility extends JSONAbility {
@@ -12,11 +12,11 @@ public class PotionEffectAbility extends JSONAbility {
     }
 
     @Override
-    public void action(PlayerEntity player) {
+    public void action(Player player) {
         super.action(player);
         if (getEnabled()) {
-            player.addEffect(new EffectInstance(ForgeRegistries.POTIONS.getValue(new ResourceLocation(JSONUtils.getAsString(getJsonObject(), "effect"))),
-                    JSONUtils.getAsInt(getJsonObject(), "duration", 20), JSONUtils.getAsInt(getJsonObject(), "amplifier", 0), false, JSONUtils.getAsBoolean(getJsonObject(), "visible", false), JSONUtils.getAsBoolean(getJsonObject(), "show_icon", true)));
+            player.addEffect(new MobEffectInstance(ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(GsonHelper.getAsString(getJsonObject(), "effect"))),
+                    GsonHelper.getAsInt(getJsonObject(), "duration", 20), GsonHelper.getAsInt(getJsonObject(), "amplifier", 0), false, GsonHelper.getAsBoolean(getJsonObject(), "visible", false), GsonHelper.getAsBoolean(getJsonObject(), "show_icon", true)));
         }
     }
 }

@@ -1,11 +1,11 @@
 package xyz.heroesunited.heroesunited.common.networking.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 
@@ -15,21 +15,21 @@ public class ClientSyncAbility {
 
     public int entityId;
     public String name;
-    public CompoundNBT nbt;
+    public CompoundTag nbt;
 
-    public ClientSyncAbility(int entityId, String name, CompoundNBT nbt) {
+    public ClientSyncAbility(int entityId, String name, CompoundTag nbt) {
         this.entityId = entityId;
         this.name = name;
         this.nbt = nbt;
     }
 
-    public ClientSyncAbility(PacketBuffer buffer) {
+    public ClientSyncAbility(FriendlyByteBuf buffer) {
         this.entityId = buffer.readInt();
         this.name = buffer.readUtf(32767);
         this.nbt = buffer.readNbt();
     }
 
-    public void toBytes(PacketBuffer buffer) {
+    public void toBytes(FriendlyByteBuf buffer) {
         buffer.writeInt(this.entityId);
         buffer.writeUtf(this.name);
         buffer.writeNbt(this.nbt);
@@ -39,7 +39,7 @@ public class ClientSyncAbility {
         ctx.get().enqueueWork(() -> {
             Minecraft mc = Minecraft.getInstance();
             Entity entity = mc.level.getEntity(this.entityId);
-            if (entity instanceof AbstractClientPlayerEntity) {
+            if (entity instanceof AbstractClientPlayer) {
                 entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> cap.getActiveAbilities().forEach((id, a) -> {
                     if (id.equals(this.name)) {
                         a.deserializeNBT(this.nbt);

@@ -1,23 +1,22 @@
 package xyz.heroesunited.heroesunited.client.gui;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.SimpleSound;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
@@ -41,13 +40,12 @@ import java.util.stream.Collectors;
 public class AbilitiesScreen extends Screen {
 
     private final ResourceLocation HEAD = new ResourceLocation(HeroesUnited.MODID, "textures/gui/head.png");
-    private final ResourceLocation BUTTON = new ResourceLocation(HeroesUnited.MODID, "textures/gui/ability_button.png");
     public static List<ResourceLocation> themes = Lists.newArrayList(getTheme("default"), getTheme("black"), getTheme("rainbow"));
     public static int INDEX = 0;
     private int left, top;
 
     public AbilitiesScreen() {
-        super(new TranslationTextComponent("gui.heroesunited.abilities"));
+        super(new TranslatableComponent("gui.heroesunited.abilities"));
     }
 
     @Override
@@ -58,24 +56,24 @@ public class AbilitiesScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        buttons.clear();
+        this.clearWidgets();
         left = (width - 200) / 2;
         top = (height - 170) / 2;
         IHUPlayer cap = HUPlayer.getCap(minecraft.player);
 
-        this.addButton(new Button(left + 110, top + 5, 80, 20, new TranslationTextComponent("Change Theme"), (b) -> {
+        this.addRenderableWidget(new Button(left + 110, top + 5, 80, 20, new TranslatableComponent("Change Theme"), (b) -> {
             if (cap.getTheme() >= themes.size())
                 cap.setTheme(0);
             HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerSetTheme(cap.getTheme() + 1, themes.size()));
-            minecraft.getSoundManager().play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }));
         List<Ability> abilities = getCurrentDisplayedAbilities(this.minecraft.player);
         for (int i = 0; i < (abilities.size() >= 5 ? 4 : abilities.size()); i++) {
-            this.addButton(new AbilityButton(left, top, i, this, abilities.get(i)));
+            this.addRenderableWidget(new AbilityButton(left, top, i, this, abilities.get(i)));
         }
     }
 
-    public static List<Ability> getCurrentDisplayedAbilities(PlayerEntity player) {
+    public static List<Ability> getCurrentDisplayedAbilities(Player player) {
         List<Ability> abilities = Lists.newArrayList(), list = Lists.newArrayList();
         abilities.addAll(HUAbilityCap.getCap(player).getAbilities().values().stream()
                 .filter(a -> a != null && !a.isHidden(player))
@@ -107,7 +105,7 @@ public class AbilitiesScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         IHUPlayer cap = HUPlayer.getCap(minecraft.player);
         SnowWidget.drawSnowOnScreen(matrixStack, this.width, this.height);
         this.renderBackground(matrixStack);
@@ -116,16 +114,16 @@ public class AbilitiesScreen extends Screen {
         if (cap != null && cap.getTheme() < themes.size()) {
             theme = themes.get(cap.getTheme());
         }
-        minecraft.getTextureManager().bind(theme);
+        RenderSystem.setShaderTexture(0, theme);
         blit(matrixStack, left, top, 0, 0, 200, 170, 200, 170);
         if (getCurrentDisplayedAbilities(this.minecraft.player).isEmpty()) {
             drawCenteredString(matrixStack, this.font, "You don't have any ability yet", left + 95, top + 95, 16777215);
         }
 
-        minecraft.getTextureManager().bind(HEAD);
+        RenderSystem.setShaderTexture(0, HEAD);
         blit(matrixStack, left + 1, top + 1, 0, 0, 40, 40, 40, 40);
 
-        minecraft.getTextureManager().bind(minecraft.player.getSkinTextureLocation());
+        RenderSystem.setShaderTexture(0, minecraft.player.getSkinTextureLocation());
         blit(matrixStack, left + 5, top + 5, 32, 32, 32, 32, 256, 256);
         font.drawShadow(matrixStack, minecraft.player.getName().getString(), left + 42, top + 7, 16777215, false);
         matrixStack.popPose();
@@ -137,25 +135,24 @@ public class AbilitiesScreen extends Screen {
             });
         }
         super.render(matrixStack, mouseX, mouseY, partialTicks);
-        buttons.forEach(button -> {
+        this.renderables.forEach(button -> {
             if (button instanceof AbilityButton) {
                 this.renderAbilityDescription(matrixStack, mouseX, mouseY, (AbilityButton) button);
             }
         });
     }
 
-    public void renderLevelBar(MatrixStack matrixStack, Level level) {
-        Minecraft mc = Minecraft.getInstance();
+    public void renderLevelBar(PoseStack matrixStack, Level level) {
         matrixStack.pushPose();
-        RenderSystem.color4f(1.0F, 0F, 0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 0F, 0F, 1.0F);
         RenderSystem.disableBlend();
-        mc.getTextureManager().bind(AbstractGui.GUI_ICONS_LOCATION);
+        RenderSystem.setShaderTexture(0, GuiComponent.GUI_ICONS_LOCATION);
         int height = top + 160;
         int width = left + 8;
         this.blit(matrixStack, width, height, 0, 64, 182, 5);
         this.blit(matrixStack, width, height, 0, 69, (int) Math.min(level.getExperience(), 182), 5);
         RenderSystem.enableBlend();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         matrixStack.popPose();
 
         String s = "" + level.getLevel();
@@ -168,20 +165,20 @@ public class AbilitiesScreen extends Screen {
         this.font.draw(matrixStack, s, (float) i1, (float) j1, -65536);
     }
 
-    public void renderAbilityDescription(MatrixStack matrix, int mx, int my, AbilityButton button) {
+    public void renderAbilityDescription(PoseStack matrix, int mx, int my, AbilityButton button) {
         if (!(mx >= button.x && mx <= button.x + button.getWidth() && my >= button.y && my <= button.y + button.getHeight()))
             return;
         if (button.ability.getHoveredDescription() == null) return;
         int bgX = mx + button.descWidth > this.width ? mx - button.descWidth : mx + 15;
         int bgY = my + button.descHeight + 10 > this.height ? my - 5 - button.descHeight : my;
 
-        Tessellator tessellator = Tessellator.getInstance();
+        Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder builder = tessellator.getBuilder();
-        RenderSystem.color3f(1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.disableTexture();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        builder.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         float color = 0.2F;
 
         builder.vertex(bgX, bgY + button.descHeight, 0).color(color, color, color, 0.8F).endVertex();
@@ -202,36 +199,45 @@ public class AbilitiesScreen extends Screen {
 
     public static class AbilityButton extends Button {
 
+        private final ResourceLocation BUTTON = new ResourceLocation(HeroesUnited.MODID, "textures/gui/ability_button.png");
+
         private final AbilitiesScreen parent;
         private final Ability ability;
-        private List<String> abilityDescription = Lists.newArrayList();
+        private final List<String> abilityDescription = Lists.newArrayList();
         private int descWidth, descHeight;
 
         public AbilityButton(int x, int y, int id, AbilitiesScreen screen, Ability ability) {
-            super(x + 25, y + 50 + 25 * id, 150, 20, StringTextComponent.EMPTY, AbilityButton::onPressed);
+            super(x + 25, y + 50 + 25 * id, 150, 20, TextComponent.EMPTY, AbilityButton::onPressed);
             this.parent = screen;
             this.ability = ability;
             this.prepareDescriptionRender();
         }
 
         @Override
-        public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
+        public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
             Minecraft mc = Minecraft.getInstance();
             boolean hovered = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
             Color color = AbilityHelper.getEnabled(this.ability.name, mc.player) ? hovered ? Color.ORANGE : Color.YELLOW :
                     hovered ? AbilityHelper.canActiveAbility(this.ability, mc.player) ? Color.GREEN : Color.RED : Color.WHITE;
-            Tessellator tessellator = Tessellator.getInstance();
-            BufferBuilder builder = tessellator.getBuilder();
+
+            Tesselator tesselator = Tesselator.getInstance();
+            BufferBuilder builder = tesselator.getBuilder();
+
+            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+            RenderSystem.setShaderTexture(0, BUTTON);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            mc.getTextureManager().bind(this.parent.BUTTON);
-            builder.begin(7, DefaultVertexFormats.POSITION_COLOR_TEX);
-            builder.vertex(x, y + height, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).uv(0, 1).endVertex();
-            builder.vertex(x + width, y + height, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).uv(1, 1).endVertex();
-            builder.vertex(x + width, y, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).uv(1, 0).endVertex();
-            builder.vertex(x, y, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).uv(0, 0).endVertex();
-            tessellator.end();
-            RenderSystem.color3f(1f, 1f, 1f);
+
+            builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+
+            builder.vertex(x, y + height, 0).uv(0, 1).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            builder.vertex(x + width, y + height, 0).uv(1, 1).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            builder.vertex(x + width, y, 0).uv(1, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            builder.vertex(x, y, 0).uv(0, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+
+            tesselator.end();
             this.ability.drawIcon(stack, x + 2, y + 2);
             RenderSystem.disableBlend();
             String name = this.ability.getTitle().getString().length() > 20 ? this.ability.getTitle().getString().substring(0, 20) : this.ability.getTitle().getString();
@@ -247,7 +253,7 @@ public class AbilitiesScreen extends Screen {
                 } else {
                     HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerEnableAbility(btn.ability.name, btn.ability.serializeNBT()));
                 }
-                btn.parent.minecraft.getSoundManager().play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                btn.parent.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             }
         }
 
@@ -298,8 +304,8 @@ public class AbilitiesScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
-        for (Widget widget : buttons) {
-            if (mouseButton == 0 && widget.mouseClicked(mouseX, mouseY, mouseButton)) {
+        for (Widget widget : renderables) {
+            if (mouseButton == 0 && widget instanceof AbstractWidget && ((AbstractWidget) widget).mouseClicked(mouseX, mouseY, mouseButton)) {
                 return true;
             }
         }

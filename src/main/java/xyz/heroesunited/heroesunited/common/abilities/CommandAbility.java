@@ -1,30 +1,30 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.ICommandSource;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.player.Player;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
 import java.util.UUID;
 
-public class CommandAbility extends JSONAbility implements ICommandSource {
+public class CommandAbility extends JSONAbility implements CommandSource {
 
     public CommandAbility() {
         super(AbilityType.COMMAND);
     }
 
     @Override
-    public void action(PlayerEntity player) {
+    public void action(Player player) {
         if (player.level.getServer() != null && getEnabled()) {
-            player.level.getServer().getCommands().performCommand(new CommandSource(this, player.position(), player.getRotationVector(), player.level instanceof ServerWorld ? (ServerWorld) player.level : null, 4, player.getName().getString(), player.getDisplayName(), player.level.getServer(), player), JSONUtils.getAsString(getJsonObject(), "command", "/say Hello World"));
+            player.level.getServer().getCommands().performCommand(new CommandSourceStack(this, player.position(), player.getRotationVector(), player.level instanceof ServerLevel ? (ServerLevel) player.level : null, 4, player.getName().getString(), player.getDisplayName(), player.level.getServer(), player), GsonHelper.getAsString(getJsonObject(), "command", "/say Hello World"));
         }
     }
 
     @Override
-    public void sendMessage(ITextComponent component, UUID uuid) {
+    public void sendMessage(Component component, UUID uuid) {
         HeroesUnited.LOGGER.error(name + " error: " + component.getString());
     }
 

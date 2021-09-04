@@ -3,10 +3,10 @@ package xyz.heroesunited.heroesunited.hupacks;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import net.minecraft.resources.IResource;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.GsonHelper;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.suit.JsonSuit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
@@ -26,15 +26,15 @@ public class HUPackSuit {
     public static void init() {
         registerSuitType(new ResourceLocation(HeroesUnited.MODID, "default"), JsonSuit::new);
 
-        IResourceManager resourceManager = HUPacks.getInstance().getResourceManager();
+        ResourceManager resourceManager = HUPacks.getInstance().getResourceManager();
         LinkedHashMap<ResourceLocation, JsonObject> suits = Maps.newLinkedHashMap();
 
         for (ResourceLocation resourcelocation : resourceManager.listResources("husuits", (name) -> name.endsWith(".json") && !name.startsWith("_"))) {
             String s = resourcelocation.getPath();
             ResourceLocation id = new ResourceLocation(resourcelocation.getNamespace(), s.substring("husuits/".length(), s.length() - ".json".length()));
 
-            try (IResource iresource = resourceManager.getResource(resourcelocation)) {
-                suits.put(id, JSONUtils.fromJson(HUPacks.GSON, new BufferedReader(new InputStreamReader(iresource.getInputStream(), StandardCharsets.UTF_8)), JsonObject.class));
+            try (Resource iresource = resourceManager.getResource(resourcelocation)) {
+                suits.put(id, GsonHelper.fromJson(HUPacks.GSON, new BufferedReader(new InputStreamReader(iresource.getInputStream(), StandardCharsets.UTF_8)), JsonObject.class));
             } catch (Throwable throwable) {
                 HeroesUnited.LOGGER.error("Couldn't read hupack suit {} from {}", id, resourcelocation, throwable);
             }
@@ -60,10 +60,10 @@ public class HUPackSuit {
     }
 
     public static Suit parse(Map.Entry<ResourceLocation, JsonObject> map) {
-        Function<Map.Entry<ResourceLocation, JsonObject>, Suit> function = suitTypes.get(new ResourceLocation(JSONUtils.getAsString(map.getValue(), "type")));
+        Function<Map.Entry<ResourceLocation, JsonObject>, Suit> function = suitTypes.get(new ResourceLocation(GsonHelper.getAsString(map.getValue(), "type")));
 
         if (function == null) {
-            throw new JsonParseException("The type of a suit '" + JSONUtils.getAsString(map.getValue(), "type") + "' doesn't exist!");
+            throw new JsonParseException("The type of a suit '" + GsonHelper.getAsString(map.getValue(), "type") + "' doesn't exist!");
         }
 
         Suit suit = function.apply(map);

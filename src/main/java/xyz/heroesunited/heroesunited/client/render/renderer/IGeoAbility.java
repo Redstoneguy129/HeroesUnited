@@ -1,9 +1,9 @@
 package xyz.heroesunited.heroesunited.client.render.renderer;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import software.bernie.geckolib3.core.IAnimatable;
@@ -22,7 +22,7 @@ public interface IGeoAbility extends IAnimatable {
     @OnlyIn(Dist.CLIENT)
     ResourceLocation getAnimationFile();
 
-    default <A extends IGeoAbility> AnimatedGeoModel<A> getGeoModel() {
+    default <A extends IGeoAbility> AnimatedGeoModel getGeoModel() {
         return new AnimatedGeoModel<A>() {
             @Override
             public ResourceLocation getModelLocation(A ability) {
@@ -46,7 +46,7 @@ public interface IGeoAbility extends IAnimatable {
         return true;
     }
 
-    default void renderGeoAbilityRenderer(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, GeoModel model, AnimationEvent event, AbstractClientPlayerEntity player, GeoAbilityRenderer renderer) {
+    default void renderGeoAbilityRenderer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, GeoModel model, AnimationEvent event, AbstractClientPlayer player, GeoAbilityRenderer renderer) {
 
     }
 }

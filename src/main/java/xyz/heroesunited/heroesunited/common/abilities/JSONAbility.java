@@ -1,10 +1,10 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.gson.JsonObject;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.JSONUtils;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 
 import java.util.Map;
@@ -25,7 +25,7 @@ public abstract class JSONAbility extends Ability {
     }
 
     @Override
-    public void onUpdate(PlayerEntity player) {
+    public void onUpdate(Player player) {
         super.onUpdate(player);
         if (actionType != ActionType.ACTION) {
             action(player);
@@ -49,18 +49,18 @@ public abstract class JSONAbility extends Ability {
     }
 
     @Override
-    public void onDeactivated(PlayerEntity player) {
+    public void onDeactivated(Player player) {
         super.onDeactivated(player);
         setEnabled(player, false);
         action(player);
     }
 
-    public void action(PlayerEntity player) {
+    public void action(Player player) {
 
     }
 
     @Override
-    public void onKeyInput(PlayerEntity player, Map<Integer, Boolean> map) {
+    public void onKeyInput(Player player, Map<Integer, Boolean> map) {
         super.onKeyInput(player, map);
         if (getKey() != -1 && actionType != ActionType.CONSTANT) {
             if (map.get(getKey())) {
@@ -79,13 +79,13 @@ public abstract class JSONAbility extends Ability {
 
     public int getKey() {
         if (getJsonObject().has("key")) {
-            return JSONUtils.getAsInt(JSONUtils.getAsJsonObject(this.getJsonObject(), "key"), "id");
+            return GsonHelper.getAsInt(GsonHelper.getAsJsonObject(this.getJsonObject(), "key"), "id");
         } else {
             return -1;
         }
     }
 
-    public void setEnabled(PlayerEntity player, boolean enabled) {
+    public void setEnabled(Player player, boolean enabled) {
         boolean b = !enabled || this.conditionManager.isEnabled(player, "canBeEnabled");
         if (getEnabled() != enabled && b && this.dataManager.<Integer>getValue("cooldown") == 0) {
             this.dataManager.set("enabled", enabled);
@@ -100,7 +100,7 @@ public abstract class JSONAbility extends Ability {
     @Override
     public Ability setJsonObject(Entity entity, JsonObject jsonObject) {
         if (jsonObject != null && jsonObject.has("key")) {
-            this.actionType = ActionType.getById(JSONUtils.getAsString(JSONUtils.getAsJsonObject(jsonObject, "key"), "pressType", "toggle"));
+            this.actionType = ActionType.getById(GsonHelper.getAsString(GsonHelper.getAsJsonObject(jsonObject, "key"), "pressType", "toggle"));
         }
         return super.setJsonObject(entity, jsonObject);
     }
@@ -111,14 +111,14 @@ public abstract class JSONAbility extends Ability {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = super.serializeNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag nbt = super.serializeNBT();
         nbt.putString("actionType", actionType.name().toLowerCase());
         return nbt;
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(CompoundTag nbt) {
         super.deserializeNBT(nbt);
         this.actionType = ActionType.getById(nbt.getString("actionType"));
     }

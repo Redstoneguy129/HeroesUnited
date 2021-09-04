@@ -1,7 +1,7 @@
 package xyz.heroesunited.heroesunited.util;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
@@ -20,7 +20,7 @@ public class HUOxygenHelper {
             canBreath = planet.hasOxygen();
         }
 
-        if (entity instanceof PlayerEntity) {
+        if (entity instanceof Player) {
             for (Ability ability : AbilityHelper.getAbilities(entity)) {
                 if (ability instanceof OxygenAbility) {
                     if (!canBreath) {

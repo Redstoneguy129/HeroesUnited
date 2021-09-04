@@ -1,6 +1,6 @@
 package xyz.heroesunited.heroesunited.util;
 
-import net.minecraft.util.math.vector.Vector3f;
+import com.mojang.math.Vector3f;
 
 public interface IHUModelRenderer {
 

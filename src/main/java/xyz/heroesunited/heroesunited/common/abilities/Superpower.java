@@ -2,11 +2,11 @@ package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.Util;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -32,8 +32,8 @@ public class Superpower implements IAbilityProvider {
         this.jsonObject = jsonObject;
     }
 
-    public ITextComponent getDisplayName() {
-        return new TranslationTextComponent(Util.makeDescriptionId("superpowers", name));
+    public Component getDisplayName() {
+        return new TranslatableComponent(Util.makeDescriptionId("superpowers", name));
     }
 
     @Nullable
@@ -42,7 +42,7 @@ public class Superpower implements IAbilityProvider {
     }
 
     @Override
-    public Map<String, Ability> getAbilities(PlayerEntity player) {
+    public Map<String, Ability> getAbilities(Player player) {
         Map<String, Ability> map = Maps.newHashMap();
         getContainedAbilities().forEach(a -> {
             Ability ability = a.getAbilityType().create(a.getKey());

@@ -1,17 +1,18 @@
 package xyz.heroesunited.heroesunited.client.gui;
 
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.gui.screen.ConfirmOpenLinkScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.renderer.texture.DownloadingTexture;
-import net.minecraft.client.renderer.texture.Texture;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.fml.client.gui.widget.Slider;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.Util;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.ConfirmLinkScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.client.renderer.texture.HttpTexture;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.fmlclient.gui.widget.Slider;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
 import java.io.File;
@@ -31,7 +32,7 @@ public class FiveYearsLaterBookGUI extends Screen {
     private double value = 0.0D;
 
     public FiveYearsLaterBookGUI() {
-        super(new TranslationTextComponent("screen.heroesunited.fiveyearslater"));
+        super(new TranslatableComponent("screen.heroesunited.fiveyearslater"));
     }
 
     @Override
@@ -44,18 +45,17 @@ public class FiveYearsLaterBookGUI extends Screen {
         super.init();
         this.xSize = (width - 200) / 2;
         this.ySize = (height - 260) / 2;
-        this.addButton(new Button(xSize - 20, height / 2, 20, 20, new TranslationTextComponent("<"), b -> backPage()));
-        this.addButton(new Button(xSize + 200, height / 2, 20, 20, new TranslationTextComponent(">"), b -> nextPage()));
-        //this.addButton(new Button(xSize + 70, height / 2 + 130, 60, 20, new TranslationTextComponent(isHighRes ? "Low res" : "High res"), b -> isHighRes = !isHighRes));
+        this.addRenderableWidget(new Button(xSize - 20, height / 2, 20, 20, new TranslatableComponent("<"), b -> backPage()));
+        this.addRenderableWidget(new Button(xSize + 200, height / 2, 20, 20, new TranslatableComponent(">"), b -> nextPage()));
         if (pageNum == pages.length - 1) {
-            this.addButton(new Button(xSize + 25, ySize + (260 / 2) + 50, 150, 20, new TranslationTextComponent("Check Out The 5YL Comic!"),
-                    b -> minecraft.setScreen(new ConfirmOpenLinkScreen(this::confirmCallback, "https://www.theinktank.co/5yearslater", true))));
+            this.addRenderableWidget(new Button(xSize + 25, ySize + (260 / 2) + 50, 150, 20, new TranslatableComponent("Check Out The 5YL Comic!"),
+                    b -> minecraft.setScreen(new ConfirmLinkScreen(this::confirmCallback, "https://www.theinktank.co/5yearslater", true))));
         }
-        this.addButton(new Slider(xSize + 50, height / 2 + 130, 100, 20, StringTextComponent.EMPTY, StringTextComponent.EMPTY, 0, 1275, 0, false, false, null, slider -> this.value = slider.getValue()));
+        this.addRenderableWidget(new Slider(xSize + 50, height / 2 + 130, 100, 20, TextComponent.EMPTY, TextComponent.EMPTY, 0, 1275, 0, false, false, null, slider -> this.value = slider.getValue()));
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         SnowWidget.drawSnowOnScreen(matrixStack, this.width, this.height);
         this.renderBackground(matrixStack);
         String page, modPage;
@@ -67,7 +67,7 @@ public class FiveYearsLaterBookGUI extends Screen {
             modPage = modPages[0];
         }
         matrixStack.pushPose();
-        this.minecraft.getTextureManager().bind(getTexture(page, modPage));
+        RenderSystem.setShaderTexture(0, getTexture(page, modPage));
         blit(matrixStack, xSize, ySize, 0, 0, 200, 260, 200, 260);
         matrixStack.popPose();
         super.render(matrixStack, mouseX, mouseY, partialTicks);
@@ -80,11 +80,11 @@ public class FiveYearsLaterBookGUI extends Screen {
 
         String s = String.valueOf(url.hashCode());
         ResourceLocation resourcelocation = new ResourceLocation("5yl_comic/" + s);
-        Texture texture = minecraft.textureManager.getTexture(resourcelocation);
+        AbstractTexture texture = minecraft.textureManager.getTexture(resourcelocation);
         if (texture == null) {
             File file1 = new File(new File(minecraft.gameDirectory.toPath().resolve("assets").toFile(), "5yl_comic"), s.length() > 2 ? s.substring(0, 2) : "xx");
             File file2 = new File(file1, s);
-            DownloadingTexture downloadingtexture = new DownloadingTexture(file2, url, new ResourceLocation(HeroesUnited.MODID, String.format("textures/gui/comic/5yl%s.png", modPage)), false, () -> {});
+            HttpTexture downloadingtexture = new HttpTexture(file2, url, new ResourceLocation(HeroesUnited.MODID, String.format("textures/gui/comic/5yl%s.png", modPage)), false, () -> {});
             minecraft.textureManager.register(resourcelocation, downloadingtexture);
         }
         return resourcelocation;

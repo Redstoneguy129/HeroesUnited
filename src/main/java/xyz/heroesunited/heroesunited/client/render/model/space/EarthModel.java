@@ -1,42 +1,30 @@
 package xyz.heroesunited.heroesunited.client.render.model.space;
 
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.client.renderer.model.RenderMaterial;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
 public class EarthModel extends PlanetModel{
 
-	public static final RenderMaterial EARTH_TEXTURE_MATERIAL = new RenderMaterial(PlayerContainer.BLOCK_ATLAS, new ResourceLocation(HeroesUnited.MODID,"planets/earth"));
-	private final ModelRenderer earth;
-	private final ModelRenderer clouds;
+	public static final Material EARTH_TEXTURE_MATERIAL = new Material(InventoryMenu.BLOCK_ATLAS, new ResourceLocation(HeroesUnited.MODID,"planets/earth"));
 	private float counter = 0;
 
-	public EarthModel() {
-		super(RenderType::entityCutoutNoCull);
-		texWidth = 128;
-		texHeight = 128;
-
-		earth = new ModelRenderer(this);
-		earth.setPos(0.0F, 24.0F, 0.0F);
-		earth.texOffs(0, 0).addBox(-8.0F, -16.0F, -8.0F, 16.0F, 16.0F, 16.0F, 0.0F, false);
-
-		clouds = new ModelRenderer(this);
-		clouds.setPos(0.0F, 0.0F, 0.0F);
-		earth.addChild(clouds);
-		clouds.texOffs(64, 0).addBox(-8.0F, -16.0F, -8.0F, 16.0F, 16.0F, 16.0F, 0.5F, false);
-
+	public EarthModel(ModelPart earth) {
+		super(RenderType::entityCutoutNoCull, earth);
 	}
 
-	@Override
-	public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
-		earth.render(matrixStack, buffer, packedLight, packedOverlay);
+	public static LayerDefinition createLayerDefinition() {
+		MeshDefinition mesh = new MeshDefinition();
+		PartDefinition earth = mesh.getRoot().addOrReplaceChild("earth", CubeListBuilder.create().texOffs(0, 0).addBox(-8.0F, -16.0F, -8.0F, 16.0F, 16.0F, 16.0F, false), PartPose.offset(0, 24.0F, 0));
+		earth.addOrReplaceChild("clouds", CubeListBuilder.create().texOffs(64, 0).addBox(-8.0F, -16.0F, -8.0F, 16.0F, 16.0F, 16.0F, new CubeDeformation(0.5F)), PartPose.ZERO);
+		return LayerDefinition.create(mesh, 128, 128);
 	}
 
 	@Override
@@ -48,6 +36,6 @@ public class EarthModel extends PlanetModel{
 				counter = 0;
 			}
 		}
-		earth.yRot = (float) (Math.toRadians(-counter));
+		planet.yRot = (float) (Math.toRadians(-counter));
 	}
 }

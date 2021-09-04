@@ -1,11 +1,11 @@
 package xyz.heroesunited.heroesunited.common.objects.items;
 
-import net.minecraft.block.Block;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 
 public class HUBlockItem extends BlockItem {
@@ -18,7 +18,7 @@ public class HUBlockItem extends BlockItem {
     }
 
     @Override
-    public void fillItemCategory(ItemGroup group, NonNullList<ItemStack> items) {
+    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items) {
         if (this.allowdedIn(group)) {
             int index = HUJsonUtils.getIndexOfItem(this.item, items);
             ItemStack stack = new ItemStack(this);

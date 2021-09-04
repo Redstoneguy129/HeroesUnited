@@ -1,6 +1,6 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 
 public class SlowMoAbility extends JSONAbility {
@@ -9,7 +9,7 @@ public class SlowMoAbility extends JSONAbility {
     }
 
     @Override
-    public void action(PlayerEntity player) {
+    public void action(Player player) {
         HUPlayer.getCap(player).setSlowMoSpeed(getEnabled() ? 6F : 20F);
     }
 }

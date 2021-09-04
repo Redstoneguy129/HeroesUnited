@@ -1,6 +1,6 @@
 package xyz.heroesunited.heroesunited.common.networking;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
 public enum HUTypes {

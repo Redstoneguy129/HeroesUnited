@@ -2,15 +2,15 @@ package xyz.heroesunited.heroesunited.util;
 
 import com.google.common.collect.Lists;
 import com.google.gson.*;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.item.*;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.registries.ForgeRegistries;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 
@@ -21,17 +21,17 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 public class HUJsonUtils {
-    private static Map<String, IArmorMaterial> ARMOR_MATERIALS = new HashMap<>();
+    private static Map<String, ArmorMaterial> ARMOR_MATERIALS = new HashMap<>();
 
     static {
-        for (ArmorMaterial armorMaterial : ArmorMaterial.values()) {
+        for (ArmorMaterials armorMaterial : ArmorMaterials.values()) {
             addArmorMaterial(armorMaterial.name(), armorMaterial);
         }
     }
 
     public static Color getColor(JsonObject json) {
         if (json != null && json.has("color")) {
-            JsonArray jsonColor = JSONUtils.getAsJsonArray(json, "color");
+            JsonArray jsonColor = GsonHelper.getAsJsonArray(json, "color");
             if (jsonColor.size() == 3) {
                 return new Color(jsonColor.get(0).getAsFloat() / 255F, jsonColor.get(1).getAsFloat() / 255F, jsonColor.get(2).getAsFloat() / 255F, 1);
             } else {
@@ -43,8 +43,8 @@ public class HUJsonUtils {
         return Color.RED;
     }
 
-    public static List<ITextComponent> parseDescriptionLines(JsonElement jsonElement) {
-        List<ITextComponent> lines = Lists.newArrayList();
+    public static List<Component> parseDescriptionLines(JsonElement jsonElement) {
+        List<Component> lines = Lists.newArrayList();
 
         if (jsonElement.isJsonArray()) {
             JsonArray jsonArray = jsonElement.getAsJsonArray();
@@ -52,15 +52,15 @@ public class HUJsonUtils {
                 lines.addAll(parseDescriptionLines(jsonArray.get(i)));
             }
         } else if (jsonElement.isJsonObject()) {
-            lines.add(ITextComponent.Serializer.fromJson(jsonElement));
+            lines.add(Component.Serializer.fromJson(jsonElement));
         } else if (jsonElement.isJsonPrimitive()) {
-            lines.add(new StringTextComponent(jsonElement.getAsString()));
+            lines.add(new TextComponent(jsonElement.getAsString()));
         }
 
         return lines;
     }
 
-    public static ItemGroup getItemGroup(JsonObject json, String memberName) {
+    public static CreativeModeTab getItemGroup(JsonObject json, String memberName) {
         if (json.has(memberName)) {
             return getItemGroup(json.get(memberName), memberName);
         } else {
@@ -68,10 +68,10 @@ public class HUJsonUtils {
         }
     }
 
-    private static ItemGroup getItemGroup(JsonElement json, String memberName) {
+    private static CreativeModeTab getItemGroup(JsonElement json, String memberName) {
         if (json.isJsonPrimitive()) {
             String name = json.getAsString();
-            for (ItemGroup itemGroup : ItemGroup.TABS) {
+            for (CreativeModeTab itemGroup : CreativeModeTab.TABS) {
                 if (name.equalsIgnoreCase(itemGroup.getRecipeFolderName().toLowerCase())) {
                     return itemGroup;
                 }
@@ -82,26 +82,26 @@ public class HUJsonUtils {
         }
     }
 
-    public static IArmorMaterial getArmorMaterial(String name) {
+    public static ArmorMaterial getArmorMaterial(String name) {
         return ARMOR_MATERIALS.get(name.toLowerCase());
     }
 
-    public static IArmorMaterial addArmorMaterial(String name, IArmorMaterial armorMaterial) {
+    public static ArmorMaterial addArmorMaterial(String name, ArmorMaterial armorMaterial) {
         ARMOR_MATERIALS.put(name.toLowerCase(), armorMaterial);
         return armorMaterial;
     }
 
-    public static IArmorMaterial parseArmorMaterial(JsonObject json, boolean requireName) {
-        String name = requireName ? JSONUtils.getAsString(json, "name") : "";
+    public static ArmorMaterial parseArmorMaterial(JsonObject json, boolean requireName) {
+        String name = requireName ? GsonHelper.getAsString(json, "name") : "";
         int[] damageReductionAmountArray = new int[4];
-        JsonArray dmgReduction = JSONUtils.getAsJsonArray(json, "damage_reduction");
+        JsonArray dmgReduction = GsonHelper.getAsJsonArray(json, "damage_reduction");
         if (dmgReduction.size() != 4)
             throw new JsonParseException("The damage_reduction must contain 4 entries, one for each armor part!");
         IntStream.range(0, dmgReduction.size()).forEach(i -> damageReductionAmountArray[i] = dmgReduction.get(i).getAsInt());
-        SoundEvent soundEvent = ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(JSONUtils.getAsString(json, "equip_sound", "")));
+        SoundEvent soundEvent = ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(GsonHelper.getAsString(json, "equip_sound", "")));
         Ingredient repairMaterial = json.has("repair_material") ? Ingredient.fromJson(json.get("repair_material")) : Ingredient.EMPTY;
 
-        return new HUArmorMaterial(name, JSONUtils.getAsInt(json, "max_damage_factor", 0), damageReductionAmountArray, JSONUtils.getAsInt(json, "enchantibility", 0), soundEvent, JSONUtils.getAsFloat(json, "toughness", 0), JSONUtils.getAsFloat(json, "knockback_resistance", 0), repairMaterial);
+        return new HUArmorMaterial(name, GsonHelper.getAsInt(json, "max_damage_factor", 0), damageReductionAmountArray, GsonHelper.getAsInt(json, "enchantibility", 0), soundEvent, GsonHelper.getAsFloat(json, "toughness", 0), GsonHelper.getAsFloat(json, "knockback_resistance", 0), repairMaterial);
     }
 
     public static Suit getSuit(String modid, String name) {
@@ -113,7 +113,7 @@ public class HUJsonUtils {
     }
 
     public static ResourceLocation getAsResourceLocation(JsonObject jsonObject, String string) {
-        return new ResourceLocation(JSONUtils.getAsString(jsonObject, string));
+        return new ResourceLocation(GsonHelper.getAsString(jsonObject, string));
     }
 
     public static int getIndexOfItem(Item item, NonNullList<ItemStack> items) {
@@ -125,7 +125,7 @@ public class HUJsonUtils {
         return -1;
     }
 
-    public static void rotatePartOfModel(ModelRenderer modelRenderer, String xyz, float angle, boolean player) {
+    public static void rotatePartOfModel(ModelPart modelRenderer, String xyz, float angle, boolean player) {
         switch (xyz) {
             case "x":
                 modelRenderer.xRot = (player ? modelRenderer.xRot : 0) + (float) Math.toRadians(angle);
@@ -139,7 +139,7 @@ public class HUJsonUtils {
         }
     }
 
-    public static void translatePivotOfModel(ModelRenderer modelRenderer, String xyz, float value, boolean player) {
+    public static void translatePivotOfModel(ModelPart modelRenderer, String xyz, float value, boolean player) {
         switch (xyz) {
             case "x":
                 modelRenderer.x = (player ? modelRenderer.x : 0) + value;

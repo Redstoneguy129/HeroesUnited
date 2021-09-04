@@ -4,14 +4,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.player.Player;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
@@ -24,7 +24,7 @@ import java.util.UUID;
 
 public class AbilityHelper {
 
-    public static boolean getEnabled(String name, PlayerEntity player) {
+    public static boolean getEnabled(String name, Player player) {
         return HUAbilityCap.getCap(player).getActiveAbilities().containsKey(name);
     }
 
@@ -37,14 +37,14 @@ public class AbilityHelper {
         return ability;
     }
 
-    public static void disable(PlayerEntity player) {
+    public static void disable(Player player) {
         player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> ImmutableMap.copyOf(a.getActiveAbilities()).forEach((id, ability) -> {
             a.disable(id);
             ability.onDeactivated(player);
         }));
     }
 
-    public static boolean canActiveAbility(Ability ability, PlayerEntity player) {
+    public static boolean canActiveAbility(Ability ability, Player player) {
         boolean suit = Suit.getSuit(player) == null || Suit.getSuit(player).canCombineWithAbility(ability, player);
         return ability.canActivate(player) && suit;
     }
@@ -79,7 +79,7 @@ public class AbilityHelper {
 
     //For remove modifier set amount to 0
     public static void setAttribute(LivingEntity entity, String name, Attribute attribute, UUID uuid, double amount, AttributeModifier.Operation operation) {
-        ModifiableAttributeInstance instance = entity.getAttribute(attribute);
+        AttributeInstance instance = entity.getAttribute(attribute);
 
         if (instance == null || entity.level.isClientSide) {
             return;
@@ -103,15 +103,15 @@ public class AbilityHelper {
     public static List<AbilityCreator> parseAbilityCreators(JsonObject json, ResourceLocation resourceLocation) {
         List<AbilityCreator> abilityList = Lists.newArrayList();
         if (json.has("abilities")) {
-            JsonObject abilities = JSONUtils.getAsJsonObject(json, "abilities");
+            JsonObject abilities = GsonHelper.getAsJsonObject(json, "abilities");
             abilities.entrySet().forEach((e) -> {
                 if (e.getValue() instanceof JsonObject) {
                     JsonObject o = (JsonObject) e.getValue();
-                    AbilityType ability = AbilityType.ABILITIES.get().getValue(new ResourceLocation(JSONUtils.getAsString(o, "ability")));
+                    AbilityType ability = AbilityType.ABILITIES.get().getValue(new ResourceLocation(GsonHelper.getAsString(o, "ability")));
                     if (ability != null) {
                         abilityList.add(new AbilityCreator(e.getKey(), ability).setJsonObject(o));
                     } else
-                        HeroesUnited.LOGGER.error("Couldn't read ability {} in {}", JSONUtils.getAsString(o, "ability"), resourceLocation);
+                        HeroesUnited.LOGGER.error("Couldn't read ability {} in {}", GsonHelper.getAsString(o, "ability"), resourceLocation);
                 }
             });
         }

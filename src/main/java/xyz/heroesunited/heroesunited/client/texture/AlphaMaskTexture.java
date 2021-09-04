@@ -1,10 +1,10 @@
 package xyz.heroesunited.heroesunited.client.texture;
 
-import net.minecraft.client.renderer.texture.NativeImage;
+import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.platform.TextureUtil;
 import net.minecraft.client.renderer.texture.SimpleTexture;
-import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.awt.*;
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class AlphaMaskTexture extends SimpleTexture {
     }
 
     @Override
-    public void load(IResourceManager manager) throws IOException {
+    public void load(ResourceManager manager) throws IOException {
         releaseId();
         InputStream[] streams = new InputStream[3];
         NativeImage image = NativeImage.read(streams[0] = manager.getResource(this.location).getInputStream());
