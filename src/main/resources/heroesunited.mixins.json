@@ -22,20 +22,19 @@
     "MixinDimensionType",
     "MixinMinecraftServer",
     "block.MixinBlock",
+    "block.MixinBlockReader",
     "block.MixinCactusBlock",
     "block.MixinFourWayBlock",
     "block.MixinWallBlock",
-    "block.MixinBlockReader",
     "client.AccessorDimensionRenderInfo",
-    "client.AccessorModelBakery",
     "client.InvokerActiveRenderInfo",
     "client.InvokerKeyBinding",
     "client.MixinLivingLayers",
     "client.MixinModelRenderer",
     "client.MixinTexturedParticle",
     "entity.AccessorLivingEntity",
-    "entity.MixinLivingEntity",
-    "entity.MixinEntity"
+    "entity.MixinEntity",
+    "entity.MixinLivingEntity"
   ],
   "injectors": {
     "defaultRequire": 1

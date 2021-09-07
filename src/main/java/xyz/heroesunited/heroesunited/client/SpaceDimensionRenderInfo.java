@@ -11,7 +11,7 @@ public class SpaceDimensionRenderInfo extends DimensionRenderInfo {
         setSkyRenderHandler(new SpaceSkyRenderHandler());
     }
     public Vector3d getBrightnessDependentFogColor(Vector3d p_230494_1_, float p_230494_2_) {
-        return p_230494_1_.scale((double)0.15F);
+        return p_230494_1_.scale(0.15F);
     }
 
     public boolean isFoggyAt(int p_230493_1_, int p_230493_2_) {

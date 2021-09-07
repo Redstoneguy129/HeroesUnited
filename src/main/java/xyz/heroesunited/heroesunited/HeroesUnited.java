@@ -12,6 +12,7 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.RegistryEvent;
@@ -69,7 +70,6 @@ import xyz.heroesunited.heroesunited.common.space.CelestialBodies;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.mixin.client.AccessorDimensionRenderInfo;
-import xyz.heroesunited.heroesunited.mixin.client.AccessorModelBakery;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
 import xyz.heroesunited.heroesunited.util.compat.ObfuscateHandler;
 
@@ -123,8 +123,6 @@ public class HeroesUnited {
             CelestialBodyRenderer.registerRenderer(new UranusRenderer(), CelestialBodies.URANUS);
             CelestialBodyRenderer.registerRenderer(new NeptuneRenderer(), CelestialBodies.NEPTUNE);
             CelestialBodyRenderer.registerRenderer(new KuiperBeltRenderer(), CelestialBodies.KUIPER_BELT);
-            AccessorModelBakery.getUnreferencedTex().add(SunModel.SUN_TEXTURE_MATERIAL);
-            AccessorModelBakery.getUnreferencedTex().add(EarthModel.EARTH_TEXTURE_MATERIAL);
             AccessorDimensionRenderInfo.getEffects().put(new ResourceLocation(MODID,"space"), new SpaceDimensionRenderInfo());
         });
     }
@@ -157,6 +155,14 @@ public class HeroesUnited {
         HUNetworking.registerMessages();
         LOGGER.info(MODID + ": common is ready!");
     }
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public void textureStitchPre(TextureStitchEvent.Pre e) {
+        e.addSprite(SunModel.SUN_TEXTURE_MATERIAL.texture());
+        e.addSprite(EarthModel.EARTH_TEXTURE_MATERIAL.texture());
+    }
+
 
     @OnlyIn(Dist.CLIENT)
     private void clientSetup(final FMLClientSetupEvent event) {
