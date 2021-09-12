@@ -2,17 +2,20 @@ buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net/' }
         maven { url = 'https://plugins.gradle.org/m2/' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
         mavenCentral()
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         classpath "gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0"
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
 
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'idea'
 apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
 
@@ -45,7 +48,7 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            arg "-mixin.config=heroesunited.mixins.json"
+            arg "--mixin.config=heroesunited.mixins.json"
             mods {
                 heroesunited {
                     source sourceSets.main
@@ -55,7 +58,7 @@ minecraft {
 
         clientWithCredentials {
             parent runs.client
-            args '--username', 'jeb_', '--uuid', '853c80ef-3c37-49fd-aa49-938b674adae6', "-mixin.config=heroesunited.mixins.json"
+            args '--username', 'jeb_', '--uuid', '853c80ef-3c37-49fd-aa49-938b674adae6', "--mixin.config=heroesunited.mixins.json"
         }
 
         server {
@@ -108,15 +111,11 @@ repositories {
     maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
     jcenter()
     maven { url "https://www.cursemaven.com" }
-    maven { url 'https://repo.repsy.io/mvn/chappie/heroesunited' }
-    maven { url "https://repo.spongepowered.org/repository/maven-public/" }
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:$project.minecraft_version-$project.forge_version"
 
-    library "org.spongepowered:mixin:0.8.4-SNAPSHOT"
-    library "com.google.guava:guava:21.0"
     //annotationProcessor "org.spongepowered:mixin:0.8.4-SNAPSHOT"
 
     compileOnly fg.deobf('curse.maven:obfuscate-289380:3148131')
@@ -124,10 +123,12 @@ dependencies {
     library('com.jagrosh:DiscordIPC:0.4') {
         exclude group: 'org.slf4j'
     }
-    implementation fg.deobf("software.bernie.geckolib:geckolib:$project.geckolib_version")
+    implementation fg.deobf("software.bernie.geckolib:geckolib-1.17.1:$project.geckolib_version")
 
-    shade 'com.jagrosh:DiscordIPC:0.4'
-    shade fg.deobf("software.bernie.geckolib:geckolib:$project.geckolib_version")
+    shade ('com.jagrosh:DiscordIPC:0.4') {
+        exclude group: 'org.slf4j'
+    }
+    shade fg.deobf("software.bernie.geckolib:geckolib-1.17.1:$project.geckolib_version")
 }
 
 task deobfJar(type: Jar) {
@@ -168,30 +169,8 @@ jar {
     }
 }
 
-
-afterEvaluate {
-    def reobfTsrgFile = file("${tasks.reobfJar.temporaryDir}/mixins.tsrg")
-    def refMapFile = file("${tasks.compileJava.temporaryDir}/mixins.heroesunited.refmap.json")
-    configurations.compileClasspath.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
-        dependencies.annotationProcessor([group: dep.moduleGroup, name: dep.moduleName, version: dep.moduleVersion])
-    }
-    tasks.compileJava {
-        options.compilerArgs += [
-                "-AreobfTsrgFile=${buildDir.canonicalPath}/createMcpToSrg/output.tsrg",
-                "-AoutTsrgFile=${reobfTsrgFile.canonicalPath}",
-                "-AoutRefMapFile=${refMapFile.canonicalPath}",
-                "-AmappingTypes=tsrg"
-        ]
-        dependsOn("createMcpToSrg")
-        doFirst {
-            reobfTsrgFile.delete()
-            refMapFile.delete()
-        }
-    }
-    tasks.jar.from refMapFile
-    tasks.reobfJar {
-        mappings = reobfTsrgFile
-    }
+mixin {
+    add sourceSets.main, "heroesunited.refmap.json"
 }
 
 publishing {

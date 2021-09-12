@@ -1,14 +1,14 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.gson.JsonObject;
-import com.mojang.math.Vector3d;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.phys.Vec3;
 
@@ -50,14 +50,14 @@ public class ProjectileAbility extends JSONAbility {
      * Code from {@link Projectile#shootFromRotation}
      */
     private void shoot(Entity e, Entity player, float velocity, float inaccuracy) {
-        float f = (float) (-Math.sin(player.getYRot() * ((float)Math.PI / 180F)) * Math.cos(player.getXRot() * ((float)Math.PI / 180F)));
-        float f1 = (float) -Math.sin((player.getXRot()) * ((float)Math.PI / 180F));
-        float f2 = (float) (Math.cos(player.getYRot() * ((float)Math.PI / 180F)) * Math.cos(player.getXRot() * ((float)Math.PI / 180F)));
+        float f = -Mth.sin(player.getYRot() * (Mth.PI / 180F)) * Mth.cos(player.getXRot() * (Mth.PI / 180F));
+        float f1 = -Mth.sin((player.getXRot()) * (Mth.PI / 180F));
+        float f2 = Mth.cos(player.getYRot() * (Mth.PI / 180F)) * Mth.cos(player.getXRot() * (Mth.PI / 180F));
         Vec3 vec3d = (new Vec3(f, f1, f2)).normalize().add(e.level.getRandom().nextGaussian() * (double)0.0075F * (double)inaccuracy, e.level.getRandom().nextGaussian() * (double)0.0075F * (double)inaccuracy, e.level.getRandom().nextGaussian() * (double)0.0075F * (double)inaccuracy).scale(velocity);
         
         e.setDeltaMovement(vec3d);
-        e.setYRot((float)(Math.atan2(vec3d.x, vec3d.z) * (double)(180F / (float)Math.PI)));
-        e.setXRot((float)(Math.atan2(vec3d.y, Math.sqrt(e.getHorizontalDistanceSqr(vec3d))) * (double)(180F / (float)Math.PI)));
+        e.setYRot((float)(Mth.atan2(vec3d.x, vec3d.z) * (double)(180F / Mth.PI)));
+        e.setXRot((float)(Mth.atan2(vec3d.y, vec3d.horizontalDistance()) * (double)(180F / Mth.PI)));
         e.yRotO = e.getYRot();
         e.xRotO = e.getXRot();
 

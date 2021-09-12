@@ -69,7 +69,6 @@ import xyz.heroesunited.heroesunited.common.space.CelestialBodies;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.mixin.client.AccessorDimensionRenderInfo;
-import xyz.heroesunited.heroesunited.mixin.client.AccessorModelBakery;
 import xyz.heroesunited.heroesunited.util.HUModelLayers;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
 import xyz.heroesunited.heroesunited.util.compat.ObfuscateHandler;
