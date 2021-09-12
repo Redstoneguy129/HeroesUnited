@@ -12,15 +12,14 @@ import net.minecraft.item.ArmorItem;
 import net.minecraft.item.IArmorMaterial;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.*;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.JSONUtils;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.capabilities.ICapabilitySerializable;
-import net.minecraftforge.common.util.LazyOptional;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
@@ -112,8 +111,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     @Override
     public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlotType slot, String type) {
         try {
-            GeoArmorRenderer renderer = getArmorRenderer();
-            ResourceLocation location = renderer.getTextureLocation((ArmorItem) stack.getItem());
+            ResourceLocation location = getArmorRenderer().getTextureLocation((ArmorItem) stack.getItem());
             if (Minecraft.getInstance().getResourceManager().hasResource(location)) {
                 return location.toString();
             } else {
@@ -127,31 +125,19 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
 
     @Nullable
     @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt) {
+    public CompoundNBT getShareTag(ItemStack stack) {
+        CompoundNBT nbt = stack.getOrCreateTag();
         if (getSuit() instanceof JsonSuit) {
-            return new ICapabilitySerializable<CompoundNBT>() {
+            nbt.put("Conditions", ((JsonSuit) suit).getConditionManager().serializeNBT());
+        }
+        return nbt;
+    }
 
-                public LazyOptional<SuitCapability> lazyOptional = LazyOptional.of(() -> new SuitCapability(stack));
-
-                @Nonnull
-                @Override
-                public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-                    return cap == SuitCapability.SUIT_CAPABILITY ? (LazyOptional<T>) this.lazyOptional : LazyOptional.empty();
-                }
-
-
-                @Override
-                public CompoundNBT serializeNBT() {
-                    return ((JsonSuit) SuitItem.this.getSuit()).getConditionManager().serializeNBT();
-                }
-
-                @Override
-                public void deserializeNBT(CompoundNBT nbt) {
-                    ((JsonSuit) SuitItem.this.getSuit()).getConditionManager().deserializeNBT(nbt);
-                }
-            };
-        } else {
-            return super.initCapabilities(stack, nbt);
+    @Override
+    public void readShareTag(ItemStack stack, @Nullable CompoundNBT nbt) {
+        super.readShareTag(stack, nbt);
+        if (getSuit() instanceof JsonSuit && nbt != null) {
+            ((JsonSuit) SuitItem.this.getSuit()).getConditionManager().deserializeNBT(nbt.getCompound("Conditions"));
         }
     }
 
@@ -173,7 +159,16 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
         return GeoArmorRenderer.getRenderer(clazz);
     }
 
+    @Override
+    public boolean canEquip(ItemStack stack, EquipmentSlotType armorType, Entity entity) {
+        if (entity instanceof PlayerEntity) {
+            return super.canEquip(stack, armorType, entity) && getSuit().canEquip((PlayerEntity) entity);
+        }
+        return super.canEquip(stack, armorType, entity);
+    }
+
     public void registerControllers(AnimationData data) {
+        getSuit().registerControllers(data, this);
     }
 
     public AnimationFactory getFactory() {

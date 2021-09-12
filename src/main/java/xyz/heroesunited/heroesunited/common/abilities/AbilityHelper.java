@@ -14,7 +14,6 @@ import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
-import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 
 import java.util.ArrayList;
@@ -42,11 +41,6 @@ public class AbilityHelper {
             a.disable(id);
             ability.onDeactivated(player);
         }));
-    }
-
-    public static boolean canActiveAbility(Ability ability, PlayerEntity player) {
-        boolean suit = Suit.getSuit(player) == null || Suit.getSuit(player).canCombineWithAbility(ability, player);
-        return ability.canActivate(player) && suit;
     }
 
     public static List<Ability> getAbilities(Entity entity) {

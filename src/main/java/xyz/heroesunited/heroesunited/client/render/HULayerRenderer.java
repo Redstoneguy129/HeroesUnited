@@ -114,7 +114,7 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
         if (itemstack.getItem() instanceof SuitItem) {
             SuitItem suitItem = (SuitItem) itemstack.getItem();
             if (suitItem.getSlot() == slot) {
-                suitItem.getSuit().renderLayer(entityRendererIn, entity, slot, stack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+                suitItem.getSuit().renderLayer(entityRendererIn, entity, itemstack, slot, stack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
             }
         }
     }

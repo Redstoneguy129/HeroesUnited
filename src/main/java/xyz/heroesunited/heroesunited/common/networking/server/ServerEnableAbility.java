@@ -7,7 +7,6 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 
@@ -42,7 +41,7 @@ public class ServerEnableAbility {
                     if (ability != null) {
                         if (this.data.contains("JsonObject"))
                             ability.setJsonObject(player, new JsonParser().parse(this.data.getString("JsonObject")).getAsJsonObject());
-                        if (AbilityHelper.canActiveAbility(ability, player)) {
+                        if (ability.canActivate(player)) {
                             cap.enable(this.id, ability);
                         }
                     }

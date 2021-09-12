@@ -12,7 +12,7 @@ import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 public class GeckoSuitRenderer extends GeoArmorRenderer<SuitItem> {
 
     public GeckoSuitRenderer() {
-        super(new GeckoSuitModel());
+        super(new GeckoSuitModel<>());
     }
 
     @Override

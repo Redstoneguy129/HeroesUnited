@@ -27,6 +27,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.GameData;
 import net.minecraftforge.registries.IForgeRegistry;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.geo.exception.GeckoLibException;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
@@ -91,7 +92,6 @@ public abstract class Suit {
         return null;
     }
 
-    @Nullable
     public final ResourceLocation getRegistryName() {
         return registryName;
     }
@@ -112,20 +112,24 @@ public abstract class Suit {
     public void onKeyInput(PlayerEntity player, EquipmentSlotType slot, Map<Integer, Boolean> map) {
     }
 
-    public boolean canCombineWithAbility(Ability type, PlayerEntity player) {
-        return true;
-    }
-
     @OnlyIn(Dist.CLIENT)
     public void setRotationAngles(HUSetRotationAnglesEvent event, EquipmentSlotType slot) {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderLayer(@Nullable LivingRenderer<? extends LivingEntity, ? extends BipedModel<?>> entityRenderer, @Nullable LivingEntity entity, EquipmentSlotType slot, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void renderLayer(@Nullable LivingRenderer<? extends LivingEntity, ? extends BipedModel<?>> entityRenderer, @Nullable LivingEntity entity, ItemStack stack, EquipmentSlotType slot, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         HUPackLayers.Layer layer = HUPackLayers.getInstance().getLayer(this.getRegistryName());
-        if (layer != null && layer.getTexture("cape") != null && slot.equals(EquipmentSlotType.CHEST)) {
-            HUClientUtil.renderCape(entityRenderer, entity, matrix, bufferIn, packedLightIn, partialTicks, layer.getTexture("cape"));
+        if (layer != null) {
+            if (layer.getTexture("cape") != null && slot.equals(EquipmentSlotType.CHEST)) {
+                HUClientUtil.renderCape(entityRenderer, entity, matrix, bufferIn, packedLightIn, partialTicks, layer.getTexture("cape"));
+            }
+            if (layer.getTexture("lights") != null) {
+                Suit.getSuitItem(slot, entity).getArmorModel(entity, stack, slot, entityRenderer.getModel()).renderToBuffer(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.getLight(layer.getTexture("lights"))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+            }
         }
+    }
+
+    public void registerControllers(AnimationData data, SuitItem suitItem) {
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -141,7 +145,7 @@ public abstract class Suit {
     @SuppressWarnings("unchecked")
     @OnlyIn(Dist.CLIENT)
     public BipedModel<?> getArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlotType slot, BipedModel _default) {
-        ModelSuit suitModel = new ModelSuit(getScale(slot), isSmallArms(entity));
+        ModelSuit<?> suitModel = new ModelSuit<>(getScale(slot), isSmallArms(entity));
         switch (slot) {
             case HEAD:
                 suitModel.hat.visible = suitModel.head.visible = true;
@@ -224,7 +228,7 @@ public abstract class Suit {
 		} catch (GeckoLibException | IllegalArgumentException e) {
 			ModelSuit suitModel = new ModelSuit(getScale(slot), isSmallArms(player));
 			suitModel.copyPropertiesFrom(renderer.getModel());
-			suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(getSuitTexture(player.getItemBySlot(EquipmentSlotType.CHEST), player, EquipmentSlotType.CHEST)))), packedLightIn, player);
+			suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(player.getItemBySlot(EquipmentSlotType.CHEST).getItem().getArmorTexture(player.getItemBySlot(EquipmentSlotType.CHEST), player, EquipmentSlotType.CHEST, null)))), packedLightIn, player);
         }
 	}
 
@@ -253,21 +257,16 @@ public abstract class Suit {
     }
 
     public boolean hasArmorOn(LivingEntity entity) {
-        boolean hasArmorOn = true;
+        for (EquipmentSlotType slot : EquipmentSlotType.values()) {
+            if (slot.getType() == EquipmentSlotType.Group.ARMOR) {
+                Item item = entity.getItemBySlot(slot).getItem();
+                if (item instanceof SuitItem && ((SuitItem) item).getSuit() != this) {
+                    return false;
+                }
+            }
+        }
 
-        if (getHelmet() != null && (entity.getItemBySlot(EquipmentSlotType.HEAD).isEmpty() || entity.getItemBySlot(EquipmentSlotType.HEAD).getItem() != getHelmet()))
-            hasArmorOn = false;
-
-        if (getChestplate() != null && (entity.getItemBySlot(EquipmentSlotType.CHEST).isEmpty() || entity.getItemBySlot(EquipmentSlotType.CHEST).getItem() != getChestplate()))
-            hasArmorOn = false;
-
-        if (getLegs() != null && (entity.getItemBySlot(EquipmentSlotType.LEGS).isEmpty() || entity.getItemBySlot(EquipmentSlotType.LEGS).getItem() != getLegs()))
-            hasArmorOn = false;
-
-        if (getBoots() != null && (entity.getItemBySlot(EquipmentSlotType.FEET).isEmpty() || entity.getItemBySlot(EquipmentSlotType.FEET).getItem() != getBoots()))
-            hasArmorOn = false;
-
-        return hasArmorOn;
+        return true;
     }
 
     public List<EquipmentAccessoriesSlot> getSlotForHide(EquipmentSlotType slot) {
