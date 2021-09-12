@@ -41,7 +41,7 @@ public class JsonConditionManager implements INBTSerializable<CompoundTag> {
     }
 
     public void addCondition(JsonObject jsonObject, boolean active) {
-        this.conditions.put(new SimpleEntry(jsonObject, UUID.randomUUID()), active);
+        this.conditions.put(new SimpleEntry<>(jsonObject, UUID.randomUUID()), active);
     }
 
     public void update(Player player) {
@@ -124,6 +124,11 @@ public class JsonConditionManager implements INBTSerializable<CompoundTag> {
         ListTag list = nbt.getList("Conditions", Constants.NBT.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++) {
             CompoundTag conditionTag = list.getCompound(i);
+            conditions.forEach((key, value) -> {
+                CompoundTag conditionTag = new CompoundTag();
+                conditionTag.putBoolean("Active", value);
+                conditionTag.putString("JsonObject", key.getKey().toString());
+            });
             if (conditionTag.contains("JsonObject")) {
                 JsonObject jsonObject = new JsonParser().parse(conditionTag.getString("JsonObject")).getAsJsonObject();
                 if (getFromJson(jsonObject) != null) {

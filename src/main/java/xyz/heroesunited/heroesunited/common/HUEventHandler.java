@@ -220,7 +220,7 @@ public class HUEventHandler {
                     for (Map.Entry<String, Ability> e : a.getAbilities().entrySet()) {
                         Ability ability = e.getValue();
                         if (ability != null && ability.alwaysActive(pl)) {
-                            if (AbilityHelper.canActiveAbility(ability, pl)) {
+                            if (ability.canActivate(pl)) {
                                 a.enable(e.getKey(), ability);
                             } else {
                                 a.disable(e.getKey());
@@ -348,11 +348,6 @@ public class HUEventHandler {
                         }
                     }
                     suitItem.getSuit().onActivated(player, suitItem.getSlot());
-                    for (Ability ability : AbilityHelper.getAbilities(player)) {
-                        if (ability != null && suitItem.getSuit().hasArmorOn(player) && !suitItem.getSuit().canCombineWithAbility(ability, player)) {
-                            AbilityHelper.disable(player);
-                        }
-                    }
                 } else if (event.getFrom().getItem() instanceof SuitItem && !cap.getAbilities().isEmpty()) {
                     SuitItem suitItem = (SuitItem) event.getFrom().getItem();
                     for (Ability a : AbilityHelper.getAbilityMap(player).values()) {
