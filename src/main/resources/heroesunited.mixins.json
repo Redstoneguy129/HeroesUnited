@@ -27,7 +27,6 @@
     "block.MixinFourWayBlock",
     "block.MixinWallBlock",
     "client.AccessorDimensionRenderInfo",
-    "client.AccessorModelBakery",
     "client.InvokerActiveRenderInfo",
     "client.InvokerKeyBinding",
     "client.MixinLivingLayers",

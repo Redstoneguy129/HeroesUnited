@@ -14,6 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
@@ -111,11 +112,7 @@ public class HeroesUnited {
         bus.addListener(this::onRegisterNewRegistries);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, HUConfig.CLIENT_SPEC);
 
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            AccessorModelBakery.getUnreferencedTex().add(SunModel.SUN_TEXTURE_MATERIAL);
-            AccessorModelBakery.getUnreferencedTex().add(EarthModel.EARTH_TEXTURE_MATERIAL);
-            AccessorDimensionRenderInfo.getEffects().put(new ResourceLocation(MODID,"space"), new SpaceDimensionRenderInfo());
-        });
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> AccessorDimensionRenderInfo.getEffects().put(new ResourceLocation(MODID,"space"), new SpaceDimensionRenderInfo()));
     }
 
     static {
@@ -143,6 +140,12 @@ public class HeroesUnited {
         LOGGER.info(MODID + ": common is ready!");
     }
 
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public void textureStitchPre(TextureStitchEvent.Pre e) {
+        e.addSprite(SunModel.SUN_TEXTURE_MATERIAL.texture());
+        e.addSprite(EarthModel.EARTH_TEXTURE_MATERIAL.texture());
+    }
 
     @SubscribeEvent
     public void registerCapabilities(final RegisterCapabilitiesEvent event) {
