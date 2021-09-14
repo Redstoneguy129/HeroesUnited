@@ -32,6 +32,7 @@ import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 
 import java.awt.*;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -74,9 +75,13 @@ public class AbilitiesScreen extends Screen {
     }
 
     public static List<Ability> getCurrentDisplayedAbilities(Player player) {
+        return getCurrentDisplayedAbilities(player, a -> !a.isHidden(player));
+    }
+
+    public static List<Ability> getCurrentDisplayedAbilities(Player player, Predicate<Ability> filter) {
         List<Ability> abilities = Lists.newArrayList(), list = Lists.newArrayList();
         abilities.addAll(HUAbilityCap.getCap(player).getAbilities().values().stream()
-                .filter(a -> a != null && !a.isHidden(player))
+                .filter(a -> a != null && filter.test(a))
                 .collect(Collectors.toList()));
 
         if (abilities.isEmpty()) {
@@ -193,7 +198,7 @@ public class AbilitiesScreen extends Screen {
             String line = button.abilityDescription.get(i);
             this.font.drawShadow(matrix, line, bgX + 10, bgY + 10 + i * 13, 0xFFFFFF);
         }
-        boolean activate = AbilityHelper.canActiveAbility(button.ability, this.minecraft.player);
+        boolean activate = button.ability.canActivate(this.minecraft.player);
         this.font.drawShadow(matrix, activate ? "Ability can be activated" : "Ability cannot be activated", bgX + 10, bgY + 10 + (button.abilityDescription.size() + 1) * 13, activate ? 0x00FF00 : 0xFF0000);
     }
 
@@ -218,7 +223,7 @@ public class AbilitiesScreen extends Screen {
             Minecraft mc = Minecraft.getInstance();
             boolean hovered = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
             Color color = AbilityHelper.getEnabled(this.ability.name, mc.player) ? hovered ? Color.ORANGE : Color.YELLOW :
-                    hovered ? AbilityHelper.canActiveAbility(this.ability, mc.player) ? Color.GREEN : Color.RED : Color.WHITE;
+                    hovered ? ability.canActivate(mc.player) ? Color.GREEN : Color.RED : Color.WHITE;
 
             Tesselator tesselator = Tesselator.getInstance();
             BufferBuilder builder = tesselator.getBuilder();
