@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.client.texture;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.renderer.texture.TextureUtil;
@@ -7,6 +8,8 @@ import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 
 import java.awt.*;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -17,7 +20,7 @@ public class AlphaMaskTexture extends SimpleTexture {
     public AlphaMaskTexture(ResourceLocation base, ResourceLocation maskLocation) {
         this(base, maskLocation, base);
     }
-    
+
     public AlphaMaskTexture(ResourceLocation base, ResourceLocation maskLocation, ResourceLocation output) {
         super(base);
         this.maskLocation = maskLocation;
@@ -28,9 +31,24 @@ public class AlphaMaskTexture extends SimpleTexture {
     public void load(IResourceManager manager) throws IOException {
         releaseId();
         InputStream[] streams = new InputStream[3];
-        NativeImage image = NativeImage.read(streams[0] = manager.getResource(this.location).getInputStream());
+        NativeImage image;
+        File skinsDirectory = Minecraft.getInstance().getSkinManager().skinsDirectory;
+        if (this.location.getPath().startsWith("skins/")) {
+            String s = this.location.getPath().replace("skins/", "");
+            File file = new File(skinsDirectory.getAbsolutePath(), (s.length() > 2 ? s.substring(0, 2) : "xx"));
+            image = NativeImage.read(streams[0] = new FileInputStream(new File(file, s)));
+        } else {
+            image = NativeImage.read(streams[0] = manager.getResource(this.location).getInputStream());
+        }
         NativeImage mask = NativeImage.read(streams[1] = manager.getResource(this.maskLocation).getInputStream());
-        NativeImage output = NativeImage.read(streams[2] = manager.getResource(this.output).getInputStream());
+        NativeImage output;
+        if (this.output.getPath().startsWith("skins/")) {
+            String s = this.output.getPath().replace("skins/", "");
+            File file = new File(skinsDirectory.getAbsolutePath(), (s.length() > 2 ? s.substring(0, 2) : "xx"));
+            output = NativeImage.read(streams[2] = new FileInputStream(new File(file, s)));
+        } else {
+            output = NativeImage.read(streams[2] = manager.getResource(this.output).getInputStream());
+        }
 
         for (int y = 0; y < mask.getHeight(); ++y) {
             for (int x = 0; x < mask.getWidth(); ++x) {
