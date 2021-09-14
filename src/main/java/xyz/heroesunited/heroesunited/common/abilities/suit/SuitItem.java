@@ -3,7 +3,6 @@ package xyz.heroesunited.heroesunited.common.abilities.suit;
 import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -22,10 +21,6 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.IItemRenderProperties;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.capabilities.ICapabilitySerializable;
-import net.minecraftforge.common.util.LazyOptional;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
@@ -124,8 +119,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     @Override
     public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
         try {
-            GeoArmorRenderer renderer = getArmorRenderer();
-            ResourceLocation location = renderer.getTextureLocation((ArmorItem) stack.getItem());
+            ResourceLocation location = getArmorRenderer().getTextureLocation((ArmorItem) stack.getItem());
             if (Minecraft.getInstance().getResourceManager().hasResource(location)) {
                 return location.toString();
             } else {
@@ -139,32 +133,28 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
 
     @Nullable
     @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
+    public CompoundTag getShareTag(ItemStack stack) {
+        CompoundTag nbt = stack.getOrCreateTag();
         if (getSuit() instanceof JsonSuit) {
-            return new ICapabilitySerializable<CompoundTag>() {
-
-                public LazyOptional<SuitCapability> lazyOptional = LazyOptional.of(() -> new SuitCapability(stack));
-
-                @Nonnull
-                @Override
-                public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-                    return cap == SuitCapability.SUIT_CAPABILITY ? (LazyOptional<T>) this.lazyOptional : LazyOptional.empty();
-                }
-
-
-                @Override
-                public CompoundTag serializeNBT() {
-                    return ((JsonSuit) SuitItem.this.getSuit()).getConditionManager().serializeNBT();
-                }
-
-                @Override
-                public void deserializeNBT(CompoundTag nbt) {
-                    ((JsonSuit) SuitItem.this.getSuit()).getConditionManager().deserializeNBT(nbt);
-                }
-            };
-        } else {
-            return super.initCapabilities(stack, nbt);
+            nbt.put("Conditions", ((JsonSuit) suit).getConditionManager().serializeNBT());
         }
+        return nbt;
+    }
+
+    @Override
+    public void readShareTag(ItemStack stack, @Nullable CompoundTag nbt) {
+        super.readShareTag(stack, nbt);
+        if (getSuit() instanceof JsonSuit && nbt != null) {
+            ((JsonSuit) SuitItem.this.getSuit()).getConditionManager().deserializeNBT(nbt.getCompound("Conditions"));
+        }
+    }
+
+    @Override
+    public boolean canEquip(ItemStack stack, EquipmentSlot slot, Entity entity) {
+        if (entity instanceof Player) {
+            return super.canEquip(stack, slot, entity) && getSuit().canEquip((Player) entity);
+        }
+        return super.canEquip(stack, slot, entity);
     }
 
     @Override
@@ -186,6 +176,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     }
 
     public void registerControllers(AnimationData data) {
+        getSuit().registerControllers(data, this);
     }
 
     public AnimationFactory getFactory() {

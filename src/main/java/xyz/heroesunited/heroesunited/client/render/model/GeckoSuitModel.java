@@ -10,35 +10,26 @@ import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 public class GeckoSuitModel<T extends SuitItem> extends AnimatedGeoModel<T> {
     @Override
     public ResourceLocation getModelLocation(T item) {
-        ResourceLocation res = new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "geo/" + item.getSuit().getRegistryName().getPath() + ".geo.json");
-        if (getLayer(item, "texture") != null) {
-            return getLayer(item, "texture");
-        }
-        if (item.getSuit() instanceof JsonSuit && ((JsonSuit) item.getSuit()).getJsonObject() != null)
-            return new ResourceLocation(GsonHelper.getAsString(((JsonSuit) item.getSuit()).getJsonObject(), "model", res.toString()));
-        return res;
+        return getLayer(item, "model", new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "geo/" + item.getSuit().getRegistryName().getPath() + ".geo.json"));
     }
 
     @Override
     public ResourceLocation getTextureLocation(T item) {
-        if (getLayer(item, "texture") != null) {
-            return getLayer(item, "texture");
-        }
-        if (item.getSuit() instanceof JsonSuit && ((JsonSuit) item.getSuit()).getJsonObject() != null && ((JsonSuit) item.getSuit()).getJsonObject().has("texture")) {
-            return new ResourceLocation(GsonHelper.getAsString(((JsonSuit) item.getSuit()).getJsonObject(), "texture"));
-        } else return new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "textures/suits/" + item.getSuit().getRegistryName().getPath() + ".png");
-    }
-
-    public ResourceLocation getLayer(T item, String type) {
-        HUPackLayers.Layer layer = HUPackLayers.getInstance().getLayer(item.getSuit().getRegistryName());
-        if (layer != null && layer.getTexture(type) != null) {
-            return layer.getTexture(type);
-        }
-        return null;
+        return getLayer(item, "texture", new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "textures/suits/" + item.getSuit().getRegistryName().getPath() + ".png"));
     }
 
     @Override
     public ResourceLocation getAnimationFileLocation(T item) {
-        return new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "animations/" + item.getSuit().getRegistryName().getPath() + ".animation.json");
+        return getLayer(item, "animation", new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "animations/" + item.getSuit().getRegistryName().getPath() + ".animation.json"));
+    }
+
+    public ResourceLocation getLayer(T item, String type, ResourceLocation path) {
+        HUPackLayers.Layer layer = HUPackLayers.getInstance().getLayer(item.getSuit().getRegistryName());
+        if (layer != null && layer.getTexture(type) != null) {
+            return layer.getTexture(type);
+        }
+        if (item.getSuit() instanceof JsonSuit && ((JsonSuit) item.getSuit()).getJsonObject() != null && ((JsonSuit) item.getSuit()).getJsonObject().has(type))
+            return new ResourceLocation(GsonHelper.getAsString(((JsonSuit) item.getSuit()).getJsonObject(), type));
+        return path;
     }
 }

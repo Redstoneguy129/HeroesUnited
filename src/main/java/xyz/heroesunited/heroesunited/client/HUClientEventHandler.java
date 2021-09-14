@@ -20,7 +20,6 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.*;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
@@ -73,7 +72,6 @@ import xyz.heroesunited.heroesunited.mixin.client.InvokerKeyBinding;
 import xyz.heroesunited.heroesunited.util.*;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -83,7 +81,6 @@ public class HUClientEventHandler {
     public static final KeyMapping ABILITIES_SCREEN = new KeyMapping(HeroesUnited.MODID + ".key.abilities_screen", GLFW.GLFW_KEY_H, "key.categories." + HeroesUnited.MODID);
     public static final KeyMapping ACCESSORIES_SCREEN = new KeyMapping(HeroesUnited.MODID + ".key.accessories_screen", GLFW.GLFW_KEY_J, "key.categories." + HeroesUnited.MODID);
     private final List<String> playerBones = Arrays.asList("bipedHead", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg");
-    private final ArrayList<LivingEntityRenderer> entitiesWithLayer = Lists.newArrayList();
     public static List<AbilityKeyBinding> ABILITY_KEYS = Lists.newArrayList();
     public static KeyMap KEY_MAP = new KeyMap();
 
@@ -225,9 +222,6 @@ public class HUClientEventHandler {
             }
             event.getMatrixStack().scale(0.01F,0.01F,0.01F);
         }
-        if (entitiesWithLayer.contains(event.getRenderer())) return;
-        event.getRenderer().addLayer(new HULayerRenderer(event.getRenderer()));
-        entitiesWithLayer.add(event.getRenderer());
     }
 
     @SubscribeEvent
@@ -525,7 +519,8 @@ public class HUClientEventHandler {
         gui.setupOverlayRenderState(true, false);
         Minecraft mc = Minecraft.getInstance();
         if(mc.player != null && mc.player.isAlive()) {
-            List<Ability> abilities = AbilitiesScreen.getCurrentDisplayedAbilities(mc.player);
+            List<Ability> abilities = AbilitiesScreen.getCurrentDisplayedAbilities(mc.player, a ->
+                    !a.isHidden(mc.player) && a.getConditionManager().isEnabled(mc.player, "canActivate") && a.getConditionManager().isEnabled(mc.player, "canBeEnabled"));
             if (abilities.size() > 0) {
                 final ResourceLocation widgets = new ResourceLocation(HeroesUnited.MODID, "textures/gui/widgets.png");
                 int y = screenHeight / 3;

@@ -14,7 +14,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
-import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 
 import java.util.ArrayList;
@@ -42,11 +41,6 @@ public class AbilityHelper {
             a.disable(id);
             ability.onDeactivated(player);
         }));
-    }
-
-    public static boolean canActiveAbility(Ability ability, Player player) {
-        boolean suit = Suit.getSuit(player) == null || Suit.getSuit(player).canCombineWithAbility(ability, player);
-        return ability.canActivate(player) && suit;
     }
 
     public static List<Ability> getAbilities(Entity entity) {
@@ -105,8 +99,7 @@ public class AbilityHelper {
         if (json.has("abilities")) {
             JsonObject abilities = GsonHelper.getAsJsonObject(json, "abilities");
             abilities.entrySet().forEach((e) -> {
-                if (e.getValue() instanceof JsonObject) {
-                    JsonObject o = (JsonObject) e.getValue();
+                if (e.getValue() instanceof JsonObject o) {
                     AbilityType ability = AbilityType.ABILITIES.get().getValue(new ResourceLocation(GsonHelper.getAsString(o, "ability")));
                     if (ability != null) {
                         abilityList.add(new AbilityCreator(e.getKey(), ability).setJsonObject(o));

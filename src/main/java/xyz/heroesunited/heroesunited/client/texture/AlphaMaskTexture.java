@@ -1,9 +1,8 @@
 package xyz.heroesunited.heroesunited.client.texture;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.NativeImage;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;

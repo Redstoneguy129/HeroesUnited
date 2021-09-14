@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -23,10 +24,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.RenderProperties;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.GameData;
 import net.minecraftforge.registries.IForgeRegistry;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.geo.exception.GeckoLibException;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
@@ -112,20 +115,25 @@ public abstract class Suit {
     public void onKeyInput(Player player, EquipmentSlot slot, Map<Integer, Boolean> map) {
     }
 
-    public boolean canCombineWithAbility(Ability type, Player player) {
-        return true;
-    }
-
     @OnlyIn(Dist.CLIENT)
     public void setRotationAngles(HUSetRotationAnglesEvent event, EquipmentSlot slot) {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderLayer(@Nullable LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> entityRenderer, @Nullable LivingEntity entity, EquipmentSlot slot, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void renderLayer(EntityModelSet entityModels, @Nullable LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> entityRenderer, @Nullable LivingEntity entity, EquipmentSlot slot, ItemStack stack, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         HUPackLayers.Layer layer = HUPackLayers.getInstance().getLayer(this.getRegistryName());
-        if (layer != null && layer.getTexture("cape") != null && slot.equals(EquipmentSlot.CHEST)) {
-            HUClientUtil.renderCape(entityRenderer, entity, matrix, bufferIn, packedLightIn, partialTicks, layer.getTexture("cape"));
+        if (layer != null) {
+            if (layer.getTexture("cape") != null && slot.equals(EquipmentSlot.CHEST)) {
+                HUClientUtil.renderCape(entityModels, entityRenderer, entity, matrix, bufferIn, packedLightIn, partialTicks, layer.getTexture("cape"));
+            }
+            if (layer.getTexture("lights") != null) {
+                RenderProperties.get(Suit.getSuitItem(slot, entity)).getArmorModel(entity, stack, slot, entityRenderer.getModel()).renderToBuffer(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.getLight(layer.getTexture("lights"))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+            }
         }
+    }
+
+    public void registerControllers(AnimationData data, SuitItem suitItem) {
+
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -224,7 +232,7 @@ public abstract class Suit {
 		} catch (GeckoLibException | IllegalArgumentException e) {
             SuitModel suitModel = new SuitModel(HUClientUtil.getSuitModelPart(player), isSmallArms(player));
 			suitModel.copyPropertiesFrom(renderer.getModel());
-			suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(getSuitTexture(player.getItemBySlot(EquipmentSlot.CHEST), player, EquipmentSlot.CHEST)))), packedLightIn, player);
+            suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(player.getItemBySlot(EquipmentSlot.CHEST).getItem().getArmorTexture(player.getItemBySlot(EquipmentSlot.CHEST), player, EquipmentSlot.CHEST, null)))), packedLightIn, player);
         }
 	}
 
@@ -253,21 +261,16 @@ public abstract class Suit {
     }
 
     public boolean hasArmorOn(LivingEntity entity) {
-        boolean hasArmorOn = true;
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            if (slot.getType() == EquipmentSlot.Type.ARMOR) {
+                Item item = entity.getItemBySlot(slot).getItem();
+                if (item instanceof SuitItem && ((SuitItem) item).getSuit() != this) {
+                    return false;
+                }
+            }
+        }
 
-        if (getHelmet() != null && (entity.getItemBySlot(EquipmentSlot.HEAD).isEmpty() || entity.getItemBySlot(EquipmentSlot.HEAD).getItem() != getHelmet()))
-            hasArmorOn = false;
-
-        if (getChestplate() != null && (entity.getItemBySlot(EquipmentSlot.CHEST).isEmpty() || entity.getItemBySlot(EquipmentSlot.CHEST).getItem() != getChestplate()))
-            hasArmorOn = false;
-
-        if (getLegs() != null && (entity.getItemBySlot(EquipmentSlot.LEGS).isEmpty() || entity.getItemBySlot(EquipmentSlot.LEGS).getItem() != getLegs()))
-            hasArmorOn = false;
-
-        if (getBoots() != null && (entity.getItemBySlot(EquipmentSlot.FEET).isEmpty() || entity.getItemBySlot(EquipmentSlot.FEET).getItem() != getBoots()))
-            hasArmorOn = false;
-
-        return hasArmorOn;
+        return true;
     }
 
     public List<EquipmentAccessoriesSlot> getSlotForHide(EquipmentSlot slot) {
@@ -285,8 +288,7 @@ public abstract class Suit {
 
     public static SuitItem getSuitItem(EquipmentSlot slot, LivingEntity entity) {
         ItemStack stack = entity.getItemBySlot(slot);
-        if (stack.getItem() instanceof SuitItem) {
-            SuitItem suitItem = (SuitItem) stack.getItem();
+        if (stack.getItem() instanceof SuitItem suitItem) {
             if (suitItem.getSlot().equals(slot)) {
                 return suitItem;
             }
@@ -298,8 +300,7 @@ public abstract class Suit {
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             if (slot.getType() == EquipmentSlot.Type.ARMOR) {
                 Item item = entity.getItemBySlot(slot).getItem();
-                if (item instanceof SuitItem) {
-                    SuitItem suitItem = (SuitItem) item;
+                if (item instanceof SuitItem suitItem) {
                     if (suitItem.getSuit().hasArmorOn(entity)) {
                         return suitItem.getSuit();
                     }

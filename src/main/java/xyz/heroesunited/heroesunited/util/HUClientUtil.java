@@ -156,12 +156,12 @@ public class HUClientUtil {
         }
     }
 
-    public static void renderCape(LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> renderer, LivingEntity entity, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, float partialTicks, ResourceLocation texture) {
+    public static void renderCape(EntityModelSet entityModels, LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> renderer, LivingEntity entity, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, float partialTicks, ResourceLocation texture) {
         if (renderer != null) {
             if (entity.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof ElytraItem || entity instanceof LocalPlayer && ((Player) entity).isModelPartShown(PlayerModelPart.CAPE) && ((LocalPlayer) entity).getCloakTextureLocation() != null) {
                 return;
             }
-            final CapeModel model = new CapeModel(Minecraft.getInstance().getEntityModels().bakeLayer(HUModelLayers.CAPE));
+            final CapeModel model = new CapeModel(entityModels.bakeLayer(HUModelLayers.CAPE));
             matrix.pushPose();
             renderer.getModel().body.translateAndRotate(matrix);
             matrix.translate(0, -0.04F, 0.05F);

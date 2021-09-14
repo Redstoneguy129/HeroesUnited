@@ -2,6 +2,7 @@ package xyz.heroesunited.heroesunited.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -29,11 +30,13 @@ import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 public class HULayerRenderer<T extends LivingEntity, M extends HumanoidModel<T>> extends RenderLayer<T, M> {
 
-    public LivingEntityRenderer<T, M> entityRendererIn;
+    public final LivingEntityRenderer<T, M> entityRendererIn;
+    public final EntityModelSet entityModels;
 
-    public HULayerRenderer(LivingEntityRenderer entityRendererIn) {
+    public HULayerRenderer(LivingEntityRenderer<T, M> entityRendererIn, EntityModelSet entityModels) {
         super(entityRendererIn);
         this.entityRendererIn = entityRendererIn;
+        this.entityModels = entityModels;
     }
 
     @Override
@@ -45,7 +48,7 @@ public class HULayerRenderer<T extends LivingEntity, M extends HumanoidModel<T>>
             PlayerRenderer playerRenderer = (PlayerRenderer) entityRendererIn;
             AbstractClientPlayer player = (AbstractClientPlayer) entity;
             for (Ability ability : AbilityHelper.getAbilities(player)) {
-                ability.render(playerRenderer, matrixStack, buffer, packedLight, player, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+                ability.render(entityModels, playerRenderer, matrixStack, buffer, packedLight, player, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
             }
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                 for (int slot = 0; slot < cap.getInventory().getContainerSize(); ++slot) {
@@ -112,10 +115,9 @@ public class HULayerRenderer<T extends LivingEntity, M extends HumanoidModel<T>>
 
     private void renderSuit(PoseStack stack, MultiBufferSource buffer, T entity, EquipmentSlot slot, int packedLight, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         ItemStack itemstack = entity.getItemBySlot(slot);
-        if (itemstack.getItem() instanceof SuitItem) {
-            SuitItem suitItem = (SuitItem) itemstack.getItem();
+        if (itemstack.getItem() instanceof SuitItem suitItem) {
             if (suitItem.getSlot() == slot) {
-                suitItem.getSuit().renderLayer(entityRendererIn, entity, itemstack, slot, stack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+                suitItem.getSuit().renderLayer(entityModels, entityRendererIn, entity, slot, itemstack, stack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
             }
         }
     }

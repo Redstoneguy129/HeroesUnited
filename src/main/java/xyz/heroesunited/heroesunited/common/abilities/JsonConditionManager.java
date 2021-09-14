@@ -81,6 +81,16 @@ public class JsonConditionManager implements INBTSerializable<CompoundTag> {
         return methodConditions;
     }
 
+    public boolean isEnabled(Player player) {
+        this.update(player);
+        for (boolean condition : methodConditions.values()) {
+            if (!condition) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public boolean isEnabled(Player player, String method) {
         this.update(player);
         return isEnabled(method, true);
@@ -100,12 +110,12 @@ public class JsonConditionManager implements INBTSerializable<CompoundTag> {
 
         ListTag list = new ListTag();
         if (!conditions.isEmpty()) {
-            for (Map.Entry<Map.Entry<JsonObject, UUID>, Boolean> entry : conditions.entrySet()) {
+            conditions.forEach((key, value) -> {
                 CompoundTag conditionTag = new CompoundTag();
-                conditionTag.putBoolean("Active", entry.getValue());
-                conditionTag.putString("JsonObject", entry.getKey().getKey().toString());
+                conditionTag.putBoolean("Active", value);
+                conditionTag.putString("JsonObject", key.getKey().toString());
                 list.add(conditionTag);
-            }
+            });
         }
         nbt.put("Conditions", list);
 
@@ -124,11 +134,6 @@ public class JsonConditionManager implements INBTSerializable<CompoundTag> {
         ListTag list = nbt.getList("Conditions", Constants.NBT.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++) {
             CompoundTag conditionTag = list.getCompound(i);
-            conditions.forEach((key, value) -> {
-                CompoundTag conditionTag = new CompoundTag();
-                conditionTag.putBoolean("Active", value);
-                conditionTag.putString("JsonObject", key.getKey().toString());
-            });
             if (conditionTag.contains("JsonObject")) {
                 JsonObject jsonObject = new JsonParser().parse(conditionTag.getString("JsonObject")).getAsJsonObject();
                 if (getFromJson(jsonObject) != null) {

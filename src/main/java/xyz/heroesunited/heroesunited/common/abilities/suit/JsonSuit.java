@@ -121,11 +121,6 @@ public class JsonSuit extends Suit {
     }
 
     @Override
-    public boolean canCombineWithAbility(Ability type, Player player) {
-        return super.canCombineWithAbility(type, player) && this.conditionManager.isEnabled(player, "canCombineWithAbility");
-    }
-
-    @Override
     public float getScale(EquipmentSlot slot) {
         return jsonObject.has("scale") ? GsonHelper.getAsFloat(jsonObject, "scale") : super.getScale(slot);
     }
