@@ -517,7 +517,8 @@ public class HUClientEventHandler {
     public void onGameOverlayPost(RenderGameOverlayEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
         if(event.getType() == RenderGameOverlayEvent.ElementType.HOTBAR && mc.player != null && mc.player.isAlive()) {
-            List<Ability> abilities = AbilitiesScreen.getCurrentDisplayedAbilities(mc.player);
+            List<Ability> abilities = AbilitiesScreen.getCurrentDisplayedAbilities(mc.player, a ->
+                    !a.isHidden(mc.player) && a.getConditionManager().isEnabled(mc.player, "canActivate") && a.getConditionManager().isEnabled(mc.player, "canBeEnabled"));
             if (abilities.size() > 0) {
                 final ResourceLocation widgets = new ResourceLocation(HeroesUnited.MODID, "textures/gui/widgets.png");
                 int y = event.getWindow().getGuiScaledHeight() / 3;

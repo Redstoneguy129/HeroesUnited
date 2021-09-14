@@ -33,6 +33,7 @@ import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 
 import java.awt.*;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -76,9 +77,13 @@ public class AbilitiesScreen extends Screen {
     }
 
     public static List<Ability> getCurrentDisplayedAbilities(PlayerEntity player) {
+        return getCurrentDisplayedAbilities(player, a -> !a.isHidden(player));
+    }
+
+    public static List<Ability> getCurrentDisplayedAbilities(PlayerEntity player, Predicate<Ability> filter) {
         List<Ability> abilities = Lists.newArrayList(), list = Lists.newArrayList();
         abilities.addAll(HUAbilityCap.getCap(player).getAbilities().values().stream()
-                .filter(a -> a != null && !a.isHidden(player))
+                .filter(a -> a != null && filter.test(a))
                 .collect(Collectors.toList()));
 
         if (abilities.isEmpty()) {

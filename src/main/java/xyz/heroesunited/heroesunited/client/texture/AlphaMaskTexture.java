@@ -11,7 +11,6 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class AlphaMaskTexture extends SimpleTexture {
 
@@ -30,24 +29,19 @@ public class AlphaMaskTexture extends SimpleTexture {
     @Override
     public void load(IResourceManager manager) throws IOException {
         releaseId();
-        InputStream[] streams = new InputStream[3];
-        NativeImage image;
+        NativeImage image = NativeImage.read(manager.getResource(this.location).getInputStream());
         File skinsDirectory = Minecraft.getInstance().getSkinManager().skinsDirectory;
         if (this.location.getPath().startsWith("skins/")) {
             String s = this.location.getPath().replace("skins/", "");
             File file = new File(skinsDirectory.getAbsolutePath(), (s.length() > 2 ? s.substring(0, 2) : "xx"));
-            image = NativeImage.read(streams[0] = new FileInputStream(new File(file, s)));
-        } else {
-            image = NativeImage.read(streams[0] = manager.getResource(this.location).getInputStream());
+            image = NativeImage.read(new FileInputStream(new File(file, s)));
         }
-        NativeImage mask = NativeImage.read(streams[1] = manager.getResource(this.maskLocation).getInputStream());
-        NativeImage output;
+        NativeImage mask = NativeImage.read(manager.getResource(this.maskLocation).getInputStream());
+        NativeImage output = NativeImage.read(manager.getResource(this.output).getInputStream());
         if (this.output.getPath().startsWith("skins/")) {
             String s = this.output.getPath().replace("skins/", "");
             File file = new File(skinsDirectory.getAbsolutePath(), (s.length() > 2 ? s.substring(0, 2) : "xx"));
-            output = NativeImage.read(streams[2] = new FileInputStream(new File(file, s)));
-        } else {
-            output = NativeImage.read(streams[2] = manager.getResource(this.output).getInputStream());
+            output = NativeImage.read(new FileInputStream(new File(file, s)));
         }
 
         for (int y = 0; y < mask.getHeight(); ++y) {
@@ -83,10 +77,5 @@ public class AlphaMaskTexture extends SimpleTexture {
         mask.close();
         TextureUtil.prepareImage(this.getId(), image.getWidth(), image.getHeight());
         image.upload(0, 0, 0, false);
-        for (InputStream stream : streams) {
-            if (stream != null) {
-                stream.close();
-            }
-        }
     }
 }

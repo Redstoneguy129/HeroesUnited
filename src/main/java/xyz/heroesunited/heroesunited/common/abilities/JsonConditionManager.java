@@ -81,6 +81,16 @@ public class JsonConditionManager implements INBTSerializable<CompoundNBT> {
         return methodConditions;
     }
 
+    public boolean isEnabled(PlayerEntity player) {
+        this.update(player);
+        for (boolean condition : methodConditions.values()) {
+            if (!condition) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public boolean isEnabled(PlayerEntity player, String method) {
         this.update(player);
         return isEnabled(method, true);
