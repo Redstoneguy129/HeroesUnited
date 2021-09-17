@@ -32,7 +32,7 @@ import java.util.Map;
 public class HUPackSuperpowers extends SimpleJsonResourceReloadListener {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private static HUPackSuperpowers INSTANCE;
-    private Map<ResourceLocation, Superpower> registeredSuperpowers = Maps.newHashMap();
+    private final Map<ResourceLocation, Superpower> registeredSuperpowers = Maps.newHashMap();
 
     public HUPackSuperpowers() {
         super(GSON, "husuperpowers");
