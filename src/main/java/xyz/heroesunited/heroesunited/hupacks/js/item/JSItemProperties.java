@@ -2,12 +2,13 @@ package xyz.heroesunited.heroesunited.hupacks.js.item;
 
 import net.minecraft.item.IItemTier;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemTier;
 
 public class JSItemProperties extends Item.Properties {
-    public String type = "default";
-    protected IItemTier tier;
-    protected int attackDamage;
-    protected float attackSpeed;
+    public String type = "heroesunited:default";
+    protected IItemTier tier = ItemTier.DIAMOND;
+    protected int attackDamage = 1;
+    protected float attackSpeed = 0.5f;
 
     public Item.Properties type(String type) {
         this.type = type;

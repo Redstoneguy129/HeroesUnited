@@ -40,14 +40,14 @@ public class JSItemManager extends JSReloadListener {
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, ScriptEngine> map, IResourceManager resourceManagerIn, IProfiler profilerIn) {
+    public void apply(Map<ResourceLocation, ScriptEngine> map, IResourceManager resourceManagerIn, IProfiler profilerIn) {
         for (Map.Entry<ResourceLocation, ScriptEngine> entry : map.entrySet()) {
             try {
                 JSItemProperties properties = new JSItemProperties();
                 ((Invocable) entry.getValue()).invokeFunction("init", properties);
                 items.add(types.get(new ResourceLocation(properties.type)).apply(new AbstractMap.SimpleEntry<>(properties, entry.getValue())).setRegistryName(entry.getKey()));
-            } catch (ScriptException | NoSuchMethodException e) {
-                e.printStackTrace();
+            } catch (Throwable throwable) {
+                HeroesUnited.LOGGER.error("Couldn't read hupack item {}", entry.getKey(), throwable);
             }
         }
     }

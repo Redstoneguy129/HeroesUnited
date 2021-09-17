@@ -3,6 +3,7 @@ package xyz.heroesunited.heroesunited.hupacks;
 import com.google.common.collect.Maps;
 import com.google.gson.*;
 import net.minecraft.client.resources.JsonReloadListener;
+import net.minecraft.profiler.EmptyProfiler;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.JSONUtils;
@@ -23,7 +24,11 @@ public class HUPackSuit extends JsonReloadListener {
 
     public HUPackSuit() {
         super(GSON, "husuits");
+    }
+
+    public static void init(HUPackSuit manager) {
         registerSuitType(new ResourceLocation(HeroesUnited.MODID, "default"), JsonSuit::new);
+        manager.apply(manager.prepare(HUPacks.getInstance().getResourceManager(), EmptyProfiler.INSTANCE), HUPacks.getInstance().getResourceManager(), EmptyProfiler.INSTANCE);
     }
 
     public static void registerSuitType(ResourceLocation resourceLocation, Function<Map.Entry<ResourceLocation, JsonObject>, Suit> function) {

@@ -10,6 +10,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.moddiscovery.ModFile;
 import net.minecraftforge.fml.packs.ModFileResourcePack;
@@ -17,6 +18,7 @@ import org.apache.commons.io.FileUtils;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.hupacks.js.JSAbilityManager;
 import xyz.heroesunited.heroesunited.hupacks.js.JSItemManager;
+import xyz.heroesunited.heroesunited.hupacks.js.JSReloadListener;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 
 import java.io.File;
@@ -49,9 +51,9 @@ public class HUPacks {
         this.hupackFinder.getAvailablePacks().stream().map(ResourcePackInfo::open).collect(Collectors.toList()).forEach(pack -> resourceManager.add(pack));
         modResourcePacks.forEach((file, pack) -> resourceManager.add(pack));
 
-        this.resourceManager.registerReloadListener(new JSAbilityManager(bus));
-        this.resourceManager.registerReloadListener(new JSItemManager(bus));
-        this.resourceManager.registerReloadListener(new HUPackSuit());
+        JSReloadListener.init(new JSAbilityManager(bus));
+        JSReloadListener.init(new JSItemManager(bus));
+        HUPackSuit.init(new HUPackSuit());
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             if(Minecraft.getInstance() != null){
@@ -59,12 +61,6 @@ public class HUPacks {
                 Minecraft.getInstance().getResourcePackRepository().addPackFinder(new HUPackFinder());
             }
         });
-
-        resourceManager.reload(Util.backgroundExecutor(), Runnable::run, hupackFinder.openAllSelected(), CompletableFuture.completedFuture(Unit.INSTANCE)).whenComplete((unit, throwable) -> {
-            if (throwable != null) {
-                resourceManager.close();
-            }
-        }).thenApply((unit) -> resourceManager);
     }
 
     public static void init() {

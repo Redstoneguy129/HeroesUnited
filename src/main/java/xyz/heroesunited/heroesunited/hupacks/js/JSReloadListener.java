@@ -2,11 +2,13 @@ package xyz.heroesunited.heroesunited.hupacks.js;
 
 import com.google.common.collect.Maps;
 import net.minecraft.client.resources.ReloadListener;
+import net.minecraft.profiler.EmptyProfiler;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import org.apache.commons.io.IOUtils;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -24,8 +26,12 @@ public abstract class JSReloadListener extends ReloadListener<Map<ResourceLocati
         this.directory = directory;
     }
 
+    public static <T extends JSReloadListener> void init(T manager) {
+        manager.apply(manager.prepare(HUPacks.getInstance().getResourceManager(), EmptyProfiler.INSTANCE), HUPacks.getInstance().getResourceManager(), EmptyProfiler.INSTANCE);
+    }
+
     @Override
-    protected Map<ResourceLocation, ScriptEngine> prepare(IResourceManager manager, IProfiler profiler) {
+    public Map<ResourceLocation, ScriptEngine> prepare(IResourceManager manager, IProfiler profiler) {
         Map<ResourceLocation, ScriptEngine> map = Maps.newHashMap();
         for (ResourceLocation resourcelocation : manager.listResources(this.directory, (s) -> s.endsWith(".js"))) {
             String s = resourcelocation.getPath();

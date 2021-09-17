@@ -2,6 +2,7 @@ package xyz.heroesunited.heroesunited.hupacks.js;
 
 import com.google.common.collect.Lists;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.profiler.EmptyProfiler;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
@@ -11,6 +12,9 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.JSONAbility;
+import xyz.heroesunited.heroesunited.common.abilities.suit.JsonSuit;
+import xyz.heroesunited.heroesunited.hupacks.HUPackSuit;
+import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -29,7 +33,7 @@ public class JSAbilityManager extends JSReloadListener {
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, ScriptEngine> map, IResourceManager resourceManagerIn, IProfiler profilerIn) {
+    public void apply(Map<ResourceLocation, ScriptEngine> map, IResourceManager resourceManagerIn, IProfiler profilerIn) {
         for (Map.Entry<ResourceLocation, ScriptEngine> entry : map.entrySet()) {
             try {
                 types.add(new AbilityType(type -> new JSAbility(type, entry.getValue())).setRegistryName(entry.getKey()));
