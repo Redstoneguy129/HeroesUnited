@@ -9,8 +9,8 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
-import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
+import xyz.heroesunited.heroesunited.common.abilities.JSONAbility;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -24,7 +24,7 @@ public class JSAbilityManager extends JSReloadListener {
     private final List<AbilityType> types = Lists.newArrayList();
 
     public JSAbilityManager(IEventBus bus) {
-        super("abilities", new ScriptEngineManager());
+        super("huabilities", new ScriptEngineManager());
         bus.addGenericListener(AbilityType.class, this::registerAbilityTypes);
     }
 
@@ -45,7 +45,7 @@ public class JSAbilityManager extends JSReloadListener {
         }
     }
 
-    public static class JSAbility extends Ability {
+    public static class JSAbility extends JSONAbility {
 
         private final ScriptEngine engine;
 
