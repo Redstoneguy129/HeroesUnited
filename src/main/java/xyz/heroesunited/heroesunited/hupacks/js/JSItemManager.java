@@ -2,10 +2,10 @@ package xyz.heroesunited.heroesunited.hupacks.js;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.minecraft.item.Item;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -40,7 +40,7 @@ public class JSItemManager extends JSReloadListener {
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, ScriptEngine> map, IResourceManager resourceManagerIn, IProfiler profilerIn) {
+    protected void apply(Map<ResourceLocation, ScriptEngine> map, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
         for (Map.Entry<ResourceLocation, ScriptEngine> entry : map.entrySet()) {
             try {
                 JSItemProperties properties = new JSItemProperties();

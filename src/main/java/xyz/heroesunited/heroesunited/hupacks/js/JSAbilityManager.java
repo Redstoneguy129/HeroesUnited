@@ -1,10 +1,10 @@
 package xyz.heroesunited.heroesunited.hupacks.js;
 
 import com.google.common.collect.Lists;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -29,7 +29,7 @@ public class JSAbilityManager extends JSReloadListener {
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, ScriptEngine> map, IResourceManager resourceManagerIn, IProfiler profilerIn) {
+    protected void apply(Map<ResourceLocation, ScriptEngine> map, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
         for (Map.Entry<ResourceLocation, ScriptEngine> entry : map.entrySet()) {
             try {
                 types.add(new AbilityType(type -> new JSAbility(type, entry.getValue())).setRegistryName(entry.getKey()));
@@ -64,7 +64,7 @@ public class JSAbilityManager extends JSReloadListener {
         }
 
         @Override
-        public boolean canActivate(PlayerEntity player) {
+        public boolean canActivate(Player player) {
             try {
                 return (boolean) ((Invocable) engine).invokeFunction("canActivate", player, this);
             } catch (ScriptException | NoSuchMethodException e) {
@@ -73,7 +73,7 @@ public class JSAbilityManager extends JSReloadListener {
         }
 
         @Override
-        public void onUpdate(PlayerEntity player) {
+        public void onUpdate(Player player) {
             super.onUpdate(player);
             try {
                 ((Invocable) engine).invokeFunction("update", player, this);
@@ -82,7 +82,7 @@ public class JSAbilityManager extends JSReloadListener {
         }
 
         @Override
-        public void onKeyInput(PlayerEntity player, Map<Integer, Boolean> map) {
+        public void onKeyInput(Player player, Map<Integer, Boolean> map) {
             super.onKeyInput(player, map);
             try {
                 ((Invocable) engine).invokeFunction("keyInput", player, this, map);

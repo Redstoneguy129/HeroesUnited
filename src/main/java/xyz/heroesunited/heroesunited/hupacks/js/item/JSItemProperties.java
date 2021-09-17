@@ -1,11 +1,12 @@
 package xyz.heroesunited.heroesunited.hupacks.js.item;
 
-import net.minecraft.item.IItemTier;
-import net.minecraft.item.Item;
+
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Tier;
 
 public class JSItemProperties extends Item.Properties {
     public String type = "default";
-    protected IItemTier tier;
+    protected Tier tier;
     protected int attackDamage;
     protected float attackSpeed;
 
@@ -14,7 +15,7 @@ public class JSItemProperties extends Item.Properties {
         return this;
     }
 
-    public Item.Properties tier(IItemTier tier) {
+    public Item.Properties tier(Tier tier) {
         this.tier = tier;
         return this;
     }

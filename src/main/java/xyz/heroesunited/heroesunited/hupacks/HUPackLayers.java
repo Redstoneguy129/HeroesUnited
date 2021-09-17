@@ -15,9 +15,9 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 import java.util.Map;
 
 public class HUPackLayers extends SimpleJsonResourceReloadListener {
-    private static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private static HUPackLayers INSTANCE;
-    private Map<ResourceLocation, Layer> registeredLayers = Maps.newHashMap();
+    private final Map<ResourceLocation, Layer> registeredLayers = Maps.newHashMap();
 
     public HUPackLayers() {
         super(GSON, "models/layers");
@@ -25,7 +25,7 @@ public class HUPackLayers extends SimpleJsonResourceReloadListener {
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager iResourceManager, ProfilerFiller iProfiler) {
+    protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager iResourceManager, ProfilerFiller ProfilerFiller) {
         for (Map.Entry<ResourceLocation, JsonElement> entry : map.entrySet()) {
             ResourceLocation resourcelocation = entry.getKey();
             try {

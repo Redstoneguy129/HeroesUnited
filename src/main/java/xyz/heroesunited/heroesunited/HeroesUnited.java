@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -207,9 +208,11 @@ public class HeroesUnited {
         CelestialBodyRenderer.registerRenderer(new KuiperBeltRenderer(event.getEntityModels().bakeLayer(HUModelLayers.KUIPER)), CelestialBodies.KUIPER_BELT);
 
         for (EntityType<? extends LivingEntity> type : ForgeRegistries.ENTITIES.getValues().stream().filter(DefaultAttributes::hasSupplier).map(entityType -> (EntityType<? extends LivingEntity>) entityType).collect(Collectors.toList())) {
-            LivingEntityRenderer<?, ?> entityRenderer = event.getRenderer(type);
-            if (entityRenderer != null && entityRenderer.getModel() instanceof HumanoidModel) {
-                entityRenderer.addLayer(new HULayerRenderer(entityRenderer, event.getEntityModels()));
+            if (Minecraft.getInstance().getEntityRenderDispatcher().renderers.get(type) instanceof LivingEntityRenderer) {
+                LivingEntityRenderer entityRenderer = event.getRenderer(type);
+                if (entityRenderer != null && entityRenderer.getModel() instanceof HumanoidModel) {
+                    entityRenderer.addLayer(new HULayerRenderer(entityRenderer, event.getEntityModels()));
+                }
             }
         }
     }

@@ -1,10 +1,10 @@
 package xyz.heroesunited.heroesunited.hupacks.js;
 
 import com.google.common.collect.Maps;
-import net.minecraft.client.resources.ReloadListener;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
 import org.apache.commons.io.IOUtils;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
@@ -15,7 +15,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-public abstract class JSReloadListener extends ReloadListener<Map<ResourceLocation, ScriptEngine>> {
+public abstract class JSReloadListener extends SimplePreparableReloadListener<Map<ResourceLocation, ScriptEngine>> {
     protected final ScriptEngineManager manager;
     private final String directory;
 
@@ -25,7 +25,7 @@ public abstract class JSReloadListener extends ReloadListener<Map<ResourceLocati
     }
 
     @Override
-    protected Map<ResourceLocation, ScriptEngine> prepare(IResourceManager manager, IProfiler profiler) {
+    protected Map<ResourceLocation, ScriptEngine> prepare(ResourceManager manager, ProfilerFiller profiler) {
         Map<ResourceLocation, ScriptEngine> map = Maps.newHashMap();
         for (ResourceLocation resourcelocation : manager.listResources(this.directory, (s) -> s.endsWith(".js"))) {
             String s = resourcelocation.getPath();
