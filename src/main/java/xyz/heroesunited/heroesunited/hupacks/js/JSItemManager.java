@@ -45,7 +45,6 @@ public class JSItemManager extends JSReloadListener {
             try {
                 JSItemProperties properties = new JSItemProperties();
                 ((Invocable) entry.getValue()).invokeFunction("init", properties);
-                HeroesUnited.LOGGER.info(properties.type);
                 items.add(types.get(new ResourceLocation(properties.type)).apply(new AbstractMap.SimpleEntry<>(properties, entry.getValue())).setRegistryName(entry.getKey()));
             } catch (ScriptException | NoSuchMethodException e) {
                 e.printStackTrace();
