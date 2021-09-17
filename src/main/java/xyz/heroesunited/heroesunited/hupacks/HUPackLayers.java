@@ -15,9 +15,9 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 import java.util.Map;
 
 public class HUPackLayers extends JsonReloadListener {
-    private static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private static HUPackLayers INSTANCE;
-    private Map<ResourceLocation, Layer> registeredLayers = Maps.newHashMap();
+    private final Map<ResourceLocation, Layer> registeredLayers = Maps.newHashMap();
 
     public HUPackLayers() {
         super(GSON, "models/layers");

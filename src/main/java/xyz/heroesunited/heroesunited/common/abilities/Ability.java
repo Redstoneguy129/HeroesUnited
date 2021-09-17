@@ -58,7 +58,6 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
     public Ability(AbilityType type) {
         this.type = type;
-        this.registerData();
     }
 
     public HUDataManager getDataManager() {
@@ -97,12 +96,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     public void onDeactivated(PlayerEntity player) {
     }
 
-    @Deprecated
-    public void toggle(PlayerEntity player, int id, boolean pressed) {
-    }
-
     public void onKeyInput(PlayerEntity player, Map<Integer, Boolean> map) {
-        map.keySet().forEach((i) -> toggle(player, i, map.get(i)));
     }
 
     public void cancelSprinting(HUCancelSprinting event) {

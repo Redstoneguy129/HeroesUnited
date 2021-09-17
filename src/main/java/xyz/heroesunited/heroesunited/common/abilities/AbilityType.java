@@ -14,20 +14,25 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
     public static final DeferredRegister<AbilityType> ABILITY_TYPES = DeferredRegister.create(AbilityType.class, HeroesUnited.MODID);
     public static final Lazy<IForgeRegistry<AbilityType>> ABILITIES = Lazy.of(ABILITY_TYPES.makeRegistry("ability_types", () -> new RegistryBuilder<AbilityType>().setType(AbilityType.class).setIDRange(0, 2048)));
 
-    private final Supplier<Ability> supplier;
+    private final AbilitySupplier supplier;
 
-    public AbilityType(Supplier<Ability> supplier) {
+    public AbilityType(AbilitySupplier supplier) {
         this.supplier = supplier;
     }
 
+    public AbilityType(Supplier<Ability> supplier) {
+        this(type -> supplier.get());
+    }
+
     public AbilityType(Supplier<Ability> supplier, String modid, String name) {
-        this.supplier = supplier;
+        this(type -> supplier.get());
         this.setRegistryName(modid, name);
     }
 
     public Ability create(String id) {
-        Ability a = this.supplier.get();
+        Ability a = this.supplier.create(this);
         a.name = id;
+        a.registerData();
         return a;
     }
 
@@ -50,8 +55,13 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
     public static final AbilityType CANCEL_SPRINT = register("cancel_sprint", CancelSprintAbility::new);
 
     private static AbilityType register(String name, Supplier<Ability> ability) {
-        AbilityType type = new AbilityType(ability);
+        AbilityType type = new AbilityType(type1 -> ability.get());
         ABILITY_TYPES.register(name, () -> type);
         return type;
+    }
+
+    @FunctionalInterface
+    public interface AbilitySupplier {
+        Ability create(AbilityType type);
     }
 }
