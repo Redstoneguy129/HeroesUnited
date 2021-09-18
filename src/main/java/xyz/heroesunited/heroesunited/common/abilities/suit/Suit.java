@@ -257,16 +257,27 @@ public abstract class Suit {
         return boots;
     }
 
+    protected Item getItemBySlot(EquipmentSlotType slot) {
+        if (slot == EquipmentSlotType.HEAD) {
+            return getHelmet();
+        }
+        if (slot == EquipmentSlotType.CHEST) {
+            return getChestplate();
+        }
+        if (slot == EquipmentSlotType.LEGS) {
+            return getLegs();
+        }
+        return getBoots();
+    }
+
     public boolean hasArmorOn(LivingEntity entity) {
         for (EquipmentSlotType slot : EquipmentSlotType.values()) {
             if (slot.getType() == EquipmentSlotType.Group.ARMOR) {
-                Item item = entity.getItemBySlot(slot).getItem();
-                if (item instanceof SuitItem && ((SuitItem) item).getSuit() != this) {
+                if (getItemBySlot(slot) != null && (entity.getItemBySlot(slot).isEmpty() || entity.getItemBySlot(slot).getItem() != getItemBySlot(slot))) {
                     return false;
                 }
             }
         }
-
         return true;
     }
 

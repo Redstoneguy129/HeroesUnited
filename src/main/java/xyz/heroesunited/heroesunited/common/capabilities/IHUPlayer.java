@@ -19,7 +19,7 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable {
      */
     void setAnimation(String name, ResourceLocation animationFile, boolean loop);
 
-    AnimatedGeoModel<IHUPlayer> getAnimatedModel();
+    AnimatedGeoModel getAnimatedModel();
 
     AnimationController<IHUPlayer> getController();
 

@@ -22,7 +22,7 @@ public interface IGeoAbility extends IAnimatable {
     @OnlyIn(Dist.CLIENT)
     ResourceLocation getAnimationFile();
 
-    default <A extends IGeoAbility> AnimatedGeoModel<A> getGeoModel() {
+    default <A extends IGeoAbility> AnimatedGeoModel getGeoModel() {
         return new AnimatedGeoModel<A>() {
             @Override
             public ResourceLocation getModelLocation(A ability) {
