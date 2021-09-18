@@ -52,7 +52,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     public Map<String, Ability> getAbilities(PlayerEntity player) {
         Map<String, Ability> map = Maps.newHashMap();
         suit.getAbilities(player).forEach((id, a) -> {
-            a.getAdditionalData().putString("Suit", this.getRegistryName().toString());
+            a.getAdditionalData().putString("Suit", suit.getRegistryName().toString());
             if (suit instanceof JsonSuit && a.getJsonObject().has("slot")) {
                 a.getAdditionalData().putString("Slot", JSONUtils.getAsString(a.getJsonObject(), "slot"));
             }
