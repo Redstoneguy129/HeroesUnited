@@ -30,11 +30,11 @@ public abstract class JSONAbility extends Ability {
         if (actionType != ActionType.ACTION) {
             action(player);
         } else {
-            if (getEnabled()) {
+            if (this.dataManager.<Boolean>getValue("enabled")) {
                 setEnabled(player, false);
             }
         }
-        if (actionType == ActionType.CONSTANT && !getEnabled()) {
+        if (actionType == ActionType.CONSTANT && !this.dataManager.<Boolean>getValue("enabled")) {
             setEnabled(player, true);
         }
 
@@ -65,7 +65,7 @@ public abstract class JSONAbility extends Ability {
         if (getKey() != -1 && actionType != ActionType.CONSTANT) {
             if (map.get(getKey())) {
                 if (actionType == ActionType.TOGGLE) {
-                    setEnabled(player, !getEnabled());
+                    setEnabled(player, !this.dataManager.<Boolean>getValue("enabled"));
                 }
                 if (actionType == ActionType.ACTION) {
                     setEnabled(player, true);
@@ -87,7 +87,7 @@ public abstract class JSONAbility extends Ability {
 
     public void setEnabled(PlayerEntity player, boolean enabled) {
         boolean b = !enabled || this.conditionManager.isEnabled(player, "canBeEnabled");
-        if (getEnabled() != enabled && b && this.dataManager.<Integer>getValue("cooldown") == 0) {
+        if (this.dataManager.<Boolean>getValue("enabled") != enabled && b && this.dataManager.<Integer>getValue("cooldown") == 0) {
             this.dataManager.set("enabled", enabled);
             action(player);
             player.refreshDimensions();

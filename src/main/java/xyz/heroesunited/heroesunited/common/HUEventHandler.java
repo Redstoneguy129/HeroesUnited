@@ -275,7 +275,7 @@ public class HUEventHandler {
                             }
                             pl.setDeltaMovement(vec.x * speed, j + vec.y * speed, vec.z * speed);
                         } else {
-                            pl.setDeltaMovement(new Vector3d(pl.getDeltaMovement().x, j + Math.sin(pl.tickCount) / 10000F, pl.getDeltaMovement().z));
+                            pl.setDeltaMovement(new Vector3d(pl.getDeltaMovement().x, j + Math.sin(pl.tickCount / 10F) / 100F, pl.getDeltaMovement().z));
                         }
                     }
                 });
@@ -349,7 +349,13 @@ public class HUEventHandler {
                         if (suitItem.getAbilities(player).containsKey(a.name)) {
                             CompoundNBT suit = suitItem.getAbilities(player).get(a.name).getAdditionalData();
                             if (a.getAdditionalData().equals(suit) && a.getAdditionalData().contains("Suit")) {
-                                cap.removeAbility(a.name);
+                                if (a.getJsonObject() != null && a.getJsonObject().has("slot")) {
+                                    if (suitItem.getSlot().getName().toLowerCase().equals(JSONUtils.getAsString(a.getJsonObject(), "slot"))) {
+                                        cap.removeAbility(a.name);
+                                    }
+                                } else {
+                                    cap.removeAbility(a.name);
+                                }
                             }
                         }
                     }
