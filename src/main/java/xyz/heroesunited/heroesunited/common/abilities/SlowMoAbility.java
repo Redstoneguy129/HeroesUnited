@@ -4,8 +4,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 
 public class SlowMoAbility extends JSONAbility {
-    public SlowMoAbility() {
-        super(AbilityType.SLOW_MO);
+
+    public SlowMoAbility(AbilityType type) {
+        super(type);
     }
 
     @Override

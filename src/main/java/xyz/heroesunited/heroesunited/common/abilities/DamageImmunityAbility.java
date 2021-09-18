@@ -6,8 +6,8 @@ import net.minecraft.util.JSONUtils;
 
 public class DamageImmunityAbility extends JSONAbility {
 
-    public DamageImmunityAbility() {
-        super(AbilityType.DAMAGE_IMMUNITY);
+    public DamageImmunityAbility(AbilityType type) {
+        super(type);
     }
 
     public boolean haveImmuneTo(DamageSource source) {

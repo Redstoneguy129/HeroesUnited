@@ -14,8 +14,8 @@ import net.minecraft.world.server.ServerWorld;
 
 public class ProjectileAbility extends JSONAbility {
 
-    public ProjectileAbility() {
-        super(AbilityType.PROJECTILE);
+    public ProjectileAbility(AbilityType type) {
+        super(type);
     }
 
     @Override

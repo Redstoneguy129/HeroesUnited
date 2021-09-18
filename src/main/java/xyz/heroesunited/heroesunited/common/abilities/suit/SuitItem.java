@@ -35,7 +35,7 @@ import java.util.Map;
 
 public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable {
 
-    private final AnimationFactory factory = new AnimationFactory(this);
+    protected final AnimationFactory factory = new AnimationFactory(this);
     protected final Suit suit;
 
     public SuitItem(IArmorMaterial materialIn, EquipmentSlotType slot, Properties builder, Suit suit) {
@@ -127,17 +127,15 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     @Override
     public CompoundNBT getShareTag(ItemStack stack) {
         CompoundNBT nbt = stack.getOrCreateTag();
-        if (getSuit() instanceof JsonSuit) {
-            nbt.put("Conditions", ((JsonSuit) suit).getConditionManager().serializeNBT());
-        }
+        getSuit().serializeNBT(nbt, stack);
         return nbt;
     }
 
     @Override
     public void readShareTag(ItemStack stack, @Nullable CompoundNBT nbt) {
         super.readShareTag(stack, nbt);
-        if (getSuit() instanceof JsonSuit && nbt != null) {
-            ((JsonSuit) SuitItem.this.getSuit()).getConditionManager().deserializeNBT(nbt.getCompound("Conditions"));
+        if (nbt != null) {
+            getSuit().deserializeNBT(nbt, stack);
         }
     }
 

@@ -20,8 +20,8 @@ import java.awt.*;
 
 public class EnergyLaserAbility extends JSONAbility {
 
-    public EnergyLaserAbility() {
-        super(AbilityType.ENERGY_LASER);
+    public EnergyLaserAbility(AbilityType type) {
+        super(type);
     }
 
     @Override

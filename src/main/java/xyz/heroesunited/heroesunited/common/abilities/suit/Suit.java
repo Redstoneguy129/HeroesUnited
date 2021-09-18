@@ -18,6 +18,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -312,4 +313,11 @@ public abstract class Suit {
         return false;
     }
 
+    public void serializeNBT(CompoundNBT nbt, ItemStack stack) {
+
+    }
+
+    public void deserializeNBT(CompoundNBT nbt, ItemStack stack) {
+
+    }
 }

@@ -5,8 +5,8 @@ import net.minecraft.util.JSONUtils;
 
 public class FlightAbility extends JSONAbility implements IFlyingAbility {
 
-    public FlightAbility() {
-        super(AbilityType.FLIGHT);
+    public FlightAbility(AbilityType type) {
+        super(type);
     }
 
     @Override

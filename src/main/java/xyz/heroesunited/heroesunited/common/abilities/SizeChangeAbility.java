@@ -6,8 +6,8 @@ import net.minecraft.util.math.MathHelper;
 
 public class SizeChangeAbility extends JSONAbility {
 
-    public SizeChangeAbility() {
-        super(AbilityType.SIZE_CHANGE);
+    public SizeChangeAbility(AbilityType type) {
+        super(type);
     }
 
     @Override

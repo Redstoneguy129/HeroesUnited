@@ -17,8 +17,8 @@ import java.awt.*;
 
 public class HeatVisionAbility extends JSONAbility {
 
-    public HeatVisionAbility() {
-        super(AbilityType.HEAT_VISION);
+    public HeatVisionAbility(AbilityType type) {
+        super(type);
     }
 
     @Override

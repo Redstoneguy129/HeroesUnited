@@ -19,8 +19,8 @@ import java.util.Map;
 
 public class ParachuteAbility extends JSONAbility {
 
-    public ParachuteAbility() {
-        super(AbilityType.PARACHUTE);
+    public ParachuteAbility(AbilityType type) {
+        super(type);
     }
 
     @Override

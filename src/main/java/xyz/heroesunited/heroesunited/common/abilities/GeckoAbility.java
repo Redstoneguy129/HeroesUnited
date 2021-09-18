@@ -18,10 +18,10 @@ import xyz.heroesunited.heroesunited.client.render.renderer.GeoAbilityRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.IGeoAbility;
 
 public class GeckoAbility extends JSONAbility implements IGeoAbility {
-    private AnimationFactory factory = new AnimationFactory(this);
+    protected final AnimationFactory factory = new AnimationFactory(this);
 
-    public GeckoAbility() {
-        super(AbilityType.GECKO);
+    public GeckoAbility(AbilityType type) {
+        super(type);
     }
 
     @OnlyIn(Dist.CLIENT)

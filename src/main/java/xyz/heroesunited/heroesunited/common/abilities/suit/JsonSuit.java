@@ -12,6 +12,7 @@ import net.minecraft.item.IArmorMaterial;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -123,6 +124,18 @@ public class JsonSuit extends Suit {
     @Override
     public float getScale(EquipmentSlotType slot) {
         return jsonObject.has("scale") ? JSONUtils.getAsFloat(jsonObject, "scale") : super.getScale(slot);
+    }
+
+    @Override
+    public void serializeNBT(CompoundNBT nbt, ItemStack stack) {
+        super.serializeNBT(nbt, stack);
+        nbt.put("Conditions", this.getConditionManager().serializeNBT());
+    }
+
+    @Override
+    public void deserializeNBT(CompoundNBT nbt, ItemStack stack) {
+        super.deserializeNBT(nbt, stack);
+        this.getConditionManager().deserializeNBT(nbt.getCompound("Conditions"));
     }
 
     @Override
