@@ -88,8 +88,8 @@ public class HeroesUnited {
     public HeroesUnited() {
         final IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         bus.register(this);
+        GeckoLib.initialize();
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            GeckoLib.initialize();
             bus.addListener(this::clientSetup);
             MinecraftForge.EVENT_BUS.register(new HUClientEventHandler());
         });

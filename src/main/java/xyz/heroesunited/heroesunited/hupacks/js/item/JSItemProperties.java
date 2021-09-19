@@ -9,9 +9,15 @@ public class JSItemProperties extends Item.Properties {
     protected IItemTier tier = ItemTier.DIAMOND;
     protected int attackDamage = 1;
     protected float attackSpeed = 0.5f;
+    public String power = "";
 
     public Item.Properties type(String type) {
         this.type = type;
+        return this;
+    }
+
+    public Item.Properties power(String power) {
+        this.power = power;
         return this;
     }
 

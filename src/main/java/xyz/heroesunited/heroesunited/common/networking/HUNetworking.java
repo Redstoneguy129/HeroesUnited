@@ -3,7 +3,6 @@ package xyz.heroesunited.heroesunited.common.networking;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
-import software.bernie.geckolib3.network.messages.SyncAnimationMsg;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.networking.client.*;
 import xyz.heroesunited.heroesunited.common.networking.server.*;
@@ -20,7 +19,6 @@ public class HUNetworking {
     public static void registerMessages() {
         INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(HeroesUnited.MODID, "networking"), () -> "1.0", s -> true, s -> true);
         //Client
-        SyncAnimationMsg.register(INSTANCE, NextID());
         INSTANCE.registerMessage(NextID(), ClientSyncHUPlayer.class, ClientSyncHUPlayer::toBytes, ClientSyncHUPlayer::new, ClientSyncHUPlayer::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncAbilityCap.class, ClientSyncAbilityCap::toBytes, ClientSyncAbilityCap::new, ClientSyncAbilityCap::handle);
         INSTANCE.registerMessage(NextID(), ClientSetAnimation.class, ClientSetAnimation::toBytes, ClientSetAnimation::new, ClientSetAnimation::handle);
