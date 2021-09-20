@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited;
 
+import com.mojang.serialization.Codec;
 import net.arikia.dev.drpc.DiscordRPC;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.entity.EntityType;
@@ -10,6 +11,12 @@ import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
+import net.minecraft.world.gen.ChunkGenerator;
+import net.minecraft.world.gen.FlatChunkGenerator;
+import net.minecraft.world.gen.feature.structure.Structure;
+import net.minecraft.world.gen.settings.DimensionStructuresSettings;
+import net.minecraft.world.gen.settings.StructureSeparationSettings;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -18,6 +25,8 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
+import net.minecraftforge.event.world.BiomeLoadingEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
@@ -26,6 +35,7 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -69,10 +79,16 @@ import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.space.CelestialBodies;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
+import xyz.heroesunited.heroesunited.common.structures.HUConfiguredStructures;
+import xyz.heroesunited.heroesunited.common.structures.HUStructures;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.mixin.client.AccessorDimensionRenderInfo;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
 import xyz.heroesunited.heroesunited.util.compat.ObfuscateHandler;
+
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.FALL_RESISTANCE;
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOOST;
@@ -105,10 +121,13 @@ public class HeroesUnited {
         HUContainers.CONTAINERS.register(bus);
         AbilityType.ABILITY_TYPES.register(bus);
         Condition.CONDITIONS.register(bus);
+        HUStructures.STRUCTURES.register(bus);
 
         MinecraftForge.EVENT_BUS.register(new HUEventHandler());
         MinecraftForge.EVENT_BUS.register(new HUPlayerEvent());
         bus.addListener(this::onRegisterNewRegistries);
+        MinecraftForge.EVENT_BUS.addListener(this::addDimensionalSpacing);
+        MinecraftForge.EVENT_BUS.addListener(this::biomeModification);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, HUConfig.CLIENT_SPEC);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
@@ -143,6 +162,73 @@ public class HeroesUnited {
         });
     }
 
+    public void biomeModification(final BiomeLoadingEvent event) {
+        /*
+         * Add our structure to all biomes including other modded biomes.
+         * You can skip or add only to certain biomes based on stuff like biome category,
+         * temperature, scale, precipitation, mod id, etc. All kinds of options!
+         *
+         * You can even use the BiomeDictionary as well! To use BiomeDictionary, do
+         * RegistryKey.getOrCreateKey(Registry.BIOME_KEY, event.getName()) to get the biome's
+         * registrykey. Then that can be fed into the dictionary to get the biome's types.
+         */
+        event.getGeneration().getStructures().add(() -> HUConfiguredStructures.CONFIGURED_CITY);
+    }
+
+    /**
+     * Will go into the world's chunkgenerator and manually add our structure spacing.
+     * If the spacing is not added, the structure doesn't spawn.
+     *
+     * Use this for dimension blacklists for your structure.
+     * (Don't forget to attempt to remove your structure too from the map if you are blacklisting that dimension!)
+     * (It might have your structure in it already.)
+     *
+     * Basically use this to make absolutely sure the chunkgenerator can or cannot spawn your structure.
+     */
+    private static Method GETCODEC_METHOD;
+    public void addDimensionalSpacing(final WorldEvent.Load event) {
+        if(event.getWorld() instanceof ServerWorld){
+            ServerWorld serverWorld = (ServerWorld)event.getWorld();
+
+            /*
+             * Skip Terraforged's chunk generator as they are a special case of a mod locking down their chunkgenerator.
+             * They will handle your structure spacing for your if you add to WorldGenRegistries.NOISE_GENERATOR_SETTINGS in your structure's registration.
+             * This here is done with reflection as this tutorial is not about setting up and using Mixins.
+             * If you are using mixins, you can call the codec method with an invoker mixin instead of using reflection.
+             */
+            try {
+                if(GETCODEC_METHOD == null) GETCODEC_METHOD = ObfuscationReflectionHelper.findMethod(ChunkGenerator.class, "func_230347_a_");
+                ResourceLocation cgRL = Registry.CHUNK_GENERATOR.getKey((Codec<? extends ChunkGenerator>) GETCODEC_METHOD.invoke(serverWorld.getChunkSource().generator));
+                if(cgRL != null && cgRL.getNamespace().equals("terraforged")) return;
+            }
+            catch(Exception e){
+                HeroesUnited.LOGGER.error("Was unable to check if " + serverWorld.dimension().location() + " is using Terraforged's ChunkGenerator.");
+            }
+
+            /*
+             * Prevent spawning our structure in Vanilla's superflat world as
+             * people seem to want their superflat worlds free of modded structures.
+             * Also that vanilla superflat is really tricky and buggy to work with in my experience.
+             */
+            if(serverWorld.getChunkSource().getGenerator() instanceof FlatChunkGenerator &&
+                    serverWorld.dimension().equals(World.OVERWORLD)){
+                return;
+            }
+
+            /*
+             * putIfAbsent so people can override the spacing with dimension datapacks themselves if they wish to customize spacing more precisely per dimension.
+             * Requires AccessTransformer  (see resources/META-INF/accesstransformer.cfg)
+             *
+             * NOTE: if you add per-dimension spacing configs, you can't use putIfAbsent as WorldGenRegistries.NOISE_GENERATOR_SETTINGS in FMLCommonSetupEvent
+             * already added your default structure spacing to some dimensions. You would need to override the spacing with .put(...)
+             * And if you want to do dimension blacklisting, you need to remove the spacing entry entirely from the map below to prevent generation safely.
+             */
+            Map<Structure<?>, StructureSeparationSettings> tempMap = new HashMap<>(serverWorld.getChunkSource().generator.getSettings().structureConfig());
+            tempMap.putIfAbsent(HUStructures.CITY.get(), DimensionStructuresSettings.DEFAULTS.get(HUStructures.CITY.get()));
+            serverWorld.getChunkSource().generator.getSettings().structureConfig = tempMap;
+        }
+    }
+
     public void onRegisterNewRegistries(RegistryEvent.NewRegistry e) {
         CelestialBody.CELESTIAL_BODIES = new RegistryBuilder<CelestialBody>().setName(new ResourceLocation(HeroesUnited.MODID, "celestial_bodies")).setType(CelestialBody.class).setIDRange(0, Integer.MAX_VALUE).create();
     }
@@ -153,6 +239,10 @@ public class HeroesUnited {
         CapabilityManager.INSTANCE.register(IHUAbilityCap.class, new HUCapStorage<>(), () -> new HUAbilityCap(null));
         CapabilityManager.INSTANCE.register(IHUDataCap.class, new HUCapStorage<>(), () -> new HUDataCap(null));
 
+        event.enqueueWork(() -> {
+            HUStructures.setupStructures();
+            HUConfiguredStructures.registerConfiguredStructures();
+        });
         HUNetworking.registerMessages();
         LOGGER.info(MODID + ": common is ready!");
     }
