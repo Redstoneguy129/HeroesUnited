@@ -16,13 +16,19 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleReloadableResourceManager;
 import net.minecraft.util.Unit;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.*;
+import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fmllegacy.packs.ModFileResourcePack;
+import net.minecraftforge.fmllegacy.packs.ResourcePackLoader;
+import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
+import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.forgespi.locating.IModFile;
 import org.apache.commons.io.FileUtils;
+import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.hupacks.js.JSAbilityManager;
 import xyz.heroesunited.heroesunited.hupacks.js.JSItemManager;
@@ -34,6 +40,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -43,37 +50,66 @@ public class HUPacks {
     private static HUPacks instance;
     public PackRepository hupackFinder = new PackRepository(PackType.SERVER_DATA, new HUPackFinder());
     private final SimpleReloadableResourceManager resourceManager = new SimpleReloadableResourceManager(PackType.SERVER_DATA);
+    private static final CompletableFuture<Unit> RELOAD_INITIAL_TASK = CompletableFuture.completedFuture(Unit.INSTANCE);
     public static final File HUPACKS_DIR = new File("hupacks");
     public static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     public HUPacks() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-        instance = this;
-
-        Map<IModFile, ModFileResourcePack> modResourcePacks = ModList.get().getModFiles().stream().filter(mf->mf.requiredLanguageLoaders().stream().noneMatch(ls->ls.languageName().equals("minecraft")))
-                .map(mf -> new ModFileResourcePack(mf.getFile())).collect(Collectors.toMap(ModFileResourcePack::getModFile, Function.identity(), (u, v) -> {
-                    throw new IllegalStateException(String.format("Duplicate key %s", u));
-                }, LinkedHashMap::new));
-        hupackFinder.reload();
-        this.hupackFinder.getAvailablePacks().stream().map(Pack::open).collect(Collectors.toList()).forEach(pack -> resourceManager.add(pack));
-        modResourcePacks.forEach((file, pack) -> resourceManager.add(pack));
+        bus.addListener(EventPriority.LOWEST, this::construct);
 
         this.resourceManager.registerReloadListener(new JSAbilityManager(bus));
         this.resourceManager.registerReloadListener(new JSItemManager(bus));
         this.resourceManager.registerReloadListener(new HUPackSuit());
 
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            if(Minecraft.getInstance() != null){
-                ((ReloadableResourceManager) Minecraft.getInstance().getResourceManager()).registerReloadListener(new HUPackLayers());
+        if (FMLEnvironment.dist == Dist.CLIENT && Minecraft.getInstance() != null) {
+            ((ReloadableResourceManager) Minecraft.getInstance().getResourceManager()).registerReloadListener(new HUPackLayers());
+        }
+    }
+
+    public void construct(FMLConstructModEvent event) {
+        event.enqueueWork(() -> {
+            ResourcePackLoader.loadResourcePacks(this.hupackFinder, HUPacks::buildPackFinder);
+
+            try {
+                this.hupackFinder.reload();
+                this.hupackFinder.setSelected(hupackFinder.getAvailableIds());
+
+                this.resourceManager.reload(Util.backgroundExecutor(), Runnable::run, this.hupackFinder.openAllSelected(), RELOAD_INITIAL_TASK).whenComplete((unit, throwable) -> {
+                    if (throwable != null) {
+                        this.resourceManager.close();
+                    }
+                }).get();
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+
+            if (FMLEnvironment.dist == Dist.CLIENT) {
                 Minecraft.getInstance().getResourcePackRepository().addPackFinder(new HUPackFinder());
             }
         });
+    }
 
-        resourceManager.reload(Util.backgroundExecutor(), Runnable::run, hupackFinder.openAllSelected(), CompletableFuture.completedFuture(Unit.INSTANCE)).whenComplete((unit, throwable) -> {
-            if (throwable != null) {
-                resourceManager.close();
+    /**
+     * Code from {@link ServerLifecycleHooks#buildPackFinder}
+     */
+    public static ResourcePackLoader.IPackInfoFinder buildPackFinder(Map<IModFile, ? extends ModFileResourcePack> modResourcePacks, BiConsumer<? super ModFileResourcePack, Pack> packSetter) {
+        return (packList, factory) -> {
+            for (Map.Entry<IModFile, ? extends ModFileResourcePack> e : modResourcePacks.entrySet()) {
+                IModInfo mod = e.getKey().getModInfos().get(0);
+                if (Objects.equals(mod.getModId(), "minecraft")) continue; // skip the minecraft "mod"
+                final String name = "mod:" + mod.getModId();
+                final Pack packInfo = Pack.create(name, false, e::getValue, factory, Pack.Position.BOTTOM, PackSource.DEFAULT);
+                if (packInfo == null) {
+                    // Vanilla only logs an error, instead of propagating, so handle null and warn that something went wrong
+                    ModLoader.get().addWarning(new ModLoadingWarning(mod, ModLoadingStage.ERROR, "fml.modloading.brokenresources", e.getKey()));
+                    continue;
+                }
+                packSetter.accept(e.getValue(), packInfo);
+                HeroesUnited.LOGGER.info("Generating PackInfo named {} for mod file {}", name, e.getKey().getFilePath());
+                packList.accept(packInfo);
             }
-        }).thenApply((unit) -> resourceManager);
+        };
     }
 
     public static void init() {
@@ -85,7 +121,7 @@ public class HUPacks {
         return instance;
     }
 
-    public ResourceManager getResourceManager() {
+    public SimpleReloadableResourceManager getResourceManager() {
         return resourceManager;
     }
 

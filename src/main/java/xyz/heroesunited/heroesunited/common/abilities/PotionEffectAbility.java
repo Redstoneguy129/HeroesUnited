@@ -7,8 +7,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class PotionEffectAbility extends JSONAbility {
-    public PotionEffectAbility() {
-        super(AbilityType.POTION_EFFECT);
+
+    public PotionEffectAbility(AbilityType type) {
+        super(type);
     }
 
     @Override

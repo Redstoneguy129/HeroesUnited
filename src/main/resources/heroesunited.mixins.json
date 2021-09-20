@@ -21,6 +21,7 @@
   "mixins": [
     "MixinDimensionType",
     "MixinMinecraftServer",
+    "MixinResourcePackList",
     "block.MixinBlock",
     "block.MixinBlockReader",
     "block.MixinCactusBlock",

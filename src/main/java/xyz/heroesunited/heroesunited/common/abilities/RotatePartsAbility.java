@@ -13,8 +13,8 @@ import java.util.Map;
 
 public class RotatePartsAbility extends JSONAbility {
 
-    public RotatePartsAbility() {
-        super(AbilityType.ROTATE_PARTS);
+    public RotatePartsAbility(AbilityType type) {
+        super(type);
     }
 
     @OnlyIn(Dist.CLIENT)

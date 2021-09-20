@@ -14,8 +14,8 @@ import net.minecraft.world.phys.Vec3;
 
 public class ProjectileAbility extends JSONAbility {
 
-    public ProjectileAbility() {
-        super(AbilityType.PROJECTILE);
+    public ProjectileAbility(AbilityType type) {
+        super(type);
     }
 
     @Override

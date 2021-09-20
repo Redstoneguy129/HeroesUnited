@@ -54,8 +54,8 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
     public static final AbilityType PARACHUTE = register("parachute", ParachuteAbility::new);
     public static final AbilityType CANCEL_SPRINT = register("cancel_sprint", CancelSprintAbility::new);
 
-    private static AbilityType register(String name, Supplier<Ability> ability) {
-        AbilityType type = new AbilityType(type1 -> ability.get());
+    private static AbilityType register(String name, AbilitySupplier ability) {
+        AbilityType type = new AbilityType(ability);
         ABILITY_TYPES.register(name, () -> type);
         return type;
     }

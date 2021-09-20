@@ -40,7 +40,7 @@ public class JSItemManager extends JSReloadListener {
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, ScriptEngine> map, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
+    public void apply(Map<ResourceLocation, ScriptEngine> map, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
         for (Map.Entry<ResourceLocation, ScriptEngine> entry : map.entrySet()) {
             try {
                 JSItemProperties properties = new JSItemProperties();

@@ -7,6 +7,7 @@ import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.apache.commons.io.IOUtils;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -24,8 +25,12 @@ public abstract class JSReloadListener extends SimplePreparableReloadListener<Ma
         this.directory = directory;
     }
 
+    public static <T extends JSReloadListener> void init(T manager) {
+        manager.apply(manager.prepare(HUPacks.getInstance().getResourceManager(), EmptyProfiler.INSTANCE), HUPacks.getInstance().getResourceManager(), EmptyProfiler.INSTANCE);
+    }
+
     @Override
-    protected Map<ResourceLocation, ScriptEngine> prepare(ResourceManager manager, ProfilerFiller profiler) {
+    public Map<ResourceLocation, ScriptEngine> prepare(ResourceManager manager, ProfilerFiller profiler) {
         Map<ResourceLocation, ScriptEngine> map = Maps.newHashMap();
         for (ResourceLocation resourcelocation : manager.listResources(this.directory, (s) -> s.endsWith(".js"))) {
             String s = resourcelocation.getPath();

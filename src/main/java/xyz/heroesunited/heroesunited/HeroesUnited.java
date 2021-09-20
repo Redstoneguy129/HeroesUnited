@@ -40,6 +40,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import software.bernie.geckolib3.GeckoLib;
 import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.IAnimatableModel;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import xyz.heroesunited.heroesunited.client.HUClientEventHandler;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
@@ -96,8 +97,8 @@ public class HeroesUnited {
     public HeroesUnited() {
         final IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         bus.register(this);
+        GeckoLib.initialize();
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            GeckoLib.initialize();
             bus.addListener(this::clientSetup);
             MinecraftForge.EVENT_BUS.register(new HUClientEventHandler());
         });
@@ -125,13 +126,13 @@ public class HeroesUnited {
     static {
         AnimationController.addModelFetcher((IAnimatable o) -> {
             if (o instanceof IHUPlayer) {
-                return ((IHUPlayer) o).getAnimatedModel();
+                return (IAnimatableModel<Object>) ((IHUPlayer) o).getAnimatedModel();
             }
             return null;
         });
         AnimationController.addModelFetcher((IAnimatable o) -> {
             if (o instanceof IGeoAbility) {
-                return ((IGeoAbility) o).getGeoModel();
+                return (IAnimatableModel<Object>) ((IGeoAbility) o).getGeoModel();
             }
             return null;
         });

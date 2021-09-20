@@ -5,8 +5,8 @@ import net.minecraft.util.GsonHelper;
 
 public class HideLayerAbility extends JSONAbility {
 
-    public HideLayerAbility() {
-        super(AbilityType.HIDE_LAYER);
+    public HideLayerAbility(AbilityType type) {
+        super(type);
     }
 
     public boolean layerNameIs(String name) {

@@ -37,12 +37,18 @@ import java.util.function.Consumer;
 
 public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable {
 
-    private final AnimationFactory factory = new AnimationFactory(this);
+    protected final AnimationFactory factory = new AnimationFactory(this);
     protected final Suit suit;
 
     public SuitItem(ArmorMaterial materialIn, EquipmentSlot slot, Properties builder, Suit suit) {
         super(materialIn, slot, builder);
         this.suit = suit;
+    }
+
+    @Nullable
+    @Override
+    public EquipmentSlot getEquipmentSlot(ItemStack stack) {
+        return super.getEquipmentSlot(stack);
     }
 
     @Nonnull
@@ -54,7 +60,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     public Map<String, Ability> getAbilities(Player player) {
         Map<String, Ability> map = Maps.newHashMap();
         suit.getAbilities(player).forEach((id, a) -> {
-            a.getAdditionalData().putString("Suit", this.getRegistryName().toString());
+            a.getAdditionalData().putString("Suit", suit.getRegistryName().toString());
             if (suit instanceof JsonSuit && a.getJsonObject().has("slot")) {
                 a.getAdditionalData().putString("Slot", GsonHelper.getAsString(a.getJsonObject(), "slot"));
             }
@@ -135,26 +141,16 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     @Override
     public CompoundTag getShareTag(ItemStack stack) {
         CompoundTag nbt = stack.getOrCreateTag();
-        if (getSuit() instanceof JsonSuit) {
-            nbt.put("Conditions", ((JsonSuit) suit).getConditionManager().serializeNBT());
-        }
+        getSuit().serializeNBT(nbt, stack);
         return nbt;
     }
 
     @Override
     public void readShareTag(ItemStack stack, @Nullable CompoundTag nbt) {
         super.readShareTag(stack, nbt);
-        if (getSuit() instanceof JsonSuit && nbt != null) {
-            ((JsonSuit) SuitItem.this.getSuit()).getConditionManager().deserializeNBT(nbt.getCompound("Conditions"));
+        if (nbt != null) {
+            getSuit().deserializeNBT(nbt, stack);
         }
-    }
-
-    @Override
-    public boolean canEquip(ItemStack stack, EquipmentSlot slot, Entity entity) {
-        if (entity instanceof Player) {
-            return super.canEquip(stack, slot, entity) && getSuit().canEquip((Player) entity);
-        }
-        return super.canEquip(stack, slot, entity);
     }
 
     @Override
@@ -173,6 +169,14 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     public GeoArmorRenderer getArmorRenderer() {
         Class<? extends ArmorItem> clazz = this.getClass();
         return GeoArmorRenderer.getRenderer(clazz);
+    }
+
+    @Override
+    public boolean canEquip(ItemStack stack, EquipmentSlot slot, Entity entity) {
+        if (entity instanceof Player) {
+            return super.canEquip(stack, slot, entity) && getSuit().canEquip((Player) entity);
+        }
+        return super.canEquip(stack, slot, entity);
     }
 
     public void registerControllers(AnimationData data) {

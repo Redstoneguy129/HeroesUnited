@@ -43,7 +43,7 @@ import net.minecraftforge.fmllegacy.network.NetworkDirection;
 import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import software.bernie.geckolib3.core.AnimationState;
 import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.network.messages.SyncAnimationMsg;
+import software.bernie.geckolib3.network.GeckoLibNetwork;
 import software.bernie.geckolib3.util.GeckoLibUtil;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.*;
@@ -65,8 +65,10 @@ import xyz.heroesunited.heroesunited.common.objects.items.BoBoAccessory;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.common.space.Planet;
+import xyz.heroesunited.heroesunited.hupacks.HUPackPowers;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
+import xyz.heroesunited.heroesunited.hupacks.js.item.IJSItem;
 import xyz.heroesunited.heroesunited.mixin.entity.AccessorLivingEntity;
 import xyz.heroesunited.heroesunited.util.HUOxygenHelper;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
@@ -247,7 +249,7 @@ public class HUEventHandler {
                         AnimationController controller = GeckoLibUtil.getControllerForID(accessory.getFactory(), id, "controller");
                         final PacketDistributor.PacketTarget target = PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> pl);
                         if (controller.getAnimationState() == AnimationState.Stopped) {
-                            HUNetworking.INSTANCE.send(target, new SyncAnimationMsg(accessory.getSyncKey(), id, 0));
+                            GeckoLibNetwork.syncAnimation(target, accessory, id, 0);
                         }
                     }
 
@@ -280,7 +282,7 @@ public class HUEventHandler {
                             }
                             pl.setDeltaMovement(vec.x * speed, j + vec.y * speed, vec.z * speed);
                         } else {
-                            pl.setDeltaMovement(new Vec3(pl.getDeltaMovement().x, j + Math.sin(pl.tickCount) / 10000F, pl.getDeltaMovement().z));
+                            pl.setDeltaMovement(new Vec3(pl.getDeltaMovement().x, j + Math.sin(pl.tickCount / 10F) / 100F, pl.getDeltaMovement().z));
                         }
                     }
                 });
@@ -335,30 +337,61 @@ public class HUEventHandler {
         if (event.getEntityLiving() instanceof Player && event.getSlot().getType() == EquipmentSlot.Type.ARMOR) {
             Player player = (Player) event.getEntityLiving();
             player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
-                if (event.getTo().getItem() instanceof SuitItem) {
-                    SuitItem suitItem = (SuitItem) event.getTo().getItem();
+                if (event.getSlot().getType() == EquipmentSlotType.Group.ARMOR) {
+                    if (event.getTo().getItem() instanceof SuitItem) {
+                        SuitItem suitItem = (SuitItem) event.getTo().getItem();
 
-                    if (!suitItem.getAbilities(player).isEmpty()) {
-                        for (Map.Entry<String, Ability> entry : suitItem.getAbilities(player).entrySet()) {
-                            Ability a = entry.getValue();
-                            boolean canAdd = a.getJsonObject() != null && a.getJsonObject().has("slot") && suitItem.getSlot().getName().toLowerCase().equals(GsonHelper.getAsString(a.getJsonObject(), "slot"));
-                            if (canAdd || Suit.getSuit(player) != null) {
-                                cap.addAbility(entry.getKey(), a);
+                        if (!suitItem.getAbilities(player).isEmpty()) {
+                            for (Map.Entry<String, Ability> entry : suitItem.getAbilities(player).entrySet()) {
+                                Ability a = entry.getValue();
+                                boolean canAdd = a.getJsonObject() != null && a.getJsonObject().has("slot") && suitItem.getSlot().getName().toLowerCase().equals(JSONUtils.getAsString(a.getJsonObject(), "slot"));
+                                if (canAdd || Suit.getSuit(player) != null) {
+                                    cap.addAbility(entry.getKey(), a);
+                                }
+                            }
+                        }
+                        suitItem.getSuit().onActivated(player, suitItem.getSlot());
+                    }
+                    if (event.getFrom().getItem() instanceof SuitItem && !cap.getAbilities().isEmpty()) {
+                        SuitItem suitItem = (SuitItem) event.getFrom().getItem();
+                        for (Ability a : AbilityHelper.getAbilityMap(player).values()) {
+                            if (suitItem.getAbilities(player).containsKey(a.name)) {
+                                CompoundTag suit = suitItem.getAbilities(player).get(a.name).getAdditionalData();
+                                if (a.getAdditionalData().equals(suit) && a.getAdditionalData().contains("Suit")) {
+                                    if (a.getJsonObject() != null && a.getJsonObject().has("slot")) {
+                                        if (suitItem.getSlot().getName().toLowerCase().equals(JSONUtils.getAsString(a.getJsonObject(), "slot"))) {
+                                            cap.removeAbility(a.name);
+                                        }
+                                    } else {
+                                        cap.removeAbility(a.name);
+                                    }
+                                }
+                            }
+                        }
+                        suitItem.getSuit().onDeactivated(player, suitItem.getSlot());
+                    }
+                }
+                if (event.getTo().getItem() instanceof IJSItem) {
+                    IJSItem item = (IJSItem) event.getTo().getItem();
+                    EquipmentSlot slot = event.getTo().getEquipmentSlot() == null ? EquipmentSlot.MAINHAND : event.getTo().getEquipmentSlot();
+                    if (!item.getAbilities(player).isEmpty()) {
+                        for (Map.Entry<String, Ability> entry : item.getAbilities(player).entrySet()) {
+                            if (slot == event.getSlot()) {
+                                cap.addAbility(entry.getKey(), entry.getValue());
                             }
                         }
                     }
-                    suitItem.getSuit().onActivated(player, suitItem.getSlot());
-                } else if (event.getFrom().getItem() instanceof SuitItem && !cap.getAbilities().isEmpty()) {
-                    SuitItem suitItem = (SuitItem) event.getFrom().getItem();
+                }
+                if (event.getFrom().getItem() instanceof IJSItem && !cap.getAbilities().isEmpty()) {
+                    IJSItem item = (IJSItem) event.getFrom().getItem();
                     for (Ability a : AbilityHelper.getAbilityMap(player).values()) {
-                        if (suitItem.getAbilities(player).containsKey(a.name)) {
-                            CompoundTag suit = suitItem.getAbilities(player).get(a.name).getAdditionalData();
-                            if (a.getAdditionalData().equals(suit) && a.getAdditionalData().contains("Suit")) {
+                        if (item.getAbilities(player).containsKey(a.name)) {
+                            CompoundTag suit = item.getAbilities(player).get(a.name).getAdditionalData();
+                            if (a.getAdditionalData().equals(suit)) {
                                 cap.removeAbility(a.name);
                             }
                         }
                     }
-                    suitItem.getSuit().onDeactivated(player, suitItem.getSlot());
                 }
             });
         }
@@ -382,6 +415,7 @@ public class HUEventHandler {
 
     @SubscribeEvent
     public void addListenerEvent(AddReloadListenerEvent event) {
+        event.addListener(new HUPackPowers());
         event.addListener(new HUPackSuperpowers());
     }
 

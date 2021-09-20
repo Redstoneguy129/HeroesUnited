@@ -126,6 +126,18 @@ public class JsonSuit extends Suit {
     }
 
     @Override
+    public void serializeNBT(CompoundNBT nbt, ItemStack stack) {
+        super.serializeNBT(nbt, stack);
+        nbt.put("Conditions", this.getConditionManager().serializeNBT());
+    }
+
+    @Override
+    public void deserializeNBT(CompoundNBT nbt, ItemStack stack) {
+        super.deserializeNBT(nbt, stack);
+        this.getConditionManager().deserializeNBT(nbt.getCompound("Conditions"));
+    }
+
+    @Override
     public List<EquipmentAccessoriesSlot> getSlotForHide(EquipmentSlot slot) {
         List<EquipmentAccessoriesSlot> list = Lists.newArrayList();
         if (jsonObject.has("hide_accessories")) {

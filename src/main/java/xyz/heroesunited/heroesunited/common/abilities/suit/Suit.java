@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -229,12 +230,12 @@ public abstract class Suit {
                 matrix.translate(0.0D, -1.5F, 0.0D);
                 matrix.popPose();
             }
-		} catch (GeckoLibException | IllegalArgumentException e) {
+        } catch (GeckoLibException | IllegalArgumentException e) {
             SuitModel suitModel = new SuitModel(HUClientUtil.getSuitModelPart(player), isSmallArms(player));
-			suitModel.copyPropertiesFrom(renderer.getModel());
+            suitModel.copyPropertiesFrom(renderer.getModel());
             suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(player.getItemBySlot(EquipmentSlot.CHEST).getItem().getArmorTexture(player.getItemBySlot(EquipmentSlot.CHEST), player, EquipmentSlot.CHEST, null)))), packedLightIn, player);
         }
-	}
+    }
 
     public final Suit setRegistryName(ResourceLocation name) {
         if (getRegistryName() != null)
@@ -260,19 +261,6 @@ public abstract class Suit {
         return boots;
     }
 
-    public boolean hasArmorOn(LivingEntity entity) {
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
-            if (slot.getType() == EquipmentSlot.Type.ARMOR) {
-                Item item = entity.getItemBySlot(slot).getItem();
-                if (item instanceof SuitItem && ((SuitItem) item).getSuit() != this) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
     public List<EquipmentAccessoriesSlot> getSlotForHide(EquipmentSlot slot) {
         List<EquipmentAccessoriesSlot> list = Lists.newArrayList();
         for (int i = 0; i <= 8; ++i) {
@@ -296,22 +284,39 @@ public abstract class Suit {
         return null;
     }
 
-    public static Suit getSuit(LivingEntity entity) {
+    protected Item getItemBySlot(EquipmentSlot slot) {
+        if (slot == EquipmentSlot.HEAD) {
+            return getHelmet();
+        }
+        if (slot == EquipmentSlot.CHEST) {
+            return getChestplate();
+        }
+        if (slot == EquipmentSlot.LEGS) {
+            return getLegs();
+        }
+        return getBoots();
+    }
+
+    public boolean hasArmorOn(LivingEntity entity) {
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             if (slot.getType() == EquipmentSlot.Type.ARMOR) {
-                Item item = entity.getItemBySlot(slot).getItem();
-                if (item instanceof SuitItem suitItem) {
-                    if (suitItem.getSuit().hasArmorOn(entity)) {
-                        return suitItem.getSuit();
-                    }
+                if (getItemBySlot(slot) != null && (entity.getItemBySlot(slot).isEmpty() || entity.getItemBySlot(slot).getItem() != getItemBySlot(slot))) {
+                    return false;
                 }
             }
         }
-        return null;
+        return true;
     }
 
     public boolean canBreathOnSpace(){
         return false;
     }
 
+    public void serializeNBT(CompoundTag nbt, ItemStack stack) {
+
+    }
+
+    public void deserializeNBT(CompoundTag nbt, ItemStack stack) {
+
+    }
 }

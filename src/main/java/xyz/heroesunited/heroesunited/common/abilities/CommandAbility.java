@@ -12,8 +12,8 @@ import java.util.UUID;
 
 public class CommandAbility extends JSONAbility implements CommandSource {
 
-    public CommandAbility() {
-        super(AbilityType.COMMAND);
+    public CommandAbility(AbilityType type) {
+        super(type);
     }
 
     @Override

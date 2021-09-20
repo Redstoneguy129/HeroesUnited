@@ -3,6 +3,7 @@ package xyz.heroesunited.heroesunited.common.abilities;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -15,6 +16,7 @@ import net.minecraft.world.entity.player.Player;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
+import xyz.heroesunited.heroesunited.hupacks.HUPackPowers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +38,7 @@ public class AbilityHelper {
         return ability;
     }
 
-    public static void disable(Player player) {
+    public static void disable(PlayerEntity player) {
         player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> ImmutableMap.copyOf(a.getActiveAbilities()).forEach((id, ability) -> {
             a.disable(id);
             ability.onDeactivated(player);
@@ -94,7 +96,7 @@ public class AbilityHelper {
         }
     }
 
-    public static List<AbilityCreator> parseAbilityCreators(JsonObject json, ResourceLocation resourceLocation) {
+    public static List<AbilityCreator> parseAbilityCreators(JsonObject jsonObject, ResourceLocation resourceLocation) {
         List<AbilityCreator> abilityList = Lists.newArrayList();
         if (json.has("abilities")) {
             JsonObject abilities = GsonHelper.getAsJsonObject(json, "abilities");
@@ -108,6 +110,33 @@ public class AbilityHelper {
                 }
             });
         }
+        if (jsonObject.has("abilities")) {
+            abilityList.addAll(parsePowers(JSONUtils.getAsJsonObject(jsonObject, "abilities"), resourceLocation));
+        }
+        if (jsonObject.has("powers")) {
+            JsonArray jsonArray = JSONUtils.getAsJsonArray(jsonObject, "powers");
+            for (int i = 0; i < jsonArray.size(); i++) {
+                abilityList.addAll(HUPackPowers.getPower(new ResourceLocation(jsonArray.get(i).getAsString())));
+            }
+        }
+        if (jsonObject.has("power")) {
+            abilityList.addAll(HUPackPowers.getPower(new ResourceLocation(JSONUtils.getAsString(jsonObject, "power"))));
+        }
+        return abilityList;
+    }
+
+    public static List<AbilityCreator> parsePowers(JsonObject json, ResourceLocation resourceLocation) {
+        List<AbilityCreator> abilityList = Lists.newArrayList();
+        json.entrySet().forEach((e) -> {
+            if (e.getValue() instanceof JsonObject) {
+                JsonObject o = (JsonObject) e.getValue();
+                AbilityType ability = AbilityType.ABILITIES.get().getValue(new ResourceLocation(JSONUtils.getAsString(o, "ability")));
+                if (ability != null) {
+                    abilityList.add(new AbilityCreator(e.getKey(), ability).setJsonObject(o));
+                } else
+                    HeroesUnited.LOGGER.error("Couldn't read ability {} in {}", JSONUtils.getAsString(o, "ability"), resourceLocation);
+            }
+        });
         return abilityList;
     }
 }

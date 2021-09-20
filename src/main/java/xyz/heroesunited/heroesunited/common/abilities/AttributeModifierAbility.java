@@ -11,10 +11,6 @@ import java.util.UUID;
 
 public class AttributeModifierAbility extends JSONAbility {
 
-    public AttributeModifierAbility() {
-        this(AbilityType.ATTRIBUTE_MODIFIER);
-    }
-
     public AttributeModifierAbility(AbilityType type) {
         super(type);
     }

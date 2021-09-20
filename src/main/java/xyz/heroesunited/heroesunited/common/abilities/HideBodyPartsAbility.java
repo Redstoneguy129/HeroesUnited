@@ -13,8 +13,8 @@ import java.util.Map;
 
 public class HideBodyPartsAbility extends JSONAbility {
 
-    public HideBodyPartsAbility() {
-        super(AbilityType.HIDE_BODY_PARTS);
+    public HideBodyPartsAbility(AbilityType type) {
+        super(type);
     }
 
     @OnlyIn(Dist.CLIENT)

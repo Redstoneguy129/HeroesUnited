@@ -11,6 +11,9 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.JSONAbility;
+import xyz.heroesunited.heroesunited.common.abilities.suit.JsonSuit;
+import xyz.heroesunited.heroesunited.hupacks.HUPackSuit;
+import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -29,7 +32,7 @@ public class JSAbilityManager extends JSReloadListener {
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, ScriptEngine> map, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
+    public void apply(Map<ResourceLocation, ScriptEngine> map, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
         for (Map.Entry<ResourceLocation, ScriptEngine> entry : map.entrySet()) {
             try {
                 types.add(new AbilityType(type -> new JSAbility(type, entry.getValue())).setRegistryName(entry.getKey()));

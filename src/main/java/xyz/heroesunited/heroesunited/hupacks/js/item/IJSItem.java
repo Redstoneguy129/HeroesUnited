@@ -1,11 +1,10 @@
 package xyz.heroesunited.heroesunited.hupacks.js.item;
 
+import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
+
 import javax.script.ScriptEngine;
 
-/**
- * This class is for future abilities implement
- */
-public interface IJSItem {
+public interface IJSItem extends IAbilityProvider {
 
     ScriptEngine getEngine();
 }

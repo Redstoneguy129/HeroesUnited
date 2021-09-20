@@ -6,8 +6,8 @@ import net.minecraft.world.entity.player.Player;
 
 public class SizeChangeAbility extends JSONAbility {
 
-    public SizeChangeAbility() {
-        super(AbilityType.SIZE_CHANGE);
+    public SizeChangeAbility(AbilityType type) {
+        super(type);
     }
 
     @Override
