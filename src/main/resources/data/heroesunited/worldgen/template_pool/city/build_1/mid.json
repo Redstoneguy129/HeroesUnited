@@ -1,0 +1,22 @@
+{
+  "name": "heroesunited:city/build_1/mid",
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 1,
+      "element": {
+        "location": "heroesunited:build_1_mid",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      },
+      "weight": 300,
+      "element": {
+        "location": "heroesunited:build_1_top",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    }
+  ]
+}

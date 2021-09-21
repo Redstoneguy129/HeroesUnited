@@ -74,10 +74,11 @@ public class CityStructure extends Structure<NoFeatureConfig> {
                             //
                             // Note, this is "structure_tutorial:run_down_house/start_pool" which means
                             // the game will automatically look into the following path for the template pool:
-                            // "resources/data/structure_tutorial/worldgen/template_pool/run_down_house/line.json"
+                            // "resources/data/structure_tutorial/worldgen/template_pool/run_down_house/street.json"
                             // This is why your pool files must be in "data/<modid>/worldgen/template_pool/<the path to the pool here>"
                             // because the game automatically will check in worldgen/template_pool for the pools.
-                            .get(new ResourceLocation(HeroesUnited.MODID, "city/cross")),
+//                            .get(new ResourceLocation(HeroesUnited.MODID, "city/build_1/bottom")),
+                            .get(new ResourceLocation(HeroesUnited.MODID, "city/structure")),
 
                             // How many pieces outward from center can a recursive jigsaw structure spawn.
                             // Our structure is only 1 piece outward and isn't recursive so any value of 1 or more doesn't change anything.

@@ -1,13 +1,13 @@
 {
-  "name": "heroesunited:city/line",
+  "name": "heroesunited:city/build_1/bottom",
   "fallback": "minecraft:empty",
   "elements": [
     {
       "weight": 300,
       "element": {
-        "location": "heroesunited:line",
+        "location": "heroesunited:build_1_base",
         "processors": "minecraft:empty",
-        "projection": "terrain_matching",
+        "projection": "rigid",
         "element_type": "minecraft:single_pool_element"
       }
     }
