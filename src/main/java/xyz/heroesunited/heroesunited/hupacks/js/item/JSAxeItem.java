@@ -1,5 +1,7 @@
 package xyz.heroesunited.heroesunited.hupacks.js.item;
 
+import com.google.common.collect.Maps;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
@@ -7,6 +9,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import xyz.heroesunited.heroesunited.common.abilities.Ability;
+import xyz.heroesunited.heroesunited.hupacks.HUPackPowers;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -49,7 +53,7 @@ public class JSAxeItem extends AxeItem implements IJSItem {
     }
 
     @Override
-    public Map<String, Ability> getAbilities(PlayerEntity player) {
+    public Map<String, Ability> getAbilities(Player player) {
         Map<String, Ability> map = Maps.newHashMap();
         HUPackPowers.getPower(new ResourceLocation(this.power)).forEach(abilityCreator -> {
             Ability a = abilityCreator.getAbilityType().create(abilityCreator.getKey());

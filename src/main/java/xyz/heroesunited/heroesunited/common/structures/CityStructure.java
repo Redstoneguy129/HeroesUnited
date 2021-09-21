@@ -1,49 +1,54 @@
 package xyz.heroesunited.heroesunited.common.structures;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MutableBoundingBox;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.util.registry.DynamicRegistries;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.ChunkGenerator;
-import net.minecraft.world.gen.GenerationStage;
-import net.minecraft.world.gen.feature.NoFeatureConfig;
-import net.minecraft.world.gen.feature.jigsaw.JigsawManager;
-import net.minecraft.world.gen.feature.structure.*;
-import net.minecraft.world.gen.feature.template.TemplateManager;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.JigsawConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.structures.JigsawPlacement;
+import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import org.apache.logging.log4j.Level;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
-public class CityStructure extends Structure<NoFeatureConfig> {
+public class CityStructure extends StructureFeature<NoneFeatureConfiguration> {
 
-    public CityStructure(Codec<NoFeatureConfig> codec) {
+    public CityStructure(Codec<NoneFeatureConfiguration> codec) {
         super(codec);
     }
 
     @Override
-    public IStartFactory<NoFeatureConfig> getStartFactory() {
+    public StructureStartFactory<NoneFeatureConfiguration> getStartFactory() {
         return CityStructure.Start::new;
     }
 
     @Override
-    public GenerationStage.Decoration step() {
-        return GenerationStage.Decoration.TOP_LAYER_MODIFICATION;
+    public GenerationStep.Decoration step() {
+        return GenerationStep.Decoration.TOP_LAYER_MODIFICATION;
     }
 
-    public static class Start extends StructureStart<NoFeatureConfig> {
-        public Start(Structure<NoFeatureConfig> structureIn, int chunkX, int chunkZ, MutableBoundingBox mutableBoundingBox, int referenceIn, long seedIn) {
-            super(structureIn, chunkX, chunkZ, mutableBoundingBox, referenceIn, seedIn);
+    public static class Start extends StructureStart<NoneFeatureConfiguration> {
+        public Start(StructureFeature<NoneFeatureConfiguration> structureIn, ChunkPos chunkPos, int referenceIn, long seedIn) {
+            super(structureIn, chunkPos, referenceIn, seedIn);
         }
 
         @Override
-        public void generatePieces(DynamicRegistries dynamicRegistryManager, ChunkGenerator chunkGenerator, TemplateManager templateManagerIn, int chunkX, int chunkZ, Biome biomeIn, NoFeatureConfig config) {
+        public void generatePieces(RegistryAccess dynamicRegistryManager, ChunkGenerator chunkGenerator, StructureManager templateManagerIn, ChunkPos chunkPos, Biome biomeIn, NoneFeatureConfiguration config, LevelHeightAccessor p_163621_) {
 
             // Turns the chunk coordinates into actual coordinates we can use
-            int x = chunkX * 16;
-            int z = chunkZ * 16;
+            int x = chunkPos.x * 16;
+            int z = chunkPos.z * 16;
 
             /*
              * We pass this into addPieces to tell it where to generate the structure.
@@ -63,9 +68,9 @@ public class CityStructure extends Structure<NoFeatureConfig> {
             //IBlockReader blockReader = chunkGenerator.getBaseColumn(blockpos.getX(), blockpos.getZ());
 
             // All a structure has to do is call this method to turn it into a jigsaw based structure!
-            JigsawManager.addPieces(
+            JigsawPlacement.addPieces(
                     dynamicRegistryManager,
-                    new VillageConfig(() -> dynamicRegistryManager.registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY)
+                    new JigsawConfiguration(() -> dynamicRegistryManager.registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY)
                             // The path to the starting Template Pool JSON file to read.
                             //
                             // Note, this is "structure_tutorial:run_down_house/start_pool" which means
@@ -80,15 +85,15 @@ public class CityStructure extends Structure<NoFeatureConfig> {
                             // However, I recommend you keep this a decent value like 10 so people can use datapacks to add additional pieces to your structure easily.
                             // But don't make it too large for recursive structures like villages or you'll crash server due to hundreds of pieces attempting to generate!
                             50),
-                    AbstractVillagePiece::new,
+                    PoolElementStructurePiece::new,
                     chunkGenerator,
                     templateManagerIn,
                     centerPos, // Position of the structure. Y value is ignored if last parameter is set to true.
-                    this.pieces, // The list that will be populated with the jigsaw pieces after this method.
+                    this, // The list that will be populated with the jigsaw pieces after this method.
                     this.random,
                     false, // Special boundary adjustments for villages. It's... hard to explain. Keep this false and make your pieces not be partially intersecting.
                     // Either not intersecting or fully contained will make children pieces spawn just fine. It's easier that way.
-                    true);  // Place at heightmap (top land). Set this to false for structure to be place at the passed in blockpos's Y value instead.
+                    true, p_163621_);  // Place at heightmap (top land). Set this to false for structure to be place at the passed in blockpos's Y value instead.
             // Definitely keep this false when placing structures in the nether as otherwise, heightmap placing will put the structure on the Bedrock roof.
 
 
@@ -112,23 +117,19 @@ public class CityStructure extends Structure<NoFeatureConfig> {
             // This is so that our structure's start piece is now centered on the water check done in isFeatureChunk.
             // Whatever the offset done to center the start piece, that offset is applied to all other pieces
             // so the entire structure is shifted properly to the new spot.
-            Vector3i structureCenter = this.pieces.get(0).getBoundingBox().getCenter();
+            Vec3i structureCenter = this.pieces.get(0).getBoundingBox().getCenter();
             int xOffset = centerPos.getX() - structureCenter.getX();
             int zOffset = centerPos.getZ() - structureCenter.getZ();
             for(StructurePiece structurePiece : this.pieces){
                 structurePiece.move(xOffset, 0, zOffset);
             }
 
-            // Sets the bounds of the structure once you are finished.
-            this.calculateBoundingBox();
-
             // I use to debug and quickly find out if the structure is spawning or not and where it is.
             // This is returning the coordinates of the center starting piece.
             HeroesUnited.LOGGER.log(Level.DEBUG, "City at " +
-                    this.pieces.get(0).getBoundingBox().x0 + " " +
-                    this.pieces.get(0).getBoundingBox().y0 + " " +
-                    this.pieces.get(0).getBoundingBox().z0);
+                    this.pieces.get(0).getBoundingBox().minX() + " " +
+                    this.pieces.get(0).getBoundingBox().minY() + " " +
+                    this.pieces.get(0).getBoundingBox().minZ());
         }
-
     }
 }

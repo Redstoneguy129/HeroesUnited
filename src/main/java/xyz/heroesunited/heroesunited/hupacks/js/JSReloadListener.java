@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.profiling.InactiveProfiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.apache.commons.io.IOUtils;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -26,7 +27,7 @@ public abstract class JSReloadListener extends SimplePreparableReloadListener<Ma
     }
 
     public static <T extends JSReloadListener> void init(T manager) {
-        manager.apply(manager.prepare(HUPacks.getInstance().getResourceManager(), EmptyProfiler.INSTANCE), HUPacks.getInstance().getResourceManager(), EmptyProfiler.INSTANCE);
+        manager.apply(manager.prepare(HUPacks.getInstance().getResourceManager(), InactiveProfiler.INSTANCE), HUPacks.getInstance().getResourceManager(), InactiveProfiler.INSTANCE);
     }
 
     @Override

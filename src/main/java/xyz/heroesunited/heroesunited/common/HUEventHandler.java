@@ -337,14 +337,13 @@ public class HUEventHandler {
         if (event.getEntityLiving() instanceof Player && event.getSlot().getType() == EquipmentSlot.Type.ARMOR) {
             Player player = (Player) event.getEntityLiving();
             player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
-                if (event.getSlot().getType() == EquipmentSlotType.Group.ARMOR) {
-                    if (event.getTo().getItem() instanceof SuitItem) {
-                        SuitItem suitItem = (SuitItem) event.getTo().getItem();
+                if (event.getSlot().getType() == EquipmentSlot.Type.ARMOR) {
+                    if (event.getTo().getItem() instanceof SuitItem suitItem) {
 
                         if (!suitItem.getAbilities(player).isEmpty()) {
                             for (Map.Entry<String, Ability> entry : suitItem.getAbilities(player).entrySet()) {
                                 Ability a = entry.getValue();
-                                boolean canAdd = a.getJsonObject() != null && a.getJsonObject().has("slot") && suitItem.getSlot().getName().toLowerCase().equals(JSONUtils.getAsString(a.getJsonObject(), "slot"));
+                                boolean canAdd = a.getJsonObject() != null && a.getJsonObject().has("slot") && suitItem.getSlot().getName().toLowerCase().equals(GsonHelper.getAsString(a.getJsonObject(), "slot"));
                                 if (canAdd || Suit.getSuit(player) != null) {
                                     cap.addAbility(entry.getKey(), a);
                                 }
@@ -352,14 +351,13 @@ public class HUEventHandler {
                         }
                         suitItem.getSuit().onActivated(player, suitItem.getSlot());
                     }
-                    if (event.getFrom().getItem() instanceof SuitItem && !cap.getAbilities().isEmpty()) {
-                        SuitItem suitItem = (SuitItem) event.getFrom().getItem();
+                    if (event.getFrom().getItem() instanceof SuitItem suitItem && !cap.getAbilities().isEmpty()) {
                         for (Ability a : AbilityHelper.getAbilityMap(player).values()) {
                             if (suitItem.getAbilities(player).containsKey(a.name)) {
                                 CompoundTag suit = suitItem.getAbilities(player).get(a.name).getAdditionalData();
                                 if (a.getAdditionalData().equals(suit) && a.getAdditionalData().contains("Suit")) {
                                     if (a.getJsonObject() != null && a.getJsonObject().has("slot")) {
-                                        if (suitItem.getSlot().getName().toLowerCase().equals(JSONUtils.getAsString(a.getJsonObject(), "slot"))) {
+                                        if (suitItem.getSlot().getName().toLowerCase().equals(GsonHelper.getAsString(a.getJsonObject(), "slot"))) {
                                             cap.removeAbility(a.name);
                                         }
                                     } else {
@@ -371,8 +369,7 @@ public class HUEventHandler {
                         suitItem.getSuit().onDeactivated(player, suitItem.getSlot());
                     }
                 }
-                if (event.getTo().getItem() instanceof IJSItem) {
-                    IJSItem item = (IJSItem) event.getTo().getItem();
+                if (event.getTo().getItem() instanceof IJSItem item) {
                     EquipmentSlot slot = event.getTo().getEquipmentSlot() == null ? EquipmentSlot.MAINHAND : event.getTo().getEquipmentSlot();
                     if (!item.getAbilities(player).isEmpty()) {
                         for (Map.Entry<String, Ability> entry : item.getAbilities(player).entrySet()) {
@@ -382,8 +379,7 @@ public class HUEventHandler {
                         }
                     }
                 }
-                if (event.getFrom().getItem() instanceof IJSItem && !cap.getAbilities().isEmpty()) {
-                    IJSItem item = (IJSItem) event.getFrom().getItem();
+                if (event.getFrom().getItem() instanceof IJSItem item && !cap.getAbilities().isEmpty()) {
                     for (Ability a : AbilityHelper.getAbilityMap(player).values()) {
                         if (item.getAbilities(player).containsKey(a.name)) {
                             CompoundTag suit = item.getAbilities(player).get(a.name).getAdditionalData();

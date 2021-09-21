@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -126,13 +127,13 @@ public class JsonSuit extends Suit {
     }
 
     @Override
-    public void serializeNBT(CompoundNBT nbt, ItemStack stack) {
+    public void serializeNBT(CompoundTag nbt, ItemStack stack) {
         super.serializeNBT(nbt, stack);
         nbt.put("Conditions", this.getConditionManager().serializeNBT());
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt, ItemStack stack) {
+    public void deserializeNBT(CompoundTag nbt, ItemStack stack) {
         super.deserializeNBT(nbt, stack);
         this.getConditionManager().deserializeNBT(nbt.getCompound("Conditions"));
     }

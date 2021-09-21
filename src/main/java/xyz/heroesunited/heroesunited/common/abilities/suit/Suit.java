@@ -308,6 +308,21 @@ public abstract class Suit {
         return true;
     }
 
+    public static Suit getSuit(LivingEntity entity) {
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            if (slot.getType() == EquipmentSlot.Type.ARMOR) {
+                Item item = entity.getItemBySlot(slot).getItem();
+                if (item instanceof SuitItem) {
+                    SuitItem suitItem = (SuitItem) item;
+                    if (suitItem.getSuit().hasArmorOn(entity)) {
+                        return suitItem.getSuit();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     public boolean canBreathOnSpace(){
         return false;
     }
