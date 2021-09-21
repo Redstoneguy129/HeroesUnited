@@ -2,18 +2,22 @@ package xyz.heroesunited.heroesunited.common.structures;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SharedSeedRandom;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MutableBoundingBox;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.provider.BiomeProvider;
 import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.feature.NoFeatureConfig;
 import net.minecraft.world.gen.feature.jigsaw.JigsawManager;
 import net.minecraft.world.gen.feature.structure.*;
 import net.minecraft.world.gen.feature.template.TemplateManager;
+import net.minecraft.world.gen.settings.StructureSeparationSettings;
 import org.apache.logging.log4j.Level;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
@@ -70,10 +74,10 @@ public class CityStructure extends Structure<NoFeatureConfig> {
                             //
                             // Note, this is "structure_tutorial:run_down_house/start_pool" which means
                             // the game will automatically look into the following path for the template pool:
-                            // "resources/data/structure_tutorial/worldgen/template_pool/run_down_house/street.json"
+                            // "resources/data/structure_tutorial/worldgen/template_pool/run_down_house/line.json"
                             // This is why your pool files must be in "data/<modid>/worldgen/template_pool/<the path to the pool here>"
                             // because the game automatically will check in worldgen/template_pool for the pools.
-                            .get(new ResourceLocation(HeroesUnited.MODID, "city/street")),
+                            .get(new ResourceLocation(HeroesUnited.MODID, "city/cross")),
 
                             // How many pieces outward from center can a recursive jigsaw structure spawn.
                             // Our structure is only 1 piece outward and isn't recursive so any value of 1 or more doesn't change anything.
@@ -129,6 +133,5 @@ public class CityStructure extends Structure<NoFeatureConfig> {
                     this.pieces.get(0).getBoundingBox().y0 + " " +
                     this.pieces.get(0).getBoundingBox().z0);
         }
-
     }
 }

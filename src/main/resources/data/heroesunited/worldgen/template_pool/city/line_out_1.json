@@ -1,20 +1,11 @@
 {
-  "name": "heroesunited:city/street",
+  "name": "heroesunited:city/line_output",
   "fallback": "minecraft:empty",
   "elements": [
     {
       "weight": 20,
       "element": {
         "location": "heroesunited:street_cross",
-        "processors": "minecraft:empty",
-        "projection": "rigid",
-        "element_type": "minecraft:single_pool_element"
-      }
-    },
-    {
-      "weight": 300,
-      "element": {
-        "location": "heroesunited:line",
         "processors": "minecraft:empty",
         "projection": "terrain_matching",
         "element_type": "minecraft:single_pool_element"
@@ -23,9 +14,18 @@
     {
       "weight": 10,
       "element": {
-        "location": "heroesunited:corner",
+        "location": "heroesunited:corner_4",
         "processors": "minecraft:empty",
-        "projection": "rigid",
+        "projection": "terrain_matching",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 10,
+      "element": {
+        "location": "heroesunited:corner_3",
+        "processors": "minecraft:empty",
+        "projection": "terrain_matching",
         "element_type": "minecraft:single_pool_element"
       }
     }
