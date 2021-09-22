@@ -9,8 +9,10 @@
         "processors": "minecraft:empty",
         "projection": "rigid",
         "element_type": "minecraft:single_pool_element"
-      },
-      "weight": 300,
+      }
+    },
+    {
+      "weight": 150,
       "element": {
         "location": "heroesunited:build_1_top",
         "processors": "minecraft:empty",

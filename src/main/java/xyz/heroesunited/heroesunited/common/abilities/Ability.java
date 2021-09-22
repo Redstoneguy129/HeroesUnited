@@ -60,7 +60,6 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
 
     public Ability(AbilityType type) {
         this.type = type;
-        this.registerData();
     }
 
     public HUDataManager getDataManager() {

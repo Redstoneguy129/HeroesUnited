@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.level.Level;
+import org.openjdk.nashorn.api.scripting.NashornScriptEngine;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.hupacks.HUPackPowers;
 
@@ -20,10 +21,10 @@ import java.util.Objects;
 
 public class JSPickaxeItem extends PickaxeItem implements IJSItem {
 
-    private final ScriptEngine engine;
+    private final NashornScriptEngine engine;
     private final String power;
 
-    public JSPickaxeItem(Map.Entry<JSItemProperties, ScriptEngine> entry) {
+    public JSPickaxeItem(Map.Entry<JSItemProperties, NashornScriptEngine> entry) {
         super(entry.getKey().tier, entry.getKey().attackDamage, entry.getKey().attackSpeed, entry.getKey());
         this.engine = entry.getValue();
         this.power = entry.getKey().power;
@@ -33,7 +34,7 @@ public class JSPickaxeItem extends PickaxeItem implements IJSItem {
     public void inventoryTick(ItemStack stack, Level world, Entity entity, int itemSlot, boolean selected) {
         super.inventoryTick(stack, world, entity, itemSlot, selected);
         try {
-            ((Invocable) engine).invokeFunction("inventoryTick", stack, world, entity, itemSlot, selected);
+            engine.invokeFunction("inventoryTick", stack, world, entity, itemSlot, selected);
         } catch (ScriptException | NoSuchMethodException ignored) {
         }
     }
@@ -41,7 +42,7 @@ public class JSPickaxeItem extends PickaxeItem implements IJSItem {
     @Override
     public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         try {
-            return (InteractionResultHolder<ItemStack>) ((Invocable) engine).invokeFunction("use", world, player, hand);
+            return (InteractionResultHolder<ItemStack>) engine.invokeFunction("use", world, player, hand);
         } catch (ScriptException | NoSuchMethodException e) {
             return super.use(world, player, hand);
         }
