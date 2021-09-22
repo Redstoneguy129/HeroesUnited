@@ -25,7 +25,6 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
-import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -127,7 +126,6 @@ public class HeroesUnited {
         MinecraftForge.EVENT_BUS.register(new HUPlayerEvent());
         bus.addListener(this::onRegisterNewRegistries);
         MinecraftForge.EVENT_BUS.addListener(this::addDimensionalSpacing);
-        MinecraftForge.EVENT_BUS.addListener(this::biomeModification);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, HUConfig.CLIENT_SPEC);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
@@ -160,19 +158,6 @@ public class HeroesUnited {
             }
             return null;
         });
-    }
-
-    public void biomeModification(final BiomeLoadingEvent event) {
-        /*
-         * Add our structure to all biomes including other modded biomes.
-         * You can skip or add only to certain biomes based on stuff like biome category,
-         * temperature, scale, precipitation, mod id, etc. All kinds of options!
-         *
-         * You can even use the BiomeDictionary as well! To use BiomeDictionary, do
-         * RegistryKey.getOrCreateKey(Registry.BIOME_KEY, event.getName()) to get the biome's
-         * registrykey. Then that can be fed into the dictionary to get the biome's types.
-         */
-        event.getGeneration().getStructures().add(() -> HUConfiguredStructures.CONFIGURED_CITY);
     }
 
     /**

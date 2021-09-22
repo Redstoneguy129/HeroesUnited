@@ -11,7 +11,6 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.*;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
@@ -60,6 +59,7 @@ import xyz.heroesunited.heroesunited.common.objects.items.BoBoAccessory;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.common.space.Planet;
+import xyz.heroesunited.heroesunited.common.structures.HUConfiguredStructures;
 import xyz.heroesunited.heroesunited.hupacks.HUPackPowers;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
@@ -69,7 +69,6 @@ import xyz.heroesunited.heroesunited.util.HUOxygenHelper;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 import xyz.heroesunited.heroesunited.util.HUTickrate;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -150,10 +149,12 @@ public class HUEventHandler {
             if (!(entity.level.dimension().equals(World.OVERWORLD) || entity.level.dimension().equals(World.NETHER) || entity.level.dimension().equals(World.END))) {
                 JsonObject jsonObject = null;
                 if (entity.level instanceof ServerWorld) {
-                    try {
-                        IResourceManager manager = entity.level.getServer().getDataPackRegistries().getResourceManager();
-                        ResourceLocation res = entity.level.dimension().location();
-                        jsonObject = JSONUtils.fromJson(HUPacks.GSON, new BufferedReader(new InputStreamReader(manager.getResource(new ResourceLocation(res.getNamespace(), String.format("dimension_type/%s.json", res.getPath()))).getInputStream(), StandardCharsets.UTF_8)), JsonObject.class);
+                    ResourceLocation res = entity.level.dimension().location();
+                    try (
+                            InputStreamReader reader = new InputStreamReader(entity.level.getServer().getDataPackRegistries().getResourceManager().getResource(
+                                    new ResourceLocation(res.getNamespace(), String.format("dimension_type/%s.json", res.getPath()))).getInputStream(), StandardCharsets.UTF_8);
+                    ) {
+                        jsonObject = JSONUtils.fromJson(HUPacks.GSON, reader, JsonObject.class);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -420,5 +421,15 @@ public class HUEventHandler {
             event.getGeneration().addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Feature.ORE.configured(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.NATURAL_STONE,
                     HUBlocks.TITANIUM_ORE.defaultBlockState(), 4)).range(32).squared().count(2));
         }
+        /*
+         * Add our structure to all biomes including other modded biomes.
+         * You can skip or add only to certain biomes based on stuff like biome category,
+         * temperature, scale, precipitation, mod id, etc. All kinds of options!
+         *
+         * You can even use the BiomeDictionary as well! To use BiomeDictionary, do
+         * RegistryKey.getOrCreateKey(Registry.BIOME_KEY, event.getName()) to get the biome's
+         * registrykey. Then that can be fed into the dictionary to get the biome's types.
+         */
+        event.getGeneration().getStructures().add(() -> HUConfiguredStructures.CONFIGURED_CITY);
     }
 }
