@@ -65,6 +65,7 @@ import xyz.heroesunited.heroesunited.common.objects.items.BoBoAccessory;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.common.space.Planet;
+import xyz.heroesunited.heroesunited.common.structures.HUConfiguredStructures;
 import xyz.heroesunited.heroesunited.hupacks.HUPackPowers;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
@@ -74,7 +75,6 @@ import xyz.heroesunited.heroesunited.util.HUOxygenHelper;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 import xyz.heroesunited.heroesunited.util.HUTickrate;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -155,10 +155,12 @@ public class HUEventHandler {
             if (!(entity.level.dimension().equals(Level.OVERWORLD) || entity.level.dimension().equals(Level.NETHER) || entity.level.dimension().equals(Level.END))) {
                 JsonObject jsonObject = null;
                 if (entity.level instanceof ServerLevel) {
-                    try {
-                        ResourceManager manager = entity.level.getServer().getResourceManager();
-                        ResourceLocation res = entity.level.dimension().location();
-                        jsonObject = GsonHelper.fromJson(HUPacks.GSON, new BufferedReader(new InputStreamReader(manager.getResource(new ResourceLocation(res.getNamespace(), String.format("dimension_type/%s.json", res.getPath()))).getInputStream(), StandardCharsets.UTF_8)), JsonObject.class);
+                    ResourceLocation res = entity.level.dimension().location();
+                    try (
+                            InputStreamReader reader = new InputStreamReader(entity.level.getServer().getResourceManager().getResource(
+                                    new ResourceLocation(res.getNamespace(), String.format("dimension_type/%s.json", res.getPath()))).getInputStream(), StandardCharsets.UTF_8);
+                    ) {
+                        jsonObject = GsonHelper.fromJson(HUPacks.GSON, reader, JsonObject.class);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -421,5 +423,15 @@ public class HUEventHandler {
             event.getGeneration().addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Feature.ORE.configured(new OreConfiguration(OreConfiguration.Predicates.NATURAL_STONE,
                     HUBlocks.TITANIUM_ORE.defaultBlockState(), 4)).rangeUniform(VerticalAnchor.bottom(), VerticalAnchor.absolute(32)).squared().count(2));
         }
+        /*
+         * Add our structure to all biomes including other modded biomes.
+         * You can skip or add only to certain biomes based on stuff like biome category,
+         * temperature, scale, precipitation, mod id, etc. All kinds of options!
+         *
+         * You can even use the BiomeDictionary as well! To use BiomeDictionary, do
+         * RegistryKey.getOrCreateKey(Registry.BIOME_KEY, event.getName()) to get the biome's
+         * registrykey. Then that can be fed into the dictionary to get the biome's types.
+         */
+        event.getGeneration().getStructures().add(() -> HUConfiguredStructures.CONFIGURED_CITY);
     }
 }
