@@ -2,6 +2,8 @@ package xyz.heroesunited.heroesunited.hupacks.js;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import jdk.nashorn.api.scripting.NashornScriptEngine;
+import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import net.minecraft.item.Item;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
@@ -12,9 +14,6 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.hupacks.js.item.*;
 
 import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
@@ -23,11 +22,11 @@ import java.util.function.Function;
 
 public class JSItemManager extends JSReloadListener {
 
-    private static final Map<ResourceLocation, Function<Map.Entry<JSItemProperties, ScriptEngine>, Item>> types = Maps.newHashMap();
+    private static final Map<ResourceLocation, Function<Map.Entry<JSItemProperties, NashornScriptEngine>, Item>> types = Maps.newHashMap();
     private final List<Item> items = Lists.newArrayList();
 
     public JSItemManager(IEventBus bus) {
-        super("huitems", new ScriptEngineManager());
+        super("huitems", new NashornScriptEngineFactory());
         bus.addGenericListener(Item.class, this::registerItems);
         registerItemType(new ResourceLocation(HeroesUnited.MODID, "default"), JSItem::new);
         registerItemType(new ResourceLocation(HeroesUnited.MODID, "sword"), JSSwordItem::new);
@@ -35,13 +34,13 @@ public class JSItemManager extends JSReloadListener {
         registerItemType(new ResourceLocation(HeroesUnited.MODID, "axe"), JSAxeItem::new);
     }
 
-    public static void registerItemType(ResourceLocation resourceLocation, Function<Map.Entry<JSItemProperties, ScriptEngine>, Item> function) {
+    public static void registerItemType(ResourceLocation resourceLocation, Function<Map.Entry<JSItemProperties, NashornScriptEngine>, Item> function) {
         types.put(Objects.requireNonNull(resourceLocation), Objects.requireNonNull(function));
     }
 
     @Override
-    public void apply(Map<ResourceLocation, ScriptEngine> map, IResourceManager resourceManagerIn, IProfiler profilerIn) {
-        for (Map.Entry<ResourceLocation, ScriptEngine> entry : map.entrySet()) {
+    public void apply(Map<ResourceLocation, NashornScriptEngine> map, IResourceManager resourceManagerIn, IProfiler profilerIn) {
+        for (Map.Entry<ResourceLocation, NashornScriptEngine> entry : map.entrySet()) {
             try {
                 JSItemProperties properties = new JSItemProperties();
                 ((Invocable) entry.getValue()).invokeFunction("init", properties);

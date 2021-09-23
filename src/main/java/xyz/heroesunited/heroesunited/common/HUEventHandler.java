@@ -59,7 +59,6 @@ import xyz.heroesunited.heroesunited.common.objects.items.BoBoAccessory;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.common.space.Planet;
-import xyz.heroesunited.heroesunited.common.structures.HUConfiguredStructures;
 import xyz.heroesunited.heroesunited.hupacks.HUPackPowers;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
@@ -421,15 +420,50 @@ public class HUEventHandler {
             event.getGeneration().addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Feature.ORE.configured(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.NATURAL_STONE,
                     HUBlocks.TITANIUM_ORE.defaultBlockState(), 4)).range(32).squared().count(2));
         }
-        /*
-         * Add our structure to all biomes including other modded biomes.
-         * You can skip or add only to certain biomes based on stuff like biome category,
-         * temperature, scale, precipitation, mod id, etc. All kinds of options!
-         *
-         * You can even use the BiomeDictionary as well! To use BiomeDictionary, do
-         * RegistryKey.getOrCreateKey(Registry.BIOME_KEY, event.getName()) to get the biome's
-         * registrykey. Then that can be fed into the dictionary to get the biome's types.
-         */
-        event.getGeneration().getStructures().add(() -> HUConfiguredStructures.CONFIGURED_CITY);
+        //event.getGeneration().getStructures().add(() -> HUConfiguredStructures.CONFIGURED_CITY);
     }
+
+    /**
+     * Will go into the world's chunkgenerator and manually add our structure spacing.
+     * If the spacing is not added, the structure doesn't spawn.
+     *
+     * Use this for dimension blacklists for your structure.
+     * (Don't forget to attempt to remove your structure too from the map if you are blacklisting that dimension!)
+     * (It might have your structure in it already.)
+     *
+     * Basically use this to make absolutely sure the chunkgenerator can or cannot spawn your structure.
+     */
+    /*private static Method GETCODEC_METHOD;
+
+    @SubscribeEvent
+    public void addDimensionalSpacing(final WorldEvent.Load event) {
+        if(event.getWorld() instanceof ServerWorld){
+            ServerWorld serverWorld = (ServerWorld)event.getWorld();
+
+            // Skip terraforged
+            try {
+                if(GETCODEC_METHOD == null) GETCODEC_METHOD = ObfuscationReflectionHelper.findMethod(ChunkGenerator.class, "func_230347_a_");
+                ResourceLocation cgRL = Registry.CHUNK_GENERATOR.getKey((Codec<? extends ChunkGenerator>) GETCODEC_METHOD.invoke(serverWorld.getChunkSource().generator));
+                if(cgRL != null && cgRL.getNamespace().equals("terraforged")) return;
+            } catch(Exception e){
+                HeroesUnited.LOGGER.error("Was unable to check if " + serverWorld.dimension().location() + " is using Terraforged's ChunkGenerator.");
+            }
+
+            // Skip Flat world
+            if(serverWorld.getChunkSource().getGenerator() instanceof FlatChunkGenerator && serverWorld.dimension().equals(World.OVERWORLD)){
+                return;
+            }
+
+
+//              putIfAbsent so people can override the spacing with dimension datapacks themselves if they wish to customize spacing more precisely per dimension.
+//              Requires AccessTransformer  (see resources/META-INF/accesstransformer.cfg)
+//
+//              NOTE: if you add per-dimension spacing configs, you can't use putIfAbsent as WorldGenRegistries.NOISE_GENERATOR_SETTINGS in FMLCommonSetupEvent
+//              already added your default structure spacing to some dimensions. You would need to override the spacing with .put(...)
+//              And if you want to do dimension blacklisting, you need to remove the spacing entry entirely from the map below to prevent generation safely.
+            Map<Structure<?>, StructureSeparationSettings> tempMap = new HashMap<>(serverWorld.getChunkSource().generator.getSettings().structureConfig());
+            tempMap.putIfAbsent(HUStructures.CITY.get(), DimensionStructuresSettings.DEFAULTS.get(HUStructures.CITY.get()));
+            serverWorld.getChunkSource().generator.getSettings().structureConfig = tempMap;
+        }
+    }*/
 }

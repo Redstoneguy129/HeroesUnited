@@ -1,6 +1,7 @@
 package xyz.heroesunited.heroesunited.hupacks.js.item;
 
 import com.google.common.collect.Maps;
+import jdk.nashorn.api.scripting.NashornScriptEngine;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.AxeItem;
@@ -12,18 +13,16 @@ import net.minecraft.world.World;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.hupacks.HUPackPowers;
 
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import java.util.Map;
 import java.util.Objects;
 
 public class JSAxeItem extends AxeItem implements IJSItem {
 
-    private final ScriptEngine engine;
+    private final NashornScriptEngine engine;
     private final String power;
 
-    public JSAxeItem(Map.Entry<JSItemProperties, ScriptEngine> entry) {
+    public JSAxeItem(Map.Entry<JSItemProperties, NashornScriptEngine> entry) {
         super(entry.getKey().tier, entry.getKey().attackDamage, entry.getKey().attackSpeed, entry.getKey());
         this.engine = entry.getValue();
         this.power = entry.getKey().power;
@@ -33,7 +32,7 @@ public class JSAxeItem extends AxeItem implements IJSItem {
     public void inventoryTick(ItemStack stack, World world, Entity entity, int itemSlot, boolean selected) {
         super.inventoryTick(stack, world, entity, itemSlot, selected);
         try {
-            ((Invocable) engine).invokeFunction("inventoryTick", stack, world, entity, itemSlot, selected);
+            engine.invokeFunction("inventoryTick", stack, world, entity, itemSlot, selected);
         } catch (ScriptException | NoSuchMethodException ignored) {
         }
     }
@@ -41,14 +40,14 @@ public class JSAxeItem extends AxeItem implements IJSItem {
     @Override
     public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
         try {
-            return (ActionResult<ItemStack>) ((Invocable) engine).invokeFunction("use", world, player, hand);
+            return (ActionResult<ItemStack>) engine.invokeFunction("use", world, player, hand);
         } catch (ScriptException | NoSuchMethodException e) {
             return super.use(world, player, hand);
         }
     }
 
     @Override
-    public ScriptEngine getEngine() {
+    public NashornScriptEngine getEngine() {
         return engine;
     }
 
