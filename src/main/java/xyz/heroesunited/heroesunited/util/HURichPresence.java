@@ -53,8 +53,10 @@ public class HURichPresence {
     }
 
     public void setDiscordRichPresence(String title, String description, MiniLogos logo, String caption) {
-        DiscordRichPresence discordRichPresence = new DiscordRichPresence.Builder(getQuote(description)).setDetails(title).setBigImage("heroes_united", null).setSmallImage(logo.getLogo(), caption).setStartTimestamps(new Timestamp(System.currentTimeMillis()).getTime()).build();
-        DiscordRPC.discordUpdatePresence(discordRichPresence);
+        if (!HURichPresence.isHiddenRPC()) {
+            DiscordRichPresence discordRichPresence = new DiscordRichPresence.Builder(getQuote(description)).setDetails(title).setBigImage("heroes_united", null).setSmallImage(logo.getLogo(), caption).setStartTimestamps(new Timestamp(System.currentTimeMillis()).getTime()).build();
+            DiscordRPC.discordUpdatePresence(discordRichPresence);
+        }
     }
 
     private String getQuote(String notNull) {

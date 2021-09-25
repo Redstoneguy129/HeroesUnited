@@ -29,6 +29,7 @@ import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.registries.ForgeRegistries;
 import xyz.heroesunited.heroesunited.client.events.HUChangeRendererEvent;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
+import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.events.HUCancelSprinting;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbility;
@@ -88,6 +89,10 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
             this.dataManager.set("cooldown", this.dataManager.<Integer>getValue("cooldown") - 1);
         }
         this.conditionManager.update(player);
+
+        if (!canActivate(player) && !alwaysActive(player)) {
+            player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> a.disable(name));
+        }
     }
 
     public void onUpdate(PlayerEntity player, LogicalSide side) {
@@ -100,6 +105,13 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     }
 
     public void cancelSprinting(HUCancelSprinting event) {
+    }
+
+    public int getKey() {
+        if (getJsonObject() != null && getJsonObject().has("key")) {
+            return JSONUtils.getAsInt(JSONUtils.getAsJsonObject(this.getJsonObject(), "key"), "id");
+        }
+        return 0;
     }
 
     @OnlyIn(Dist.CLIENT)

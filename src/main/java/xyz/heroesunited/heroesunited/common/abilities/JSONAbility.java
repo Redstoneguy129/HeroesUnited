@@ -5,7 +5,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.JSONUtils;
-import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 
 import java.util.Map;
 
@@ -43,9 +42,6 @@ public abstract class JSONAbility extends Ability {
                 this.setEnabled(player, false);
             }
         }
-        if (!canActivate(player) && !alwaysActive(player)) {
-            player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> a.disable(name));
-        }
     }
 
     @Override
@@ -62,7 +58,7 @@ public abstract class JSONAbility extends Ability {
     @Override
     public void onKeyInput(PlayerEntity player, Map<Integer, Boolean> map) {
         super.onKeyInput(player, map);
-        if (getKey() != -1 && actionType != ActionType.CONSTANT) {
+        if (getKey() != 0 && actionType != ActionType.CONSTANT) {
             if (map.get(getKey())) {
                 if (actionType == ActionType.TOGGLE) {
                     setEnabled(player, !this.dataManager.<Boolean>getValue("enabled"));
@@ -74,14 +70,6 @@ public abstract class JSONAbility extends Ability {
             if (actionType == ActionType.HELD) {
                 setEnabled(player, map.get(getKey()));
             }
-        }
-    }
-
-    public int getKey() {
-        if (getJsonObject().has("key")) {
-            return JSONUtils.getAsInt(JSONUtils.getAsJsonObject(this.getJsonObject(), "key"), "id");
-        } else {
-            return -1;
         }
     }
 
@@ -113,14 +101,18 @@ public abstract class JSONAbility extends Ability {
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT nbt = super.serializeNBT();
-        nbt.putString("actionType", actionType.name().toLowerCase());
+        if (actionType != null) {
+            nbt.putString("actionType", actionType.name().toLowerCase());
+        }
         return nbt;
     }
 
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
         super.deserializeNBT(nbt);
-        this.actionType = ActionType.getById(nbt.getString("actionType"));
+        if (nbt.contains("actionType")) {
+            this.actionType = ActionType.getById(nbt.getString("actionType"));
+        }
     }
 
     public enum ActionType {

@@ -169,7 +169,6 @@ public class HeroesUnited {
         e.addSprite(EarthModel.EARTH_TEXTURE_MATERIAL.texture());
     }
 
-
     @OnlyIn(Dist.CLIENT)
     private void clientSetup(final FMLClientSetupEvent event) {
         Runtime.getRuntime().addShutdownHook(new Thread(DiscordRPC::discordShutdown));
@@ -190,9 +189,7 @@ public class HeroesUnited {
             MinecraftForge.EVENT_BUS.register(new ObfuscateHandler());
         }
 
-        if (!HURichPresence.isHiddenRPC()) {
-            HURichPresence.getPresence().setDiscordRichPresence("In the Menus", null, HURichPresence.MiniLogos.NONE, null);
-        }
+        HURichPresence.getPresence().setDiscordRichPresence("In the Menus", null, HURichPresence.MiniLogos.NONE, null);
 
         LOGGER.info(MODID + ": client is ready!");
     }
@@ -207,10 +204,10 @@ public class HeroesUnited {
         for (EntityType<? extends LivingEntity> type : event.getTypes()) {
             if (type == EntityType.PLAYER) {
                 if (!event.has(type, FALL_RESISTANCE)) {
-                    event.add(type, FALL_RESISTANCE, 0);
+                    event.add(type, FALL_RESISTANCE);
                 }
                 if (!event.has(type, JUMP_BOOST)) {
-                    event.add(type, JUMP_BOOST, 0);
+                    event.add(type, JUMP_BOOST);
                 }
             }
         }

@@ -333,20 +333,6 @@ public class HUEventHandler {
             PlayerEntity player = (PlayerEntity) event.getEntityLiving();
             player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
                 if (event.getSlot().getType() == EquipmentSlotType.Group.ARMOR) {
-                    if (event.getTo().getItem() instanceof SuitItem) {
-                        SuitItem suitItem = (SuitItem) event.getTo().getItem();
-
-                        if (!suitItem.getAbilities(player).isEmpty()) {
-                            for (Map.Entry<String, Ability> entry : suitItem.getAbilities(player).entrySet()) {
-                                Ability a = entry.getValue();
-                                boolean canAdd = a.getJsonObject() != null && a.getJsonObject().has("slot") && suitItem.getSlot().getName().toLowerCase().equals(JSONUtils.getAsString(a.getJsonObject(), "slot"));
-                                if (canAdd || Suit.getSuit(player) != null) {
-                                    cap.addAbility(entry.getKey(), a);
-                                }
-                            }
-                        }
-                        suitItem.getSuit().onActivated(player, suitItem.getSlot());
-                    }
                     if (event.getFrom().getItem() instanceof SuitItem && !cap.getAbilities().isEmpty()) {
                         SuitItem suitItem = (SuitItem) event.getFrom().getItem();
                         for (Ability a : AbilityHelper.getAbilityMap(player).values()) {
@@ -365,16 +351,19 @@ public class HUEventHandler {
                         }
                         suitItem.getSuit().onDeactivated(player, suitItem.getSlot());
                     }
-                }
-                if (event.getTo().getItem() instanceof IJSItem) {
-                    IJSItem item = (IJSItem) event.getTo().getItem();
-                    EquipmentSlotType slot = event.getTo().getEquipmentSlot() == null ? EquipmentSlotType.MAINHAND : event.getTo().getEquipmentSlot();
-                    if (!item.getAbilities(player).isEmpty()) {
-                        for (Map.Entry<String, Ability> entry : item.getAbilities(player).entrySet()) {
-                            if (slot == event.getSlot()) {
-                                cap.addAbility(entry.getKey(), entry.getValue());
+                    if (event.getTo().getItem() instanceof SuitItem) {
+                        SuitItem suitItem = (SuitItem) event.getTo().getItem();
+
+                        if (!suitItem.getAbilities(player).isEmpty()) {
+                            for (Map.Entry<String, Ability> entry : suitItem.getAbilities(player).entrySet()) {
+                                Ability a = entry.getValue();
+                                boolean canAdd = a.getJsonObject() != null && a.getJsonObject().has("slot") && suitItem.getSlot().getName().toLowerCase().equals(JSONUtils.getAsString(a.getJsonObject(), "slot"));
+                                if (canAdd || Suit.getSuit(player) != null) {
+                                    cap.addAbility(entry.getKey(), a);
+                                }
                             }
                         }
+                        suitItem.getSuit().onActivated(player, suitItem.getSlot());
                     }
                 }
                 if (event.getFrom().getItem() instanceof IJSItem && !cap.getAbilities().isEmpty()) {
@@ -384,6 +373,17 @@ public class HUEventHandler {
                             CompoundNBT suit = item.getAbilities(player).get(a.name).getAdditionalData();
                             if (a.getAdditionalData().equals(suit)) {
                                 cap.removeAbility(a.name);
+                            }
+                        }
+                    }
+                }
+                if (event.getTo().getItem() instanceof IJSItem) {
+                    IJSItem item = (IJSItem) event.getTo().getItem();
+                    EquipmentSlotType slot = event.getTo().getEquipmentSlot() == null ? EquipmentSlotType.MAINHAND : event.getTo().getEquipmentSlot();
+                    if (!item.getAbilities(player).isEmpty()) {
+                        for (Map.Entry<String, Ability> entry : item.getAbilities(player).entrySet()) {
+                            if (slot == event.getSlot()) {
+                                cap.addAbility(entry.getKey(), entry.getValue());
                             }
                         }
                     }

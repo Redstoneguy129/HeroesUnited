@@ -1,6 +1,7 @@
 package xyz.heroesunited.heroesunited.client;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
@@ -9,8 +10,7 @@ import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.ResourceLoadProgressGui;
-import net.minecraft.client.gui.screen.CustomizeSkinScreen;
-import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.WorldRenderer;
@@ -26,10 +26,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.*;
@@ -48,7 +48,6 @@ import xyz.heroesunited.heroesunited.client.events.*;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.client.render.HULayerRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.space.CelestialBodyRenderer;
-import xyz.heroesunited.heroesunited.common.HUConfig;
 import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
@@ -68,16 +67,20 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @OnlyIn(Dist.CLIENT)
 public class HUClientEventHandler {
 
     public static final KeyBinding ABILITIES_SCREEN = new KeyBinding(HeroesUnited.MODID + ".key.abilities_screen", GLFW.GLFW_KEY_H, "key.categories." + HeroesUnited.MODID);
     public static final KeyBinding ACCESSORIES_SCREEN = new KeyBinding(HeroesUnited.MODID + ".key.accessories_screen", GLFW.GLFW_KEY_J, "key.categories." + HeroesUnited.MODID);
-    private final List<String> playerBones = Arrays.asList("bipedHead", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg");
+    public static final List<AbilityKeyBinding> ABILITY_KEYS = Lists.newArrayList();
     private final ArrayList<LivingRenderer> entitiesWithLayer = Lists.newArrayList();
-    public static List<AbilityKeyBinding> ABILITY_KEYS = Lists.newArrayList();
-    public static KeyMap KEY_MAP = new KeyMap();
+    public static final KeyMap KEY_MAP = new KeyMap();
+
+    private static final Map<String, Integer> NAMES_TIMER = Maps.newHashMap();
+    private static int INDEX = 0;
 
     public HUClientEventHandler() {
         if (Minecraft.getInstance() != null) {
@@ -98,9 +101,9 @@ public class HUClientEventHandler {
         if (InputMappings.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_ALT) ||
                 InputMappings.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_RIGHT_ALT)) {
             if (e.getScrollDelta() > 0) {
-                AbilitiesScreen.INDEX--;
+                INDEX--;
             } else {
-                AbilitiesScreen.INDEX++;
+                INDEX++;
             }
             e.setCanceled(true);
         }
@@ -112,7 +115,7 @@ public class HUClientEventHandler {
         if (mc.player == null || mc.screen != null) return;
 
         if (e.getModifiers() == GLFW.GLFW_MOD_ALT) {
-            List<Ability> abilities = AbilitiesScreen.getCurrentDisplayedAbilities(mc.player);
+            List<Ability> abilities = new ArrayList<>(getCurrentDisplayedAbilities(mc.player).values());
             for (int i = 0; i < abilities.size(); i++) {
                 int key = GLFW.GLFW_KEY_1 + i;
                 if (key == e.getKey() && e.getAction() == GLFW.GLFW_PRESS) {
@@ -298,16 +301,7 @@ public class HUClientEventHandler {
     public void setDiscordPresence(EntityJoinWorldEvent event) {
         if (!(event.getEntity() instanceof PlayerEntity) || Minecraft.getInstance().player == null || Minecraft.getInstance().player.getUUID() != event.getEntity().getUUID())
             return;
-        if (!HURichPresence.isHiddenRPC()) {
-            HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United", null, HURichPresence.MiniLogos.NONE, null);
-        }
-    }
-
-    @SubscribeEvent
-    public void onGuiInit(GuiScreenEvent.InitGuiEvent e) {
-        if (e.getGui() instanceof CustomizeSkinScreen) {
-            e.addWidget(new Button(e.getGui().width / 2 - 100 + 25, e.getGui().height / 6 + 24 * (12 >> 1) - 28 + 4, 150, 20, new TranslationTextComponent("gui.heroesunited.changehead"), (button) -> HUConfig.CLIENT.renderHead.set(!HUConfig.CLIENT.renderHead.get())));
-        }
+        HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United", null, HURichPresence.MiniLogos.NONE, null);
     }
 
     @SubscribeEvent
@@ -389,7 +383,7 @@ public class HUClientEventHandler {
         });
 
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-            for (String s : playerBones) {
+            for (String s : Arrays.asList("bipedHead", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg")) {
                 GeoBone bone = cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap)).getBone(s).get();
                 ModelRenderer renderer = HUClientUtil.getModelRendererById(event.getPlayerModel(), s);
                 if (cap.getController().getCurrentAnimation() != null && cap.getController().getAnimationState() == AnimationState.Running) {
@@ -517,8 +511,7 @@ public class HUClientEventHandler {
     public void onGameOverlayPost(RenderGameOverlayEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
         if(event.getType() == RenderGameOverlayEvent.ElementType.HOTBAR && mc.player != null && mc.player.isAlive()) {
-            List<Ability> abilities = AbilitiesScreen.getCurrentDisplayedAbilities(mc.player, a ->
-                    !a.isHidden(mc.player) && a.getConditionManager().isEnabled(mc.player, "canActivate") && a.getConditionManager().isEnabled(mc.player, "canBeEnabled"));
+            Map<String, Ability> abilities = getCurrentDisplayedAbilities(mc.player);
             if (abilities.size() > 0) {
                 final ResourceLocation widgets = new ResourceLocation(HeroesUnited.MODID, "textures/gui/widgets.png");
                 int y = event.getWindow().getGuiScaledHeight() / 3;
@@ -530,8 +523,9 @@ public class HUClientEventHandler {
                 AbstractGui.blit(event.getMatrixStack(), 0, y, 0, 0, 22, 102, 64, 128);
 
                 for (int i = 0; i < abilities.size(); i++) {
-                    Ability ability = AbilityHelper.getAnotherAbilityFromMap(AbilityHelper.getAbilities(mc.player), abilities.get(i));
+                    Ability ability = AbilityHelper.getAnotherAbilityFromMap(AbilityHelper.getAbilities(mc.player), Lists.newArrayList(abilities.values()).get(i));
                     int abilityY = y + 3 + i * 20;
+
                     event.getMatrixStack().pushPose();
                     event.getMatrixStack().translate(0, 0, 500D);
                     ability.drawIcon(event.getMatrixStack(), 3, abilityY);
@@ -546,12 +540,90 @@ public class HUClientEventHandler {
                     }
                     if (ability.getEnabled()) {
                         AbstractGui.blit(event.getMatrixStack(), -1, abilityY - 4, 22, 0, 24, 24, 64, 128);
+                        NAMES_TIMER.putIfAbsent(ability.name, 400);
+                    }
+
+                    if (NAMES_TIMER.containsKey(ability.name)) {
+                        int j = NAMES_TIMER.get(ability.name);
+                        if (j > 0) {
+                            NAMES_TIMER.replace(ability.name, --j);
+                        } else {
+                            if (!ability.getEnabled()) {
+                                NAMES_TIMER.remove(ability.name);
+                            }
+                        }
+
+                        float f = (float) j - mc.getFrameTime();
+
+                        int j1 = 255;
+                        if (j > 360) {
+                            j1 = (int) ((400F - f) * 255.0F / 40F);
+                        }
+
+                        if (j <= 100) {
+                            j1 = (int) (f * 255.0F / 100F);
+                        }
+
+                        j1 = MathHelper.clamp(j1, 0, 255);
+
+                        if (j1 > 8) {
+                            mc.font.drawShadow(event.getMatrixStack(), ability.getTitle(), 26, abilityY + 3, 16777215 | (j1 << 24 & -16777216));
+                        }
+                    }
+                    if (mc.screen instanceof ChatScreen && ability.getKey() != 0) {
+                        KeyBinding keyBinding = ability.getKey() < 6 ? ABILITY_KEYS.get(ability.getKey() - 1) : ability.getKey() == 7 ? mc.options.keyJump : ability.getKey() == 8 ? mc.options.keyAttack : mc.options.keyUse;
+                        RenderSystem.pushMatrix();
+                        if (keyBinding.getKey().getDisplayName().getString().length() != 1) {
+                            RenderSystem.translatef(5, abilityY / 4F, 0);
+                            RenderSystem.scalef(0.75F, 0.75F, 1.0F);
+                        }
+                        mc.font.drawShadow(event.getMatrixStack(), keyBinding.getKey().getDisplayName(), 20, abilityY + 12, 0xdfdfdf);
+                        RenderSystem.popMatrix();
                     }
                 }
                 RenderSystem.color4f(1f, 1f, 1f, 1f);
                 RenderSystem.disableBlend();
+
+                for (String s : NAMES_TIMER.keySet()) {
+                    if (!abilities.containsKey(s)) {
+                        NAMES_TIMER.remove(s);
+                    }
+                }
             }
         }
+    }
+
+    public static Map<String, Ability> getCurrentDisplayedAbilities(PlayerEntity player) {
+        List<Ability> abilities = Lists.newArrayList();
+        Map<String, Ability> list = Maps.newHashMap();
+        abilities.addAll(HUAbilityCap.getCap(player).getAbilities().values().stream()
+                .filter(a -> a != null && !a.isHidden(player)
+                        && a.getConditionManager().isEnabled(player, "canActivate") && a.getConditionManager().isEnabled(player, "canBeEnabled"))
+                .collect(Collectors.toList()));
+
+        if (abilities.isEmpty()) {
+            return list;
+        }
+
+        if (INDEX >= abilities.size()) {
+            INDEX = 0;
+        } else if (INDEX < 0) {
+            INDEX = abilities.size() - 1;
+        }
+
+        list.put(abilities.get(INDEX).name, abilities.get(INDEX));
+
+        int i = INDEX + 1, added = 1;
+        while (list.size() < 5 && added < abilities.size()) {
+            if (i >= abilities.size()) {
+                i = 0;
+            }
+            list.put(abilities.get(i).name, abilities.get(i));
+            i++;
+            added++;
+        }
+
+        return list;
     }
 
     public static class AbilityKeyBinding extends KeyBinding {
