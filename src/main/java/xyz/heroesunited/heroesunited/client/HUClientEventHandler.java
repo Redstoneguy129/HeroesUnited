@@ -618,13 +618,14 @@ public class HUClientEventHandler {
             INDEX = abilities.size() - 1;
         }
 
-        int i = INDEX;
-        while (list.size() < 5) {
+        int i = INDEX, added = 0;
+        while (list.size() < 5 && added < abilities.size()) {
             if (i >= abilities.size()) {
                 i = 0;
             }
             list.add(abilities.get(i));
             i++;
+            added++;
         }
         return list;
     }

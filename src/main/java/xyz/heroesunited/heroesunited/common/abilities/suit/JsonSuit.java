@@ -50,8 +50,8 @@ public class JsonSuit extends Suit {
 
     @Override
     public void registerItems(IForgeRegistry<Item> e) {
-        JsonObject slots = JSONUtils.getAsJsonObject(jsonObject, "slots", null);
-        if (slots != null) {
+        if (jsonObject.has("slots")) {
+            JsonObject slots = jsonObject.getAsJsonObject("slots");
             if (slots.has("head")) {
                 e.register(helmet = createItem(this, EquipmentSlotType.HEAD, slots));
             }

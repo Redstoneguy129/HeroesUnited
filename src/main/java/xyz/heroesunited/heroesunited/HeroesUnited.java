@@ -177,7 +177,7 @@ public class HeroesUnited {
         RenderingRegistry.registerEntityRenderingHandler(HUEntities.HORAS, HorasRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(HUEntities.ENERGY_BLAST, EnergyBlastRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(HUEntities.SPACESHIP, SpaceshipRenderer::new);
-        GeckoSuitRenderer.registerArmorRenderer(SuitItem.class, new GeckoSuitRenderer());
+        GeckoSuitRenderer.registerArmorRenderer(SuitItem.class, new GeckoSuitRenderer<>());
         ScreenManager.register(HUContainers.ACCESSORIES, AccessoriesScreen::new);
 
         new HorasInfo.DimensionInfo("Overworld", "Default      Dimension", new ResourceLocation("overworld"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/overworld.png"));

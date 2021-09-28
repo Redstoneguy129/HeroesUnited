@@ -3,15 +3,12 @@ package xyz.heroesunited.heroesunited.common.abilities.suit;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -27,13 +24,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.GameData;
 import net.minecraftforge.registries.IForgeRegistry;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.geo.exception.GeckoLibException;
-import software.bernie.geckolib3.geo.render.built.GeoBone;
-import software.bernie.geckolib3.geo.render.built.GeoModel;
-import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
-import software.bernie.geckolib3.util.GeoUtils;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.client.render.model.ModelSuit;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
@@ -42,9 +33,6 @@ import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
-import javax.annotation.Nullable;
-import java.awt.*;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +40,7 @@ public abstract class Suit {
 
     public static final Map<ResourceLocation, Suit> SUITS = Maps.newHashMap();
     private ResourceLocation registryName = null;
-    protected Item helmet, chestplate, legs, boots;
+    protected SuitItem helmet, chestplate, legs, boots;
 
     public Suit(ResourceLocation name) {
         this.setRegistryName(name);
@@ -118,7 +106,7 @@ public abstract class Suit {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderLayer(@Nullable LivingRenderer<? extends LivingEntity, ? extends BipedModel<?>> entityRenderer, @Nullable LivingEntity entity, ItemStack stack, EquipmentSlotType slot, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void renderLayer(LivingRenderer<? extends LivingEntity, ? extends BipedModel<?>> entityRenderer, LivingEntity entity, ItemStack stack, EquipmentSlotType slot, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         HUPackLayers.Layer layer = HUPackLayers.getInstance().getLayer(this.getRegistryName());
         if (layer != null) {
             if (layer.getTexture("cape") != null && slot.equals(EquipmentSlotType.CHEST)) {
@@ -130,7 +118,7 @@ public abstract class Suit {
         }
     }
 
-    public void registerControllers(AnimationData data, SuitItem suitItem) {
+    public <B extends SuitItem> void registerControllers(AnimationData data, B suitItem) {
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -143,9 +131,8 @@ public abstract class Suit {
         return HUPlayerUtil.haveSmallArms(entity);
     }
 
-    @SuppressWarnings("unchecked")
     @OnlyIn(Dist.CLIENT)
-    public BipedModel<?> getArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlotType slot, BipedModel _default) {
+    public BipedModel<?> getArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlotType slot, BipedModel<?> _default) {
         ModelSuit<?> suitModel = new ModelSuit<>(getScale(slot), isSmallArms(entity));
         switch (slot) {
             case HEAD:
@@ -165,7 +152,6 @@ public abstract class Suit {
     }
 
     @OnlyIn(Dist.CLIENT)
-    @Nullable
     public String getSuitTexture(ItemStack stack, Entity entity, EquipmentSlotType slot) {
         HUPackLayers.Layer layer = HUPackLayers.getInstance().getLayer(this.getRegistryName());
         if (layer != null) {
@@ -181,83 +167,36 @@ public abstract class Suit {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side) {
-        EquipmentSlotType slot = EquipmentSlotType.CHEST;
-        try {
-            ItemStack stack = player.getItemBySlot(slot);
-            if (stack.getItem() instanceof SuitItem) {
-                SuitItem suitItem = (SuitItem) stack.getItem();
+    public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side, ItemStack stack, SuitItem suitItem) {
+        ModelSuit<AbstractClientPlayerEntity> suitModel = new ModelSuit<>(getScale(suitItem.getSlot()), isSmallArms(player));
+        suitModel.copyPropertiesFrom(renderer.getModel());
+        suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(suitItem.getArmorTexture(stack, player, suitItem.getSlot(), null)))), packedLightIn, player);
+    }
 
-                GeoArmorRenderer geo = suitItem.getArmorRenderer();
-                GeoModel model = geo.getGeoModelProvider().getModel(geo.getGeoModelProvider().getModelLocation(suitItem));
-
-                geo.setCurrentItem(player, stack, stack.getEquipmentSlot());
-                geo.applyEntityStats(renderer.getModel());
-                if (model.topLevelBones.isEmpty())
-                    throw new GeckoLibException(getRegistryName(), "Model doesn't have any parts");
-                GeoBone bone = model.getBone(side == HandSide.LEFT ? geo.leftArmBone : geo.rightArmBone).get();
-                geo.attackTime = 0.0F;
-                geo.crouching = false;
-                geo.swimAmount = 0.0F;
-                matrix.pushPose();
-                matrix.translate(0.0D, 1.5F, 0.0D);
-                matrix.scale(-1.0F, -1.0F, 1.0F);
-                AnimationEvent itemEvent = new AnimationEvent(suitItem, 0, 0, 0, false,
-                        Arrays.asList(stack, player, slot));
-                geo.getGeoModelProvider().setLivingAnimations(suitItem, geo.getUniqueID(suitItem), itemEvent);
-
-                ModelRenderer modelRenderer = side == HandSide.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
-                GeoUtils.copyRotations(modelRenderer, bone);
-                bone.setPositionX(side == HandSide.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
-                bone.setPositionY(2 - modelRenderer.y);
-                bone.setPositionZ(modelRenderer.z);
-                bone.setHidden(false);
-
-                if (bone.childBones.isEmpty() && bone.childCubes.isEmpty())
-                    throw new GeckoLibException(getRegistryName(), "Model doesn't have any parts");
-
-                matrix.pushPose();
-                Minecraft.getInstance().textureManager.bind(geo.getTextureLocation(suitItem));
-                IVertexBuilder builder = bufferIn.getBuffer(RenderType.entityTranslucent(geo.getTextureLocation(suitItem)));
-                Color renderColor = geo.getRenderColor(suitItem, 0, matrix, null, builder, packedLightIn);
-                geo.renderRecursively(bone, matrix, builder, packedLightIn, OverlayTexture.NO_OVERLAY, (float) renderColor.getRed() / 255f, (float) renderColor.getGreen() / 255f, (float) renderColor.getBlue() / 255f, (float) renderColor.getAlpha() / 255);
-                matrix.popPose();
-                matrix.scale(-1.0F, -1.0F, 1.0F);
-                matrix.translate(0.0D, -1.5F, 0.0D);
-                matrix.popPose();
-            }
-		} catch (GeckoLibException | IllegalArgumentException e) {
-			ModelSuit suitModel = new ModelSuit(getScale(slot), isSmallArms(player));
-			suitModel.copyPropertiesFrom(renderer.getModel());
-			suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(player.getItemBySlot(EquipmentSlotType.CHEST).getItem().getArmorTexture(player.getItemBySlot(EquipmentSlotType.CHEST), player, EquipmentSlotType.CHEST, null)))), packedLightIn, player);
-        }
-	}
-
-    public final Suit setRegistryName(ResourceLocation name) {
+    public final void setRegistryName(ResourceLocation name) {
         if (getRegistryName() != null)
             throw new IllegalStateException("Attempted to set registry name with existing registry name! New: " + name.toString() + " Old: " + getRegistryName());
 
         this.registryName = GameData.checkPrefix(name.toString(), true);
-        return this;
     }
 
-    public Item getHelmet() {
+    public SuitItem getHelmet() {
         return helmet;
     }
 
-    public Item getChestplate() {
+    public SuitItem getChestplate() {
         return chestplate;
     }
 
-    public Item getLegs() {
+    public SuitItem getLegs() {
         return legs;
     }
 
-    public Item getBoots() {
+    public SuitItem getBoots() {
         return boots;
     }
 
-    protected Item getItemBySlot(EquipmentSlotType slot) {
+    protected SuitItem getItemBySlot(EquipmentSlotType slot) {
         if (slot == EquipmentSlotType.HEAD) {
             return getHelmet();
         }
