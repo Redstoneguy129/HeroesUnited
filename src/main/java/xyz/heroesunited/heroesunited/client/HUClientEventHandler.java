@@ -465,6 +465,7 @@ public class HUClientEventHandler {
     public void renderHand(RenderHandEvent event) {
         if (Minecraft.getInstance().player == null) return;
         AbstractClientPlayerEntity player = Minecraft.getInstance().player;
+        boolean canceled = false;
         for (Ability a : AbilityHelper.getAbilities(player)) {
             if (a instanceof JSONAbility && Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
                 double distance = Minecraft.getInstance().hitResult.getLocation().distanceTo(player.position().add(0, player.getEyeHeight(), 0));
@@ -475,7 +476,7 @@ public class HUClientEventHandler {
                     event.getMatrixStack().translate(((EnergyLaserAbility) a).isLeftArm(player) ? -0.3F : 0.3F, 0, 0);
                     HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, 1, event.getLight());
                     HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.03125D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, event.getLight());
-                    event.setCanceled(true);
+                    canceled = true;
                     event.getMatrixStack().popPose();
                 }
                 if (a instanceof HeatVisionAbility) {
@@ -505,6 +506,7 @@ public class HUClientEventHandler {
                 }
             }
         }
+        event.setCanceled(canceled);
     }
 
     @SubscribeEvent

@@ -119,7 +119,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
 
     @OnlyIn(Dist.CLIENT)
     public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side, ItemStack stack) {
-        if (this.getSlot() == EquipmentSlotType.CHEST) return;
+        if (getSlot() != EquipmentSlotType.CHEST) return;
         try {
             GeoArmorRenderer geo = getArmorRenderer();
             GeoModel model = geo.getGeoModelProvider().getModel(geo.getGeoModelProvider().getModelLocation(this));
