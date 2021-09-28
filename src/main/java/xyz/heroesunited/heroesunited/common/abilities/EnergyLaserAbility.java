@@ -41,8 +41,8 @@ public class EnergyLaserAbility extends JSONAbility {
             double distance = player.position().add(0, player.getEyeHeight(), 0).distanceTo(player.getLookAngle().scale(JSONUtils.getAsFloat(getJsonObject(), "distance", 20)));
             AxisAlignedBB box = new AxisAlignedBB(0, 0, 0, 0, distance, 0);
             matrix.pushPose();
-            renderer.getModel().translateToHand(player.getMainArm(), matrix);
-            matrix.translate(player.getMainArm() == HandSide.RIGHT ? -0.0625D : 0.0625D, 0, 0);
+            renderer.getModel().translateToHand(isLeftArm(player) ? HandSide.LEFT : HandSide.RIGHT, matrix);
+            matrix.translate(isLeftArm(player) ? 0.0625D : -0.0625D, 0, 0);
             HUClientUtil.renderFilledBox(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.0625D/2), 1F, 1F, 1F, 1F, packedLightIn);
             HUClientUtil.renderFilledBox(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.0625D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, packedLightIn);
             matrix.popPose();
@@ -54,11 +54,14 @@ public class EnergyLaserAbility extends JSONAbility {
     public void setRotationAngles(HUSetRotationAnglesEvent event) {
         super.setRotationAngles(event);
         if (getEnabled()) {
-            boolean isRightArm = event.getPlayer().getMainArm() == HandSide.RIGHT;
-            ModelRenderer modelArm = isRightArm ? event.getPlayerModel().rightArm : event.getPlayerModel().leftArm;
+            ModelRenderer modelArm = isLeftArm(event.getPlayer()) ? event.getPlayerModel().leftArm : event.getPlayerModel().rightArm;
             modelArm.xRot = (float) Math.toRadians(event.getPlayer().xRot - 90);
             modelArm.yRot = event.getPlayerModel().head.yRot;
             modelArm.zRot = 0;
         }
+    }
+
+    public boolean isLeftArm(PlayerEntity player) {
+        return player.getMainArm() == HandSide.LEFT;
     }
 }

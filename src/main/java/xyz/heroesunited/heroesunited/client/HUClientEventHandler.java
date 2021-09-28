@@ -23,7 +23,10 @@ import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.*;
+import net.minecraft.util.JSONUtils;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -64,10 +67,8 @@ import xyz.heroesunited.heroesunited.mixin.client.InvokerKeyBinding;
 import xyz.heroesunited.heroesunited.util.*;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @OnlyIn(Dist.CLIENT)
@@ -115,7 +116,7 @@ public class HUClientEventHandler {
         if (mc.player == null || mc.screen != null) return;
 
         if (e.getModifiers() == GLFW.GLFW_MOD_ALT) {
-            List<Ability> abilities = new ArrayList<>(getCurrentDisplayedAbilities(mc.player).values());
+            List<Ability> abilities = getCurrentDisplayedAbilities(mc.player);
             for (int i = 0; i < abilities.size(); i++) {
                 int key = GLFW.GLFW_KEY_1 + i;
                 if (key == e.getKey() && e.getAction() == GLFW.GLFW_PRESS) {
@@ -437,7 +438,7 @@ public class HUClientEventHandler {
     public void onInputUpdate(InputUpdateEvent event) {
         AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.inputUpdate(event));
     }
-    
+
     @SubscribeEvent
     public void renderPlayerHandPost(HURenderPlayerHandEvent.Post event) {
         event.getPlayer().getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
@@ -471,12 +472,11 @@ public class HUClientEventHandler {
                 Color color = HUJsonUtils.getColor(a.getJsonObject());
                 if (a instanceof EnergyLaserAbility && a.getEnabled()) {
                     event.getMatrixStack().pushPose();
-                    event.getMatrixStack().translate(player.getMainArm() == HandSide.RIGHT ? 0.3F : -0.3F, 0, 0);
+                    event.getMatrixStack().translate(((EnergyLaserAbility) a).isLeftArm(player) ? -0.3F : 0.3F, 0, 0);
                     HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, 1, event.getLight());
                     HUClientUtil.renderFilledBox(event.getMatrixStack(), event.getBuffers().getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.03125D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, event.getLight());
                     event.setCanceled(true);
                     event.getMatrixStack().popPose();
-                    return;
                 }
                 if (a instanceof HeatVisionAbility) {
                     float alpha = (a.getDataManager().<Integer>getValue("prev_timer") + (a.getDataManager().<Integer>getValue("timer") - a.getDataManager().<Integer>getValue("prev_timer")) * event.getPartialTicks()) / JSONUtils.getAsInt(a.getJsonObject(), "maxTimer", 10);
@@ -511,7 +511,7 @@ public class HUClientEventHandler {
     public void onGameOverlayPost(RenderGameOverlayEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
         if(event.getType() == RenderGameOverlayEvent.ElementType.HOTBAR && mc.player != null && mc.player.isAlive()) {
-            Map<String, Ability> abilities = getCurrentDisplayedAbilities(mc.player);
+            List<Ability> abilities = getCurrentDisplayedAbilities(mc.player);
             if (abilities.size() > 0) {
                 final ResourceLocation widgets = new ResourceLocation(HeroesUnited.MODID, "textures/gui/widgets.png");
                 int y = event.getWindow().getGuiScaledHeight() / 3;
@@ -523,7 +523,7 @@ public class HUClientEventHandler {
                 AbstractGui.blit(event.getMatrixStack(), 0, y, 0, 0, 22, 102, 64, 128);
 
                 for (int i = 0; i < abilities.size(); i++) {
-                    Ability ability = AbilityHelper.getAnotherAbilityFromMap(AbilityHelper.getAbilities(mc.player), Lists.newArrayList(abilities.values()).get(i));
+                    Ability ability = AbilityHelper.getAnotherAbilityFromMap(AbilityHelper.getAbilities(mc.player), abilities.get(i));
                     int abilityY = y + 3 + i * 20;
 
                     event.getMatrixStack().pushPose();
@@ -585,7 +585,14 @@ public class HUClientEventHandler {
                 RenderSystem.disableBlend();
 
                 for (String s : NAMES_TIMER.keySet()) {
-                    if (!abilities.containsKey(s)) {
+                    boolean contains = false;
+                    for (Ability ability : abilities) {
+                        if (ability.name.equals(s)) {
+                            contains = true;
+                            break;
+                        }
+                    }
+                    if (!contains) {
                         NAMES_TIMER.remove(s);
                     }
                 }
@@ -593,12 +600,12 @@ public class HUClientEventHandler {
         }
     }
 
-    public static Map<String, Ability> getCurrentDisplayedAbilities(PlayerEntity player) {
-        List<Ability> abilities = Lists.newArrayList();
-        Map<String, Ability> list = Maps.newHashMap();
+    public static List<Ability> getCurrentDisplayedAbilities(PlayerEntity player) {
+        List<Ability> abilities = Lists.newArrayList(), list = Lists.newArrayList();
         abilities.addAll(HUAbilityCap.getCap(player).getAbilities().values().stream()
                 .filter(a -> a != null && !a.isHidden(player)
                         && a.getConditionManager().isEnabled(player, "canActivate") && a.getConditionManager().isEnabled(player, "canBeEnabled"))
+                .sorted(Comparator.comparingInt(Ability::getKey))
                 .collect(Collectors.toList()));
 
         if (abilities.isEmpty()) {
@@ -611,18 +618,14 @@ public class HUClientEventHandler {
             INDEX = abilities.size() - 1;
         }
 
-        list.put(abilities.get(INDEX).name, abilities.get(INDEX));
-
-        int i = INDEX + 1, added = 1;
-        while (list.size() < 5 && added < abilities.size()) {
+        int i = INDEX;
+        while (list.size() < 5) {
             if (i >= abilities.size()) {
                 i = 0;
             }
-            list.put(abilities.get(i).name, abilities.get(i));
+            list.add(abilities.get(i));
             i++;
-            added++;
         }
-
         return list;
     }
 

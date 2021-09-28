@@ -43,12 +43,6 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
         this.suit = suit;
     }
 
-    @Nullable
-    @Override
-    public EquipmentSlotType getEquipmentSlot(ItemStack stack) {
-        return super.getEquipmentSlot(stack);
-    }
-
     @Nonnull
     public Suit getSuit() {
         return suit;
