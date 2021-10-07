@@ -307,26 +307,30 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void renderPlayerPre(RenderPlayerEvent.Pre event) {
-        AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.renderPlayerPre(event));
-        event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-            AnimationEvent animationEvent = new AnimationEvent(cap, 0.0F, 0.0F, event.getPartialRenderTick(), false, Arrays.asList(event.getPlayer(), event.getPlayer().getUUID()));
+        PlayerEntity player = event.getPlayer();
+        AbilityHelper.getAbilities(player).forEach(ability -> ability.renderPlayerPre(event));
+        player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+            AnimationEvent animationEvent = new AnimationEvent(cap, 0.0F, 0.0F, event.getPartialRenderTick(), false, Arrays.asList(player, player.getUUID()));
             animationEvent.setController(cap.getController());
             if (!(Minecraft.getInstance().getOverlay() instanceof ResourceLoadProgressGui)) {
-                cap.getAnimatedModel().setLivingAnimations(cap, event.getPlayer().getUUID().hashCode(), animationEvent);
+                cap.getAnimatedModel().setLivingAnimations(cap, player.getUUID().hashCode(), animationEvent);
             }
-            IFlyingAbility ability = IFlyingAbility.getFlyingAbility(event.getPlayer());
-            if ((ability != null && ability.isFlying(event.getPlayer()) && ability.renderFlying(event.getPlayer())) || cap.isFlying()) {
-                if (!event.getPlayer().isOnGround() && !event.getPlayer().isSwimming() && event.getPlayer().isSprinting()) {
-                    if (!(event.getPlayer().getFallFlyingTicks() > 4) && !event.getPlayer().isVisuallySwimming()) {
+            IFlyingAbility ability = IFlyingAbility.getFlyingAbility(player);
+            if ((ability != null && ability.isFlying(player) && ability.renderFlying(player)) || cap.isFlying()) {
+                if (!player.isOnGround() && !player.isSwimming()) {
+                    if (!(player.getFallFlyingTicks() > 4) && !player.isVisuallySwimming()) {
+                        float xRot = (ability != null ? ability.getDegreesForSprint(player) : 90F + player.xRot);
+                        float defaultRotation = MathHelper.clamp(MathHelper.sqrt(player.distanceToSqr(player.xOld, player.yOld, player.zOld)), 0.0F, 1.0F) * (ability != null ? ability.getDegreesForWalk(player) : 22.5F);
+
                         event.getMatrixStack().pushPose();
-                        event.getMatrixStack().mulPose(new Quaternion(0, -event.getPlayer().yRot, 0, true));
-                        event.getMatrixStack().mulPose(new Quaternion(90F + event.getPlayer().xRot, 0, 0, true));
-                        event.getMatrixStack().mulPose(new Quaternion(0, event.getPlayer().yRot, 0, true));
+                        event.getMatrixStack().mulPose(Vector3f.YP.rotationDegrees(-player.yRot));
+                        event.getMatrixStack().mulPose(Vector3f.XP.rotationDegrees(MathHelper.clamp(defaultRotation + (cap.getFlightAmount(event.getPartialRenderTick()) * xRot), 0, xRot)));
+                        event.getMatrixStack().mulPose(Vector3f.YP.rotationDegrees(player.yRot));
                     }
                 }
             }
         });
-        event.getPlayer().getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
+        player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
             for (Ability ability : cap.getAbilities().values()) {
                 if (ability instanceof IAlwaysRenderer) {
                     ((IAlwaysRenderer) ability).renderPlayerPreAlways(event);
@@ -348,7 +352,7 @@ public class HUClientEventHandler {
         IFlyingAbility ability = IFlyingAbility.getFlyingAbility(event.getPlayer());
         event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             if ((ability != null && ability.isFlying(event.getPlayer()) && ability.renderFlying(event.getPlayer())) || cap.isFlying()) {
-                if (!event.getPlayer().isOnGround() && !event.getPlayer().isSwimming() && event.getPlayer().isSprinting()) {
+                if (!event.getPlayer().isOnGround() && !event.getPlayer().isSwimming()) {
                     if (!(event.getPlayer().getFallFlyingTicks() > 4) && !event.getPlayer().isVisuallySwimming()) {
                         event.getMatrixStack().popPose();
                     }
@@ -420,15 +424,24 @@ public class HUClientEventHandler {
             }
 
             IFlyingAbility ability = IFlyingAbility.getFlyingAbility(event.getPlayer());
-            if ((ability != null && ability.isFlying(event.getPlayer()) && ability.renderFlying(event.getPlayer())) || cap.isFlying()) {
+            if ((ability != null && ability.isFlying(event.getPlayer()) && ability.renderFlying(event.getPlayer())) && ability.setDefaultRotationAngles(event) || cap.isFlying()) {
                 if (!event.getPlayer().isOnGround() && !event.getPlayer().isSwimming() && event.getPlayer().isSprinting()) {
-                    PlayerModel model = event.getPlayerModel();
-                    model.head.xRot = (-(float) Math.PI / 4F);
-                    model.rightArm.xRot = IFlyingAbility.getFlyingAbility(event.getPlayer()) != null && IFlyingAbility.getFlyingAbility(event.getPlayer()).rotateArms(event.getPlayer()) ? (float) Math.toRadians(180F) : (float) Math.toRadians(0F);
-                    model.leftArm.xRot = model.rightArm.xRot;
-                    model.rightArm.yRot = model.rightArm.zRot =
-                            model.leftArm.yRot = model.leftArm.zRot =
-                                    model.rightLeg.xRot = model.leftLeg.xRot = (float) Math.toRadians(0F);
+                    PlayerModel<?> model = event.getPlayerModel();
+                    float flightAmount = cap.getFlightAmount(event.getPartialTicks());
+                    float armRotations = IFlyingAbility.getFlyingAbility(event.getPlayer()) != null && IFlyingAbility.getFlyingAbility(event.getPlayer()).rotateArms(event.getPlayer()) ? (float) Math.toRadians(180F) : 0F;
+
+                    model.head.xRot = model.rotlerpRad(flightAmount, model.head.xRot, (-(float)Math.PI / 4F));
+                    model.leftArm.xRot = model.rotlerpRad(flightAmount, model.leftArm.xRot, armRotations);
+                    model.rightArm.xRot = model.rotlerpRad(flightAmount, model.rightArm.xRot, armRotations);
+
+                    model.leftArm.yRot = model.rotlerpRad(flightAmount, model.leftArm.yRot, 0);
+                    model.rightArm.yRot = model.rotlerpRad(flightAmount, model.rightArm.yRot, 0);
+
+                    model.leftArm.zRot = model.rotlerpRad(flightAmount, model.leftArm.zRot, 0);
+                    model.rightArm.zRot = model.rotlerpRad(flightAmount, model.rightArm.zRot, 0);
+
+                    model.leftLeg.xRot = model.rotlerpRad(flightAmount, model.leftLeg.xRot, 0);
+                    model.rightLeg.xRot = model.rotlerpRad(flightAmount, model.rightLeg.xRot, 0);
                 }
             }
         });

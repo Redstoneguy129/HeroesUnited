@@ -12,6 +12,10 @@ import java.util.Map;
 
 public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable {
 
+    void updateFlyAmount();
+
+    float getFlightAmount(float partialTicks);
+
     Map<ResourceLocation, Level> getSuperpowerLevels();
 
     /**
