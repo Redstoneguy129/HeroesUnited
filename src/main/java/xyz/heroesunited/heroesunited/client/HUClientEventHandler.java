@@ -80,7 +80,7 @@ public class HUClientEventHandler {
     private final ArrayList<LivingRenderer> entitiesWithLayer = Lists.newArrayList();
     public static final KeyMap KEY_MAP = new KeyMap();
 
-    private static final Map<String, Integer> NAMES_TIMER = Maps.newHashMap();
+    private static final Map<String, Integer> NAMES_TIMER = Maps.newConcurrentMap();
     private static int INDEX = 0;
 
     public HUClientEventHandler() {
@@ -599,16 +599,18 @@ public class HUClientEventHandler {
                 RenderSystem.color4f(1f, 1f, 1f, 1f);
                 RenderSystem.disableBlend();
 
-                for (String s : NAMES_TIMER.keySet()) {
-                    boolean contains = false;
-                    for (Ability ability : abilities) {
-                        if (ability.name.equals(s)) {
-                            contains = true;
-                            break;
+                if (!NAMES_TIMER.isEmpty()) {
+                    for (String s : NAMES_TIMER.keySet()) {
+                        boolean contains = false;
+                        for (Ability ability : abilities) {
+                            if (ability.name.equals(s)) {
+                                contains = true;
+                                break;
+                            }
                         }
-                    }
-                    if (!contains) {
-                        NAMES_TIMER.remove(s);
+                        if (!contains) {
+                            NAMES_TIMER.remove(s);
+                        }
                     }
                 }
             }
