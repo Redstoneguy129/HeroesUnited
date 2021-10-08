@@ -7,7 +7,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.damagesource.DamageSource;
@@ -339,7 +338,7 @@ public class HUEventHandler {
         if (event.getEntityLiving() instanceof Player && event.getSlot().getType() == EquipmentSlot.Type.ARMOR) {
             Player player = (Player) event.getEntityLiving();
             player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
-                if (event.getSlot().getType() == EquipmentSlotType.Group.ARMOR) {
+                if (event.getSlot().getType() == EquipmentSlot.Type.ARMOR) {
                     if (event.getFrom().getItem() instanceof SuitItem && !cap.getAbilities().isEmpty()) {
                         SuitItem suitItem = (SuitItem) event.getFrom().getItem();
                         for (Ability a : AbilityHelper.getAbilityMap(player).values()) {
@@ -364,7 +363,7 @@ public class HUEventHandler {
                         if (!suitItem.getAbilities(player).isEmpty()) {
                             for (Map.Entry<String, Ability> entry : suitItem.getAbilities(player).entrySet()) {
                                 Ability a = entry.getValue();
-                                boolean canAdd = a.getJsonObject() != null && a.getJsonObject().has("slot") && suitItem.getSlot().getName().toLowerCase().equals(JSONUtils.getAsString(a.getJsonObject(), "slot"));
+                                boolean canAdd = a.getJsonObject() != null && a.getJsonObject().has("slot") && suitItem.getSlot().getName().toLowerCase().equals(GsonHelper.getAsString(a.getJsonObject(), "slot"));
                                 if (canAdd || Suit.getSuit(player) != null) {
                                     cap.addAbility(entry.getKey(), a);
                                 }
@@ -385,7 +384,7 @@ public class HUEventHandler {
                 }
                 if (event.getTo().getItem() instanceof IJSItem) {
                     IJSItem item = (IJSItem) event.getTo().getItem();
-                    EquipmentSlotType slot = event.getTo().getEquipmentSlot() == null ? EquipmentSlotType.MAINHAND : event.getTo().getEquipmentSlot();
+                    EquipmentSlot slot = event.getTo().getEquipmentSlot() == null ? EquipmentSlot.MAINHAND : event.getTo().getEquipmentSlot();
                     if (!item.getAbilities(player).isEmpty()) {
                         for (Map.Entry<String, Ability> entry : item.getAbilities(player).entrySet()) {
                             if (slot == event.getSlot()) {

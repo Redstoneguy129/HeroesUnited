@@ -5,7 +5,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -13,8 +14,7 @@ import javax.annotation.Nonnull;
 
 public class HUPlayerProvider implements ICapabilitySerializable<Tag> {
 
-    @CapabilityInject(IHUPlayer.class)
-    public static Capability<IHUPlayer> CAPABILITY = null;
+    public static final Capability<IHUPlayer> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
     private final LazyOptional<IHUPlayer> instance;
 
     public HUPlayerProvider(Player player) {

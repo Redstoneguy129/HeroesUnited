@@ -2,12 +2,9 @@ package xyz.heroesunited.heroesunited.common.abilities.suit;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.EntityModelSet;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -38,6 +35,7 @@ import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -112,7 +110,7 @@ public abstract class Suit {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderLayer(EntityModelSet entityModels, LivingRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> entityRenderer, LivingEntity entity, ItemStack stack, EquipmentSlot slot, ItemStack stack, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void renderLayer(EntityModelSet entityModels, LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> entityRenderer, LivingEntity entity, EquipmentSlot slot, ItemStack stack, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         HUPackLayers.Layer layer = HUPackLayers.getInstance().getLayer(this.getRegistryName());
         if (layer != null) {
             if (layer.getTexture("cape") != null && slot.equals(EquipmentSlot.CHEST)) {
@@ -173,8 +171,8 @@ public abstract class Suit {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side, ItemStack stack, SuitItem suitItem) {
-        SuitModel<AbstractClientPlayerEntity> suitModel = new SuitModel(HUClientUtil.getSuitModelPart(player), isSmallArms(player));
+    public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side, ItemStack stack, SuitItem suitItem) {
+        SuitModel<AbstractClientPlayer> suitModel = new SuitModel(HUClientUtil.getSuitModelPart(player), isSmallArms(player));
         suitModel.copyPropertiesFrom(renderer.getModel());
         suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(suitItem.getArmorTexture(stack, player, suitItem.getSlot(), null)))), packedLightIn, player);
     }
@@ -202,54 +200,7 @@ public abstract class Suit {
         return boots;
     }
 
-    protected SuitItem getItemBySlot(EquipmentSlotType slot) {
-        if (slot == EquipmentSlotType.HEAD) {
-            return getHelmet();
-        }
-        if (slot == EquipmentSlotType.CHEST) {
-            return getChestplate();
-        }
-        if (slot == EquipmentSlotType.LEGS) {
-            return getLegs();
-        }
-        return getBoots();
-    }
-
-    public boolean hasArmorOn(LivingEntity entity) {
-        for (EquipmentSlotType slot : EquipmentSlotType.values()) {
-            if (slot.getType() == EquipmentSlotType.Group.ARMOR) {
-                if (getItemBySlot(slot) != null && (entity.getItemBySlot(slot).isEmpty() || entity.getItemBySlot(slot).getItem() != getItemBySlot(slot))) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    public List<EquipmentAccessoriesSlot> getSlotForHide(EquipmentSlotType slot) {
-        List<EquipmentAccessoriesSlot> list = Lists.newArrayList();
-        for (int i = 0; i <= 8; ++i) {
-            list.add(EquipmentAccessoriesSlot.getFromSlotIndex(i));
-        }
-        return list;
-    }
-
-    public static void registerSuit(Suit suit) {
-        Suit.SUITS.put(suit.getRegistryName(), suit);
-        suit.registerItems(ForgeRegistries.ITEMS);
-    }
-
-    public static SuitItem getSuitItem(EquipmentSlot slot, LivingEntity entity) {
-        ItemStack stack = entity.getItemBySlot(slot);
-        if (stack.getItem() instanceof SuitItem suitItem) {
-            if (suitItem.getSlot().equals(slot)) {
-                return suitItem;
-            }
-        }
-        return null;
-    }
-
-    protected Item getItemBySlot(EquipmentSlot slot) {
+    protected SuitItem getItemBySlot(EquipmentSlot slot) {
         if (slot == EquipmentSlot.HEAD) {
             return getHelmet();
         }
@@ -271,6 +222,29 @@ public abstract class Suit {
             }
         }
         return true;
+    }
+
+    public List<EquipmentAccessoriesSlot> getSlotForHide(EquipmentSlot slot) {
+        List<EquipmentAccessoriesSlot> list = Lists.newArrayList();
+        for (int i = 0; i <= 8; ++i) {
+            list.add(EquipmentAccessoriesSlot.getFromSlotIndex(i));
+        }
+        return list;
+    }
+
+    public static void registerSuit(Suit suit) {
+        Suit.SUITS.put(suit.getRegistryName(), suit);
+        suit.registerItems(ForgeRegistries.ITEMS);
+    }
+
+    public static SuitItem getSuitItem(EquipmentSlot slot, LivingEntity entity) {
+        ItemStack stack = entity.getItemBySlot(slot);
+        if (stack.getItem() instanceof SuitItem suitItem) {
+            if (suitItem.getSlot().equals(slot)) {
+                return suitItem;
+            }
+        }
+        return null;
     }
 
     public static Suit getSuit(LivingEntity entity) {

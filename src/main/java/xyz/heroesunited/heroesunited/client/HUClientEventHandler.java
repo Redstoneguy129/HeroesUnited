@@ -1,7 +1,6 @@
 package xyz.heroesunited.heroesunited.client;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -10,35 +9,30 @@ import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.SimpleSound;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.ResourceLoadProgressGui;
-import net.minecraft.client.gui.screen.CustomizeSkinScreen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.gui.screens.LoadingOverlay;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.*;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.*;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.*;
-import net.minecraftforge.client.gui.ForgeIngameGui;
-import net.minecraftforge.client.gui.IIngameOverlay;
-import net.minecraftforge.client.gui.OverlayRegistry;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -70,8 +64,9 @@ import xyz.heroesunited.heroesunited.mixin.client.InvokerKeyBinding;
 import xyz.heroesunited.heroesunited.util.*;
 
 import java.awt.*;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
-import java.util.*;
 import java.util.stream.Collectors;
 
 @OnlyIn(Dist.CLIENT)
@@ -79,10 +74,10 @@ public class HUClientEventHandler {
 
     public static final KeyMapping ABILITIES_SCREEN = new KeyMapping(HeroesUnited.MODID + ".key.abilities_screen", GLFW.GLFW_KEY_H, "key.categories." + HeroesUnited.MODID);
     public static final KeyMapping ACCESSORIES_SCREEN = new KeyMapping(HeroesUnited.MODID + ".key.accessories_screen", GLFW.GLFW_KEY_J, "key.categories." + HeroesUnited.MODID);
+    private final List<LivingEntityRenderer> entitiesWithLayer = Lists.newArrayList();
     public static final List<AbilityKeyBinding> ABILITY_KEYS = Lists.newArrayList();
     public static final KeyMap KEY_MAP = new KeyMap();
 
-    private static final Map<String, Integer> NAMES_TIMER = Maps.newHashMap();
     private static int INDEX = 0;
 
     public HUClientEventHandler() {
@@ -223,6 +218,9 @@ public class HUClientEventHandler {
             }
             event.getMatrixStack().scale(0.01F,0.01F,0.01F);
         }
+        if (entitiesWithLayer.contains(event.getRenderer())) return;
+        event.getRenderer().addLayer(new HULayerRenderer<>(event.getRenderer(), Minecraft.getInstance().getEntityModels()));
+        entitiesWithLayer.add(event.getRenderer());
     }
 
     @SubscribeEvent
@@ -308,7 +306,7 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void renderPlayerPre(RenderPlayerEvent.Pre event) {
-        PlayerEntity player = event.getPlayer();
+        Player player = event.getPlayer();
         AbilityHelper.getAbilities(player).forEach(ability -> ability.renderPlayerPre(event));
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             AnimationEvent animationEvent = new AnimationEvent(cap, 0.0F, 0.0F, event.getPartialRenderTick(), false, Arrays.asList(player, player.getUUID()));
@@ -320,13 +318,13 @@ public class HUClientEventHandler {
             if ((ability != null && ability.isFlying(player) && ability.renderFlying(player)) || cap.isFlying()) {
                 if (!player.isOnGround() && !player.isSwimming()) {
                     if (!(player.getFallFlyingTicks() > 4) && !player.isVisuallySwimming()) {
-                        float xRot = (ability != null ? ability.getDegreesForSprint(player) : 90F + player.xRot);
-                        float defaultRotation = MathHelper.clamp(MathHelper.sqrt(player.distanceToSqr(player.xOld, player.yOld, player.zOld)), 0.0F, 1.0F) * (ability != null ? ability.getDegreesForWalk(player) : 22.5F);
+                        float xRot = (ability != null ? ability.getDegreesForSprint(player) : 90F + player.getXRot());
+                        float defaultRotation = Mth.clamp(Mth.sqrt((float) player.distanceToSqr(player.xOld, player.yOld, player.zOld)), 0.0F, 1.0F) * (ability != null ? ability.getDegreesForWalk(player) : 22.5F);
 
                         event.getMatrixStack().pushPose();
-                        event.getMatrixStack().mulPose(Vector3f.YP.rotationDegrees(-player.yRot));
-                        event.getMatrixStack().mulPose(Vector3f.XP.rotationDegrees(MathHelper.clamp(defaultRotation + (cap.getFlightAmount(event.getPartialRenderTick()) * xRot), 0, xRot)));
-                        event.getMatrixStack().mulPose(Vector3f.YP.rotationDegrees(player.yRot));
+                        event.getMatrixStack().mulPose(Vector3f.YP.rotationDegrees(-player.getYRot()));
+                        event.getMatrixStack().mulPose(Vector3f.XP.rotationDegrees(Mth.clamp(defaultRotation + (cap.getFlightAmount(event.getPartialRenderTick()) * xRot), 0, xRot)));
+                        event.getMatrixStack().mulPose(Vector3f.YP.rotationDegrees(player.getYRot()));
                     }
                 }
             }
@@ -523,100 +521,7 @@ public class HUClientEventHandler {
         event.setCanceled(canceled);
     }
 
-    public static final IIngameOverlay ABILITY_OVERLAY = OverlayRegistry.registerOverlayAbove(ForgeIngameGui.HOTBAR_ELEMENT, "AbilityOverlay", (gui, poseStack, partialTicks, screenWidth, screenHeight) -> {
-        gui.setupOverlayRenderState(true, false);
-        Minecraft mc = Minecraft.getInstance();
-        if(mc.player != null && mc.player.isAlive()) {
-            List<Ability> abilities = getCurrentDisplayedAbilities(mc.player);
-            if (abilities.size() > 0) {
-                final ResourceLocation widgets = new ResourceLocation(HeroesUnited.MODID, "textures/gui/widgets.png");
-                int y = screenHeight / 3;
-
-                RenderSystem.enableBlend();
-                RenderSystem.defaultBlendFunc();
-
-                RenderSystem.setShaderTexture(0, widgets);
-                GuiComponent.blit(poseStack, 0, y, 0, 0, 22, 102, 64, 128);
-
-                for (int i = 0; i < abilities.size(); i++) {
-                    Ability ability = AbilityHelper.getAnotherAbilityFromMap(AbilityHelper.getAbilities(mc.player), abilities.get(i));
-                    int abilityY = y + 3 + i * 20;
-
-                    poseStack.pushPose();
-                    poseStack.translate(0, 0, 500D);
-                    ability.drawIcon(poseStack, 3, abilityY);
-                    poseStack.popPose();
-                    RenderSystem.setShaderTexture(0, widgets);
-
-                    if (ability.getMaxCooldown(mc.player) != 0) {
-                        int progress = (int) ((ability.getDataManager().<Integer>getValue("prev_cooldown") + (ability.getDataManager().<Integer>getValue("cooldown") - ability.getDataManager().<Integer>getValue("prev_cooldown")) * partialTicks) / ability.getMaxCooldown(mc.player) * 16);
-                        if (progress > 0) {
-                            GuiComponent.blit(poseStack, 3, abilityY, 46, 0, progress, 16, 64, 128);
-                        }
-                    }
-                    if (ability.getEnabled()) {
-                        GuiComponent.blit(poseStack, -1, abilityY - 4, 22, 0, 24, 24, 64, 128);
-                        NAMES_TIMER.putIfAbsent(ability.name, 400);
-                    }
-
-                    if (NAMES_TIMER.containsKey(ability.name)) {
-                        int j = NAMES_TIMER.get(ability.name);
-                        if (j > 0) {
-                            NAMES_TIMER.replace(ability.name, --j);
-                        } else {
-                            if (!ability.getEnabled()) {
-                                NAMES_TIMER.remove(ability.name);
-                            }
-                        }
-
-                        float f = (float) j - mc.getFrameTime();
-
-                        int j1 = 255;
-                        if (j > 360) {
-                            j1 = (int) ((400F - f) * 255.0F / 40F);
-                        }
-
-                        if (j <= 100) {
-                            j1 = (int) (f * 255.0F / 100F);
-                        }
-
-                        j1 = MathHelper.clamp(j1, 0, 255);
-
-                        if (j1 > 8) {
-                            mc.font.drawShadow(event.getMatrixStack(), ability.getTitle(), 26, abilityY + 3, 16777215 | (j1 << 24 & -16777216));
-                        }
-                    }
-                    if (mc.screen instanceof ChatScreen && ability.getKey() != 0) {
-                        KeyBinding keyBinding = ability.getKey() < 6 ? ABILITY_KEYS.get(ability.getKey() - 1) : ability.getKey() == 7 ? mc.options.keyJump : ability.getKey() == 8 ? mc.options.keyAttack : mc.options.keyUse;
-                        RenderSystem.pushMatrix();
-                        if (keyBinding.getKey().getDisplayName().getString().length() != 1) {
-                            RenderSystem.translatef(5, abilityY / 4F, 0);
-                            RenderSystem.scalef(0.75F, 0.75F, 1.0F);
-                        }
-                        mc.font.drawShadow(event.getMatrixStack(), keyBinding.getKey().getDisplayName(), 20, abilityY + 12, 0xdfdfdf);
-                        RenderSystem.popMatrix();
-                    }
-                }
-                RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-                RenderSystem.disableBlend();
-
-                for (String s : NAMES_TIMER.keySet()) {
-                    boolean contains = false;
-                    for (Ability ability : abilities) {
-                        if (ability.name.equals(s)) {
-                            contains = true;
-                            break;
-                        }
-                    }
-                    if (!contains) {
-                        NAMES_TIMER.remove(s);
-                    }
-                }
-            }
-        }
-    }
-
-    public static List<Ability> getCurrentDisplayedAbilities(PlayerEntity player) {
+    public static List<Ability> getCurrentDisplayedAbilities(Player player) {
         List<Ability> abilities = Lists.newArrayList(), list = Lists.newArrayList();
         abilities.addAll(HUAbilityCap.getCap(player).getAbilities().values().stream()
                 .filter(a -> a != null && !a.isHidden(player)
@@ -644,7 +549,7 @@ public class HUClientEventHandler {
             added++;
         }
         return list;
-    });
+    }
 
     public static class AbilityKeyBinding extends KeyMapping {
 

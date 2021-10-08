@@ -38,7 +38,7 @@ public class HeatVisionAbility extends JSONAbility {
             this.dataManager.set("timer", this.dataManager.<Integer>getValue("timer") + 1);
         }
         if (this.dataManager.<Integer>getValue("timer") >= GsonHelper.getAsInt(getJsonObject(), "maxTimer", 10)) {
-            HUPlayerUtil.makeLaserLooking(player, GsonHelper.getAsFloat(getJsonObject(), "distance", 20), JSONUtils.getAsFloat(getJsonObject(), "strength", 1));
+            HUPlayerUtil.makeLaserLooking(player, GsonHelper.getAsFloat(getJsonObject(), "distance", 20), GsonHelper.getAsFloat(getJsonObject(), "strength", 1));
         }
         if (!getEnabled() && this.dataManager.<Integer>getValue("timer") != 0) {
             this.dataManager.set("timer", this.dataManager.<Integer>getValue("timer") - 1);
@@ -50,6 +50,7 @@ public class HeatVisionAbility extends JSONAbility {
     public void render(EntityModelSet entityModels, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         super.render(entityModels, renderer, matrix, bufferIn, packedLightIn, player, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
         float alpha = (this.dataManager.<Integer>getValue("prev_timer") + (this.dataManager.<Integer>getValue("timer") - this.dataManager.<Integer>getValue("prev_timer")) * partialTicks) / GsonHelper.getAsInt(getJsonObject(), "maxTimer", 10);
+        if (alpha <= 0.0F) return;
         Color color = HUJsonUtils.getColor(getJsonObject());
         double distance = player.position().add(0, player.getEyeHeight(), 0).distanceTo(player.getLookAngle().scale(GsonHelper.getAsFloat(getJsonObject(), "distance", 20)));
         if (this.dataManager.<String>getValue("type").equals("cyclop")) {

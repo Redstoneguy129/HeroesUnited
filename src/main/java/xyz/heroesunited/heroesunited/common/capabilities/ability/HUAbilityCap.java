@@ -8,7 +8,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.fmllegacy.network.NetworkDirection;
 import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
@@ -26,8 +27,7 @@ import java.util.Map;
 
 public class HUAbilityCap implements IHUAbilityCap {
 
-    @CapabilityInject(IHUAbilityCap.class)
-    public static Capability<IHUAbilityCap> CAPABILITY = null;
+    public static final Capability<IHUAbilityCap> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
     private final Player player;
     protected Map<String, Ability> activeAbilities, containedAbilities;
 

@@ -5,10 +5,10 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fmllegacy.network.NetworkDirection;
@@ -83,7 +83,7 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public float getFlightAmount(float partialTicks) {
-        return MathHelper.lerp(partialTicks, this.flightAmountO, this.flightAmount);
+        return Mth.lerp(partialTicks, this.flightAmountO, this.flightAmount);
     }
 
     @Override

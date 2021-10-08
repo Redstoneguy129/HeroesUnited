@@ -4,15 +4,15 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.util.INBTSerializable;
 import xyz.heroesunited.heroesunited.common.events.HUDataRegister;
 import xyz.heroesunited.heroesunited.util.hudata.HUDataManager;
 
 public class HUDataCap implements IHUDataCap, INBTSerializable<CompoundTag> {
 
-    @CapabilityInject(IHUDataCap.class)
-    public static Capability<IHUDataCap> CAPABILITY;
+    public static final Capability<IHUDataCap> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
     private final HUDataManager dataManager;
 
     public HUDataCap(Entity entity) {

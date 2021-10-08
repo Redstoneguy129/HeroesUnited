@@ -116,7 +116,7 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
 
     public int getKey() {
         if (getJsonObject() != null && getJsonObject().has("key")) {
-            return JSONUtils.getAsInt(JSONUtils.getAsJsonObject(this.getJsonObject(), "key"), "id");
+            return GsonHelper.getAsInt(GsonHelper.getAsJsonObject(this.getJsonObject(), "key"), "id");
         }
         return 0;
     }

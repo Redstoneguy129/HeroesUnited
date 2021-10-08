@@ -1,10 +1,17 @@
 package xyz.heroesunited.heroesunited.common.abilities.suit;
 
 import com.google.common.collect.Maps;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -13,6 +20,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
@@ -20,25 +28,6 @@ import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.IArmorMaterial;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.*;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.IItemRenderProperties;
@@ -143,8 +132,8 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side, ItemStack stack) {
-        if (getSlot() != EquipmentSlotType.CHEST) return;
+    public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side, ItemStack stack) {
+        if (getSlot() != EquipmentSlot.CHEST) return;
         try {
             GeoArmorRenderer geo = getArmorRenderer();
             GeoModel model = geo.getGeoModelProvider().getModel(geo.getGeoModelProvider().getModelLocation(this));
@@ -153,7 +142,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
             geo.applyEntityStats(renderer.getModel());
             if (model.topLevelBones.isEmpty())
                 throw new GeckoLibException(getRegistryName(), "Model doesn't have any parts");
-            GeoBone bone = model.getBone(side == HandSide.LEFT ? geo.leftArmBone : geo.rightArmBone).get();
+            GeoBone bone = model.getBone(side == HumanoidArm.LEFT ? geo.leftArmBone : geo.rightArmBone).get();
             geo.attackTime = 0.0F;
             geo.crouching = false;
             geo.swimAmount = 0.0F;
@@ -162,9 +151,9 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
             matrix.scale(-1.0F, -1.0F, 1.0F);
             geo.getGeoModelProvider().setLivingAnimations(this, geo.getUniqueID(this), new AnimationEvent<>(this, 0, 0, 0, false, Arrays.asList(stack, player, slot)));
 
-            ModelRenderer modelRenderer = side == HandSide.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
+            ModelPart modelRenderer = side == HumanoidArm.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
             GeoUtils.copyRotations(modelRenderer, bone);
-            bone.setPositionX(side == HandSide.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
+            bone.setPositionX(side == HumanoidArm.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
             bone.setPositionY(2 - modelRenderer.y);
             bone.setPositionZ(modelRenderer.z);
             bone.setHidden(false);
@@ -173,8 +162,8 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
                 throw new GeckoLibException(getRegistryName(), "Bone doesn't have any parts");
 
             matrix.pushPose();
-            Minecraft.getInstance().textureManager.bind(geo.getTextureLocation(this));
-            IVertexBuilder builder = bufferIn.getBuffer(RenderType.entityTranslucent(geo.getTextureLocation(this)));
+            RenderSystem.setShaderTexture(0, geo.getTextureLocation(this));
+            VertexConsumer builder = bufferIn.getBuffer(RenderType.entityTranslucent(geo.getTextureLocation(this)));
             Color renderColor = geo.getRenderColor(this, 0, matrix, null, builder, packedLightIn);
             geo.renderRecursively(bone, matrix, builder, packedLightIn, OverlayTexture.NO_OVERLAY, (float) renderColor.getRed() / 255f, (float) renderColor.getGreen() / 255f, (float) renderColor.getBlue() / 255f, (float) renderColor.getAlpha() / 255);
             matrix.popPose();

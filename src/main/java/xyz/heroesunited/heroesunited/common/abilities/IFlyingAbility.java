@@ -21,12 +21,12 @@ public interface IFlyingAbility {
         return true;
     }
 
-    default float getDegreesForWalk(PlayerEntity player) {
+    default float getDegreesForWalk(Player player) {
         return 22.5F;
     }
 
-    default float getDegreesForSprint(PlayerEntity player) {
-        return 90F + player.xRot;
+    default float getDegreesForSprint(Player player) {
+        return 90F + player.getXRot();
     }
 
     default SoundEvent getSoundEvent() {

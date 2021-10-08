@@ -27,16 +27,16 @@ public class FlightAbility extends JSONAbility implements IFlyingAbility {
 
     @Override
     public boolean setDefaultRotationAngles(HUSetRotationAnglesEvent event) {
-        return getJsonObject() == null || JSONUtils.getAsBoolean(this.getJsonObject(), "setDefaultRotationAngles", true);
+        return getJsonObject() == null || GsonHelper.getAsBoolean(this.getJsonObject(), "setDefaultRotationAngles", true);
     }
 
     @Override
-    public float getDegreesForSprint(PlayerEntity player) {
-        return getJsonObject() != null ? JSONUtils.getAsFloat(this.getJsonObject(), "degrees_for_sprint", IFlyingAbility.super.getDegreesForSprint(player)) : IFlyingAbility.super.getDegreesForSprint(player);
+    public float getDegreesForSprint(Player player) {
+        return getJsonObject() != null ? GsonHelper.getAsFloat(this.getJsonObject(), "degrees_for_sprint", IFlyingAbility.super.getDegreesForSprint(player)) : IFlyingAbility.super.getDegreesForSprint(player);
     }
 
     @Override
-    public float getDegreesForWalk(PlayerEntity player) {
-        return getJsonObject() != null ? JSONUtils.getAsFloat(this.getJsonObject(), "degrees_for_walk", IFlyingAbility.super.getDegreesForWalk(player)) : IFlyingAbility.super.getDegreesForWalk(player);
+    public float getDegreesForWalk(Player player) {
+        return getJsonObject() != null ? GsonHelper.getAsFloat(this.getJsonObject(), "degrees_for_walk", IFlyingAbility.super.getDegreesForWalk(player)) : IFlyingAbility.super.getDegreesForWalk(player);
     }
 }

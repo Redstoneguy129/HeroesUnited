@@ -1,7 +1,6 @@
 package xyz.heroesunited.heroesunited.hupacks.js.item;
 
 import com.google.common.collect.Maps;
-import jdk.nashorn.api.scripting.NashornScriptEngine;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;

@@ -29,7 +29,7 @@ public class EnergyLaserAbility extends JSONAbility {
     public void action(Player player) {
         super.action(player);
         if (getEnabled()) {
-            HUPlayerUtil.makeLaserLooking(player, GsonHelper.getAsFloat(getJsonObject(), "distance", 20), JSONUtils.getAsFloat(getJsonObject(), "strength", 1));
+            HUPlayerUtil.makeLaserLooking(player, GsonHelper.getAsFloat(getJsonObject(), "distance", 20), GsonHelper.getAsFloat(getJsonObject(), "strength", 1));
         }
     }
 
@@ -42,7 +42,7 @@ public class EnergyLaserAbility extends JSONAbility {
             double distance = player.position().add(0, player.getEyeHeight(), 0).distanceTo(player.getLookAngle().scale(GsonHelper.getAsFloat(getJsonObject(), "distance", 20)));
             AABB box = new AABB(0, 0, 0, 0, distance, 0);
             matrix.pushPose();
-            renderer.getModel().translateToHand(isLeftArm(player) ? HandSide.LEFT : HandSide.RIGHT, matrix);
+            renderer.getModel().translateToHand(isLeftArm(player) ? HumanoidArm.LEFT : HumanoidArm.RIGHT, matrix);
             matrix.translate(isLeftArm(player) ? 0.0625D : -0.0625D, 0, 0);
             HUClientUtil.renderFilledBox(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.0625D/2), 1F, 1F, 1F, 1F, packedLightIn);
             HUClientUtil.renderFilledBox(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.0625D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, packedLightIn);
@@ -55,14 +55,14 @@ public class EnergyLaserAbility extends JSONAbility {
     public void setRotationAngles(HUSetRotationAnglesEvent event) {
         super.setRotationAngles(event);
         if (getEnabled()) {
-            ModelRenderer modelArm = isLeftArm(event.getPlayer()) ? event.getPlayerModel().leftArm : event.getPlayerModel().rightArm;
-            modelArm.xRot = (float) Math.toRadians(event.getPlayer().xRot - 90);
+            ModelPart modelArm = isLeftArm(event.getPlayer()) ? event.getPlayerModel().leftArm : event.getPlayerModel().rightArm;
+            modelArm.xRot = (float) Math.toRadians(event.getPlayer().getXRot() - 90);
             modelArm.yRot = event.getPlayerModel().head.yRot;
             modelArm.zRot = 0;
         }
     }
 
-    public boolean isLeftArm(PlayerEntity player) {
-        return player.getMainArm() == HandSide.LEFT;
+    public boolean isLeftArm(Player player) {
+        return player.getMainArm() == HumanoidArm.LEFT;
     }
 }

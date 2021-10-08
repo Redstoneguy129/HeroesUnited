@@ -33,7 +33,7 @@ public class HULayerRenderer<T extends LivingEntity, M extends HumanoidModel<T>>
     public final LivingEntityRenderer<T, M> entityRendererIn;
     public final EntityModelSet entityModels;
 
-    public HULayerRenderer(LivingRenderer<T, M> entityRendererIn) {
+    public HULayerRenderer(LivingEntityRenderer<T, M> entityRendererIn, EntityModelSet entityModels) {
         super(entityRendererIn);
         this.entityRendererIn = entityRendererIn;
         this.entityModels = entityModels;
@@ -55,7 +55,7 @@ public class HULayerRenderer<T extends LivingEntity, M extends HumanoidModel<T>>
                     ItemStack stack = cap.getInventory().getItem(slot);
                     if (stack != null && stack.getItem() instanceof IAccessory && !MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Accessories(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch))) {
                         IAccessory accessoire = ((IAccessory) stack.getItem());
-                        ModelSuit<AbstractClientPlayerEntity> suitModel = new ModelSuit<>(accessoire.getScale(stack), HUPlayerUtil.haveSmallArms(player));
+                        SuitModel<AbstractClientPlayer> suitModel = new SuitModel<>(HUClientUtil.getSuitModelPart(player), HUPlayerUtil.haveSmallArms(player));
                         boolean shouldRender = true;
                         for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
                             SuitItem item = Suit.getSuitItem(equipmentSlot,player);
@@ -85,7 +85,7 @@ public class HULayerRenderer<T extends LivingEntity, M extends HumanoidModel<T>>
         MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Post(entityRendererIn, entity, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch));
     }
 
-    private void renderAccessories(ModelSuit<AbstractClientPlayerEntity> suitModel, MatrixStack matrixStack, MultiBufferSource buffer, int packedLight, Player player, PlayerRenderer playerRenderer, IAccessory accessoire, ItemStack stack, IHUPlayer cap, EquipmentAccessoriesSlot slot) {
+    private void renderAccessories(SuitModel<AbstractClientPlayer> suitModel, PoseStack matrixStack, MultiBufferSource buffer, int packedLight, Player player, PlayerRenderer playerRenderer, IAccessory accessoire, ItemStack stack, IHUPlayer cap, EquipmentAccessoriesSlot slot) {
         suitModel.setAllVisible(false);
         if (slot == EquipmentAccessoriesSlot.HELMET) {
             suitModel.hat.visible = suitModel.head.visible = cap.getInventory().haveStack(slot);

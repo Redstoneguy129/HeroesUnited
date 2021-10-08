@@ -1,26 +1,22 @@
 package xyz.heroesunited.heroesunited;
 
-import com.mojang.serialization.Codec;
-import net.arikia.dev.drpc.DiscordRPC;
-import net.minecraft.client.gui.ScreenManager;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.ChunkGenerator;
-import net.minecraft.world.gen.FlatChunkGenerator;
-import net.minecraft.world.gen.feature.structure.Structure;
-import net.minecraft.world.gen.settings.DimensionStructuresSettings;
-import net.minecraft.world.gen.settings.StructureSeparationSettings;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.client.gui.ForgeIngameGui;
+import net.minecraftforge.client.gui.OverlayRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
@@ -36,8 +32,6 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,11 +39,11 @@ import software.bernie.geckolib3.GeckoLib;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.IAnimatableModel;
 import software.bernie.geckolib3.core.controller.AnimationController;
+import xyz.heroesunited.heroesunited.client.AbilityOverlay;
 import xyz.heroesunited.heroesunited.client.HUClientEventHandler;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
 import xyz.heroesunited.heroesunited.client.SpaceDimensionRenderInfo;
 import xyz.heroesunited.heroesunited.client.gui.AccessoriesScreen;
-import xyz.heroesunited.heroesunited.client.render.HULayerRenderer;
 import xyz.heroesunited.heroesunited.client.render.model.CapeModel;
 import xyz.heroesunited.heroesunited.client.render.model.HorasModel;
 import xyz.heroesunited.heroesunited.client.render.model.ParachuteModel;
@@ -82,10 +76,6 @@ import xyz.heroesunited.heroesunited.mixin.client.AccessorDimensionRenderInfo;
 import xyz.heroesunited.heroesunited.util.HUModelLayers;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
 import xyz.heroesunited.heroesunited.util.compat.ObfuscateHandler;
-
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.FALL_RESISTANCE;
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOOST;
@@ -203,7 +193,7 @@ public class HeroesUnited {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public void registerLayers(final EntityRenderersEvent.AddLayers event) {
-        GeckoSuitRenderer.registerArmorRenderer(SuitItem.class, new GeckoSuitRenderer());
+        GeckoSuitRenderer.registerArmorRenderer(SuitItem.class, new GeckoSuitRenderer<>());
 
         CelestialBodyRenderer.registerRenderer(new SunRenderer(event.getEntityModels().bakeLayer(HUModelLayers.SUN)), CelestialBodies.SUN);
         CelestialBodyRenderer.registerRenderer(new MercuryRenderer(event.getEntityModels().bakeLayer(HUModelLayers.PLANET)), CelestialBodies.MERCURY);
@@ -217,26 +207,17 @@ public class HeroesUnited {
         CelestialBodyRenderer.registerRenderer(new UranusRenderer(event.getEntityModels().bakeLayer(HUModelLayers.PLANET)), CelestialBodies.URANUS);
         CelestialBodyRenderer.registerRenderer(new NeptuneRenderer(event.getEntityModels().bakeLayer(HUModelLayers.PLANET)), CelestialBodies.NEPTUNE);
         CelestialBodyRenderer.registerRenderer(new KuiperBeltRenderer(event.getEntityModels().bakeLayer(HUModelLayers.KUIPER)), CelestialBodies.KUIPER_BELT);
-
-        for (EntityType<? extends LivingEntity> type : ForgeRegistries.ENTITIES.getValues().stream().filter(DefaultAttributes::hasSupplier).map(entityType -> (EntityType<? extends LivingEntity>) entityType).collect(Collectors.toList())) {
-            if (Minecraft.getInstance().getEntityRenderDispatcher().renderers.get(type) instanceof LivingEntityRenderer) {
-                LivingEntityRenderer entityRenderer = event.getRenderer(type);
-                if (entityRenderer != null && entityRenderer.getModel() instanceof HumanoidModel) {
-                    entityRenderer.addLayer(new HULayerRenderer(entityRenderer, event.getEntityModels()));
-                }
-            }
-        }
     }
 
     @OnlyIn(Dist.CLIENT)
     private void clientSetup(final FMLClientSetupEvent event) {
         HUPacks.HUPackFinder.createFoldersAndLoadThemes();
         MenuScreens.register(HUContainers.ACCESSORIES, AccessoriesScreen::new);
+        OverlayRegistry.registerOverlayAbove(ForgeIngameGui.HOTBAR_ELEMENT, "AbilityOverlay", new AbilityOverlay());
 
         new HorasInfo.DimensionInfo("Overworld", "Default      Dimension", new ResourceLocation("overworld"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/overworld.png"));
         new HorasInfo.DimensionInfo("Nether", "Default      Dimension", new ResourceLocation("the_nether"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/the_nether.png"));
         new HorasInfo.DimensionInfo("End", "Default      Dimension", new ResourceLocation("the_end"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/the_end.png"));
-
 
         if (ModList.get().isLoaded("obfuscate")) {
             MinecraftForge.EVENT_BUS.register(new ObfuscateHandler());

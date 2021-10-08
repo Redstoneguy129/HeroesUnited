@@ -13,7 +13,7 @@ import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 public interface IAlwaysRenderer {
 
     @OnlyIn(Dist.CLIENT)
-    default void renderAlways(PlayerRenderer playerRenderer, PoseStack matrixStack, MultiBufferSource iRenderTypeBuffer, int i, AbstractClientPlayer abstractClientPlayerEntity, float v, float v1, float v2, float v3, float v4, float v5) {
+    default void renderAlways(PlayerRenderer playerRenderer, PoseStack matrixStack, MultiBufferSource iRenderTypeBuffer, int i, AbstractClientPlayer AbstractClientPlayer, float v, float v1, float v2, float v3, float v4, float v5) {
 
     }
 

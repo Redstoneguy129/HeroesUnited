@@ -19,12 +19,6 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'idea'
 apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
 
-configurations.all {
-    resolutionStrategy {
-        force 'cpw.mods:securejarhandler:0.9.50'
-    }
-}
-
 version = build_version
 group = "xyz.heroesunited"
 archivesBaseName = "heroesunited"
@@ -48,7 +42,6 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            arg "--mixin.config=heroesunited.mixins.json"
             mods {
                 heroesunited {
                     source sourceSets.main
@@ -58,7 +51,7 @@ minecraft {
 
         clientWithCredentials {
             parent runs.client
-            args '--username', 'jeb_', '--uuid', '853c80ef-3c37-49fd-aa49-938b674adae6', "--mixin.config=heroesunited.mixins.json"
+            args '--username', 'jeb_', '--uuid', '853c80ef-3c37-49fd-aa49-938b674adae6'
         }
 
         server {
@@ -163,14 +156,19 @@ jar {
                 "Implementation-Title"    : project.name,
                 "Implementation-Version"  : "${version}",
                 "Implementation-Vendor"   : "${archivesBaseName}sareus",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "MixinConfigs"            : "heroesunited.mixins.json"
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
 }
 
 mixin {
     add sourceSets.main, "heroesunited.refmap.json"
+    config 'heroesunited.mixins.json'
+
+    debug.verbose = true
+    debug.export = true
+    dumpTargetOnFailure = true
+    quiet
 }
 
 publishing {
@@ -179,18 +177,15 @@ publishing {
             artifact shadowJar
             artifact deobfJar
             artifact sourcesJar
-            artifactId = "hu-core"
+            artifactId = "hu-core-1.17"
         }
     }
     repositories {
         maven {
-            def explodingCreeperURL = System.getenv("explodingCreeperURL")
-            url = explodingCreeperURL
+            url = 'https://maven.explodingcreeper.me/'
             credentials {
-                def envUsername = System.getenv("explodingCreeperUser")
-                def envPassword = System.getenv("explodingCreeperPassword")
-                username = envUsername
-                password = envPassword
+                username = System.getenv("explodingCreeperUser")
+                password = System.getenv("explodingCreeperPassword")
             }
         }
     }

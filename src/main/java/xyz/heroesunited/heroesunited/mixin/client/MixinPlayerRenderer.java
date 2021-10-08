@@ -68,7 +68,7 @@ public abstract class MixinPlayerRenderer {
         }
 
         if (rendererArmIn.visible) {
-            for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
+            for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
                 ItemStack stack = player.getItemBySlot(equipmentSlot);
                 if (stack.getItem() instanceof SuitItem) {
                     SuitItem suitItem = (SuitItem) stack.getItem();
