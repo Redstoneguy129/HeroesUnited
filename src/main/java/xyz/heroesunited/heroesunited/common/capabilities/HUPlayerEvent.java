@@ -76,7 +76,7 @@ public class HUPlayerEvent {
                 HUNetworking.INSTANCE.sendTo(new ClientSyncAbilities(e.getEntity().getId(), a.getAbilities()), ((ServerPlayer) e.getEntity()).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                 a.syncToAll();
             });
-            e.getEntity().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> a.syncToAll());
+            e.getEntity().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(IHUPlayer::syncToAll);
         }
     }
 }

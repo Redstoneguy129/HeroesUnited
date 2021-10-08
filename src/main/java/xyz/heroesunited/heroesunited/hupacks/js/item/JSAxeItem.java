@@ -1,6 +1,7 @@
 package xyz.heroesunited.heroesunited.hupacks.js.item;
 
 import com.google.common.collect.Maps;
+import jdk.nashorn.api.scripting.NashornScriptEngine;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -13,8 +14,6 @@ import org.openjdk.nashorn.api.scripting.NashornScriptEngine;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.hupacks.HUPackPowers;
 
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import java.util.Map;
 import java.util.Objects;
@@ -49,7 +48,7 @@ public class JSAxeItem extends AxeItem implements IJSItem {
     }
 
     @Override
-    public ScriptEngine getEngine() {
+    public NashornScriptEngine getEngine() {
         return this.engine;
     }
 

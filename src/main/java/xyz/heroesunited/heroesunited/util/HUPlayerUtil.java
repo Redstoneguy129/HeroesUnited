@@ -64,14 +64,14 @@ public class HUPlayerUtil {
         return new Vec3(player.getX(), player.getY(), player.getZ());
     }
 
-    public static void makeLaserLooking(Player player, double distance) {
+    public static void makeLaserLooking(Player player, double distance, float strength) {
         HitResult rtr = getPosLookingAt(player, distance);
         if (rtr != null && !player.level.isClientSide) {
             if (rtr.getType() == HitResult.Type.ENTITY) {
                 EntityHitResult ertr = (EntityHitResult) rtr;
-                if (ertr.getEntity() != null && ertr.getEntity() != player) {
-                    ertr.getEntity().setSecondsOnFire(5);
-                    ertr.getEntity().hurt(DamageSource.mobAttack(player), 2);
+                if (ertr.getEntity() != player) {
+                    ertr.getEntity().setSecondsOnFire((int) (strength * 5));
+                    ertr.getEntity().hurt(DamageSource.mobAttack(player), strength * 2);
                 }
             } else if (rtr.getType() == HitResult.Type.BLOCK) {
                 BlockPos pos = new BlockPos(rtr.getLocation());

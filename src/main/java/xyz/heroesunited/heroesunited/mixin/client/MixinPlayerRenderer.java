@@ -68,8 +68,14 @@ public abstract class MixinPlayerRenderer {
         }
 
         if (rendererArmIn.visible) {
-            if (Suit.getSuit(player) != null) {
-                Suit.getSuit(player).renderFirstPersonArm(playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side);
+            for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
+                ItemStack stack = player.getItemBySlot(equipmentSlot);
+                if (stack.getItem() instanceof SuitItem) {
+                    SuitItem suitItem = (SuitItem) stack.getItem();
+                    if (suitItem.getSlot().equals(equipmentSlot)) {
+                        suitItem.renderFirstPersonArm(playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side, stack);
+                    }
+                }
             }
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                 for (int slot = 0; slot < cap.getInventory().getContainerSize(); ++slot) {

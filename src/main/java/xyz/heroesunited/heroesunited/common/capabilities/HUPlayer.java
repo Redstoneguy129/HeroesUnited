@@ -8,6 +8,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fmllegacy.network.NetworkDirection;
@@ -37,6 +38,7 @@ public class HUPlayer implements IHUPlayer {
     private final AnimationFactory factory = new AnimationFactory(this);
     protected Map<ResourceLocation, Level> superpowerLevels;
     private int theme;
+    private float flightAmount, flightAmountO;
     private float slowMo = 20F;
     private boolean flying, intangible;
     private ResourceLocation animationFile;
@@ -67,6 +69,21 @@ public class HUPlayer implements IHUPlayer {
     @Nullable
     public static IHUPlayer getCap(Entity entity) {
         return entity.getCapability(HUPlayerProvider.CAPABILITY).orElse(null);
+    }
+
+    @Override
+    public void updateFlyAmount() {
+        this.flightAmountO = this.flightAmount;
+        if (player.isSprinting()) {
+            this.flightAmount = Math.min(1.0F, this.flightAmount + 0.07F);
+        } else {
+            this.flightAmount = Math.max(0.0F, this.flightAmount - 0.07F);
+        }
+    }
+
+    @Override
+    public float getFlightAmount(float partialTicks) {
+        return MathHelper.lerp(partialTicks, this.flightAmountO, this.flightAmount);
     }
 
     @Override

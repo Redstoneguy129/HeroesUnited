@@ -27,7 +27,10 @@ public class ServerDisableAbility {
         ctx.get().enqueueWork(() -> {
             Player player = ctx.get().getSender();
             if (player != null) {
-                player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> cap.disable(this.id));
+                player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
+                    cap.disable(this.id);
+                    cap.sync();
+                });
             }
         });
         ctx.get().setPacketHandled(true);

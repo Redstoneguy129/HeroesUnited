@@ -38,7 +38,7 @@ public class HeatVisionAbility extends JSONAbility {
             this.dataManager.set("timer", this.dataManager.<Integer>getValue("timer") + 1);
         }
         if (this.dataManager.<Integer>getValue("timer") >= GsonHelper.getAsInt(getJsonObject(), "maxTimer", 10)) {
-            HUPlayerUtil.makeLaserLooking(player, GsonHelper.getAsFloat(getJsonObject(), "distance", 20));
+            HUPlayerUtil.makeLaserLooking(player, GsonHelper.getAsFloat(getJsonObject(), "distance", 20), JSONUtils.getAsFloat(getJsonObject(), "strength", 1));
         }
         if (!getEnabled() && this.dataManager.<Integer>getValue("timer") != 0) {
             this.dataManager.set("timer", this.dataManager.<Integer>getValue("timer") - 1);

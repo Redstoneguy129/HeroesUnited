@@ -2,6 +2,8 @@ package xyz.heroesunited.heroesunited.hupacks.js;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import jdk.nashorn.api.scripting.NashornScriptEngine;
+import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -14,9 +16,6 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.hupacks.js.item.*;
 
 import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;

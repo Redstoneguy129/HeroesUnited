@@ -2,6 +2,7 @@ package xyz.heroesunited.heroesunited.common.abilities;
 
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.player.Player;
+import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.common.objects.HUSounds;
 
 public interface IFlyingAbility {
@@ -16,8 +17,16 @@ public interface IFlyingAbility {
         return false;
     }
 
-    default boolean setDefaultRotationAngles(Player player) {
+    default boolean setDefaultRotationAngles(HUSetRotationAnglesEvent event) {
         return true;
+    }
+
+    default float getDegreesForWalk(PlayerEntity player) {
+        return 22.5F;
+    }
+
+    default float getDegreesForSprint(PlayerEntity player) {
+        return 90F + player.xRot;
     }
 
     default SoundEvent getSoundEvent() {

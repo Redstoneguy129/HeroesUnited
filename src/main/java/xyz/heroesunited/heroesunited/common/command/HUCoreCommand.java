@@ -17,10 +17,8 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
@@ -42,9 +40,9 @@ public class HUCoreCommand {
                         .then(Commands.argument("players", EntityArgument.players())
                                 .then(Commands.argument("suit", ResourceLocationArgument.id()).suggests(SUGGEST_SUITS)
                                         .executes((c) -> setSuit(c.getSource(), EntityArgument.getPlayers(c, "players"), getSuit(c, "suit"))))))
-                .then(Commands.literal("ability")
+                .then(Commands.literal("abilities")
                         .then(Commands.argument("players", EntityArgument.players())
-                                .then(Commands.literal("disable").executes(c -> disableAbility(c.getSource(), EntityArgument.getPlayers(c, "players"))))))
+                                .then(Commands.literal("clear").executes(c -> disableAbility(c.getSource(), EntityArgument.getPlayers(c, "players"))))))
                 .then(Commands.literal("superpower")
                         .then(Commands.argument("players", EntityArgument.players())
                                 .then(Commands.literal("level").then(Commands.argument("level_int", IntegerArgumentType.integer(0, 1000))
@@ -74,7 +72,6 @@ public class HUCoreCommand {
         while (iterator.hasNext()) {
             Player pl = (Player) iterator.next();
             HUPackSuperpowers.setSuperpower(pl, superpower);
-            HUPlayer.getCap(pl).syncToAll();
             HUAbilityCap.getCap(pl).syncToAll();
             if (pl.getCapability(HUPlayerProvider.CAPABILITY).isPresent())
                 i++;
@@ -113,7 +110,6 @@ public class HUCoreCommand {
         while (iterator.hasNext()) {
             Player pl = (Player) iterator.next();
             HUPackSuperpowers.removeSuperpower(pl);
-            HUPlayer.getCap(pl).syncToAll();
             HUAbilityCap.getCap(pl).syncToAll();
             if (pl.getCapability(HUPlayerProvider.CAPABILITY).isPresent())
                 i++;
@@ -137,8 +133,7 @@ public class HUCoreCommand {
 
     private static int disableAbility(CommandSourceStack commandSource, Collection<ServerPlayer> players) {
         for (ServerPlayer player : players) {
-            AbilityHelper.disable(player);
-            HUPlayer.getCap(player).syncToAll();
+            HUAbilityCap.getCap(player).clearAbilities();
             HUAbilityCap.getCap(player).syncToAll();
         }
         commandSource.sendSuccess(new TranslatableComponent("commands.heroesunited.ability.disabled"), true);

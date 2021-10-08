@@ -16,7 +16,6 @@ import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
 import xyz.heroesunited.heroesunited.common.abilities.KeyMap;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientDisableAbility;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientEnableAbility;
@@ -97,7 +96,6 @@ public class HUAbilityCap implements IHUAbilityCap {
             containedAbilities.remove(id);
             disable(id);
             syncToAll();
-            HUPlayer.getCap(player).syncToAll();
             if (!player.level.isClientSide)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getId(), this.getAbilities()));
         }
@@ -136,7 +134,6 @@ public class HUAbilityCap implements IHUAbilityCap {
     @Override
     public IHUAbilityCap syncToAll() {
         this.sync();
-        HUPlayer.getCap(player).syncToAll();
         for (Player player : this.player.level.players()) {
             if (player instanceof ServerPlayer) {
                 HUNetworking.INSTANCE.sendTo(new ClientSyncAbilityCap(this.player.getId(), this.serializeNBT()), ((ServerPlayer) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);

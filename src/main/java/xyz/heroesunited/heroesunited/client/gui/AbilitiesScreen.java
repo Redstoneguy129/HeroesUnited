@@ -42,7 +42,7 @@ public class AbilitiesScreen extends Screen {
 
     private final ResourceLocation HEAD = new ResourceLocation(HeroesUnited.MODID, "textures/gui/head.png");
     public static List<ResourceLocation> themes = Lists.newArrayList(getTheme("default"), getTheme("black"), getTheme("rainbow"));
-    public static int INDEX = 0;
+    private static int INDEX = 0;
     private int left, top;
 
     public AbilitiesScreen() {
@@ -69,19 +69,15 @@ public class AbilitiesScreen extends Screen {
             minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }));
         List<Ability> abilities = getCurrentDisplayedAbilities(this.minecraft.player);
-        for (int i = 0; i < (abilities.size() >= 5 ? 4 : abilities.size()); i++) {
+        for (int i = 0; i < abilities.size(); i++) {
             this.addRenderableWidget(new AbilityButton(left, top, i, this, abilities.get(i)));
         }
     }
 
     public static List<Ability> getCurrentDisplayedAbilities(Player player) {
-        return getCurrentDisplayedAbilities(player, a -> !a.isHidden(player));
-    }
-
-    public static List<Ability> getCurrentDisplayedAbilities(Player player, Predicate<Ability> filter) {
         List<Ability> abilities = Lists.newArrayList(), list = Lists.newArrayList();
         abilities.addAll(HUAbilityCap.getCap(player).getAbilities().values().stream()
-                .filter(a -> a != null && filter.test(a))
+                .filter(a -> a != null && !a.isHidden(player))
                 .collect(Collectors.toList()));
 
         if (abilities.isEmpty()) {
@@ -97,7 +93,7 @@ public class AbilitiesScreen extends Screen {
         list.add(abilities.get(INDEX));
 
         int i = INDEX + 1, added = 1;
-        while (list.size() < 5 && added < abilities.size()) {
+        while (list.size() < 4 && added < abilities.size()) {
             if (i >= abilities.size()) {
                 i = 0;
             }

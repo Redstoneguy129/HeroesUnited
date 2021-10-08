@@ -44,7 +44,7 @@ public abstract class JSReloadListener extends SimplePreparableReloadListener<Ma
             ) {
                 NashornScriptEngine engine = (NashornScriptEngine) this.manager.getScriptEngine();
                 engine.put("path", location.toString());
-                engine.eval(IOUtils.toString(reader));
+                engine.eval(reader);
                 map.put(location, engine);
             } catch (IOException | ScriptException jsonparseexception) {
                 HeroesUnited.LOGGER.error("Couldn't parse data file {} from {}", location, resourcelocation, jsonparseexception);
