@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.common.abilities.suit;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
@@ -33,6 +32,7 @@ import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -221,7 +221,7 @@ public abstract class Suit {
     }
 
     public List<EquipmentAccessoriesSlot> getSlotForHide(EquipmentSlotType slot) {
-        List<EquipmentAccessoriesSlot> list = Lists.newArrayList();
+        List<EquipmentAccessoriesSlot> list = new ArrayList<>();
         for (int i = 0; i <= 8; ++i) {
             list.add(EquipmentAccessoriesSlot.getFromSlotIndex(i));
         }

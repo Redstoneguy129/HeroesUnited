@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.client;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -76,8 +75,8 @@ public class HUClientEventHandler {
 
     public static final KeyBinding ABILITIES_SCREEN = new KeyBinding(HeroesUnited.MODID + ".key.abilities_screen", GLFW.GLFW_KEY_H, "key.categories." + HeroesUnited.MODID);
     public static final KeyBinding ACCESSORIES_SCREEN = new KeyBinding(HeroesUnited.MODID + ".key.accessories_screen", GLFW.GLFW_KEY_J, "key.categories." + HeroesUnited.MODID);
-    public static final List<AbilityKeyBinding> ABILITY_KEYS = Lists.newArrayList();
-    private final ArrayList<LivingRenderer> entitiesWithLayer = Lists.newArrayList();
+    public static final List<AbilityKeyBinding> ABILITY_KEYS = new ArrayList<>();
+    private final ArrayList<LivingRenderer> entitiesWithLayer = new ArrayList<>();
     public static final KeyMap KEY_MAP = new KeyMap();
 
     private static final Map<String, Integer> NAMES_TIMER = Maps.newConcurrentMap();
@@ -122,7 +121,7 @@ public class HUClientEventHandler {
                 if (key == e.getKey() && e.getAction() == GLFW.GLFW_PRESS) {
                     Ability ability = abilities.get(i);
                     if (!ability.alwaysActive(mc.player)) {
-                        if (AbilityHelper.getEnabled(ability.name, mc.player)) {
+                        if (AbilityHelper.isActivated(ability.name, mc.player)) {
                             HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerDisableAbility(ability.name));
                         } else {
                             HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerEnableAbility(ability.name, ability.serializeNBT()));
@@ -260,11 +259,8 @@ public class HUClientEventHandler {
     @SubscribeEvent
     public void onRenderHULayer(HURenderLayerEvent.Accessories event) {
         for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
-            if (ability instanceof HideLayerAbility && ability.getEnabled()) {
-                String layer = JSONUtils.getAsString(ability.getJsonObject(), "layer");
-                if (layer.equals("accessories")) {
-                    event.setCanceled(true);
-                }
+            if (ability instanceof HideLayerAbility && ((HideLayerAbility) ability).layerNameIs("accessories")) {
+                event.setCanceled(true);
             }
         }
     }
@@ -618,7 +614,7 @@ public class HUClientEventHandler {
     }
 
     public static List<Ability> getCurrentDisplayedAbilities(PlayerEntity player) {
-        List<Ability> abilities = Lists.newArrayList(), list = Lists.newArrayList();
+        List<Ability> abilities = new ArrayList<>(), list = new ArrayList<>();
         abilities.addAll(HUAbilityCap.getCap(player).getAbilities().values().stream()
                 .filter(a -> a != null && !a.isHidden(player)
                         && a.getConditionManager().isEnabled(player, "canActivate") && a.getConditionManager().isEnabled(player, "canBeEnabled"))

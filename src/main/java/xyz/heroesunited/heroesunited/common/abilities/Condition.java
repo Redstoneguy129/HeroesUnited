@@ -46,7 +46,7 @@ public class Condition extends ForgeRegistryEntry<Condition> {
 
     public static final Condition HAS_SUPERPOWERS = register("has_superpowers", new Condition((player, e) -> HUPackSuperpowers.hasSuperpowers(player)));
     public static final Condition HAS_SUPERPOWER = register("has_superpower", new Condition((player, e) -> HUPackSuperpowers.hasSuperpower(player, new ResourceLocation(JSONUtils.getAsString(e, "superpower")))));
-    public static final Condition ACTIVATED_ABILITY = register("activated_ability", new Condition((player, e) -> AbilityHelper.getEnabled(JSONUtils.getAsString(e, "ability"), player)));
+    public static final Condition ACTIVATED_ABILITY = register("activated_ability", new Condition((player, e) -> AbilityHelper.isActivated(JSONUtils.getAsString(e, "ability"), player)));
     public static final Condition HAS_LEVEL = register("has_level", new Condition((player, e) -> {
         IHUPlayer hu = HUPlayer.getCap(player);
         if (hu != null) {
@@ -84,11 +84,12 @@ public class Condition extends ForgeRegistryEntry<Condition> {
     }));
 
     public static final Condition HAS_SUIT = register("has_suit", new Condition((player, e) -> {
+        Suit suit = Suit.getSuit(player);
         String suitName = JSONUtils.getAsString(e, "suit", "");
-        if (!StringUtil.isNullOrEmpty(suitName)) {
-            return Suit.getSuit(player).getRegistryName().toString().equals(suitName);
+        if (!StringUtil.isNullOrEmpty(suitName) && suit != null) {
+            return suit.getRegistryName().toString().equals(suitName);
         }
-        return Suit.getSuit(player) != null;
+        return suit != null;
     }));
 
     public static final Condition IS_IN_FLUID = register("is_in_fluid", new Condition((player, e) -> {

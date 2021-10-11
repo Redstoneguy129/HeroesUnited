@@ -64,7 +64,6 @@ import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.hupacks.js.item.IJSItem;
 import xyz.heroesunited.heroesunited.mixin.entity.AccessorLivingEntity;
-import xyz.heroesunited.heroesunited.util.HUOxygenHelper;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 import xyz.heroesunited.heroesunited.util.HUTickrate;
 
@@ -142,7 +141,7 @@ public class HUEventHandler {
     public void livingUpdate(LivingEvent.LivingUpdateEvent event) {
         LivingEntity entity = event.getEntityLiving();
         if (entity != null && entity.isAlive()) {
-            if (!entity.level.isClientSide && !HUOxygenHelper.canBreath(entity)) {
+            if (!entity.level.isClientSide && !HUPlayerUtil.canBreath(entity)) {
                 entity.hurt((new DamageSource("space_drown")).bypassArmor(), 1);
             }
             if (!(entity.level.dimension().equals(World.OVERWORLD) || entity.level.dimension().equals(World.NETHER) || entity.level.dimension().equals(World.END))) {

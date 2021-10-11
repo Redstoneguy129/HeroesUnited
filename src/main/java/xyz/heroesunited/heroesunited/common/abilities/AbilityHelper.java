@@ -1,7 +1,5 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -10,26 +8,21 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.hupacks.HUPackPowers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class AbilityHelper {
 
-    public static boolean getEnabled(String name, PlayerEntity player) {
-        return HUAbilityCap.getCap(player).getActiveAbilities().containsKey(name);
+    public static boolean isActivated(String name, Entity entity) {
+        return getActiveAbilityMap(entity).containsKey(name);
     }
 
-    public static <T extends Ability> T getAnotherAbilityFromMap(List<Ability> abilities, T ability) {
+    public static <T extends Ability> T getAnotherAbilityFromMap(Collection<Ability> abilities, T ability) {
         for (Ability newAbility : abilities) {
             if (newAbility.type.equals(ability.type) && newAbility.name.equals(ability.name)) {
                 return (T) newAbility;
@@ -38,17 +31,8 @@ public class AbilityHelper {
         return ability;
     }
 
-    public static void disable(PlayerEntity player) {
-        player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> ImmutableMap.copyOf(a.getActiveAbilities()).forEach((id, ability) -> {
-            a.disable(id);
-            ability.onDeactivated(player);
-        }));
-    }
-
     public static List<Ability> getAbilities(Entity entity) {
-        List<Ability> list = new ArrayList<>();
-        entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent((f) -> list.addAll(f.getActiveAbilities().values()));
-        return list;
+        return new ArrayList<>(getActiveAbilityMap(entity).values());
     }
 
     public static Map<String, Ability> getActiveAbilityMap(Entity entity) {
@@ -61,12 +45,6 @@ public class AbilityHelper {
         Map<String, Ability> map = Maps.newHashMap();
         entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent((f) -> map.putAll(f.getAbilities()));
         return map;
-    }
-
-    public static void addTheme(ResourceLocation theme) {
-        if (!AbilitiesScreen.themes.contains(theme)) {
-            AbilitiesScreen.themes.add(theme);
-        }
     }
 
     public static void setAttribute(LivingEntity entity, Attribute attribute, UUID uuid, double amount, AttributeModifier.Operation operation) {
@@ -97,7 +75,7 @@ public class AbilityHelper {
     }
 
     public static List<AbilityCreator> parseAbilityCreators(JsonObject jsonObject, ResourceLocation resourceLocation) {
-        List<AbilityCreator> abilityList = Lists.newArrayList();
+        List<AbilityCreator> abilityList = new ArrayList<>();
         if (jsonObject.has("abilities")) {
             abilityList.addAll(parsePowers(JSONUtils.getAsJsonObject(jsonObject, "abilities"), resourceLocation));
         }
@@ -114,7 +92,7 @@ public class AbilityHelper {
     }
 
     public static List<AbilityCreator> parsePowers(JsonObject json, ResourceLocation resourceLocation) {
-        List<AbilityCreator> abilityList = Lists.newArrayList();
+        List<AbilityCreator> abilityList = new ArrayList<>();
         json.entrySet().forEach((e) -> {
             if (e.getValue() instanceof JsonObject) {
                 JsonObject o = (JsonObject) e.getValue();

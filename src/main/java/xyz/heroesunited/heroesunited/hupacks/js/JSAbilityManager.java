@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.hupacks.js;
 
-import com.google.common.collect.Lists;
 import jdk.nashorn.api.scripting.NashornScriptEngine;
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import net.minecraft.entity.player.PlayerEntity;
@@ -15,12 +14,13 @@ import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.JSONAbility;
 
 import javax.script.ScriptException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class JSAbilityManager extends JSReloadListener {
 
-    private final List<AbilityType> types = Lists.newArrayList();
+    private final List<AbilityType> types = new ArrayList<>();
 
     public JSAbilityManager(IEventBus bus) {
         super("huabilities", new NashornScriptEngineFactory());

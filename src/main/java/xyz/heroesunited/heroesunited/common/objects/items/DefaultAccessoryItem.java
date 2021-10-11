@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.common.objects.items;
 
-import com.google.common.collect.Lists;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -18,6 +17,7 @@ import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessori
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DefaultAccessoryItem extends Item implements IAccessory {
@@ -50,7 +50,7 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
 
     @Override
     public List<PlayerPart> getHiddenParts() {
-        List<PlayerPart> parts = Lists.newArrayList();
+        List<PlayerPart> parts = new ArrayList<>();
         if (this == HUItems.FINN_ARM || this == HUItems.MADNESSCLAW) {
             parts.add(PlayerPart.RIGHT_ARM);
             parts.add(PlayerPart.RIGHT_ARM_WEAR);

@@ -1,10 +1,10 @@
 package xyz.heroesunited.heroesunited.client.events;
 
-import com.google.common.collect.Lists;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.event.entity.EntityEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,7 +17,7 @@ public class HUHideLayerEvent extends EntityEvent {
 
     public HUHideLayerEvent(Entity entity) {
         super(entity);
-        this.blockedLayers = Lists.newArrayList();
+        this.blockedLayers = new ArrayList<>();
     }
 
     public void blockLayer(Class<? extends LayerRenderer> layer) {

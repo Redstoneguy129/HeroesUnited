@@ -4,6 +4,7 @@ import net.minecraft.block.AbstractGlassBlock;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -15,23 +16,45 @@ import net.minecraft.particles.IParticleData;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
+import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.common.abilities.Ability;
+import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
+import xyz.heroesunited.heroesunited.common.abilities.OxygenAbility;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
+import xyz.heroesunited.heroesunited.common.space.Planet;
 
 public class HUPlayerUtil {
 
-    public static void sendMessage(PlayerEntity player, ITextComponent text) {
-        player.sendMessage(text, player.getUUID());
-    }
+    public static boolean canBreath(LivingEntity entity){
+        boolean canBreath = !entity.level.dimension().equals(HeroesUnited.SPACE);
+        if(Planet.PLANETS_MAP.containsKey(entity.level.dimension())){
+            Planet planet = Planet.PLANETS_MAP.get(entity.level.dimension());
+            canBreath = planet.hasOxygen();
+        }
 
-    public static void sendStatusMessage(PlayerEntity player, ITextComponent text, boolean showInActionbar) {
-        if (player.level.isClientSide) player.displayClientMessage(text, showInActionbar);
+        if (entity instanceof PlayerEntity) {
+            for (Ability ability : AbilityHelper.getAbilities(entity)) {
+                if (ability instanceof OxygenAbility) {
+                    if (!canBreath) {
+                        canBreath = ability.getEnabled();
+                        break;
+                    }
+                }
+            }
+        }
+
+        Suit suit = Suit.getSuit(entity);
+        if (suit != null && !canBreath){
+            canBreath = suit.canBreathOnSpace();
+        }
+
+        return canBreath;
     }
 
     public static void playSoundToAll(World world, Vector3d vec, double range, SoundEvent sound, SoundCategory category, float volume, float pitch) {
         for (PlayerEntity player : world.getEntitiesOfClass(PlayerEntity.class, getCollisionBoxWithRange(vec, range))) {
-            if (player instanceof ServerPlayerEntity) {
+            if (player instanceof ServerPlayerEntity && sound.getRegistryName() != null) {
                 ((ServerPlayerEntity) player).connection.send(new SPlaySoundPacket(sound.getRegistryName(), category, new Vector3d(vec.x, vec.y, vec.z), volume, pitch));
             }
         }
@@ -91,7 +114,7 @@ public class HUPlayerUtil {
             BlockPos bpos = new BlockPos(pos);
             boolean block = !player.level.getBlockState(bpos).canOcclude() && player.level.getBlockState(bpos).getBlock() instanceof AbstractGlassBlock;
             if ((player.level.getBlockState(bpos).canOcclude() && !player.level.isEmptyBlock(bpos)) || block) {
-                return new BlockRayTraceResult(pos, null, bpos, false);
+                return new BlockRayTraceResult(pos, Direction.UP, bpos, false);
             } else {
                 Vector3d min = pos.add(0.25F, 0.25F, 0.25F);
                 Vector3d max = pos.add(-0.25F, -0.25F, -0.25F);

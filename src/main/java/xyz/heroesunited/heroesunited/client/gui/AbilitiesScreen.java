@@ -32,6 +32,7 @@ import xyz.heroesunited.heroesunited.common.networking.server.ServerSetTheme;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,10 +77,9 @@ public class AbilitiesScreen extends Screen {
     }
 
     public static List<Ability> getCurrentDisplayedAbilities(PlayerEntity player) {
-        List<Ability> abilities = Lists.newArrayList(), list = Lists.newArrayList();
-        abilities.addAll(HUAbilityCap.getCap(player).getAbilities().values().stream()
-                .filter(a -> a != null && !a.isHidden(player))
-                .collect(Collectors.toList()));
+        List<Ability> abilities, list = new ArrayList<>();
+        abilities = HUAbilityCap.getCap(player).getAbilities().values().stream()
+                .filter(a -> a != null && !a.isHidden(player)).collect(Collectors.toList());
 
         if (abilities.isEmpty()) {
             return list;
@@ -204,7 +204,7 @@ public class AbilitiesScreen extends Screen {
 
         private final AbilitiesScreen parent;
         private final Ability ability;
-        private List<String> abilityDescription = Lists.newArrayList();
+        private List<String> abilityDescription = new ArrayList<>();
         private int descWidth, descHeight;
 
         public AbilityButton(int x, int y, int id, AbilitiesScreen screen, Ability ability) {
@@ -218,7 +218,7 @@ public class AbilitiesScreen extends Screen {
         public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
             Minecraft mc = Minecraft.getInstance();
             boolean hovered = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
-            Color color = AbilityHelper.getEnabled(this.ability.name, mc.player) ? hovered ? Color.ORANGE : Color.YELLOW :
+            Color color = AbilityHelper.isActivated(this.ability.name, mc.player) ? hovered ? Color.ORANGE : Color.YELLOW :
                     hovered ? ability.canActivate(mc.player) ? Color.GREEN : Color.RED : Color.WHITE;
             Tessellator tessellator = Tessellator.getInstance();
             BufferBuilder builder = tessellator.getBuilder();
@@ -242,7 +242,7 @@ public class AbilitiesScreen extends Screen {
         private static void onPressed(Button button) {
             AbilityButton btn = (AbilityButton) button;
             if (!btn.ability.alwaysActive(btn.parent.minecraft.player)) {
-                if (AbilityHelper.getEnabled(btn.ability.name, btn.parent.minecraft.player)) {
+                if (AbilityHelper.isActivated(btn.ability.name, btn.parent.minecraft.player)) {
                     HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerDisableAbility(btn.ability.name));
                 } else {
                     HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerEnableAbility(btn.ability.name, btn.ability.serializeNBT()));

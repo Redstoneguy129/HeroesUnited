@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.common.abilities.suit;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -27,6 +26,7 @@ import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessori
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -140,7 +140,7 @@ public class JsonSuit extends Suit {
 
     @Override
     public List<EquipmentAccessoriesSlot> getSlotForHide(EquipmentSlotType slot) {
-        List<EquipmentAccessoriesSlot> list = Lists.newArrayList();
+        List<EquipmentAccessoriesSlot> list = new ArrayList<>();
         if (jsonObject.has("hide_accessories")) {
             JsonObject jsonObject = JSONUtils.getAsJsonObject(this.jsonObject, "hide_accessories");
             for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {

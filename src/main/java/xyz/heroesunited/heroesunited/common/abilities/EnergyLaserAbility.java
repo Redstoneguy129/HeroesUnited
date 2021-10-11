@@ -28,7 +28,7 @@ public class EnergyLaserAbility extends JSONAbility {
     public void action(PlayerEntity player) {
         super.action(player);
         if (getEnabled()) {
-            HUPlayerUtil.makeLaserLooking(player, JSONUtils.getAsFloat(getJsonObject(), "distance", 20), JSONUtils.getAsFloat(getJsonObject(), "strength", 1));
+            HUPlayerUtil.makeLaserLooking(player, JSONUtils.getAsFloat(getJsonObject(), "distance", 20), JSONUtils.getAsFloat(getJsonObject(), "distance", 1));
         }
     }
 

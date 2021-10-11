@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.hupacks.js;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import jdk.nashorn.api.scripting.NashornScriptEngine;
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
@@ -14,16 +13,13 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.hupacks.js.item.*;
 
 import javax.script.Invocable;
-import java.util.AbstractMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 
 public class JSItemManager extends JSReloadListener {
 
     private static final Map<ResourceLocation, Function<Map.Entry<JSItemProperties, NashornScriptEngine>, Item>> types = Maps.newHashMap();
-    private final List<Item> items = Lists.newArrayList();
+    private final List<Item> items = new ArrayList<>();
 
     public JSItemManager(IEventBus bus) {
         super("huitems", new NashornScriptEngineFactory());

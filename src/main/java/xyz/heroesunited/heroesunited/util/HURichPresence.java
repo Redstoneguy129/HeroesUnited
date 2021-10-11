@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.util;
 
-import com.google.common.collect.Lists;
 import net.arikia.dev.drpc.DiscordEventHandlers;
 import net.arikia.dev.drpc.DiscordRPC;
 import net.arikia.dev.drpc.DiscordRichPresence;
@@ -16,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @OnlyIn(Dist.CLIENT)
 public class HURichPresence {
 
-    private static HURichPresence RPC = new HURichPresence("778269026874163230");
+    private static final HURichPresence RPC = new HURichPresence("778269026874163230");
     private static boolean hiddenRPC = false;
 
     public static HURichPresence getPresence() {
@@ -32,7 +32,7 @@ public class HURichPresence {
     }
 
     private final Random random = new Random();
-    private List<String> list = Lists.newArrayList();
+    private final List<String> list = new ArrayList<>();
 
     public HURichPresence(String clientID) {
         this.list.addAll(getListFromTXT(new ResourceLocation(HeroesUnited.MODID, "splash.txt")));

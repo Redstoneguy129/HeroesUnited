@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.util;
 
-import com.google.common.collect.Lists;
 import com.google.gson.*;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.item.*;
@@ -15,13 +14,14 @@ import net.minecraftforge.registries.ForgeRegistries;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
 public class HUJsonUtils {
-    private static Map<String, IArmorMaterial> ARMOR_MATERIALS = new HashMap<>();
+    private static final Map<String, IArmorMaterial> ARMOR_MATERIALS = new HashMap<>();
 
     static {
         for (ArmorMaterial armorMaterial : ArmorMaterial.values()) {
@@ -44,7 +44,7 @@ public class HUJsonUtils {
     }
 
     public static List<ITextComponent> parseDescriptionLines(JsonElement jsonElement) {
-        List<ITextComponent> lines = Lists.newArrayList();
+        List<ITextComponent> lines = new ArrayList<>();
 
         if (jsonElement.isJsonArray()) {
             JsonArray jsonArray = jsonElement.getAsJsonArray();
@@ -70,15 +70,14 @@ public class HUJsonUtils {
 
     private static ItemGroup getItemGroup(JsonElement json, String memberName) {
         if (json.isJsonPrimitive()) {
-            String name = json.getAsString();
             for (ItemGroup itemGroup : ItemGroup.TABS) {
-                if (name.equalsIgnoreCase(itemGroup.getRecipeFolderName().toLowerCase())) {
+                if (json.getAsString().equalsIgnoreCase(itemGroup.getRecipeFolderName().toLowerCase())) {
                     return itemGroup;
                 }
             }
             return null;
         } else {
-            throw new JsonSyntaxException("Expected " + memberName + " to be an item, was " + json.toString());
+            throw new JsonSyntaxException("Expected " + memberName + " to be an item, was " + json);
         }
     }
 
@@ -86,9 +85,8 @@ public class HUJsonUtils {
         return ARMOR_MATERIALS.get(name.toLowerCase());
     }
 
-    public static IArmorMaterial addArmorMaterial(String name, IArmorMaterial armorMaterial) {
+    public static void addArmorMaterial(String name, IArmorMaterial armorMaterial) {
         ARMOR_MATERIALS.put(name.toLowerCase(), armorMaterial);
-        return armorMaterial;
     }
 
     public static IArmorMaterial parseArmorMaterial(JsonObject json, boolean requireName) {
@@ -104,16 +102,8 @@ public class HUJsonUtils {
         return new HUArmorMaterial(name, JSONUtils.getAsInt(json, "max_damage_factor", 0), damageReductionAmountArray, JSONUtils.getAsInt(json, "enchantibility", 0), soundEvent, JSONUtils.getAsFloat(json, "toughness", 0), JSONUtils.getAsFloat(json, "knockback_resistance", 0), repairMaterial);
     }
 
-    public static Suit getSuit(String modid, String name) {
-        return Suit.SUITS.get(new ResourceLocation(modid, name));
-    }
-
     public static Suit getSuit(ResourceLocation location) {
         return Suit.SUITS.get(location);
-    }
-
-    public static ResourceLocation getAsResourceLocation(JsonObject jsonObject, String string) {
-        return new ResourceLocation(JSONUtils.getAsString(jsonObject, string));
     }
 
     public static int getIndexOfItem(Item item, NonNullList<ItemStack> items) {

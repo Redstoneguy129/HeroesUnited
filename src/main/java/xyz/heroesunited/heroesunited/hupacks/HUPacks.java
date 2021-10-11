@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.*;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Unit;
 import net.minecraft.util.Util;
 import net.minecraftforge.api.distmarker.Dist;
@@ -22,7 +23,7 @@ import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.minecraftforge.forgespi.language.IModInfo;
 import org.apache.commons.io.FileUtils;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
+import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.hupacks.js.JSAbilityManager;
 import xyz.heroesunited.heroesunited.hupacks.js.JSItemManager;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
@@ -153,7 +154,10 @@ public class HUPacks {
                 e.printStackTrace();
             }
             for (File file : resultList) {
-                AbilityHelper.addTheme(HUClientUtil.fileToTexture(file));
+                ResourceLocation theme = HUClientUtil.fileToTexture(file);
+                if (!AbilitiesScreen.themes.contains(theme)) {
+                    AbilitiesScreen.themes.add(theme);
+                }
             }
         }
     }
