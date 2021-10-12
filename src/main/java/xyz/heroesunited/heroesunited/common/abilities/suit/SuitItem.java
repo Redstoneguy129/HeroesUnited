@@ -90,10 +90,9 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     }
 
     @Override
-    public void onArmorTick(ItemStack item, World world, PlayerEntity player) {
+    public void onArmorTick(ItemStack stack, World world, PlayerEntity player) {
         if (!getSuit().canEquip(player)) {
-            ItemStack stack = player.getItemBySlot(slot);
-            player.inventory.add(stack);
+            player.inventory.add(player.getItemBySlot(slot));
             player.setItemSlot(slot, ItemStack.EMPTY);
         }
     }
@@ -124,8 +123,14 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
             GeoArmorRenderer geo = getArmorRenderer();
             GeoModel model = geo.getGeoModelProvider().getModel(geo.getGeoModelProvider().getModelLocation(this));
 
-            geo.setCurrentItem(player, stack, stack.getEquipmentSlot());
-            geo.applyEntityStats(renderer.getModel());
+            geo.setCurrentItem(player, stack, getSlot());
+            geo.applySlot(getSlot());
+            geo.getGeoModelProvider().setLivingAnimations(this, geo.getUniqueID(this), new AnimationEvent<>(this, 0, 0, 0, false, Arrays.asList(stack, player, slot)));
+            if (renderer != null) {
+                geo.applyEntityStats(renderer.getModel());
+            } else {
+                return;
+            }
             if (model.topLevelBones.isEmpty())
                 throw new GeckoLibException(getRegistryName(), "Model doesn't have any parts");
             GeoBone bone = model.getBone(side == HandSide.LEFT ? geo.leftArmBone : geo.rightArmBone).get();
@@ -135,23 +140,32 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
             matrix.pushPose();
             matrix.translate(0.0D, 1.5F, 0.0D);
             matrix.scale(-1.0F, -1.0F, 1.0F);
-            geo.getGeoModelProvider().setLivingAnimations(this, geo.getUniqueID(this), new AnimationEvent<>(this, 0, 0, 0, false, Arrays.asList(stack, player, slot)));
 
             ModelRenderer modelRenderer = side == HandSide.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
             GeoUtils.copyRotations(modelRenderer, bone);
             bone.setPositionX(side == HandSide.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
             bone.setPositionY(2 - modelRenderer.y);
             bone.setPositionZ(modelRenderer.z);
-            bone.setHidden(false);
 
             if (bone.childBones.isEmpty() && bone.childCubes.isEmpty())
                 throw new GeckoLibException(getRegistryName(), "Bone doesn't have any parts");
+
+            for (GeoBone o : model.topLevelBones) {
+                if (o != bone) {
+                    o.setHidden(true);
+                }
+            }
 
             matrix.pushPose();
             Minecraft.getInstance().textureManager.bind(geo.getTextureLocation(this));
             IVertexBuilder builder = bufferIn.getBuffer(RenderType.entityTranslucent(geo.getTextureLocation(this)));
             Color renderColor = geo.getRenderColor(this, 0, matrix, null, builder, packedLightIn);
-            geo.renderRecursively(bone, matrix, builder, packedLightIn, OverlayTexture.NO_OVERLAY, (float) renderColor.getRed() / 255f, (float) renderColor.getGreen() / 255f, (float) renderColor.getBlue() / 255f, (float) renderColor.getAlpha() / 255);
+
+            geo.render(model, stack.getItem(), Minecraft.getInstance().getFrameTime(), RenderType.entityTranslucent(geo.getTextureLocation(this)), matrix, bufferIn, builder, packedLightIn,
+                    OverlayTexture.NO_OVERLAY, (float) renderColor.getRed() / 255f, (float) renderColor.getGreen() / 255f,
+                    (float) renderColor.getBlue() / 255f, (float) renderColor.getAlpha() / 255);
+
+
             matrix.popPose();
             matrix.scale(-1.0F, -1.0F, 1.0F);
             matrix.translate(0.0D, -1.5F, 0.0D);
@@ -159,6 +173,10 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
         } catch (GeckoLibException | IllegalArgumentException e) {
             getSuit().renderFirstPersonArm(renderer, matrix, bufferIn, packedLightIn, player, side, stack, this);
         }
+    }
+
+    public boolean renderWithoutArm() {
+        return false;
     }
 
     @Nonnull

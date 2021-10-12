@@ -52,6 +52,7 @@ import xyz.heroesunited.heroesunited.client.render.HULayerRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.space.CelestialBodyRenderer;
 import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
+import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
@@ -511,6 +512,18 @@ public class HUClientEventHandler {
                             event.getMatrixStack().popPose();
                         }
                         return;
+                    }
+                }
+            }
+        }
+
+        for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
+            ItemStack stack = player.getItemBySlot(equipmentSlot);
+            if (stack.getItem() instanceof SuitItem) {
+                SuitItem suitItem = (SuitItem) stack.getItem();
+                if (suitItem.getSlot().equals(equipmentSlot)) {
+                    if (suitItem.renderWithoutArm()) {
+                        suitItem.renderFirstPersonArm(null, event.getMatrixStack(), event.getBuffers(), event.getLight(), player, player.getMainArm(), stack);
                     }
                 }
             }

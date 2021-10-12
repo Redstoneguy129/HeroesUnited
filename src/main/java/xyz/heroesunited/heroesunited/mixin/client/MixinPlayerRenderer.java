@@ -90,7 +90,7 @@ public abstract class MixinPlayerRenderer {
                         }
                         if (shouldRender) {
                             if (accessoire.renderDefaultModel()) {
-                                ModelSuit suitModel = new ModelSuit(accessoire.getScale(stack), HUPlayerUtil.haveSmallArms(player));
+                                ModelSuit<AbstractClientPlayerEntity> suitModel = new ModelSuit<>(accessoire.getScale(stack), HUPlayerUtil.haveSmallArms(player));
                                 suitModel.copyPropertiesFrom(playerRenderer.getModel());
                                 suitModel.renderArm(side, matrixStackIn, bufferIn.getBuffer(RenderType.entityTranslucent(accessoire.getTexture(stack, player, EquipmentAccessoriesSlot.getFromSlotIndex(slot)))), combinedLightIn, player);
                             } else {
