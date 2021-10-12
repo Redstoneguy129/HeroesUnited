@@ -4,13 +4,14 @@ import com.google.gson.JsonObject;
 
 public class AbilityCreator {
 
-    private String key;
-    private AbilityType abilityType;
-    private JsonObject jsonObject;
+    private final String key;
+    private final AbilityType abilityType;
+    private final JsonObject jsonObject;
 
-    public AbilityCreator(String key, AbilityType abilityType) {
+    public AbilityCreator(String key, AbilityType abilityType, JsonObject jsonObject) {
         this.key = key;
         this.abilityType = abilityType;
+        this.jsonObject = jsonObject;
     }
 
     public String getKey() {
@@ -19,11 +20,6 @@ public class AbilityCreator {
 
     public AbilityType getAbilityType() {
         return abilityType;
-    }
-
-    public AbilityCreator setJsonObject(JsonObject jsonObject) {
-        this.jsonObject = jsonObject;
-        return this;
     }
 
     public JsonObject getJsonObject() {

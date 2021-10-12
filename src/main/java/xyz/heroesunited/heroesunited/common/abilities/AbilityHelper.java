@@ -98,9 +98,10 @@ public class AbilityHelper {
                 JsonObject o = (JsonObject) e.getValue();
                 AbilityType ability = AbilityType.ABILITIES.get().getValue(new ResourceLocation(JSONUtils.getAsString(o, "ability")));
                 if (ability != null) {
-                    abilityList.add(new AbilityCreator(e.getKey(), ability).setJsonObject(o));
-                } else
+                    abilityList.add(new AbilityCreator(e.getKey(), ability, o));
+                } else {
                     HeroesUnited.LOGGER.error("Couldn't read ability {} in {}", JSONUtils.getAsString(o, "ability"), resourceLocation);
+                }
             }
         });
         return abilityList;
