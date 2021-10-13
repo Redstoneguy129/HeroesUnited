@@ -61,7 +61,7 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends BipedMo
             matrixStackIn.pushPose();
             Minecraft.getInstance().textureManager.bind(this.getTextureLocation(this.currentAbility));
             RenderType renderType = this.getRenderType(this.currentAbility, 0, matrixStackIn, null, bufferIn, packedLightIn, this.getTextureLocation(this.currentAbility));
-            this.render(model, this.currentAbility, 0, renderType, matrixStackIn, null, bufferIn, packedLightIn, OverlayTexture.NO_OVERLAY, red, green, blue, alpha);
+            this.render(model, this.currentAbility, 0, renderType, matrixStackIn, null, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
             matrixStackIn.popPose();
             matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
             matrixStackIn.translate(0.0D, -1.5D, 0.0D);
@@ -133,10 +133,10 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends BipedMo
     }
 
     public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer buffer, int packedLightIn, HandSide side) {
-        this.renderFirstPersonArm(renderer, matrix, buffer.getBuffer(RenderType.entityTranslucent(getTextureLocation(currentAbility))), packedLightIn, side, 1f, 1f, 1f, 1f);
+        this.renderFirstPersonArm(renderer, matrix, buffer.getBuffer(RenderType.entityTranslucent(getTextureLocation(currentAbility))), packedLightIn, OverlayTexture.NO_OVERLAY, side, 1f, 1f, 1f, 1f);
     }
 
-    public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IVertexBuilder builder, int packedLightIn, HandSide side, float red, float green, float blue, float alpha) {
+    public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IVertexBuilder builder, int packedLightIn, int packedOverlayIn, HandSide side, float red, float green, float blue, float alpha) {
         GeoModel model = modelProvider.getModel(modelProvider.getModelLocation(currentAbility));
         AnimationEvent abilityEvent = new AnimationEvent(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.player));
         modelProvider.setLivingAnimations(currentAbility, this.getUniqueID(this.currentAbility), abilityEvent);
@@ -162,7 +162,7 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends BipedMo
 
         matrix.pushPose();
         Minecraft.getInstance().textureManager.bind(this.getTextureLocation(this.currentAbility));
-        this.renderRecursively(bone.get(), matrix, builder, packedLightIn, OverlayTexture.NO_OVERLAY, red, green, blue, alpha);
+        this.renderRecursively(bone.get(), matrix, builder, packedLightIn, packedOverlayIn, red, green, blue, alpha);
         matrix.popPose();
         matrix.scale(-1.0F, -1.0F, 1.0F);
         matrix.translate(0.0D, -1.5F, 0.0D);
