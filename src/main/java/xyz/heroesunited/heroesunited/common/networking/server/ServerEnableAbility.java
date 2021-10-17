@@ -43,7 +43,6 @@ public class ServerEnableAbility {
                             ability.setJsonObject(player, new JsonParser().parse(this.data.getString("JsonObject")).getAsJsonObject());
                         if (ability.canActivate(player)) {
                             cap.enable(this.id, ability);
-                            cap.sync();
                         }
                     }
                 });
