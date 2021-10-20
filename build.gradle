@@ -104,7 +104,7 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:$project.minecraft_version-$project.forge_version"
-    //annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
+    annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
     implementation fg.deobf('curse.maven:obfuscate-289380:3148131')
 

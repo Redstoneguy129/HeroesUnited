@@ -14,7 +14,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
+import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 
 import javax.annotation.Nonnull;
@@ -31,18 +33,19 @@ public class AccessoriesContainer extends Container {
 
     public AccessoriesContainer(int id, PlayerInventory playerInventory, AccessoriesInventory inventory) {
         super(HUContainers.ACCESSORIES, id);
+        PlayerEntity player = playerInventory.player;
 
         for (int i = 0; i < 10; ++i) {
             if (i == EquipmentAccessoriesSlot.BACKPACK.getSlot()) {
-                this.addSlot(new AccessorySlot(inventory, i, 153, 8));
+                this.addSlot(new AccessorySlot(inventory, player, i, 153, 8));
             } else if (i == EquipmentAccessoriesSlot.GLOVES.getSlot()) {
-                this.addSlot(new AccessorySlot(inventory, i, 77, 44));
+                this.addSlot(new AccessorySlot(inventory, player, i, 77, 44));
             } else if (i == EquipmentAccessoriesSlot.RIGHT_WRIST.getSlot()) {
-                this.addSlot(new AccessorySlot(inventory, i, 126, 44));
+                this.addSlot(new AccessorySlot(inventory, player, i, 126, 44));
             } else if (i == EquipmentAccessoriesSlot.LEFT_WRIST.getSlot()) {
-                this.addSlot(new AccessorySlot(inventory, i, 126, 62));
+                this.addSlot(new AccessorySlot(inventory, player, i, 126, 62));
             } else {
-                this.addSlot(new AccessorySlot(inventory, i, i > 3 ? 126 : 99, 8 + (i > 3 ? (i - 4) : i)));
+                this.addSlot(new AccessorySlot(inventory, player, i, i > 3 ? 126 : 99, 8 + (i > 3 ? (i - 4) : i) * 18));
             }
         }
 
@@ -56,7 +59,7 @@ public class AccessoriesContainer extends Container {
 
                 @Override
                 public boolean mayPlace(ItemStack stack) {
-                    return stack.canEquip(type, playerInventory.player);
+                    return stack.canEquip(type, player);
                 }
 
                 @Override
@@ -166,9 +169,11 @@ public class AccessoriesContainer extends Container {
     public static class AccessorySlot extends Slot {
 
         protected final EquipmentAccessoriesSlot accessoriesSlot;
+        protected final PlayerEntity player;
 
-        public AccessorySlot(IInventory inventoryIn, int index, int xPosition, int yPosition) {
+        public AccessorySlot(IInventory inventoryIn, PlayerEntity player, int index, int xPosition, int yPosition) {
             super(inventoryIn, index, xPosition, yPosition);
+            this.player = player;
             this.accessoriesSlot = EquipmentAccessoriesSlot.getFromSlotIndex(index);
         }
 
@@ -180,17 +185,30 @@ public class AccessoriesContainer extends Container {
         @Override
         public boolean mayPickup(PlayerEntity playerIn) {
             ItemStack stack = this.getItem();
-            return stack.getItem() instanceof IAccessory && ((IAccessory) stack.getItem()).canTakeStack(playerIn, stack) && super.mayPickup(playerIn);
+            if (stack.getItem() instanceof IAccessory && ((IAccessory) stack.getItem()).canTakeStack(playerIn, stack) && super.mayPickup(playerIn)) {
+                player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
+                    if (stack.getItem() instanceof IAbilityProvider) {
+                        IAbilityProvider accessory = (IAbilityProvider) stack.getItem();
+                        cap.clearAbilities((a) -> accessory.getAbilities(player).containsKey(a.name) && a.getAdditionalData().getString("Item")
+                                .equals(accessory.getAbilities(player).get(a.name).getAdditionalData().getString("Item")));
+                    }
+                });
+                return true;
+            }
+            return false;
         }
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            if (stack.getItem() instanceof IAccessory) {
-                if (EquipmentAccessoriesSlot.getWristAccessories().contains(accessoriesSlot) &&
-                        ((IAccessory) stack.getItem()).getSlot() == EquipmentAccessoriesSlot.WRIST) {
-                    return super.mayPlace(stack);
+            if (stack.getItem() instanceof IAccessory && super.mayPlace(stack)) {
+                if ((EquipmentAccessoriesSlot.getWristAccessories().contains(accessoriesSlot) && ((IAccessory) stack.getItem()).getSlot() == EquipmentAccessoriesSlot.WRIST) || ((IAccessory) stack.getItem()).getSlot() == accessoriesSlot) {
+                    player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
+                        if (stack.getItem() instanceof IAbilityProvider) {
+                            cap.addAbilities((IAbilityProvider) stack.getItem());
+                        }
+                    });
+                    return true;
                 }
-                return ((IAccessory) stack.getItem()).getSlot() == accessoriesSlot && super.mayPlace(stack);
             }
             return false;
         }

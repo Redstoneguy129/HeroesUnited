@@ -67,7 +67,7 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
                 ItemCameraTransforms.TransformType transformType = side == HandSide.LEFT ? ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND : ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
                 matrix.pushPose();
                 renderer.getModel().translateToHand(side, matrix);
-                if (this.name.equals("Gillygogs")) {
+                if (stack.getItem() == HUItems.SMALLGILLY) {
                     matrix.mulPose(Vector3f.YP.rotationDegrees(180.0F));
                     matrix.scale(0.625F, -0.625F, -0.625F);
                     matrix.translate(side == HandSide.LEFT ? -0.6 : -0.4, -0.35D, -0.625D);

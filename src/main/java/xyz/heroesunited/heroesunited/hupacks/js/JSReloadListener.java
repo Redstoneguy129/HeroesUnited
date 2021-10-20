@@ -4,12 +4,10 @@ import com.google.common.collect.Maps;
 import jdk.nashorn.api.scripting.NashornScriptEngine;
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import net.minecraft.client.resources.ReloadListener;
-import net.minecraft.profiler.EmptyProfiler;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 
 import javax.script.ScriptException;
 import java.io.*;
@@ -23,10 +21,6 @@ public abstract class JSReloadListener extends ReloadListener<Map<ResourceLocati
     public JSReloadListener(String directory, NashornScriptEngineFactory manager) {
         this.manager = manager;
         this.directory = directory;
-    }
-
-    public static <T extends JSReloadListener> void init(T manager) {
-        manager.apply(manager.prepare(HUPacks.getInstance().getResourceManager(), EmptyProfiler.INSTANCE), HUPacks.getInstance().getResourceManager(), EmptyProfiler.INSTANCE);
     }
 
     @Override

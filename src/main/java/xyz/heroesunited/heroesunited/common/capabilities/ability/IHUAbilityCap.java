@@ -6,9 +6,9 @@ import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
 import xyz.heroesunited.heroesunited.common.abilities.KeyMap;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public interface IHUAbilityCap extends INBTSerializable<CompoundNBT> {
 
@@ -36,7 +36,7 @@ public interface IHUAbilityCap extends INBTSerializable<CompoundNBT> {
     void addAbilities(IAbilityProvider provider);
 
     default void clearAbilities(Predicate<Ability> predicate) {
-        for (Ability a : getAbilities().values().stream().collect(Collectors.toList())) {
+        for (Ability a : new ArrayList<>(getAbilities().values())) {
             if (predicate.test(a)) {
                 removeAbility(a.name);
             }
@@ -44,7 +44,7 @@ public interface IHUAbilityCap extends INBTSerializable<CompoundNBT> {
     }
 
     default void clearAbilities() {
-        for (Ability a : getAbilities().values().stream().collect(Collectors.toList())) {
+        for (Ability a : new ArrayList<>(getAbilities().values())) {
             removeAbility(a.name);
         }
     }

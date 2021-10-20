@@ -9,7 +9,6 @@ import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.*;
 import net.minecraft.util.math.shapes.VoxelShapes;
@@ -34,11 +33,6 @@ import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.PacketDistributor;
-import software.bernie.geckolib3.core.AnimationState;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.network.GeckoLibNetwork;
-import software.bernie.geckolib3.util.GeckoLibUtil;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
@@ -54,9 +48,6 @@ import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncCelestia
 import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
 import xyz.heroesunited.heroesunited.common.objects.HUSounds;
 import xyz.heroesunited.heroesunited.common.objects.blocks.HUBlocks;
-import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
-import xyz.heroesunited.heroesunited.common.objects.items.BoBoAccessory;
-import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.common.space.Planet;
 import xyz.heroesunited.heroesunited.hupacks.HUPackPowers;
@@ -236,17 +227,6 @@ public class HUEventHandler {
                             a.getInventory().getItems().get(i).inventoryTick(pl.level, pl, i, false);
                         }
                     }
-                    ItemStack stack = a.getInventory().getItem(EquipmentAccessoriesSlot.HELMET.getSlot());
-                    if (!stack.isEmpty() && stack.getItem() == HUItems.BOBO_ACCESSORY && !pl.level.isClientSide) {
-                        BoBoAccessory accessory = ((BoBoAccessory) stack.getItem());
-                        final int id = GeckoLibUtil.guaranteeIDForStack(stack, (ServerWorld) pl.level);
-                        AnimationController controller = GeckoLibUtil.getControllerForID(accessory.getFactory(), id, "controller");
-                        final PacketDistributor.PacketTarget target = PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> pl);
-                        if (controller.getAnimationState() == AnimationState.Stopped) {
-                            GeckoLibNetwork.syncAnimation(target, accessory, id, 0);
-                        }
-                    }
-
                     for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
                         if (Suit.getSuitItem(equipmentSlot, pl) != null) {
                             Suit.getSuitItem(equipmentSlot, pl).getSuit().onUpdate(pl, equipmentSlot);
@@ -305,7 +285,7 @@ public class HUEventHandler {
         AtomicBoolean collidable = new AtomicBoolean(true);
         if (entity instanceof PlayerEntity) {
             entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                if (cap != null && cap.isIntangible()) {
+                if (cap.isIntangible()) {
                     if (event.getState().getShape(event.getWorld(), event.getPos()) != VoxelShapes.empty()) {
                         if (entity.position().y >= (event.getPos().getY() + event.getState().getShape(event.getWorld(), event.getPos()).bounds().getYsize())) {
                             IFlyingAbility b = IFlyingAbility.getFlyingAbility((PlayerEntity) entity);
@@ -368,14 +348,8 @@ public class HUEventHandler {
                 }
                 if (event.getFrom().getItem() instanceof IJSItem && !cap.getAbilities().isEmpty()) {
                     IJSItem item = (IJSItem) event.getFrom().getItem();
-                    for (Ability a : AbilityHelper.getAbilityMap(player).values()) {
-                        if (item.getAbilities(player).containsKey(a.name)) {
-                            CompoundNBT suit = item.getAbilities(player).get(a.name).getAdditionalData();
-                            if (a.getAdditionalData().equals(suit)) {
-                                cap.removeAbility(a.name);
-                            }
-                        }
-                    }
+                    cap.clearAbilities((a) -> item.getAbilities(player).containsKey(a.name) && a.getAdditionalData().getString("Item")
+                            .equals(item.getAbilities(player).get(a.name).getAdditionalData().getString("Item")));
                 }
                 if (event.getTo().getItem() instanceof IJSItem) {
                     IJSItem item = (IJSItem) event.getTo().getItem();
