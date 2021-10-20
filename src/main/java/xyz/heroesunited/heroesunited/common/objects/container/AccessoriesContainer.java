@@ -17,6 +17,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class AccessoriesContainer extends Container {
@@ -31,17 +32,19 @@ public class AccessoriesContainer extends Container {
     public AccessoriesContainer(int id, PlayerInventory playerInventory, AccessoriesInventory inventory) {
         super(HUContainers.ACCESSORIES, id);
 
-        for (int i = 0; i < 8; ++i) {
-            if (i == EquipmentAccessoriesSlot.RIGHT_WRIST.getSlot()) {
-                this.addSlot(new WristSlot(inventory, i, 141, 8 + (i - 4) * 18, EquipmentAccessoriesSlot.RIGHT_WRIST));
-            } else if(i == EquipmentAccessoriesSlot.LEFT_WRIST.getSlot()) {
-                this.addSlot(new WristSlot(inventory, i, 141, 8 + (i - 4) * 18, EquipmentAccessoriesSlot.LEFT_WRIST));
+        for (int i = 0; i < 10; ++i) {
+            if (i == EquipmentAccessoriesSlot.BACKPACK.getSlot()) {
+                this.addSlot(new AccessorySlot(inventory, i, 153, 8));
+            } else if (i == EquipmentAccessoriesSlot.GLOVES.getSlot()) {
+                this.addSlot(new AccessorySlot(inventory, i, 77, 44));
+            } else if (i == EquipmentAccessoriesSlot.RIGHT_WRIST.getSlot()) {
+                this.addSlot(new AccessorySlot(inventory, i, 126, 44));
+            } else if (i == EquipmentAccessoriesSlot.LEFT_WRIST.getSlot()) {
+                this.addSlot(new AccessorySlot(inventory, i, 126, 62));
             } else {
-                this.addSlot(new AccessorySlot(inventory, i, i > 3 ? 141 : 109, i > 3 ? 8 + (i - 4) * 18 : 8 + i * 18));
+                this.addSlot(new AccessorySlot(inventory, i, i > 3 ? 126 : 99, 8 + (i > 3 ? (i - 4) : i)));
             }
         }
-
-        this.addSlot(new AccessorySlot(inventory, 8, 77, 44));
 
         for (int k = 0; k < 4; ++k) {
             final EquipmentSlotType type = VALID_EQUIPMENT_SLOTS[k];
@@ -88,9 +91,9 @@ public class AccessoriesContainer extends Container {
     }
 
 
-    @Nullable
+    @Nonnull
     @Override
-    public ItemStack quickMoveStack(PlayerEntity player, int index) {
+    public ItemStack quickMoveStack(@Nullable PlayerEntity player, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
         if (slot != null && slot.hasItem()) {
@@ -160,7 +163,7 @@ public class AccessoriesContainer extends Container {
         return true;
     }
 
-    public class AccessorySlot extends Slot {
+    public static class AccessorySlot extends Slot {
 
         protected final EquipmentAccessoriesSlot accessoriesSlot;
 
@@ -182,22 +185,14 @@ public class AccessoriesContainer extends Container {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            return stack.getItem() instanceof IAccessory && accessoriesSlot == ((IAccessory) stack.getItem()).getSlot();
-        }
-    }
-
-    public class WristSlot extends AccessorySlot {
-
-        private EquipmentAccessoriesSlot slot;
-
-        public WristSlot(IInventory inventoryIn, int index, int xPosition, int yPosition, EquipmentAccessoriesSlot slot) {
-            super(inventoryIn, index, xPosition, yPosition);
-            this.slot = slot;
-        }
-
-        @Override
-        public boolean mayPlace(ItemStack stack) {
-            return stack.getItem() instanceof IAccessory ? ((IAccessory) stack.getItem()).getSlot() == EquipmentAccessoriesSlot.WRIST || ((IAccessory) stack.getItem()).getSlot() == slot : super.mayPlace(stack);
+            if (stack.getItem() instanceof IAccessory) {
+                if (EquipmentAccessoriesSlot.getWristAccessories().contains(accessoriesSlot) &&
+                        ((IAccessory) stack.getItem()).getSlot() == EquipmentAccessoriesSlot.WRIST) {
+                    return super.mayPlace(stack);
+                }
+                return ((IAccessory) stack.getItem()).getSlot() == accessoriesSlot && super.mayPlace(stack);
+            }
+            return false;
         }
     }
 }

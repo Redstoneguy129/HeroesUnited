@@ -15,13 +15,13 @@ public class Planet extends CelestialBody {
 
     public static final HashMap<RegistryKey<World>, Planet> PLANETS_MAP = new HashMap<>();
 
-    private RegistryKey<World> dimension;
+    private final RegistryKey<World> dimension;
 
-    private Star star;
+    private final Star star;
 
-    private float scale;
+    private final float scale;
 
-    private float speed;
+    private final float speed;
 
     public Planet(RegistryKey<World> dimension, Vector3d coordinates, float scale, float speed, Star star) {
         super(coordinates);
@@ -36,6 +36,7 @@ public class Planet extends CelestialBody {
     public void tick() {
         coordinates = yRot(speed, coordinates);
     }
+
     public Vector3d yRot(float angle, Vector3d vector3d) {
         double f = Math.cos(angle);
         double f1 = Math.sin(angle);
@@ -47,8 +48,8 @@ public class Planet extends CelestialBody {
 
     @Override
     public void entityInside(Entity entity) {
-        if(dimension != null){
-            if(entity.getVehicle() == null){
+        if (dimension != null) {
+            if (entity.getVehicle() == null) {
                 entity.changeDimension(((ServerWorld) entity.level).getServer().getLevel(dimension), new ITeleporter() {
                     @Override
                     public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {

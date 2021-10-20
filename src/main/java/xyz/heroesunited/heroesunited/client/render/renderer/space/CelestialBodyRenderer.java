@@ -28,7 +28,7 @@ public abstract class CelestialBodyRenderer {
 
     public abstract void render(MatrixStack matrixStack, IRenderTypeBuffer buffers, int packedLight, float partialTicks);
 
-    protected RenderType getRenderType(){
+    protected RenderType getRenderType() {
         return RenderType.entitySolid(getTextureLocation());
     }
 }

@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 public class ServerKeyInput {
 
-    private KeyMap map;
+    private final KeyMap map;
 
     public ServerKeyInput(KeyMap map) {
         this.map = map;

@@ -12,11 +12,17 @@ import xyz.heroesunited.heroesunited.util.HUCalendarHelper;
 import java.util.Random;
 
 public class SnowWidget {
-    private static ResourceLocation snow = new ResourceLocation(HeroesUnited.MODID, "textures/gui/snow.png");
-    private static Random rand = new Random();
-    private int height, x, y, index, rotation, friction, frictionTemp;
+    private static final ResourceLocation snow = new ResourceLocation(HeroesUnited.MODID, "textures/gui/snow.png");
+    private static final Random rand = new Random();
+    private final int height;
+    private final int x;
+    private int y;
+    private final int index;
+    private int rotation;
+    private final int friction;
+    private int frictionTemp;
     private boolean dead;
-    private static SnowWidget[] cloud = new SnowWidget[150];
+    private static final SnowWidget[] cloud = new SnowWidget[150];
 
     public SnowWidget(int width, int height) {
         this.index = rand.nextInt(6);

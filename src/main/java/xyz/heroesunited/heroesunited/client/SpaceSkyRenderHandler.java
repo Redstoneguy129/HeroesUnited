@@ -13,7 +13,7 @@ import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.client.ISkyRenderHandler;
 
 public class SpaceSkyRenderHandler implements ISkyRenderHandler {
-    
+
     private static final ResourceLocation SPACE_SKY_LOCATION = new ResourceLocation("textures/entity/end_portal.png");
 
     @Override
@@ -27,7 +27,7 @@ public class SpaceSkyRenderHandler implements ISkyRenderHandler {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuilder();
 
-        for(int i = 0; i < 6; ++i) {
+        for (int i = 0; i < 6; ++i) {
             matrixStack.pushPose();
             if (i == 1) {
                 matrixStack.mulPose(Vector3f.XP.rotationDegrees(90.0F));

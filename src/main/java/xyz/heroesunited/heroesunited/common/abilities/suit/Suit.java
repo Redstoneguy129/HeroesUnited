@@ -259,7 +259,7 @@ public abstract class Suit {
         return null;
     }
 
-    public boolean canBreathOnSpace(){
+    public boolean canBreathOnSpace() {
         return false;
     }
 

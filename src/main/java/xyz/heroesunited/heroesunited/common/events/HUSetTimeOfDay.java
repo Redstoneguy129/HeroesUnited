@@ -8,7 +8,7 @@ import net.minecraftforge.eventbus.api.Event;
  */
 public class HUSetTimeOfDay extends Event {
 
-    private DimensionType dimensionType;
+    private final DimensionType dimensionType;
     private double value;
 
     public HUSetTimeOfDay(DimensionType dimensionType, double value) {

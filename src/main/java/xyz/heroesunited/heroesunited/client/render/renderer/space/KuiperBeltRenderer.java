@@ -17,10 +17,10 @@ import java.util.Random;
 
 public class KuiperBeltRenderer extends CelestialBodyRenderer {
 
-    private ModelRenderer[] asteroids = new ModelRenderer[900];
-    private HashMap<ModelRenderer, ResourceLocation> textures = new HashMap<>();
+    private final ModelRenderer[] asteroids = new ModelRenderer[900];
+    private final HashMap<ModelRenderer, ResourceLocation> textures = new HashMap<>();
     private float counter = 0;
-    private Random random = new Random();
+    private final Random random = new Random();
 
     public KuiperBeltRenderer() {
         for (int i = 0; i < asteroids.length; i++) {

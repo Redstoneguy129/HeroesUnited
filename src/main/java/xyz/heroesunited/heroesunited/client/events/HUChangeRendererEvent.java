@@ -12,7 +12,7 @@ import net.minecraftforge.eventbus.api.Cancelable;
 /**
  * Fired before the entity model is rendered.
  * Cancelling this event will prevent the entity model from being rendered.
- *
+ * <p>
  * This event is suitable for any additional renders you want to apply to the entity,
  * or to render a model other than the entity.
  */

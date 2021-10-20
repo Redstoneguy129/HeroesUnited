@@ -38,7 +38,7 @@ public abstract class JSReloadListener extends ReloadListener<Map<ResourceLocati
 
             try (
                     InputStream inputstream = manager.getResource(resourcelocation).getInputStream();
-                    Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8));
+                    Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8))
             ) {
                 NashornScriptEngine engine = (NashornScriptEngine) this.manager.getScriptEngine();
                 engine.put("path", location.toString());

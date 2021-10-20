@@ -45,8 +45,7 @@ public class HUStructures {
     public static <F extends Structure<?>> void setupMapSpacingAndLand(
             F structure,
             StructureSeparationSettings structureSeparationSettings,
-            boolean transformSurroundingLand)
-    {
+            boolean transformSurroundingLand) {
         /*
          * We need to add our structures into the map in Structure class
          * alongside vanilla structures or else it will cause errors.
@@ -66,7 +65,7 @@ public class HUStructures {
          *
          * NOISE_AFFECTING_FEATURES requires AccessTransformer  (See resources/META-INF/accesstransformer.cfg)
          */
-        if(transformSurroundingLand){
+        if (transformSurroundingLand) {
             Structure.NOISE_AFFECTING_FEATURES =
                     ImmutableList.<Structure<?>>builder()
                             .addAll(Structure.NOISE_AFFECTING_FEATURES)
@@ -110,12 +109,11 @@ public class HUStructures {
              *
              * structureConfig requires AccessTransformer  (See resources/META-INF/accesstransformer.cfg)
              */
-            if(structureMap instanceof ImmutableMap){
+            if (structureMap instanceof ImmutableMap) {
                 Map<Structure<?>, StructureSeparationSettings> tempMap = new HashMap<>(structureMap);
                 tempMap.put(structure, structureSeparationSettings);
                 settings.getValue().structureSettings().structureConfig = tempMap;
-            }
-            else{
+            } else {
                 structureMap.put(structure, structureSeparationSettings);
             }
         });

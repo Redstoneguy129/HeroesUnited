@@ -14,7 +14,8 @@ public enum EquipmentAccessoriesSlot {
     RIGHT_WRIST(6),
     LEFT_WRIST(7),
     GLOVES(8),
-    WRIST(9);
+    BACKPACK(9),
+    WRIST(10);
 
     private final int slot;
 

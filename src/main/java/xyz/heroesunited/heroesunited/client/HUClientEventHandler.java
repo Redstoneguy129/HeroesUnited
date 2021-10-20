@@ -178,7 +178,7 @@ public class HUClientEventHandler {
                 IVertexBuilder buffer = buffers.getBuffer(RenderType.LINES);
                 matrixStack.popPose();
                 if (Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes())
-                    WorldRenderer.renderLineBox(matrixStack, buffer,  celestialBody.getHitbox(), 1, 1, 1, 1);
+                    WorldRenderer.renderLineBox(matrixStack, buffer, celestialBody.getHitbox(), 1, 1, 1, 1);
             }
 
             matrixStack.popPose();
@@ -215,9 +215,9 @@ public class HUClientEventHandler {
         if (event.getEntity().level.dimension().equals(HeroesUnited.SPACE)) {
             event.getMatrixStack().pushPose();
             if (event.getEntity() instanceof PlayerEntity && event.getEntity().isCrouching()) {
-                event.getMatrixStack().translate(0,0.125D,0);
+                event.getMatrixStack().translate(0, 0.125D, 0);
             }
-            event.getMatrixStack().scale(0.01F,0.01F,0.01F);
+            event.getMatrixStack().scale(0.01F, 0.01F, 0.01F);
         }
         if (entitiesWithLayer.contains(event.getRenderer())) return;
         event.getRenderer().addLayer(new HULayerRenderer(event.getRenderer()));
@@ -400,7 +400,7 @@ public class HUClientEventHandler {
                             renderer.z = bone.getPivotZ() + bone.getPositionZ();
 
                             if (bone.name.endsWith("Leg")) {
-                                renderer.y = ((24 - bone.getPivotY()) - bone.getPositionY()) - bone.getScaleY()*2;
+                                renderer.y = ((24 - bone.getPivotY()) - bone.getPositionY()) - bone.getScaleY() * 2;
                             }
                             ((IHUModelRenderer) renderer).setSize(new Vector3f(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ()));
                         }
@@ -427,7 +427,7 @@ public class HUClientEventHandler {
                     float flightAmount = cap.getFlightAmount(event.getPartialTicks());
                     float armRotations = IFlyingAbility.getFlyingAbility(event.getPlayer()) != null && IFlyingAbility.getFlyingAbility(event.getPlayer()).rotateArms(event.getPlayer()) ? (float) Math.toRadians(180F) : 0F;
 
-                    model.head.xRot = model.rotlerpRad(flightAmount, model.head.xRot, (-(float)Math.PI / 4F));
+                    model.head.xRot = model.rotlerpRad(flightAmount, model.head.xRot, (-(float) Math.PI / 4F));
                     model.leftArm.xRot = model.rotlerpRad(flightAmount, model.leftArm.xRot, armRotations);
                     model.rightArm.xRot = model.rotlerpRad(flightAmount, model.rightArm.xRot, armRotations);
 
@@ -534,7 +534,7 @@ public class HUClientEventHandler {
     @SubscribeEvent
     public void onGameOverlayPost(RenderGameOverlayEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
-        if(event.getType() == RenderGameOverlayEvent.ElementType.HOTBAR && mc.player != null && mc.player.isAlive()) {
+        if (event.getType() == RenderGameOverlayEvent.ElementType.HOTBAR && mc.player != null && mc.player.isAlive()) {
             List<Ability> abilities = getCurrentDisplayedAbilities(mc.player);
             if (abilities.size() > 0) {
                 final ResourceLocation widgets = new ResourceLocation(HeroesUnited.MODID, "textures/gui/widgets.png");

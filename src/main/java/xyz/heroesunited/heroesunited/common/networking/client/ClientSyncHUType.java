@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 public class ClientSyncHUType {
 
-    private int entityId;
+    private final int entityId;
     private final HUTypes data;
     private final boolean value;
 

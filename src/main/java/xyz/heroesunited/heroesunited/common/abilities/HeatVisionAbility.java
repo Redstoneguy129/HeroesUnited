@@ -61,11 +61,11 @@ public class HeatVisionAbility extends JSONAbility {
         }
         if (this.dataManager.<String>getValue("type").equals("default")) {
             for (int i = 0; i < 2; i++) {
-                AxisAlignedBB box = new AxisAlignedBB(i==0 ? -0.1F : 0.1F, -0.25F, 0, 0, -0.25F, -distance).inflate(0.0625D);
+                AxisAlignedBB box = new AxisAlignedBB(i == 0 ? -0.1F : 0.1F, -0.25F, 0, 0, -0.25F, -distance).inflate(0.0625D);
                 matrix.pushPose();
                 renderer.getModel().head.translateAndRotate(matrix);
                 matrix.scale(0.5F, 0.75F, 1);
-                matrix.translate(i==0 ? -0.15 : 0.15, -0.05, 0);
+                matrix.translate(i == 0 ? -0.15 : 0.15, -0.05, 0);
                 HUClientUtil.renderFilledBox(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.deflate(0.0625D / 2), 1F, 1F, 1F, alpha, packedLightIn);
                 HUClientUtil.renderFilledBox(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255F, alpha * 0.5F, packedLightIn);
                 matrix.popPose();

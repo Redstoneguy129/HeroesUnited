@@ -15,6 +15,7 @@ import net.minecraftforge.eventbus.api.Event;
 
 /**
  * Just event.
+ *
  * @TO-DO remake this, or make clear
  */
 public abstract class HURenderLayerEvent<T extends LivingEntity, M extends EntityModel<T>> extends Event {
@@ -153,8 +154,8 @@ public abstract class HURenderLayerEvent<T extends LivingEntity, M extends Entit
 
         public static class HUSetArmorPartVisibility extends Event {
 
-            private BipedModel armorModel;
-            private EquipmentSlotType slot;
+            private final BipedModel armorModel;
+            private final EquipmentSlotType slot;
 
             public HUSetArmorPartVisibility(BipedModel modelIn, EquipmentSlotType slotIn) {
                 this.armorModel = modelIn;

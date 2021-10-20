@@ -8,11 +8,11 @@ public class Level {
     private float experience = 0;
     private float expForNexLevel = (float) (100 + (Math.exp(level / 3) * 100 / 5));
 
-    public CompoundNBT writeNBT(){
+    public CompoundNBT writeNBT() {
         CompoundNBT compound = new CompoundNBT();
-        compound.putInt("level",level);
-        compound.putFloat("experience",experience);
-        compound.putFloat("expForNexLevel",expForNexLevel);
+        compound.putInt("level", level);
+        compound.putFloat("experience", experience);
+        compound.putFloat("expForNexLevel", expForNexLevel);
         return compound;
     }
 

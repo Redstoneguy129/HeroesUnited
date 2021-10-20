@@ -134,7 +134,7 @@ public class HUClientUtil {
         matrixStack.popPose();
     }
 
-    public static void drawArmWithLightning(MatrixStack matrix, IRenderTypeBuffer bufferIn, PlayerRenderer renderer, AbstractClientPlayerEntity player, HandSide side, double y , int packedLightIn, Color color) {
+    public static void drawArmWithLightning(MatrixStack matrix, IRenderTypeBuffer bufferIn, PlayerRenderer renderer, AbstractClientPlayerEntity player, HandSide side, double y, int packedLightIn, Color color) {
         for (int i = 0; i < 3; i++) {
             matrix.pushPose();
             renderer.getModel().translateToHand(side, matrix);
@@ -235,12 +235,18 @@ public class HUClientUtil {
 
     public static ModelRenderer getModelRendererById(PlayerModel model, String name) {
         switch (name) {
-            case "bipedHead": return model.head;
-            case "bipedBody": return model.body;
-            case "bipedRightArm": return model.rightArm;
-            case "bipedLeftArm": return model.leftArm;
-            case "bipedRightLeg": return model.rightLeg;
-            default: return model.leftLeg;
+            case "bipedHead":
+                return model.head;
+            case "bipedBody":
+                return model.body;
+            case "bipedRightArm":
+                return model.rightArm;
+            case "bipedLeftArm":
+                return model.leftArm;
+            case "bipedRightLeg":
+                return model.rightLeg;
+            default:
+                return model.leftLeg;
         }
     }
 
@@ -300,10 +306,10 @@ public class HUClientUtil {
 
                 float f6 = 0.1F + j * 0.05F;
 
-                renderLightningPart(m4f, builder, f2, f3, j1, (float)y, f4, f5, f6, false, false, true, false, packedLightIn, color);
-                renderLightningPart(m4f, builder, f2, f3, j1, (float)y, f4, f5, f6, true, false, true, true, packedLightIn, color);
-                renderLightningPart(m4f, builder, f2, f3, j1, (float)y, f4, f5, f6, true, true, false, true, packedLightIn, color);
-                renderLightningPart(m4f, builder, f2, f3, j1, (float)y, f4, f5, f6, false, true, false, false, packedLightIn, color);
+                renderLightningPart(m4f, builder, f2, f3, j1, (float) y, f4, f5, f6, false, false, true, false, packedLightIn, color);
+                renderLightningPart(m4f, builder, f2, f3, j1, (float) y, f4, f5, f6, true, false, true, true, packedLightIn, color);
+                renderLightningPart(m4f, builder, f2, f3, j1, (float) y, f4, f5, f6, true, true, false, true, packedLightIn, color);
+                renderLightningPart(m4f, builder, f2, f3, j1, (float) y, f4, f5, f6, false, true, false, false, packedLightIn, color);
             }
         }
     }

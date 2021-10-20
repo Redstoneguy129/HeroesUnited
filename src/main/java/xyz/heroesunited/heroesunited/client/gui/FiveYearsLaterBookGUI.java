@@ -84,7 +84,8 @@ public class FiveYearsLaterBookGUI extends Screen {
         if (texture == null) {
             File file1 = new File(new File(minecraft.gameDirectory.toPath().resolve("assets").toFile(), "5yl_comic"), s.length() > 2 ? s.substring(0, 2) : "xx");
             File file2 = new File(file1, s);
-            DownloadingTexture downloadingtexture = new DownloadingTexture(file2, url, new ResourceLocation(HeroesUnited.MODID, String.format("textures/gui/comic/5yl%s.png", modPage)), false, () -> {});
+            DownloadingTexture downloadingtexture = new DownloadingTexture(file2, url, new ResourceLocation(HeroesUnited.MODID, String.format("textures/gui/comic/5yl%s.png", modPage)), false, () -> {
+            });
             minecraft.textureManager.register(resourcelocation, downloadingtexture);
         }
         return resourcelocation;

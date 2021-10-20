@@ -12,7 +12,7 @@ import net.minecraftforge.event.world.BlockEvent;
  */
 public class HUCancelBlockCollision extends BlockEvent {
 
-    private Entity entity;
+    private final Entity entity;
 
     public HUCancelBlockCollision(IWorld world, BlockPos pos, BlockState state, Entity entity) {
         super(world, pos, state);

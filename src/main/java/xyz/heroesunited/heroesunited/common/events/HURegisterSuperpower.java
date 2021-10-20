@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public class HURegisterSuperpower extends Event {
 
-    private Map<ResourceLocation, Superpower> map;
+    private final Map<ResourceLocation, Superpower> map;
 
     public HURegisterSuperpower(Map<ResourceLocation, Superpower> map) {
         this.map = map;

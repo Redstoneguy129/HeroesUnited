@@ -10,12 +10,12 @@ import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 
 public class AccessoriesInventory implements IInventory {
 
-    private NonNullList<ItemStack> items;
-    private PlayerEntity player;
+    private final NonNullList<ItemStack> items;
+    private final PlayerEntity player;
 
     public AccessoriesInventory(PlayerEntity player) {
         this.player = player;
-        this.items = NonNullList.withSize(9, ItemStack.EMPTY);
+        this.items = NonNullList.withSize(10, ItemStack.EMPTY);
     }
 
     public boolean haveStack(EquipmentAccessoriesSlot slot) {
@@ -87,7 +87,7 @@ public class AccessoriesInventory implements IInventory {
     }
 
     public void copy(AccessoriesInventory inv) {
-        for(int i = 0; i < this.getContainerSize(); ++i) {
+        for (int i = 0; i < this.getContainerSize(); ++i) {
             setItem(i, inv.getItem(i));
         }
     }

@@ -10,6 +10,7 @@ public class SpaceDimensionRenderInfo extends DimensionRenderInfo {
         super(Float.NaN, true, DimensionRenderInfo.FogType.NONE, false, true);
         setSkyRenderHandler(new SpaceSkyRenderHandler());
     }
+
     public Vector3d getBrightnessDependentFogColor(Vector3d p_230494_1_, float p_230494_2_) {
         return p_230494_1_.scale(0.15F);
     }
@@ -21,5 +22,6 @@ public class SpaceDimensionRenderInfo extends DimensionRenderInfo {
     @Nullable
     public float[] getSunriseColor(float p_230492_1_, float p_230492_2_) {
         return null;
-    };
+    }
+
 }

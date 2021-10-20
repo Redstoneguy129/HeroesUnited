@@ -13,17 +13,16 @@ public enum PlayerPart {
     RIGHT_LEG, RIGHT_LEG_WEAR,
     LEFT_LEG, LEFT_LEG_WEAR;
 
-    public void setVisibility(PlayerModel model, boolean visible) {
+    public void setVisibility(PlayerModel<?> model, boolean visible) {
         ModelRenderer modelRenderer = getModelRendererByPart(model);
         if (modelRenderer == null) {
             model.setAllVisible(visible);
         } else {
             modelRenderer.visible = visible;
         }
-        return;
     }
 
-    public ModelRenderer getModelRendererByPart(PlayerModel model) {
+    public ModelRenderer getModelRendererByPart(PlayerModel<?> model) {
         switch (this) {
             case HEAD:
                 return model.head;

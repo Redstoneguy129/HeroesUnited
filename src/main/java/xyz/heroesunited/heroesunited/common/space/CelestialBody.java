@@ -22,9 +22,11 @@ public class CelestialBody extends ForgeRegistryEntry<CelestialBody> {
         return coordinates;
     }
 
-    public void tick(){}
+    public void tick() {
+    }
 
-    public void entityInside(Entity entity){}
+    public void entityInside(Entity entity) {
+    }
 
     public CompoundNBT writeNBT() {
         CompoundNBT compound = new CompoundNBT();
@@ -34,7 +36,7 @@ public class CelestialBody extends ForgeRegistryEntry<CelestialBody> {
         return compound;
     }
 
-    public AxisAlignedBB getHitbox(){
+    public AxisAlignedBB getHitbox() {
         return AxisAlignedBB.ofSize(0, 0, 0);
     }
 

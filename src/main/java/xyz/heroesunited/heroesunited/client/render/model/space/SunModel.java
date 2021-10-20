@@ -11,7 +11,7 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 
 public class SunModel extends StarModel {
 
-    public static final RenderMaterial SUN_TEXTURE_MATERIAL = new RenderMaterial(PlayerContainer.BLOCK_ATLAS, new ResourceLocation(HeroesUnited.MODID,"planets/sun"));
+    public static final RenderMaterial SUN_TEXTURE_MATERIAL = new RenderMaterial(PlayerContainer.BLOCK_ATLAS, new ResourceLocation(HeroesUnited.MODID, "planets/sun"));
     public final ModelRenderer bb_main;
 
     public SunModel() {
@@ -26,7 +26,7 @@ public class SunModel extends StarModel {
     }
 
     @Override
-    public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
+    public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         bb_main.render(matrixStack, buffer, packedLight, packedOverlay);
     }
 

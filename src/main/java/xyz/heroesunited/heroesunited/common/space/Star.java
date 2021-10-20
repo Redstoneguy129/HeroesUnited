@@ -7,7 +7,7 @@ import net.minecraft.util.math.vector.Vector3d;
 public class Star extends CelestialBody {
 
 
-    private AxisAlignedBB hitbox;
+    private final AxisAlignedBB hitbox;
 
     public Star(Vector3d coordinates, float scale) {
         super(coordinates);

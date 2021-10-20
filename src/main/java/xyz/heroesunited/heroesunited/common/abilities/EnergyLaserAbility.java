@@ -43,7 +43,7 @@ public class EnergyLaserAbility extends JSONAbility {
             matrix.pushPose();
             renderer.getModel().translateToHand(isLeftArm(player) ? HandSide.LEFT : HandSide.RIGHT, matrix);
             matrix.translate(isLeftArm(player) ? 0.0625D : -0.0625D, 0, 0);
-            HUClientUtil.renderFilledBox(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.0625D/2), 1F, 1F, 1F, 1F, packedLightIn);
+            HUClientUtil.renderFilledBox(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.0625D / 2), 1F, 1F, 1F, 1F, packedLightIn);
             HUClientUtil.renderFilledBox(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.0625D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, packedLightIn);
             matrix.popPose();
         }

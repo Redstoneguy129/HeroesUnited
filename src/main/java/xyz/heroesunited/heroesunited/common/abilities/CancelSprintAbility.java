@@ -2,7 +2,7 @@ package xyz.heroesunited.heroesunited.common.abilities;
 
 import xyz.heroesunited.heroesunited.common.events.HUCancelSprinting;
 
-public class CancelSprintAbility extends JSONAbility{
+public class CancelSprintAbility extends JSONAbility {
 
     public CancelSprintAbility(AbilityType type) {
         super(type);

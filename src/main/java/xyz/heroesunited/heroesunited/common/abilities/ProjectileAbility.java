@@ -50,14 +50,14 @@ public class ProjectileAbility extends JSONAbility {
      * Code from {@link ProjectileEntity#shootFromRotation}
      */
     private void shoot(Entity e, Entity player, float velocity, float inaccuracy) {
-        float f = -MathHelper.sin(player.yRot * ((float)Math.PI / 180F)) * MathHelper.cos(player.xRot * ((float)Math.PI / 180F));
-        float f1 = -MathHelper.sin((player.xRot) * ((float)Math.PI / 180F));
-        float f2 = MathHelper.cos(player.yRot * ((float)Math.PI / 180F)) * MathHelper.cos(player.xRot * ((float)Math.PI / 180F));
-        Vector3d vec3d = (new Vector3d(f, f1, f2)).normalize().add(e.level.getRandom().nextGaussian() * (double)0.0075F * (double)inaccuracy, e.level.getRandom().nextGaussian() * (double)0.0075F * (double)inaccuracy, e.level.getRandom().nextGaussian() * (double)0.0075F * (double)inaccuracy).scale(velocity);
-        
+        float f = -MathHelper.sin(player.yRot * ((float) Math.PI / 180F)) * MathHelper.cos(player.xRot * ((float) Math.PI / 180F));
+        float f1 = -MathHelper.sin((player.xRot) * ((float) Math.PI / 180F));
+        float f2 = MathHelper.cos(player.yRot * ((float) Math.PI / 180F)) * MathHelper.cos(player.xRot * ((float) Math.PI / 180F));
+        Vector3d vec3d = (new Vector3d(f, f1, f2)).normalize().add(e.level.getRandom().nextGaussian() * (double) 0.0075F * (double) inaccuracy, e.level.getRandom().nextGaussian() * (double) 0.0075F * (double) inaccuracy, e.level.getRandom().nextGaussian() * (double) 0.0075F * (double) inaccuracy).scale(velocity);
+
         e.setDeltaMovement(vec3d);
-        e.yRot = (float)(MathHelper.atan2(vec3d.x, vec3d.z) * (double)(180F / (float)Math.PI));
-        e.xRot = (float)(MathHelper.atan2(vec3d.y, MathHelper.sqrt(Entity.getHorizontalDistanceSqr(vec3d))) * (double)(180F / (float)Math.PI));
+        e.yRot = (float) (MathHelper.atan2(vec3d.x, vec3d.z) * (double) (180F / (float) Math.PI));
+        e.xRot = (float) (MathHelper.atan2(vec3d.y, MathHelper.sqrt(Entity.getHorizontalDistanceSqr(vec3d))) * (double) (180F / (float) Math.PI));
         e.yRotO = e.yRot;
         e.xRotO = e.xRot;
 

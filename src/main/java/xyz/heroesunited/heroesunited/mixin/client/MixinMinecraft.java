@@ -24,7 +24,7 @@ public abstract class MixinMinecraft {
     @Shadow @Final public GameSettings options;
 
     @Inject(at = @At("HEAD"), method = "shouldEntityAppearGlowing(Lnet/minecraft/entity/Entity;)Z", cancellable = true)
-    public void onShouldEntityAppearGlowing(Entity entity, CallbackInfoReturnable ci){
+    public void onShouldEntityAppearGlowing(Entity entity, CallbackInfoReturnable ci) {
 
         HUActiveClientGlowing event = new HUActiveClientGlowing(entity);
         MinecraftForge.EVENT_BUS.post(event);

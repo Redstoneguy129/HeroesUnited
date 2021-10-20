@@ -36,7 +36,7 @@ public class ClientDisableAbility {
             if (entity instanceof AbstractClientPlayerEntity) {
                 entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
                     if (cap.getActiveAbilities().containsKey(this.name)) {
-                        cap.getActiveAbilities().get(this.name).onDeactivated((PlayerEntity)entity);
+                        cap.getActiveAbilities().get(this.name).onDeactivated((PlayerEntity) entity);
                     }
                     cap.disable(this.name);
                 });

@@ -2,7 +2,10 @@ package xyz.heroesunited.heroesunited.util;
 
 import com.google.gson.*;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.item.*;
+import net.minecraft.item.IArmorMaterial;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
@@ -15,19 +18,11 @@ import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.IntStream;
 
 public class HUJsonUtils {
-    private static final Map<String, IArmorMaterial> ARMOR_MATERIALS = new HashMap<>();
-
-    static {
-        for (ArmorMaterial armorMaterial : ArmorMaterial.values()) {
-            addArmorMaterial(armorMaterial.name(), armorMaterial);
-        }
-    }
 
     public static Color getColor(JsonObject json) {
         if (json != null && json.has("color")) {
@@ -61,36 +56,14 @@ public class HUJsonUtils {
     }
 
     public static ItemGroup getItemGroup(JsonObject json, String memberName) {
-        if (json.has(memberName)) {
-            return getItemGroup(json.get(memberName), memberName);
+        if (json.has(memberName) && json.get(memberName).isJsonPrimitive()) {
+            return Arrays.stream(ItemGroup.TABS).filter(itemGroup -> json.get(memberName).getAsString().equalsIgnoreCase(itemGroup.getRecipeFolderName().toLowerCase())).findFirst().orElse(null);
         } else {
             throw new JsonSyntaxException("Missing " + memberName + ", expected to find an item");
         }
     }
 
-    private static ItemGroup getItemGroup(JsonElement json, String memberName) {
-        if (json.isJsonPrimitive()) {
-            for (ItemGroup itemGroup : ItemGroup.TABS) {
-                if (json.getAsString().equalsIgnoreCase(itemGroup.getRecipeFolderName().toLowerCase())) {
-                    return itemGroup;
-                }
-            }
-            return null;
-        } else {
-            throw new JsonSyntaxException("Expected " + memberName + " to be an item, was " + json);
-        }
-    }
-
-    public static IArmorMaterial getArmorMaterial(String name) {
-        return ARMOR_MATERIALS.get(name.toLowerCase());
-    }
-
-    public static void addArmorMaterial(String name, IArmorMaterial armorMaterial) {
-        ARMOR_MATERIALS.put(name.toLowerCase(), armorMaterial);
-    }
-
-    public static IArmorMaterial parseArmorMaterial(JsonObject json, boolean requireName) {
-        String name = requireName ? JSONUtils.getAsString(json, "name") : "";
+    public static IArmorMaterial parseArmorMaterial(JsonObject json) {
         int[] damageReductionAmountArray = new int[4];
         JsonArray dmgReduction = JSONUtils.getAsJsonArray(json, "damage_reduction");
         if (dmgReduction.size() != 4)
@@ -99,7 +72,7 @@ public class HUJsonUtils {
         SoundEvent soundEvent = ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(JSONUtils.getAsString(json, "equip_sound", "")));
         Ingredient repairMaterial = json.has("repair_material") ? Ingredient.fromJson(json.get("repair_material")) : Ingredient.EMPTY;
 
-        return new HUArmorMaterial(name, JSONUtils.getAsInt(json, "max_damage_factor", 0), damageReductionAmountArray, JSONUtils.getAsInt(json, "enchantibility", 0), soundEvent, JSONUtils.getAsFloat(json, "toughness", 0), JSONUtils.getAsFloat(json, "knockback_resistance", 0), repairMaterial);
+        return new HUArmorMaterial("", JSONUtils.getAsInt(json, "max_damage_factor", 0), damageReductionAmountArray, JSONUtils.getAsInt(json, "enchantibility", 0), soundEvent, JSONUtils.getAsFloat(json, "toughness", 0), JSONUtils.getAsFloat(json, "knockback_resistance", 0), repairMaterial);
     }
 
     public static Suit getSuit(ResourceLocation location) {

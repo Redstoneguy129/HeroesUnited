@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import xyz.heroesunited.heroesunited.client.render.model.space.StarModel;
 
-public abstract class StarRenderer extends CelestialBodyRenderer{
+public abstract class StarRenderer extends CelestialBodyRenderer {
 
     protected final StarModel starModel;
 
@@ -16,6 +16,6 @@ public abstract class StarRenderer extends CelestialBodyRenderer{
     @Override
     public void render(MatrixStack matrixStack, IRenderTypeBuffer buffers, int packedLight, float partialTicks) {
         starModel.prepareModel(partialTicks);
-        starModel.renderToBuffer(matrixStack,buffers.getBuffer(getRenderType()),packedLight, OverlayTexture.NO_OVERLAY, 1f,1f, 1f, 1f);
+        starModel.renderToBuffer(matrixStack, buffers.getBuffer(getRenderType()), packedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
     }
 }

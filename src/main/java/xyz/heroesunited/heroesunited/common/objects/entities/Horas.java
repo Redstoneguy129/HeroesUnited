@@ -40,7 +40,8 @@ public class Horas extends CreatureEntity implements IFlyingAnimal {
 
     @Override
     public ILivingEntityData finalizeSpawn(IServerWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, ILivingEntityData spawnDataIn, CompoundNBT dataTag) {
-        if (reason == SpawnReason.MOB_SUMMONED || reason == SpawnReason.SPAWN_EGG) this.playerEntity = worldIn.getNearestPlayer(this, 10D);
+        if (reason == SpawnReason.MOB_SUMMONED || reason == SpawnReason.SPAWN_EGG)
+            this.playerEntity = worldIn.getNearestPlayer(this, 10D);
         return super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
     }
 

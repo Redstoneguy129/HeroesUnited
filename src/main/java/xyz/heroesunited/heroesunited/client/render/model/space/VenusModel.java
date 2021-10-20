@@ -4,7 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.model.ModelRenderer;
 
-public class VenusModel extends PlanetModel{
+public class VenusModel extends PlanetModel {
     private final ModelRenderer venus;
     private final ModelRenderer clouds;
 

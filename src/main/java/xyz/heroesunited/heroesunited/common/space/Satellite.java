@@ -10,17 +10,17 @@ import net.minecraftforge.common.util.ITeleporter;
 
 import java.util.function.Function;
 
-public class Satellite extends CelestialBody{
+public class Satellite extends CelestialBody {
 
-    private RegistryKey<World> dimension;
+    private final RegistryKey<World> dimension;
 
-    private Planet planet;
+    private final Planet planet;
 
-    private float scale;
+    private final float scale;
 
-    private float speed;
+    private final float speed;
 
-    public Satellite(RegistryKey<World> dimension, Vector3d coordinates, float scale, float speed,  Planet planet) {
+    public Satellite(RegistryKey<World> dimension, Vector3d coordinates, float scale, float speed, Planet planet) {
         super(coordinates);
         this.dimension = dimension;
         this.scale = scale;
@@ -28,13 +28,13 @@ public class Satellite extends CelestialBody{
         this.planet = planet;
     }
 
-    public void tick(){
+    public void tick() {
         coordinates = this.coordinates.yRot(speed);
     }
 
     @Override
     public void entityInside(Entity entity) {
-        if(dimension != null){
+        if (dimension != null) {
             entity.changeDimension(((ServerWorld) entity.level).getServer().getLevel(dimension), new ITeleporter() {
                 @Override
                 public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {

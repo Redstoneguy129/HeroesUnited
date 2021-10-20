@@ -12,8 +12,8 @@ public class HUChangeBlockLightEvent extends Event {
 
     private final int defaultValue;
     private int value;
-    private BlockPos pos;
-    private IBlockReader world;
+    private final BlockPos pos;
+    private final IBlockReader world;
 
     public HUChangeBlockLightEvent(int defaultValue, BlockPos pos, IBlockReader world) {
         this.defaultValue = defaultValue;

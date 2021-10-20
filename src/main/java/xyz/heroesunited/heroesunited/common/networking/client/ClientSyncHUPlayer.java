@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 public class ClientSyncHUPlayer {
 
     public int entityId;
-    private CompoundNBT data;
+    private final CompoundNBT data;
 
     public ClientSyncHUPlayer(int entityId, CompoundNBT data) {
         this.entityId = entityId;

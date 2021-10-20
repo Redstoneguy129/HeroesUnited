@@ -26,9 +26,9 @@ import xyz.heroesunited.heroesunited.common.space.Planet;
 
 public class HUPlayerUtil {
 
-    public static boolean canBreath(LivingEntity entity){
+    public static boolean canBreath(LivingEntity entity) {
         boolean canBreath = !entity.level.dimension().equals(HeroesUnited.SPACE);
-        if(Planet.PLANETS_MAP.containsKey(entity.level.dimension())){
+        if (Planet.PLANETS_MAP.containsKey(entity.level.dimension())) {
             Planet planet = Planet.PLANETS_MAP.get(entity.level.dimension());
             canBreath = planet.hasOxygen();
         }
@@ -45,7 +45,7 @@ public class HUPlayerUtil {
         }
 
         Suit suit = Suit.getSuit(entity);
-        if (suit != null && !canBreath){
+        if (suit != null && !canBreath) {
             canBreath = suit.canBreathOnSpace();
         }
 

@@ -93,7 +93,7 @@ public class Condition extends ForgeRegistryEntry<Condition> {
     }));
 
     public static final Condition IS_IN_FLUID = register("is_in_fluid", new Condition((player, e) -> {
-        for(ITag.INamedTag<Fluid> tag : FluidTags.getWrappers()) {
+        for (ITag.INamedTag<Fluid> tag : FluidTags.getWrappers()) {
             if (tag.getName().getPath().equals(JSONUtils.getAsString(e, "fluid"))) {
                 return player.isEyeInFluid(tag);
             }

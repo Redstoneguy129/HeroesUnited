@@ -204,7 +204,7 @@ public class AbilitiesScreen extends Screen {
 
         private final AbilitiesScreen parent;
         private final Ability ability;
-        private List<String> abilityDescription = new ArrayList<>();
+        private final List<String> abilityDescription = new ArrayList<>();
         private int descWidth, descHeight;
 
         public AbilityButton(int x, int y, int id, AbilitiesScreen screen, Ability ability) {
@@ -281,8 +281,7 @@ public class AbilitiesScreen extends Screen {
     }
 
     public static ResourceLocation getTheme(String name) {
-        final ResourceLocation THEME = new ResourceLocation(HeroesUnited.MODID, "textures/gui/themes/" + name + ".png");
-        return THEME;
+        return new ResourceLocation(HeroesUnited.MODID, "textures/gui/themes/" + name + ".png");
     }
 
     @Override

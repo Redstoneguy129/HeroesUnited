@@ -66,7 +66,7 @@ public class ModelSuit<T extends LivingEntity> extends BipedModel<T> {
     public void setupAnim(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         super.setupAnim(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
         if (entityIn instanceof ArmorStandEntity) {
-            ArmorStandEntity armorStand = (ArmorStandEntity)entityIn;
+            ArmorStandEntity armorStand = (ArmorStandEntity) entityIn;
             this.head.xRot = 0.017453292F * armorStand.getHeadPose().getX();
             this.head.yRot = 0.017453292F * armorStand.getHeadPose().getY();
             this.head.zRot = 0.017453292F * armorStand.getHeadPose().getZ();

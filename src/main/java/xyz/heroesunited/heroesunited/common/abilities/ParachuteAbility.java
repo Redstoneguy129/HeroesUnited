@@ -25,7 +25,7 @@ public class ParachuteAbility extends JSONAbility {
 
     @Override
     public void onKeyInput(PlayerEntity player, Map<Integer, Boolean> map) {
-        if(!getEnabled())
+        if (!getEnabled())
             super.onKeyInput(player, map);
     }
 
@@ -33,7 +33,7 @@ public class ParachuteAbility extends JSONAbility {
     public void action(PlayerEntity player) {
         if (usingParachute(player)) {
             Vector3d vec = player.getDeltaMovement();
-            if(vec.y > -1){
+            if (vec.y > -1) {
                 player.fallDistance = 0;
             }
             vec = vec.multiply(0.99F, 0.93F, 0.99F);
@@ -51,14 +51,14 @@ public class ParachuteAbility extends JSONAbility {
     @OnlyIn(Dist.CLIENT)
     @Override
     public void render(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        if(usingParachute(player))
+        if (usingParachute(player))
             new ParachuteModel().renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(HeroesUnited.MODID, "textures/suits/parachute.png"))), packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
     }
 
-	@OnlyIn(Dist.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     @Override
     public void setRotationAngles(HUSetRotationAnglesEvent event) {
-        if(usingParachute(event.getPlayer())){
+        if (usingParachute(event.getPlayer())) {
             event.getPlayerModel().leftLeg.xRot = 0;
             event.getPlayerModel().rightLeg.xRot = 0;
             event.getPlayerModel().leftArm.xRot = 0;

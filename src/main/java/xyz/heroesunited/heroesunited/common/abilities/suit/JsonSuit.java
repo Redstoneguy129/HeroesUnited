@@ -4,13 +4,9 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.IArmorMaterial;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
@@ -98,10 +94,14 @@ public class JsonSuit extends Suit {
     public IArmorMaterial getSuitMaterial() {
         if (jsonObject.has("armor_material")) {
             JsonElement materialJson = jsonObject.get("armor_material");
-            IArmorMaterial material = materialJson.isJsonPrimitive() ? HUJsonUtils.getArmorMaterial(materialJson.getAsString()) : HUJsonUtils.parseArmorMaterial(materialJson.getAsJsonObject(), false);
-            if (material == null)
-                throw new JsonParseException("Armor material with name '" + materialJson.getAsString() + "' cannot be found!");
-            return material;
+            if (materialJson.isJsonPrimitive()) {
+                for (ArmorMaterial material : ArmorMaterial.values()) {
+                    if (material.name().equals(materialJson.getAsString())) {
+                        return material;
+                    }
+                }
+            }
+            return HUJsonUtils.parseArmorMaterial(materialJson.getAsJsonObject());
         }
         return super.getSuitMaterial();
     }
@@ -146,7 +146,7 @@ public class JsonSuit extends Suit {
             for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {
                 if (e.getValue() instanceof JsonArray && slot.equals(EquipmentSlotType.byName(e.getKey()))) {
                     for (int i = 0; i < ((JsonArray) e.getValue()).size(); i++) {
-                        list.add(EquipmentAccessoriesSlot.getFromSlotIndex(((JsonArray)e.getValue()).get(i).getAsInt()));
+                        list.add(EquipmentAccessoriesSlot.getFromSlotIndex(((JsonArray) e.getValue()).get(i).getAsInt()));
                     }
                 }
             }

@@ -150,7 +150,7 @@ public class HUEventHandler {
                     ResourceLocation res = entity.level.dimension().location();
                     try (
                             InputStreamReader reader = new InputStreamReader(entity.level.getServer().getDataPackRegistries().getResourceManager().getResource(
-                                    new ResourceLocation(res.getNamespace(), String.format("dimension_type/%s.json", res.getPath()))).getInputStream(), StandardCharsets.UTF_8);
+                                    new ResourceLocation(res.getNamespace(), String.format("dimension_type/%s.json", res.getPath()))).getInputStream(), StandardCharsets.UTF_8)
                     ) {
                         jsonObject = JSONUtils.fromJson(HUPacks.GSON, reader, JsonObject.class);
                     } catch (IOException e) {

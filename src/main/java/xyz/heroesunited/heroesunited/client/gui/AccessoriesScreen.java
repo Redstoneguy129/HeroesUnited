@@ -52,13 +52,13 @@ public class AccessoriesScreen extends ContainerScreen<AccessoriesContainer> {
             Slot slot = slots.get(i);
             if (slot.getItem().isEmpty() && slot.isActive() && slot instanceof AccessoriesContainer.AccessorySlot) {
                 EquipmentAccessoriesSlot accessoriesSlot = EquipmentAccessoriesSlot.getFromSlotIndex(i);
-                if (accessoriesSlot != EquipmentAccessoriesSlot.WRIST) {
+                if (accessoriesSlot != null && accessoriesSlot != EquipmentAccessoriesSlot.WRIST) {
                     ResourceLocation resourceLocation = new ResourceLocation(HeroesUnited.MODID, "textures/gui/accessories_slots/" + accessoriesSlot.name().toLowerCase() + ".png");
                     this.minecraft.getTextureManager().bind(resourceLocation);
                     if (accessoriesSlot == EquipmentAccessoriesSlot.GLOVES) {
-                        this.blit(matrixStack, left + 77, top + 44, 0, 0, 16, 16, 16, 16);
+                        blit(matrixStack, left + 77, top + 44, 0, 0, 16, 16, 16, 16);
                     } else {
-                        this.blit(matrixStack, left + (i > 3 ? 141 : 109), top + (i > 3 ? 8 + (i - 4) * 18 : 8 + i * 18), 0, 0, 16, 16, 16, 16);
+                        blit(matrixStack, left + (i > 7 ? 153 : i > 3 ? 126 : 99), top + (i > 7 ? 8 : i > 3 ? 8 + (i - 4) * 18 : 8 + i * 18), 0, 0, 16, 16, 16, 16);
                     }
                 }
             }

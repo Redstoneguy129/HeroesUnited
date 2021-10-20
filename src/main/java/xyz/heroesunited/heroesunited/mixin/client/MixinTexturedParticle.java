@@ -21,7 +21,7 @@ public abstract class MixinTexturedParticle extends Particle {
     @Redirect(method = "render(Lcom/mojang/blaze3d/vertex/IVertexBuilder;Lnet/minecraft/client/renderer/ActiveRenderInfo;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/particle/TexturedParticle;getQuadSize(F)F"))
     private float changeQuadSize(TexturedParticle texturedParticle, float partialTicks) {
         if (this.level.dimension().equals(HeroesUnited.SPACE)) {
-            return this.getQuadSize(partialTicks) *0.01F;
+            return this.getQuadSize(partialTicks) * 0.01F;
         }
         return this.getQuadSize(partialTicks);
     }

@@ -60,7 +60,8 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
             } else {
                 return new ResourceLocation(JSONUtils.getAsString(this.getJsonObject(), "texture"));
             }
-        } else return new ResourceLocation(getSuitOrSuperpowerName().getNamespace(), "textures/ability/" + getSuitOrSuperpowerName().getPath() + "_" + this.name + ".png");
+        } else
+            return new ResourceLocation(getSuitOrSuperpowerName().getNamespace(), "textures/ability/" + getSuitOrSuperpowerName().getPath() + "_" + this.name + ".png");
     }
 
     @OnlyIn(Dist.CLIENT)

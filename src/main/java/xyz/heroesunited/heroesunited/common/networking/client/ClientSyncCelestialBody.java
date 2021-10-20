@@ -10,8 +10,8 @@ import java.util.function.Supplier;
 
 public class ClientSyncCelestialBody {
 
-    private CompoundNBT nbt;
-    private ResourceLocation celestialBodyKey;
+    private final CompoundNBT nbt;
+    private final ResourceLocation celestialBodyKey;
 
     public ClientSyncCelestialBody(CompoundNBT nbt, ResourceLocation celestialBodyKey) {
         this.nbt = nbt;

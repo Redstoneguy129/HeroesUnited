@@ -10,8 +10,9 @@ public class HUData<T> {
 
     protected final String key;
     protected final boolean json;
-    private T value, defaultValue;
+    private final T defaultValue;
     private boolean dirty;
+    private T value;
 
     public HUData(String key, T defaultValue, boolean json) {
         this.key = key;
