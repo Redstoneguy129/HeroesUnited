@@ -1,20 +1,23 @@
 buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net' }
+        maven { url = 'https://maven.parchmentmc.org' }
         maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+        gradlePluginPortal()
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1+', changing: true
-        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
-        classpath "com.github.jengelman.gradle.plugins:shadow:4.0.4"
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1+', changing: true
+        classpath "gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0"
+        classpath 'org.spongepowered:mixingradle:0.7.+'
+        classpath 'org.parchmentmc:librarian:1.+'
     }
 }
 
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'idea'
 
@@ -25,7 +28,7 @@ archivesBaseName = "heroesunited"
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
-    mappings channel: 'official', version: "$project.minecraft_version"
+    mappings channel: 'parchment', version: '2021.10.17-1.16.5'
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     runs {
         client {
@@ -34,7 +37,6 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            arg "-mixin.config=heroesunited.mixins.json"
             mods {
                 heroesunited {
                     source sourceSets.main
@@ -44,7 +46,9 @@ minecraft {
 
         clientWithCredentials {
             parent runs.client
-            args '--username', 'jeb_', '--uuid', '853c80ef-3c37-49fd-aa49-938b674adae6', "-mixin.config=heroesunited.mixins.json"
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            args '--username', 'jeb_', '--uuid', '853c80ef-3c37-49fd-aa49-938b674adae6'
         }
 
         server {
@@ -100,9 +104,9 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:$project.minecraft_version-$project.forge_version"
-    annotationProcessor 'org.spongepowered:mixin:0.8.2:processor'
+    //annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
-    compileOnly fg.deobf('curse.maven:obfuscate-289380:3148131')
+    implementation fg.deobf('curse.maven:obfuscate-289380:3148131')
 
     implementation 'com.github.Vatuu:discord-rpc:1.6.2'
     implementation fg.deobf("software.bernie.geckolib:geckolib-forge-1.16.5:$project.geckolib_version")
@@ -145,7 +149,6 @@ jar {
                 "Implementation-Version"  : "${version}",
                 "Implementation-Vendor"   : "${archivesBaseName}sareus",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "MixinConfigs"            : "heroesunited.mixins.json"
         ])
     }
 }
@@ -153,6 +156,12 @@ jar {
 
 mixin {
     add sourceSets.main, "heroesunited.refmap.json"
+    config 'heroesunited.mixins.json'
+
+    debug.verbose = true
+    debug.export = true
+    dumpTargetOnFailure = true
+    quiet
 }
 
 publishing {
@@ -166,13 +175,10 @@ publishing {
     }
     repositories {
         maven {
-            def explodingCreeperURL = System.getenv("explodingCreeperURL")
-            url = explodingCreeperURL
+            url = 'https://maven.explodingcreeper.me/'
             credentials {
-                def envUsername = System.getenv("explodingCreeperUser")
-                def envPassword = System.getenv("explodingCreeperPassword")
-                username = envUsername
-                password = envPassword
+                username = System.getenv("explodingCreeperUser")
+                password = System.getenv("explodingCreeperPassword")
             }
         }
     }
