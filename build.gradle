@@ -106,7 +106,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:$project.minecraft_version-$project.forge_version"
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
-    implementation fg.deobf('curse.maven:obfuscate-289380:3148131')
+    compileOnly fg.deobf('curse.maven:obfuscate-289380:3148131')
 
     implementation 'com.github.Vatuu:discord-rpc:1.6.2'
     implementation fg.deobf("software.bernie.geckolib:geckolib-forge-1.16.5:$project.geckolib_version")
@@ -148,7 +148,7 @@ jar {
                 "Implementation-Title"    : project.name,
                 "Implementation-Version"  : "${version}",
                 "Implementation-Vendor"   : "${archivesBaseName}sareus",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
 }
