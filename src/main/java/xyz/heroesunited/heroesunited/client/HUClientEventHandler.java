@@ -54,12 +54,12 @@ import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
-import xyz.heroesunited.heroesunited.common.networking.server.ServerDisableAbility;
-import xyz.heroesunited.heroesunited.common.networking.server.ServerEnableAbility;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerKeyInput;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccessoriesInv;
+import xyz.heroesunited.heroesunited.common.networking.server.ServerToggleAbility;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
@@ -122,11 +122,7 @@ public class HUClientEventHandler {
                 if (key == e.getKey() && e.getAction() == GLFW.GLFW_PRESS) {
                     Ability ability = abilities.get(i);
                     if (!ability.alwaysActive(mc.player)) {
-                        if (AbilityHelper.isActivated(ability.name, mc.player)) {
-                            HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerDisableAbility(ability.name));
-                        } else {
-                            HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerEnableAbility(ability.name, ability.serializeNBT()));
-                        }
+                        HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerToggleAbility(ability.name));
                         mc.getSoundManager().play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                     }
                     ((InvokerKeyBinding) mc.options.keyHotbarSlots[i]).releaseKey();
@@ -302,12 +298,13 @@ public class HUClientEventHandler {
         HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United", null, HURichPresence.MiniLogos.NONE, null);
     }
 
+    @SuppressWarnings("unchecked")
     @SubscribeEvent
     public void renderPlayerPre(RenderPlayerEvent.Pre event) {
         PlayerEntity player = event.getPlayer();
         AbilityHelper.getAbilities(player).forEach(ability -> ability.renderPlayerPre(event));
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-            AnimationEvent animationEvent = new AnimationEvent(cap, 0.0F, 0.0F, event.getPartialRenderTick(), false, Arrays.asList(player, player.getUUID()));
+            AnimationEvent<IHUPlayer> animationEvent = new AnimationEvent<>(cap, 0.0F, 0.0F, event.getPartialRenderTick(), false, Arrays.asList(player, player.getUUID()));
             animationEvent.setController(cap.getController());
             if (!(Minecraft.getInstance().getOverlay() instanceof ResourceLoadProgressGui)) {
                 cap.getAnimatedModel().setLivingAnimations(cap, player.getUUID().hashCode(), animationEvent);
@@ -367,13 +364,15 @@ public class HUClientEventHandler {
         });
     }
 
+    @SuppressWarnings("unchecked")
     @SubscribeEvent
     public void setRotationAngles(HUSetRotationAnglesEvent event) {
         PlayerEntity player = event.getPlayer();
         AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.setRotationAngles(event));
         for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
-            if (Suit.getSuitItem(equipmentSlot, player) != null) {
-                Suit.getSuitItem(equipmentSlot, player).getSuit().setRotationAngles(event, equipmentSlot);
+            SuitItem suitItem = Suit.getSuitItem(equipmentSlot, player);
+            if (suitItem != null) {
+                suitItem.getSuit().setRotationAngles(event, equipmentSlot);
             }
         }
         player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {

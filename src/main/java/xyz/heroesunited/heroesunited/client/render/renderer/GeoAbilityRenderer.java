@@ -40,6 +40,12 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends BipedMo
 
     protected final AnimatedGeoModel<T> modelProvider;
 
+    public GeoAbilityRenderer(T ability) {
+        super(1);
+        this.currentAbility = ability;
+        this.modelProvider = ability.getGeoModel();
+    }
+
     public GeoAbilityRenderer(AnimatedGeoModel<T> modelProvider) {
         super(1);
         this.modelProvider = modelProvider;
@@ -177,6 +183,11 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends BipedMo
     @Override
     public ResourceLocation getTextureLocation(T instance) {
         return this.modelProvider.getTextureLocation(instance);
+    }
+
+    public void setCurrentAbility(AbstractClientPlayerEntity player, BipedModel from) {
+        this.player = player;
+        from.copyPropertiesTo(this);
     }
 
     public void setCurrentAbility(AbstractClientPlayerEntity player, T ability, BipedModel from) {

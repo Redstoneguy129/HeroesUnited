@@ -21,7 +21,7 @@ public interface IHUAbilityCap extends INBTSerializable<CompoundNBT> {
      * Ability - Gen Rex abilities, Aliens powers, Danny Phantom powers active, etc.
      * If using unofficial mod like *The Boys - By Chappie* then you can set ability to A-Train to make so other mods abilities don't work.
      **/
-    void enable(String id, Ability ability);
+    void enable(String id);
 
     void disable(String id);
 

@@ -208,7 +208,7 @@ public class HUEventHandler {
                         Ability ability = e.getValue();
                         if (ability != null && ability.alwaysActive(pl)) {
                             if (ability.canActivate(pl)) {
-                                a.enable(e.getKey(), ability);
+                                a.enable(e.getKey());
                             } else {
                                 a.disable(e.getKey());
                             }

@@ -42,21 +42,22 @@ public class HUAbilityCap implements IHUAbilityCap {
     }
 
     @Override
-    public void enable(String id, Ability ability) {
-        if (!activeAbilities.containsKey(id)) {
-            activeAbilities.put(id, ability);
-            ability.name = id;
+    public void enable(String id) {
+        if (!this.activeAbilities.containsKey(id)) {
+            Ability ability = this.containedAbilities.get(id);
+            this.activeAbilities.put(id, ability);
             ability.onActivated(player);
             if (!player.level.isClientSide)
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientEnableAbility(player.getId(), id, ability.serializeNBT()));
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientEnableAbility(player.getId(), id));
         }
     }
 
     @Override
     public void disable(String id) {
-        if (activeAbilities.containsKey(id)) {
-            activeAbilities.get(id).onDeactivated(player);
-            activeAbilities.remove(id);
+        if (this.activeAbilities.containsKey(id)) {
+            this.containedAbilities.put(id, this.activeAbilities.get(id));
+            this.containedAbilities.get(id).onDeactivated(player);
+            this.activeAbilities.remove(id);
             if (!player.level.isClientSide)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientDisableAbility(player.getId(), id));
         }
@@ -92,10 +93,10 @@ public class HUAbilityCap implements IHUAbilityCap {
 
     @Override
     public void removeAbility(String id) {
-        if (containedAbilities.containsKey(id)) {
-            containedAbilities.remove(id);
-            disable(id);
-            syncToAll();
+        if (this.containedAbilities.containsKey(id)) {
+            this.disable(id);
+            this.containedAbilities.remove(id);
+            this.syncToAll();
             if (!player.level.isClientSide)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getId(), this.getAbilities()));
         }
@@ -103,7 +104,7 @@ public class HUAbilityCap implements IHUAbilityCap {
 
     @Override
     public void onKeyInput(KeyMap map) {
-        activeAbilities.forEach((name, ability) -> {
+        this.activeAbilities.forEach((name, ability) -> {
             if (ability != null) {
                 ability.onKeyInput(player, map);
             }
@@ -133,7 +134,6 @@ public class HUAbilityCap implements IHUAbilityCap {
 
     @Override
     public IHUAbilityCap syncToAll() {
-        this.sync();
         for (PlayerEntity player : this.player.level.players()) {
             if (player instanceof ServerPlayerEntity) {
                 HUNetworking.INSTANCE.sendTo(new ClientSyncAbilityCap(this.player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);

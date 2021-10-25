@@ -26,9 +26,8 @@ import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.Level;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
-import xyz.heroesunited.heroesunited.common.networking.server.ServerDisableAbility;
-import xyz.heroesunited.heroesunited.common.networking.server.ServerEnableAbility;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerSetTheme;
+import xyz.heroesunited.heroesunited.common.networking.server.ServerToggleAbility;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 
 import java.awt.*;
@@ -242,11 +241,7 @@ public class AbilitiesScreen extends Screen {
         private static void onPressed(Button button) {
             AbilityButton btn = (AbilityButton) button;
             if (!btn.ability.alwaysActive(btn.parent.minecraft.player)) {
-                if (AbilityHelper.isActivated(btn.ability.name, btn.parent.minecraft.player)) {
-                    HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerDisableAbility(btn.ability.name));
-                } else {
-                    HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerEnableAbility(btn.ability.name, btn.ability.serializeNBT()));
-                }
+                HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerToggleAbility(btn.ability.name));
                 btn.parent.minecraft.getSoundManager().play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             }
         }

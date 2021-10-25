@@ -36,8 +36,7 @@ public class HUNetworking {
         INSTANCE.registerMessage(NextID(), ServerSetHUType.class, ServerSetHUType::toBytes, ServerSetHUType::new, ServerSetHUType::handle);
         INSTANCE.registerMessage(NextID(), ServerHorasPlayerSetDimension.class, ServerHorasPlayerSetDimension::toBytes, ServerHorasPlayerSetDimension::new, ServerHorasPlayerSetDimension::handle);
         INSTANCE.registerMessage(NextID(), ServerKeyInput.class, ServerKeyInput::toBytes, ServerKeyInput::new, ServerKeyInput::handle);
-        INSTANCE.registerMessage(NextID(), ServerEnableAbility.class, ServerEnableAbility::toBytes, ServerEnableAbility::new, ServerEnableAbility::handle);
-        INSTANCE.registerMessage(NextID(), ServerDisableAbility.class, ServerDisableAbility::toBytes, ServerDisableAbility::new, ServerDisableAbility::handle);
+        INSTANCE.registerMessage(NextID(), ServerToggleAbility.class, ServerToggleAbility::toBytes, ServerToggleAbility::new, ServerToggleAbility::handle);
         INSTANCE.registerMessage(NextID(), ServerOpenAccessoriesInv.class, ServerOpenAccessoriesInv::toBytes, ServerOpenAccessoriesInv::new, ServerOpenAccessoriesInv::handle);
     }
 }

@@ -57,7 +57,7 @@ public class ClientSyncAbilities {
 
             if (entity instanceof AbstractClientPlayerEntity) {
                 entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent((a) -> {
-                    ImmutableList.copyOf(a.getActiveAbilities().keySet()).forEach(a::removeAbility);
+                    ImmutableList.copyOf(a.getAbilities().keySet()).forEach(a::removeAbility);
                     this.abilities.forEach((key, value) -> {
                         if (value.serializeNBT().contains("JsonObject")) {
                             value.setJsonObject(entity, new JsonParser().parse(value.serializeNBT().getString("JsonObject")).getAsJsonObject());
