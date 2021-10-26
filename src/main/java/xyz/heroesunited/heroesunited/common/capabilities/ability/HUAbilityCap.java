@@ -134,6 +134,7 @@ public class HUAbilityCap implements IHUAbilityCap {
 
     @Override
     public IHUAbilityCap syncToAll() {
+        this.sync();
         for (PlayerEntity player : this.player.level.players()) {
             if (player instanceof ServerPlayerEntity) {
                 HUNetworking.INSTANCE.sendTo(new ClientSyncAbilityCap(this.player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);

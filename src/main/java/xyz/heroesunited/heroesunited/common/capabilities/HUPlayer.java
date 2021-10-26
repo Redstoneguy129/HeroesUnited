@@ -91,9 +91,13 @@ public class HUPlayer implements IHUPlayer {
         return superpowerLevels;
     }
 
+    public void setAnimationFile(ResourceLocation animationFile) {
+        this.animationFile = animationFile;
+    }
+
     @Override
     public void setAnimation(String name, ResourceLocation animationFile, boolean loop) {
-        this.animationFile = animationFile;
+        setAnimationFile(animationFile);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             getController().markNeedsReload();
             getController().setAnimation(new AnimationBuilder().addAnimation(name, loop));

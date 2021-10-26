@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -14,15 +13,15 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.AbstractMap.SimpleEntry;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class JsonConditionManager implements INBTSerializable<CompoundNBT> {
 
-    protected HashMap<String, Boolean> methodConditions = Maps.newHashMap();
+    protected ConcurrentHashMap<String, Boolean> methodConditions = new ConcurrentHashMap<>();
 
-    protected HashMap<Map.Entry<JsonObject, UUID>, Boolean> conditions = Maps.newHashMap();
+    protected ConcurrentHashMap<Map.Entry<JsonObject, UUID>, Boolean> conditions = new ConcurrentHashMap<>();
 
     public void registerConditions(JsonObject jsonObject) {
         if (JSONUtils.isValidNode(jsonObject, "conditions")) {
@@ -45,7 +44,7 @@ public class JsonConditionManager implements INBTSerializable<CompoundNBT> {
     }
 
     public void update(PlayerEntity player) {
-        HashMap<String, Boolean> methodConditions = Maps.newHashMap();
+        ConcurrentHashMap<String, Boolean> methodConditions = new ConcurrentHashMap<>();
 
         for (Map.Entry<JsonObject, UUID> entry : this.conditions.keySet()) {
             boolean b = JSONUtils.getAsBoolean(entry.getKey(), "invert", false) != getFromJson(entry.getKey()).getBiFunction().apply(player, entry.getKey());
@@ -73,11 +72,11 @@ public class JsonConditionManager implements INBTSerializable<CompoundNBT> {
     public void sync(PlayerEntity player) {
     }
 
-    public HashMap<Map.Entry<JsonObject, UUID>, Boolean> getConditions() {
+    public ConcurrentHashMap<Map.Entry<JsonObject, UUID>, Boolean> getConditions() {
         return conditions;
     }
 
-    public HashMap<String, Boolean> getMethodConditions() {
+    public ConcurrentHashMap<String, Boolean> getMethodConditions() {
         return methodConditions;
     }
 

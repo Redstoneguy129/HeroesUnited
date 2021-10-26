@@ -51,7 +51,7 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
             parts.add(PlayerPart.RIGHT_ARM);
             parts.add(PlayerPart.RIGHT_ARM_WEAR);
         }
-        if (this == HUItems.REDA_SHIRT) {
+        if (this == HUItems.REDA_SHIRT || this == HUItems.GREEN_SHIRT) {
             parts.add(PlayerPart.RIGHT_ARM_WEAR);
             parts.add(PlayerPart.LEFT_ARM_WEAR);
             parts.add(PlayerPart.CHEST_WEAR);
