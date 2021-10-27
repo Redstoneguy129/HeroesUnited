@@ -6,8 +6,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
 import java.util.function.Supplier;
@@ -44,12 +42,7 @@ public class ClientSetAnimation {
         ctx.get().enqueueWork(() -> {
             Entity entity = Minecraft.getInstance().level.getEntity(this.entityId);
             if (entity instanceof AbstractClientPlayerEntity) {
-                entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                    ((HUPlayer) cap).setAnimationFile(animationFile);
-                    cap.getController().markNeedsReload();
-                    cap.getController().setAnimation(new AnimationBuilder().addAnimation(name, loop));
-                    cap.setAnimation(this.name, this.animationFile, this.loop);
-                });
+                entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> cap.setAnimation(this.name, this.animationFile, this.loop));
             }
         });
         ctx.get().setPacketHandled(true);

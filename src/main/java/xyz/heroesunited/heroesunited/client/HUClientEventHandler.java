@@ -305,7 +305,6 @@ public class HUClientEventHandler {
         AbilityHelper.getAbilities(player).forEach(ability -> ability.renderPlayerPre(event));
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             AnimationEvent<IHUPlayer> animationEvent = new AnimationEvent<>(cap, 0.0F, 0.0F, event.getPartialRenderTick(), false, Arrays.asList(player, player.getUUID()));
-            animationEvent.setController(cap.getController());
             if (!(Minecraft.getInstance().getOverlay() instanceof ResourceLoadProgressGui)) {
                 cap.getAnimatedModel().setLivingAnimations(cap, player.getUUID().hashCode(), animationEvent);
             }
@@ -394,12 +393,18 @@ public class HUClientEventHandler {
                             renderer.yRot = -bone.getRotationY();
                             renderer.zRot = bone.getRotationZ();
 
-                            renderer.x = -(bone.getPivotX() + bone.getPositionX());
-                            renderer.y = (24 - bone.getPivotY()) - bone.getPositionY();
-                            renderer.z = bone.getPivotZ() + bone.getPositionZ();
+                            if (bone.getPositionX() != 0) {
+                                renderer.x = -(bone.getPivotX() + bone.getPositionX());
+                            }
+                            if (bone.getPositionY() != 0) {
+                                renderer.y = (24 - bone.getPivotY()) - bone.getPositionY();
+                            }
+                            if (bone.getPositionZ() != 0) {
+                                renderer.z = bone.getPivotZ() + bone.getPositionZ();
+                            }
 
                             if (bone.name.endsWith("Leg")) {
-                                renderer.y = ((24 - bone.getPivotY()) - bone.getPositionY()) - bone.getScaleY() * 2;
+                                renderer.y = renderer.y - bone.getScaleY() * 2;
                             }
                             ((IHUModelRenderer) renderer).setSize(new Vector3f(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ()));
                         }

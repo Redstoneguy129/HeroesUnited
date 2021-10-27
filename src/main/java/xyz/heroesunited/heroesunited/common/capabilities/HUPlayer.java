@@ -91,19 +91,15 @@ public class HUPlayer implements IHUPlayer {
         return superpowerLevels;
     }
 
-    public void setAnimationFile(ResourceLocation animationFile) {
-        this.animationFile = animationFile;
-    }
-
     @Override
     public void setAnimation(String name, ResourceLocation animationFile, boolean loop) {
-        setAnimationFile(animationFile);
+        this.animationFile = animationFile;
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             getController().markNeedsReload();
             getController().setAnimation(new AnimationBuilder().addAnimation(name, loop));
         });
         if (!player.level.isClientSide) {
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSetAnimation(player.getId(), name, animationFile, loop));
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSetAnimation(player.getId(), name, this.modelProvider.getAnimationFileLocation(this), loop));
         }
         syncToAll();
     }
@@ -194,7 +190,7 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController<IHUPlayer>(this, "controller", 1, this::predicate));
+        data.addAnimationController(new AnimationController<>(this, "controller", 1, this::predicate));
     }
 
     private <P extends IHUPlayer> PlayState predicate(AnimationEvent<P> event) {
