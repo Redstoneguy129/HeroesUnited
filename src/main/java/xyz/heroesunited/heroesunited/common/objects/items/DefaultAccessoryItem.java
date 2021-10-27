@@ -64,6 +64,15 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
             parts.add(PlayerPart.HEAD_WEAR);
         }
 
+        if (this == HUItems.HOKAGE_CAPE) {
+            parts.add(PlayerPart.HEAD_WEAR);
+            parts.add(PlayerPart.RIGHT_ARM_WEAR);
+            parts.add(PlayerPart.LEFT_ARM_WEAR);
+            parts.add(PlayerPart.CHEST_WEAR);
+            parts.add(PlayerPart.LEFT_LEG_WEAR);
+            parts.add(PlayerPart.RIGHT_LEG_WEAR);
+        }
+
         return parts;
     }
 

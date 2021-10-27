@@ -3,7 +3,6 @@ package xyz.heroesunited.heroesunited.common.objects.items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.Items;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.DeferredRegister;
@@ -44,12 +43,8 @@ public class HUItems {
     public static final GeckoAccessory MADNESSCOMBAT = register("madnesscombat", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "Mattetull"));
     public static final GeckoAccessory MADNESSCLAW = register("madnessclaw", new GeckoAccessory(EquipmentAccessoriesSlot.RIGHT_WRIST, "Mattetull"));
     public static final GeckoAccessory CAP_SHIELD_ACCESSORY = register("cap_shield", new GeckoAccessory(EquipmentAccessoriesSlot.TSHIRT, "El Dunchess"));
-    public static final GeckoAccessory GREEN_GOGGLES = register("green_goggles", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "artman") {
-        @Override
-        public ResourceLocation getModelFile() {
-            return new ResourceLocation(HeroesUnited.MODID, "geo/rex_glasses.geo.json");
-        }
-    });
+    public static final GeckoAccessory GREEN_GOGGLES = register("green_goggles", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "artman"));
+    public static final GeckoAccessory HOKAGE_CAPE = register("hokage_cape", new GeckoAccessory(EquipmentAccessoriesSlot.JACKET, "Master Ern"));
 
     private static <T extends Item> T register(String name, T item) {
         ITEMS.register(name, () -> item);
