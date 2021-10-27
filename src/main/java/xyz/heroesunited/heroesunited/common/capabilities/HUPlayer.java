@@ -10,6 +10,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.PacketDistributor;
@@ -22,6 +23,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.common.events.HURegisterPlayerControllers;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.HUTypes;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSetAnimation;
@@ -92,14 +94,14 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
-    public void setAnimation(String name, ResourceLocation animationFile, boolean loop) {
+    public void setAnimation(String name, String controllerName, ResourceLocation animationFile, boolean loop) {
         this.animationFile = animationFile;
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            getController().markNeedsReload();
-            getController().setAnimation(new AnimationBuilder().addAnimation(name, loop));
+            getController(controllerName).markNeedsReload();
+            getController(controllerName).setAnimation(new AnimationBuilder().addAnimation(name, loop));
         });
         if (!player.level.isClientSide) {
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSetAnimation(player.getId(), name, this.modelProvider.getAnimationFileLocation(this), loop));
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSetAnimation(player.getId(), name, controllerName, this.modelProvider.getAnimationFileLocation(this), loop));
         }
         syncToAll();
     }
@@ -191,6 +193,7 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public void registerControllers(AnimationData data) {
         data.addAnimationController(new AnimationController<>(this, "controller", 1, this::predicate));
+        MinecraftForge.EVENT_BUS.post(new HURegisterPlayerControllers(this, player, data));
     }
 
     private <P extends IHUPlayer> PlayState predicate(AnimationEvent<P> event) {
@@ -206,8 +209,8 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
-    public AnimationController getController() {
-        return getFactory().getOrCreateAnimationData(player.getUUID().hashCode()).getAnimationControllers().get("controller");
+    public AnimationController getController(String controllerName) {
+        return getFactory().getOrCreateAnimationData(player.getUUID().hashCode()).getAnimationControllers().get(controllerName);
     }
 
     @Override

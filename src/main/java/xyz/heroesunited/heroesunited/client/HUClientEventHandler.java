@@ -42,6 +42,7 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 import software.bernie.geckolib3.core.AnimationState;
+import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.keyframe.BoneAnimation;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
@@ -56,6 +57,7 @@ import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
+import xyz.heroesunited.heroesunited.common.events.HURegisterPlayerControllers;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerKeyInput;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccessoriesInv;
@@ -304,6 +306,7 @@ public class HUClientEventHandler {
         PlayerEntity player = event.getPlayer();
         AbilityHelper.getAbilities(player).forEach(ability -> ability.renderPlayerPre(event));
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+            cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap));
             AnimationEvent<IHUPlayer> animationEvent = new AnimationEvent<>(cap, 0.0F, 0.0F, event.getPartialRenderTick(), false, Arrays.asList(player, player.getUUID()));
             if (!(Minecraft.getInstance().getOverlay() instanceof ResourceLoadProgressGui)) {
                 cap.getAnimatedModel().setLivingAnimations(cap, player.getUUID().hashCode(), animationEvent);
@@ -363,6 +366,11 @@ public class HUClientEventHandler {
         });
     }
 
+    @SubscribeEvent
+    public void registerControllers(HURegisterPlayerControllers event) {
+        AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.registerPlayerControllers(event));
+    }
+
     @SuppressWarnings("unchecked")
     @SubscribeEvent
     public void setRotationAngles(HUSetRotationAnglesEvent event) {
@@ -383,30 +391,32 @@ public class HUClientEventHandler {
         });
 
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-            for (String s : Arrays.asList("bipedHead", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg")) {
-                GeoBone bone = cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap)).getBone(s).get();
-                ModelRenderer renderer = HUClientUtil.getModelRendererById(event.getPlayerModel(), s);
-                if (cap.getController().getCurrentAnimation() != null && cap.getController().getAnimationState() == AnimationState.Running) {
-                    for (BoneAnimation boneAnimation : cap.getController().getCurrentAnimation().boneAnimations) {
-                        if (boneAnimation.boneName.equals(s)) {
-                            renderer.xRot = -bone.getRotationX();
-                            renderer.yRot = -bone.getRotationY();
-                            renderer.zRot = bone.getRotationZ();
+            for (AnimationController<?> controller : cap.getFactory().getOrCreateAnimationData(player.getUUID().hashCode()).getAnimationControllers().values()) {
+                if (controller.getCurrentAnimation() != null && controller.getAnimationState() == AnimationState.Running) {
+                    for (String s : Arrays.asList("bipedHead", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg")) {
+                        GeoBone bone = cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap)).getBone(s).get();
+                        ModelRenderer renderer = HUClientUtil.getModelRendererById(event.getPlayerModel(), s);
+                        for (BoneAnimation boneAnimation : controller.getCurrentAnimation().boneAnimations) {
+                            if (boneAnimation.boneName.equals(s)) {
+                                renderer.xRot = -bone.getRotationX();
+                                renderer.yRot = -bone.getRotationY();
+                                renderer.zRot = bone.getRotationZ();
 
-                            if (bone.getPositionX() != 0) {
-                                renderer.x = -(bone.getPivotX() + bone.getPositionX());
-                            }
-                            if (bone.getPositionY() != 0) {
-                                renderer.y = (24 - bone.getPivotY()) - bone.getPositionY();
-                            }
-                            if (bone.getPositionZ() != 0) {
-                                renderer.z = bone.getPivotZ() + bone.getPositionZ();
-                            }
+                                if (bone.getPositionX() != 0) {
+                                    renderer.x = -(bone.getPivotX() + bone.getPositionX());
+                                }
+                                if (bone.getPositionY() != 0) {
+                                    renderer.y = (24 - bone.getPivotY()) - bone.getPositionY();
+                                }
+                                if (bone.getPositionZ() != 0) {
+                                    renderer.z = bone.getPivotZ() + bone.getPositionZ();
+                                }
 
-                            if (bone.name.endsWith("Leg")) {
-                                renderer.y = renderer.y - bone.getScaleY() * 2;
+                                if (bone.name.endsWith("Leg")) {
+                                    renderer.y = renderer.y - bone.getScaleY() * 2;
+                                }
+                                ((IHUModelRenderer) renderer).setSize(new Vector3f(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ()));
                             }
-                            ((IHUModelRenderer) renderer).setSize(new Vector3f(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ()));
                         }
                     }
                 }

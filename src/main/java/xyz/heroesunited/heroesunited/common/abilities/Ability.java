@@ -31,6 +31,7 @@ import xyz.heroesunited.heroesunited.client.events.HUChangeRendererEvent;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.events.HUCancelSprinting;
+import xyz.heroesunited.heroesunited.common.events.HURegisterPlayerControllers;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbility;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityCreators;
@@ -120,6 +121,10 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
 
     @OnlyIn(Dist.CLIENT)
     public void inputUpdate(InputUpdateEvent event) {
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void registerPlayerControllers(HURegisterPlayerControllers event) {
     }
 
     @OnlyIn(Dist.CLIENT)
