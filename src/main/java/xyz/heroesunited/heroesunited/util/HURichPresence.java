@@ -9,6 +9,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.common.HUConfig;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 public class HURichPresence {
 
     private static final HURichPresence RPC = new HURichPresence("778269026874163230");
-    private static boolean hiddenRPC = false;
+    private static boolean hiddenRPC = HUConfig.CLIENT.richPresence.get();
 
     public static HURichPresence getPresence() {
         return RPC;

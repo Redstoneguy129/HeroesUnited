@@ -79,17 +79,6 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
-        super.inventoryTick(stack, world, entity, itemSlot, isSelected);
-        if (getSuit() instanceof JsonSuit) {
-            JsonSuit suit = ((JsonSuit) getSuit());
-            if (suit.getConditionManager().getConditions().isEmpty()) {
-                suit.getConditionManager().registerConditions(suit.getJsonObject());
-            }
-        }
-    }
-
-    @Override
     public void onArmorTick(ItemStack stack, World world, PlayerEntity player) {
         if (!getSuit().canEquip(player)) {
             player.inventory.add(player.getItemBySlot(slot));

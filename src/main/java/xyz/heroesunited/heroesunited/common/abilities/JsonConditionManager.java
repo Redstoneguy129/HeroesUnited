@@ -12,18 +12,16 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class JsonConditionManager implements INBTSerializable<CompoundNBT> {
 
     protected ConcurrentHashMap<String, Boolean> methodConditions = new ConcurrentHashMap<>();
 
-    protected ConcurrentHashMap<Map.Entry<JsonObject, UUID>, Boolean> conditions = new ConcurrentHashMap<>();
+    protected ConcurrentHashMap<JsonObject, Boolean> conditions = new ConcurrentHashMap<>();
 
     public void registerConditions(JsonObject jsonObject) {
+        if (jsonObject == null) return;
         if (JSONUtils.isValidNode(jsonObject, "conditions")) {
             JsonArray jsonArray = JSONUtils.getAsJsonArray(jsonObject, "conditions");
             for (JsonElement jsonElement : jsonArray) {
@@ -40,23 +38,25 @@ public class JsonConditionManager implements INBTSerializable<CompoundNBT> {
     }
 
     public void addCondition(JsonObject jsonObject, boolean active) {
-        this.conditions.put(new SimpleEntry<>(jsonObject, UUID.randomUUID()), active);
+        if (!this.conditions.containsKey(jsonObject)) {
+            this.conditions.put(jsonObject, active);
+        }
     }
 
     public void update(PlayerEntity player) {
         ConcurrentHashMap<String, Boolean> methodConditions = new ConcurrentHashMap<>();
 
-        for (Map.Entry<JsonObject, UUID> entry : this.conditions.keySet()) {
-            boolean b = JSONUtils.getAsBoolean(entry.getKey(), "invert", false) != getFromJson(entry.getKey()).getBiFunction().apply(player, entry.getKey());
-            if (b != this.conditions.get(entry)) {
-                this.conditions.put(entry, b);
+        for (JsonObject jsonObject : this.conditions.keySet()) {
+            boolean b = JSONUtils.getAsBoolean(jsonObject, "invert", false) != getFromJson(jsonObject).getBiFunction().apply(player, jsonObject);
+            if (b != this.conditions.get(jsonObject)) {
+                this.conditions.put(jsonObject, b);
                 this.sync(player);
             }
-            if (entry.getKey().has("method")) {
-                String method = JSONUtils.getAsString(entry.getKey(), "method");
+            if (jsonObject.has("method")) {
+                String method = JSONUtils.getAsString(jsonObject, "method");
                 methodConditions.put(method, methodConditions.containsKey(method) ? methodConditions.get(method) && b : b);
             } else {
-                JsonArray methods = JSONUtils.getAsJsonArray(entry.getKey(), "methods");
+                JsonArray methods = JSONUtils.getAsJsonArray(jsonObject, "methods");
                 for (JsonElement method : methods) {
                     methodConditions.put(method.getAsString(), methodConditions.containsKey(method.getAsString()) ? methodConditions.get(method.getAsString()) && b : b);
                 }
@@ -72,7 +72,7 @@ public class JsonConditionManager implements INBTSerializable<CompoundNBT> {
     public void sync(PlayerEntity player) {
     }
 
-    public ConcurrentHashMap<Map.Entry<JsonObject, UUID>, Boolean> getConditions() {
+    public ConcurrentHashMap<JsonObject, Boolean> getConditions() {
         return conditions;
     }
 
@@ -112,7 +112,7 @@ public class JsonConditionManager implements INBTSerializable<CompoundNBT> {
             conditions.forEach((key, value) -> {
                 CompoundNBT conditionTag = new CompoundNBT();
                 conditionTag.putBoolean("Active", value);
-                conditionTag.putString("JsonObject", key.getKey().toString());
+                conditionTag.putString("JsonObject", key.toString());
                 list.add(conditionTag);
             });
         }

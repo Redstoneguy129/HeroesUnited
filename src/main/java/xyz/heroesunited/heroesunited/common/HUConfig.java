@@ -15,12 +15,12 @@ public class HUConfig {
 
     public static class Client {
 
-        public final ForgeConfigSpec.BooleanValue renderHead;
+        public final ForgeConfigSpec.BooleanValue richPresence;
 
         Client(ForgeConfigSpec.Builder builder) {
 
             builder.comment("Client Settings").push("client");
-            renderHead = builder.comment("Changes the patreon-players head").translation("config.heroesunited.renderhead").define("changeHead", true);
+            richPresence = builder.comment("Toggle rich presence").translation("config.heroesunited.richPresence").define("richPresence", false);
             builder.pop();
         }
 

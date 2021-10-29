@@ -12,7 +12,6 @@ import net.minecraft.tags.ITag;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.*;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
@@ -23,7 +22,6 @@ import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 
 import java.util.function.BiFunction;
 
-@Mod.EventBusSubscriber(modid = HeroesUnited.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Condition extends ForgeRegistryEntry<Condition> {
 
     public static final DeferredRegister<Condition> CONDITIONS = DeferredRegister.create(Condition.class, HeroesUnited.MODID);

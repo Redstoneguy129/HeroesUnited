@@ -86,7 +86,14 @@ public class JsonSuit extends Suit {
     }
 
     @Override
+    public void onUpdate(PlayerEntity player, EquipmentSlotType slot) {
+        super.onUpdate(player, slot);
+        this.conditionManager.registerConditions(jsonObject);
+    }
+
+    @Override
     public boolean canEquip(PlayerEntity player) {
+        this.conditionManager.registerConditions(jsonObject);
         return super.canEquip(player) && this.conditionManager.isEnabled(player, "equip");
     }
 

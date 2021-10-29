@@ -9,7 +9,6 @@ import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.*;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
@@ -315,21 +314,17 @@ public class HUEventHandler {
                 if (event.getSlot().getType() == EquipmentSlotType.Group.ARMOR) {
                     if (event.getFrom().getItem() instanceof SuitItem && !cap.getAbilities().isEmpty()) {
                         SuitItem suitItem = (SuitItem) event.getFrom().getItem();
-                        for (Ability a : AbilityHelper.getAbilityMap(player).values()) {
-                            if (suitItem.getAbilities(player).containsKey(a.name)) {
-                                CompoundNBT suit = suitItem.getAbilities(player).get(a.name).getAdditionalData();
-                                if (a.getAdditionalData().equals(suit) && a.getAdditionalData().contains("Suit")) {
+                        if (!(event.getTo().getItem() instanceof SuitItem) || ((SuitItem) event.getTo().getItem()).getSuit() != suitItem.getSuit()) {
+                            cap.clearAbilities((a) -> {
+                                if (suitItem.getAbilities(player).containsKey(a.name) && a.getAdditionalData().equals(suitItem.getAbilities(player).get(a.name).getAdditionalData()) && a.getAdditionalData().contains("Suit")) {
                                     if (a.getJsonObject() != null && a.getJsonObject().has("slot")) {
-                                        if (suitItem.getSlot().getName().toLowerCase().equals(JSONUtils.getAsString(a.getJsonObject(), "slot"))) {
-                                            cap.removeAbility(a.name);
-                                        }
-                                    } else {
-                                        cap.removeAbility(a.name);
-                                    }
+                                        return suitItem.getSlot().getName().toLowerCase().equals(JSONUtils.getAsString(a.getJsonObject(), "slot"));
+                                    } else return true;
                                 }
-                            }
+                                return false;
+                            });
+                            suitItem.getSuit().onDeactivated(player, suitItem.getSlot());
                         }
-                        suitItem.getSuit().onDeactivated(player, suitItem.getSlot());
                     }
                     if (event.getTo().getItem() instanceof SuitItem) {
                         SuitItem suitItem = (SuitItem) event.getTo().getItem();
