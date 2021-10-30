@@ -24,30 +24,36 @@ public enum PlayerPart {
 
     public ModelRenderer getModelRendererByPart(PlayerModel<?> model) {
         switch (this) {
-            case HEAD:
-                return model.head;
             case HEAD_WEAR:
                 return model.hat;
-            case CHEST:
-                return model.body;
             case CHEST_WEAR:
                 return model.jacket;
-            case RIGHT_ARM:
-                return model.rightArm;
             case RIGHT_ARM_WEAR:
                 return model.rightSleeve;
-            case LEFT_ARM:
-                return model.leftArm;
             case LEFT_ARM_WEAR:
                 return model.leftSleeve;
-            case RIGHT_LEG:
-                return model.rightLeg;
             case RIGHT_LEG_WEAR:
                 return model.rightPants;
-            case LEFT_LEG:
-                return model.leftLeg;
             case LEFT_LEG_WEAR:
                 return model.leftPants;
+        }
+        return getMainModelRenderers(model);
+    }
+
+    public ModelRenderer getMainModelRenderers(PlayerModel<?> model) {
+        switch (this) {
+            case HEAD:
+                return model.head;
+            case CHEST:
+                return model.body;
+            case RIGHT_ARM:
+                return model.rightArm;
+            case LEFT_ARM:
+                return model.leftArm;
+            case RIGHT_LEG:
+                return model.rightLeg;
+            case LEFT_LEG:
+                return model.leftLeg;
         }
         return null;
     }

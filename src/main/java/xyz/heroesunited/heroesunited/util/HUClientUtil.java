@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.gui.ResourceLoadProgressGui;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderState;
 import net.minecraft.client.renderer.RenderType;
@@ -31,6 +32,7 @@ import net.minecraft.util.math.vector.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
+import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.geo.render.built.GeoCube;
 import software.bernie.geckolib3.geo.render.built.GeoQuad;
@@ -42,19 +44,30 @@ import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.client.render.model.ModelCape;
 import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
+import xyz.heroesunited.heroesunited.common.capabilities.PlayerGeoModel;
 
 import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 
 @OnlyIn(Dist.CLIENT)
 public class HUClientUtil {
 
-    public static final ResourceLocation null_texture = new ResourceLocation(HeroesUnited.MODID + ":textures/null.png");
-
+    @SuppressWarnings("unchecked")
     public static <M extends PlayerModel<AbstractClientPlayerEntity>> void renderModel(PlayerRenderer renderer, M model, AbstractClientPlayerEntity entity, MatrixStack matrixStack, IRenderTypeBuffer buffer, IVertexBuilder builder, int light, int overlay, float red, float green, float blue, float alpha, float limbSwing, float limbSwingAmount, float ageInTicks, float headPitch, float netHeadYaw) {
+        entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+            cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap));
+            PlayerGeoModel.ModelData modelData = new PlayerGeoModel.ModelData(renderer, limbSwing, limbSwingAmount, ageInTicks, headPitch, netHeadYaw);
+            AnimationEvent<IHUPlayer> animationEvent = new AnimationEvent<>(cap, limbSwing, limbSwingAmount, Minecraft.getInstance().getFrameTime(), false, Arrays.asList(entity, modelData, entity.getUUID()));
+            if (!(Minecraft.getInstance().getOverlay() instanceof ResourceLoadProgressGui)) {
+                cap.getAnimatedModel().setLivingAnimations(cap, entity.getUUID().hashCode(), animationEvent);
+            }
+        });
+
         MinecraftForge.EVENT_BUS.post(new HUSetRotationAnglesEvent(entity, model, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch));
         HUClientUtil.copyAnglesToWear(model);
 

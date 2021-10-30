@@ -1,7 +1,6 @@
 package xyz.heroesunited.heroesunited.common.capabilities;
 
 import com.google.common.collect.Maps;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -21,8 +20,6 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
-import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.events.HURegisterPlayerControllers;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.HUTypes;
@@ -36,31 +33,15 @@ import java.util.Map;
 
 public class HUPlayer implements IHUPlayer {
     public final AccessoriesInventory inventory;
-    private final PlayerEntity player;
-    private final AnimationFactory factory = new AnimationFactory(this);
+    protected final PlayerEntity player;
+    protected final AnimationFactory factory = new AnimationFactory(this);
     protected Map<ResourceLocation, Level> superpowerLevels;
     private int theme;
     private float flightAmount, flightAmountO;
     private float slowMo = 20F;
     private boolean flying, intangible;
-    private ResourceLocation animationFile;
-    private final AnimatedGeoModel<IHUPlayer> modelProvider = new AnimatedGeoModel<IHUPlayer>() {
-
-        @Override
-        public ResourceLocation getModelLocation(IHUPlayer o) {
-            return new ResourceLocation(HeroesUnited.MODID, "geo/player.geo.json");
-        }
-
-        @Override
-        public ResourceLocation getTextureLocation(IHUPlayer o) {
-            return ((ClientPlayerEntity) player).getSkinTextureLocation();
-        }
-
-        @Override
-        public ResourceLocation getAnimationFileLocation(IHUPlayer o) {
-            return animationFile != null ? animationFile : new ResourceLocation(HeroesUnited.MODID, "animations/player.animation.json");
-        }
-    };
+    protected ResourceLocation animationFile;
+    private final PlayerGeoModel modelProvider = new PlayerGeoModel();
 
     public HUPlayer(PlayerEntity player) {
         this.player = player;
@@ -186,7 +167,7 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
-    public AnimatedGeoModel<IHUPlayer> getAnimatedModel() {
+    public PlayerGeoModel getAnimatedModel() {
         return modelProvider;
     }
 
@@ -200,6 +181,8 @@ public class HUPlayer implements IHUPlayer {
         if (event.getController().getAnimationState().equals(AnimationState.Stopped)) {
             event.getController().markNeedsReload();
         }
+        event.getController().setAnimation(new AnimationBuilder().addAnimation("new_2", true));
+
         return PlayState.CONTINUE;
     }
 

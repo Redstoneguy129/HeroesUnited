@@ -95,6 +95,32 @@
 					}
 				}
 			}
+		},
+		"new": {
+			"animation_length": 0.54167,
+			"bones": {
+				"bipedRightArm": {
+					"rotation": {
+						"0.0": {
+							"vector": ["player.head.x_rot -100", 0, 90]
+						},
+						"0.5417": {
+							"vector": ["player.head.x_rot + 45", 0, 90],
+							"easing": "easeInElastic"
+						}
+					}
+				}
+			}
+		},
+		"new_2": {
+			"loop": true,
+			"bones": {
+				"bipedRightArm": {
+					"rotation": {
+						"vector": ["player.head.x_rot", "player.head.y_rot", "player.head.z_rot"]
+					}
+				}
+			}
 		}
 	},
 	"geckolib_format_version": 2

@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.ResourceLoadProgressGui;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
@@ -43,7 +42,6 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 import software.bernie.geckolib3.core.AnimationState;
 import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.keyframe.BoneAnimation;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -55,7 +53,6 @@ import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
-import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.events.HURegisterPlayerControllers;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
@@ -306,11 +303,6 @@ public class HUClientEventHandler {
         PlayerEntity player = event.getPlayer();
         AbilityHelper.getAbilities(player).forEach(ability -> ability.renderPlayerPre(event));
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-            cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap));
-            AnimationEvent<IHUPlayer> animationEvent = new AnimationEvent<>(cap, 0.0F, 0.0F, event.getPartialRenderTick(), false, Arrays.asList(player, player.getUUID()));
-            if (!(Minecraft.getInstance().getOverlay() instanceof ResourceLoadProgressGui)) {
-                cap.getAnimatedModel().setLivingAnimations(cap, player.getUUID().hashCode(), animationEvent);
-            }
             IFlyingAbility ability = IFlyingAbility.getFlyingAbility(player);
             if ((ability != null && ability.isFlying(player) && ability.renderFlying(player)) || cap.isFlying()) {
                 if (!player.isOnGround() && !player.isSwimming()) {
