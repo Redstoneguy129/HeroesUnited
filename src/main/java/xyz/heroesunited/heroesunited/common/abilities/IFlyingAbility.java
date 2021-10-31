@@ -34,11 +34,6 @@ public interface IFlyingAbility {
     }
 
     static IFlyingAbility getFlyingAbility(PlayerEntity player) {
-        for (Ability ability : AbilityHelper.getAbilities(player)) {
-            if (ability instanceof IFlyingAbility) {
-                return (IFlyingAbility) ability;
-            }
-        }
-        return null;
+        return AbilityHelper.getListOfType(AbilityHelper.getAbilities(player), IFlyingAbility.class).stream().findFirst().orElse(null);
     }
 }

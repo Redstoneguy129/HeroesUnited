@@ -24,7 +24,6 @@ import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.Level;
-import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerSetTheme;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerToggleAbility;
@@ -77,8 +76,7 @@ public class AbilitiesScreen extends Screen {
 
     public static List<Ability> getCurrentDisplayedAbilities(PlayerEntity player) {
         List<Ability> abilities, list = new ArrayList<>();
-        abilities = HUAbilityCap.getCap(player).getAbilities().values().stream()
-                .filter(a -> a != null && !a.isHidden(player)).collect(Collectors.toList());
+        abilities = AbilityHelper.getAbilityMap(player).values().stream().filter(a -> a != null && !a.isHidden(player)).collect(Collectors.toList());
 
         if (abilities.isEmpty()) {
             return list;

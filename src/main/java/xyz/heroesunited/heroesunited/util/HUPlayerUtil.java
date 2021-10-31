@@ -20,9 +20,11 @@ import net.minecraft.world.World;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
-import xyz.heroesunited.heroesunited.common.abilities.OxygenAbility;
+import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.space.Planet;
+
+import java.util.Objects;
 
 public class HUPlayerUtil {
 
@@ -34,12 +36,10 @@ public class HUPlayerUtil {
         }
 
         if (entity instanceof PlayerEntity) {
-            for (Ability ability : AbilityHelper.getAbilities(entity)) {
-                if (ability instanceof OxygenAbility) {
-                    if (!canBreath) {
-                        canBreath = ability.getEnabled();
-                        break;
-                    }
+            for (Ability a : AbilityHelper.getAbilities(entity)) {
+                if (Objects.equals(a.type, AbilityType.OXYGEN) && !canBreath) {
+                    canBreath = a.getEnabled();
+                    break;
                 }
             }
         }

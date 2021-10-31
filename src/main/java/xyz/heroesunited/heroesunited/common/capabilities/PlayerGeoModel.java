@@ -72,6 +72,10 @@ public class PlayerGeoModel extends AnimatedGeoModel<IHUPlayer> {
         public final PlayerRenderer renderer;
         public final float limbSwing, limbSwingAmount, ageInTicks, headPitch, netHeadYaw;
 
+        public ModelData(PlayerRenderer renderer) {
+            this(renderer, 0, 0, 0, 0, 0);
+        }
+
         public ModelData(PlayerRenderer renderer, float limbSwing, float limbSwingAmount, float ageInTicks, float headPitch, float netHeadYaw) {
             this.renderer = renderer;
             this.limbSwing = limbSwing;

@@ -21,6 +21,7 @@ import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.Level;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
+import xyz.heroesunited.heroesunited.common.capabilities.ability.IHUAbilityCap;
 import xyz.heroesunited.heroesunited.common.events.HURegisterSuperpower;
 
 import java.io.BufferedReader;
@@ -125,9 +126,12 @@ public class HUPackSuperpowers extends JsonReloadListener {
     }
 
     public static boolean hasSuperpower(PlayerEntity player, ResourceLocation location) {
-        for (Ability ability : HUAbilityCap.getCap(player).getAbilities().values()) {
-            if (ability.getAdditionalData() != null && ability.getAdditionalData().getString("Superpower").equals(location.toString())) {
-                return true;
+        IHUAbilityCap abilityCap = HUAbilityCap.getCap(player);
+        if (abilityCap != null) {
+            for (Ability ability : abilityCap.getAbilities().values()) {
+                if (ability.getAdditionalData() != null && ability.getAdditionalData().getString("Superpower").equals(location.toString())) {
+                    return true;
+                }
             }
         }
         return false;
@@ -138,18 +142,24 @@ public class HUPackSuperpowers extends JsonReloadListener {
     }
 
     public static boolean hasSuperpowers(PlayerEntity player) {
-        for (Ability ability : HUAbilityCap.getCap(player).getAbilities().values()) {
-            if (ability.getAdditionalData().contains("Superpower")) {
-                return true;
+        IHUAbilityCap abilityCap = HUAbilityCap.getCap(player);
+        if (abilityCap != null) {
+            for (Ability ability : abilityCap.getAbilities().values()) {
+                if (ability.getAdditionalData().contains("Superpower")) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
     public static ResourceLocation getSuperpower(PlayerEntity player) {
-        for (Ability ability : HUAbilityCap.getCap(player).getAbilities().values()) {
-            if (ability.getAdditionalData().contains("Superpower")) {
-                return new ResourceLocation(ability.getAdditionalData().getString("Superpower"));
+        IHUAbilityCap abilityCap = HUAbilityCap.getCap(player);
+        if (abilityCap != null) {
+            for (Ability ability : abilityCap.getAbilities().values()) {
+                if (ability.getAdditionalData().contains("Superpower")) {
+                    return new ResourceLocation(ability.getAdditionalData().getString("Superpower"));
+                }
             }
         }
         return null;

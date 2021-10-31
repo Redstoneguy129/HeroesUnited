@@ -22,7 +22,9 @@ import xyz.heroesunited.heroesunited.common.networking.client.ClientEnableAbilit
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilities;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityCap;
 
+import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.Optional;
 
 public class HUAbilityCap implements IHUAbilityCap {
 
@@ -37,8 +39,13 @@ public class HUAbilityCap implements IHUAbilityCap {
         this.containedAbilities = Maps.newHashMap();
     }
 
+    @Nullable
     public static IHUAbilityCap getCap(Entity entity) {
-        return entity.getCapability(HUAbilityCap.CAPABILITY).orElse(null);
+        Optional<IHUAbilityCap> cap = entity.getCapability(HUAbilityCap.CAPABILITY).resolve();
+        if (cap.equals(Optional.empty()) || !cap.isPresent()) {
+            return null;
+        }
+        return cap.get();
     }
 
     @Override

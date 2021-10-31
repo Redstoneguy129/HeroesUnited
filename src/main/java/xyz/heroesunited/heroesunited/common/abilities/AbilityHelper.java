@@ -15,6 +15,7 @@ import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.hupacks.HUPackPowers;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class AbilityHelper {
 
@@ -29,6 +30,10 @@ public class AbilityHelper {
             }
         }
         return ability;
+    }
+
+    public static <T> List<T> getListOfType(Collection<?> list, Class<T> type) {
+        return list.stream().filter(x -> type.isAssignableFrom(x.getClass())).map(type::cast).collect(Collectors.toList());
     }
 
     public static List<Ability> getAbilities(Entity entity) {

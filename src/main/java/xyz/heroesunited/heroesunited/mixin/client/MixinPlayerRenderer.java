@@ -1,7 +1,9 @@
 package xyz.heroesunited.heroesunited.mixin.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
+import net.minecraft.client.gui.ResourceLoadProgressGui;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
@@ -14,17 +16,21 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import xyz.heroesunited.heroesunited.client.events.HURenderLayerEvent;
 import xyz.heroesunited.heroesunited.client.events.HURenderPlayerHandEvent;
 import xyz.heroesunited.heroesunited.client.render.model.ModelSuit;
-import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
+import xyz.heroesunited.heroesunited.common.capabilities.PlayerGeoModel;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
+
+import java.util.Arrays;
 
 @Mixin(PlayerRenderer.class)
 public abstract class MixinPlayerRenderer {
@@ -37,15 +43,23 @@ public abstract class MixinPlayerRenderer {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Inject(method = "renderHand(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;ILnet/minecraft/client/entity/player/AbstractClientPlayerEntity;Lnet/minecraft/client/renderer/model/ModelRenderer;Lnet/minecraft/client/renderer/model/ModelRenderer;)V", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/client/renderer/entity/model/PlayerModel;setupAnim(Lnet/minecraft/entity/LivingEntity;FFFFF)V"))
     private void renderItem(MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn, AbstractClientPlayerEntity player, ModelRenderer rendererArmIn, ModelRenderer rendererArmwearIn, CallbackInfo ci) {
         PlayerRenderer playerRenderer = ((PlayerRenderer) (Object) this);
         HandSide side = rendererArmIn == playerRenderer.getModel().rightArm ? HandSide.RIGHT : HandSide.LEFT;
-        MinecraftForge.EVENT_BUS.post(new HURenderPlayerHandEvent.Post(player, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, side));
         boolean renderArm = AbilityHelper.getAbilities(player).stream().allMatch(ability -> ability.renderFirstPersonArm(player));
-        for (Ability ability : AbilityHelper.getAbilities(player)) {
-            ability.renderFirstPersonArm(playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side);
-        }
+        MinecraftForge.EVENT_BUS.post(new HURenderPlayerHandEvent.Post(player, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, side));
+
+        player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+            cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap));
+            AnimationEvent<IHUPlayer> animationEvent = new AnimationEvent<>(cap, 0, 0, Minecraft.getInstance().getFrameTime(), false, Arrays.asList(player, new PlayerGeoModel.ModelData(playerRenderer), player.getUUID()));
+            if (!(Minecraft.getInstance().getOverlay() instanceof ResourceLoadProgressGui)) {
+                cap.getAnimatedModel().setLivingAnimations(cap, player.getUUID().hashCode(), animationEvent);
+            }
+        });
+
+        AbilityHelper.getAbilities(player).forEach(ability -> ability.renderFirstPersonArm(playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side));
 
         if (Suit.getSuit(player) != null) {
             rendererArmwearIn.visible = false;

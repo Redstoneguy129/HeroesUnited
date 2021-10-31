@@ -16,7 +16,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import xyz.heroesunited.heroesunited.client.events.HURenderLayerEvent;
 import xyz.heroesunited.heroesunited.client.render.model.ModelSuit;
-import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
@@ -43,9 +42,7 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
         if (entityRendererIn instanceof PlayerRenderer && entity instanceof AbstractClientPlayerEntity) {
             PlayerRenderer playerRenderer = (PlayerRenderer) entityRendererIn;
             AbstractClientPlayerEntity player = (AbstractClientPlayerEntity) entity;
-            for (Ability ability : AbilityHelper.getAbilities(player)) {
-                ability.render(playerRenderer, matrixStack, buffer, packedLight, player, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
-            }
+            AbilityHelper.getAbilities(player).forEach(ability -> ability.render(playerRenderer, matrixStack, buffer, packedLight, player, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch));
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                 for (int slot = 0; slot < cap.getInventory().getContainerSize(); ++slot) {
                     ItemStack stack = cap.getInventory().getItem(slot);

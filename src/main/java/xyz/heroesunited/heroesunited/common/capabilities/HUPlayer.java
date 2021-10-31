@@ -181,8 +181,6 @@ public class HUPlayer implements IHUPlayer {
         if (event.getController().getAnimationState().equals(AnimationState.Stopped)) {
             event.getController().markNeedsReload();
         }
-        event.getController().setAnimation(new AnimationBuilder().addAnimation("new_2", true));
-
         return PlayState.CONTINUE;
     }
 

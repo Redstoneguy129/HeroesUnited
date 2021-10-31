@@ -147,9 +147,7 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void huRender(HUChangeRendererEvent event) {
-        for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
-            ability.huRenderPlayer(event);
-        }
+        AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.huRenderPlayer(event));
     }
 
     @SubscribeEvent
@@ -229,20 +227,20 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void renderShadowSize(HUChangeShadowSizeEvent event) {
-        for (Ability a : AbilityHelper.getAbilities(event.getEntity())) {
-            if (a instanceof SizeChangeAbility && ((SizeChangeAbility) a).changeSizeInRender()) {
-                event.setNewSize(event.getDefaultSize() * ((SizeChangeAbility) a).getSize());
+        for (SizeChangeAbility a : AbilityHelper.getListOfType(AbilityHelper.getAbilities(event.getEntity()), SizeChangeAbility.class)) {
+            if (a.changeSizeInRender()) {
+                event.setNewSize(event.getDefaultSize() * a.getSize());
             }
         }
     }
 
     @SubscribeEvent
     public void renderPlayer(RenderPlayerEvent event) {
-        for (Ability a : AbilityHelper.getAbilities(event.getPlayer())) {
-            if (a instanceof SizeChangeAbility && ((SizeChangeAbility) a).changeSizeInRender()) {
+        for (SizeChangeAbility a : AbilityHelper.getListOfType(AbilityHelper.getAbilities(event.getEntity()), SizeChangeAbility.class)) {
+            if (a.changeSizeInRender()) {
                 if (event instanceof RenderPlayerEvent.Pre) {
                     event.getMatrixStack().pushPose();
-                    float size = ((SizeChangeAbility) a).getRenderSize(event.getPartialRenderTick());
+                    float size = a.getRenderSize(event.getPartialRenderTick());
                     event.getMatrixStack().scale(size, size, size);
                 }
                 if (event instanceof RenderPlayerEvent.Post) {
@@ -254,8 +252,8 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void onRenderHULayer(HURenderLayerEvent.Accessories event) {
-        for (Ability ability : AbilityHelper.getAbilities(event.getPlayer())) {
-            if (ability instanceof HideLayerAbility && ((HideLayerAbility) ability).layerNameIs("accessories")) {
+        for (HideLayerAbility ability : AbilityHelper.getListOfType(AbilityHelper.getAbilities(event.getPlayer()), HideLayerAbility.class)) {
+            if (ability.layerNameIs("accessories")) {
                 event.setCanceled(true);
             }
         }
@@ -264,27 +262,24 @@ public class HUClientEventHandler {
     @SubscribeEvent
     public void hideLayers(HUHideLayerEvent event) {
         if (event.getEntity() instanceof PlayerEntity) {
-            for (Ability ability : AbilityHelper.getAbilities(event.getEntity())) {
-                if (ability instanceof HideLayerAbility) {
-                    HideLayerAbility a = (HideLayerAbility) ability;
-                    if (a.layerNameIs("armor")) {
-                        event.blockLayers(BipedArmorLayer.class, ElytraLayer.class);
-                    }
-                    if (a.layerNameIs("head")) {
-                        event.blockLayer(HeadLayer.class);
-                    }
-                    if (a.layerNameIs("held_item")) {
-                        event.blockLayer(HeldItemLayer.class);
-                    }
-                    if (a.layerNameIs("heroesunited")) {
-                        event.blockLayer(HULayerRenderer.class);
-                    }
-                    if (a.layerNameIs("arrow")) {
-                        event.blockLayer(ArrowLayer.class);
-                    }
-                    if (a.layerNameIs("player")) {
-                        event.blockLayers(BipedArmorLayer.class, HeldItemLayer.class, Deadmau5HeadLayer.class, CapeLayer.class, HeadLayer.class, ElytraLayer.class, ParrotVariantLayer.class);
-                    }
+            for (HideLayerAbility a : AbilityHelper.getListOfType(AbilityHelper.getAbilities(event.getEntity()), HideLayerAbility.class)) {
+                if (a.layerNameIs("armor")) {
+                    event.blockLayers(BipedArmorLayer.class, ElytraLayer.class);
+                }
+                if (a.layerNameIs("head")) {
+                    event.blockLayer(HeadLayer.class);
+                }
+                if (a.layerNameIs("held_item")) {
+                    event.blockLayer(HeldItemLayer.class);
+                }
+                if (a.layerNameIs("heroesunited")) {
+                    event.blockLayer(HULayerRenderer.class);
+                }
+                if (a.layerNameIs("arrow")) {
+                    event.blockLayer(ArrowLayer.class);
+                }
+                if (a.layerNameIs("player")) {
+                    event.blockLayers(BipedArmorLayer.class, HeldItemLayer.class, Deadmau5HeadLayer.class, CapeLayer.class, HeadLayer.class, ElytraLayer.class, ParrotVariantLayer.class);
                 }
             }
         }
@@ -297,7 +292,6 @@ public class HUClientEventHandler {
         HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United", null, HURichPresence.MiniLogos.NONE, null);
     }
 
-    @SuppressWarnings("unchecked")
     @SubscribeEvent
     public void renderPlayerPre(RenderPlayerEvent.Pre event) {
         PlayerEntity player = event.getPlayer();
@@ -318,25 +312,13 @@ public class HUClientEventHandler {
                 }
             }
         });
-        player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
-            for (Ability ability : cap.getAbilities().values()) {
-                if (ability instanceof IAlwaysRenderer) {
-                    ((IAlwaysRenderer) ability).renderPlayerPreAlways(event);
-                }
-            }
-        });
+        AbilityHelper.getListOfType(AbilityHelper.getAbilityMap(event.getPlayer()).values(), IAlwaysRenderer.class).forEach(ability -> ability.renderPlayerPreAlways(event));
     }
 
     @SubscribeEvent
     public void renderPlayerPost(RenderPlayerEvent.Post event) {
         AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.renderPlayerPost(event));
-        event.getPlayer().getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
-            for (Ability ability : cap.getAbilities().values()) {
-                if (ability instanceof IAlwaysRenderer) {
-                    ((IAlwaysRenderer) ability).renderPlayerPostAlways(event);
-                }
-            }
-        });
+        AbilityHelper.getListOfType(AbilityHelper.getAbilityMap(event.getPlayer()).values(), IAlwaysRenderer.class).forEach(ability -> ability.renderPlayerPostAlways(event));
         IFlyingAbility ability = IFlyingAbility.getFlyingAbility(event.getPlayer());
         event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             if ((ability != null && ability.isFlying(event.getPlayer()) && ability.renderFlying(event.getPlayer())) || cap.isFlying()) {
@@ -374,14 +356,8 @@ public class HUClientEventHandler {
                 suitItem.getSuit().setRotationAngles(event, equipmentSlot);
             }
         }
-        player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
-            for (Ability ability : cap.getAbilities().values()) {
-                if (ability instanceof IAlwaysRenderer) {
-                    ((IAlwaysRenderer) ability).setAlwaysRotationAngles(event);
-                }
-            }
-        });
 
+        AbilityHelper.getListOfType(AbilityHelper.getAbilityMap(event.getPlayer()).values(), IAlwaysRenderer.class).forEach(ability -> ability.setAlwaysRotationAngles(event));
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             for (AnimationController<?> controller : cap.getFactory().getOrCreateAnimationData(player.getUUID().hashCode()).getAnimationControllers().values()) {
                 if (controller.getCurrentAnimation() != null && controller.getAnimationState() == AnimationState.Running) {
@@ -457,24 +433,16 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void renderPlayerHandPost(HURenderPlayerHandEvent.Post event) {
-        event.getPlayer().getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
-            for (Ability ability : a.getAbilities().values()) {
-                if (ability instanceof IAlwaysRenderer) {
-                    ((IAlwaysRenderer) ability).renderAlwaysFirstPersonArm(event.getRenderer(), event.getMatrixStack(), event.getBuffers(), event.getLight(), event.getPlayer(), event.getSide());
-                }
-            }
-        });
+        for (IAlwaysRenderer ability : AbilityHelper.getListOfType(AbilityHelper.getAbilityMap(event.getPlayer()).values(), IAlwaysRenderer.class)) {
+            ability.renderAlwaysFirstPersonArm(event.getRenderer(), event.getMatrixStack(), event.getBuffers(), event.getLight(), event.getPlayer(), event.getSide());
+        }
     }
 
     @SubscribeEvent
     public void renderPlayerLayers(HURenderLayerEvent.Player event) {
-        event.getPlayer().getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
-            for (Ability ability : a.getAbilities().values()) {
-                if (ability instanceof IAlwaysRenderer) {
-                    ((IAlwaysRenderer) ability).renderAlways(event.getRenderer(), event.getMatrixStack(), event.getBuffers(), event.getLight(), event.getPlayer(), event.getLimbSwing(), event.getLimbSwingAmount(), event.getPartialTicks(), event.getAgeInTicks(), event.getNetHeadYaw(), event.getHeadPitch());
-                }
-            }
-        });
+        for (IAlwaysRenderer ability : AbilityHelper.getListOfType(AbilityHelper.getAbilityMap(event.getPlayer()).values(), IAlwaysRenderer.class)) {
+            ability.renderAlways(event.getRenderer(), event.getMatrixStack(), event.getBuffers(), event.getLight(), event.getPlayer(), event.getLimbSwing(), event.getLimbSwingAmount(), event.getPartialTicks(), event.getAgeInTicks(), event.getNetHeadYaw(), event.getHeadPitch());
+        }
     }
 
     @SubscribeEvent
@@ -483,7 +451,7 @@ public class HUClientEventHandler {
         AbstractClientPlayerEntity player = Minecraft.getInstance().player;
         boolean canceled = false;
         for (Ability a : AbilityHelper.getAbilities(player)) {
-            if (a instanceof JSONAbility && Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+            if (Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
                 double distance = Minecraft.getInstance().hitResult.getLocation().distanceTo(player.position().add(0, player.getEyeHeight(), 0));
                 AxisAlignedBB box = new AxisAlignedBB(0.1F, -0.25, 0, 0, -0.25, -distance).inflate(0.03125D);
                 Color color = HUJsonUtils.getColor(a.getJsonObject());
@@ -616,13 +584,7 @@ public class HUClientEventHandler {
 
                 if (!NAMES_TIMER.isEmpty()) {
                     for (String s : NAMES_TIMER.keySet()) {
-                        boolean contains = false;
-                        for (Ability ability : abilities) {
-                            if (ability.name.equals(s)) {
-                                contains = true;
-                                break;
-                            }
-                        }
+                        boolean contains = abilities.stream().anyMatch(ability -> ability.name.equals(s));
                         if (!contains) {
                             NAMES_TIMER.remove(s);
                         }
@@ -633,12 +595,11 @@ public class HUClientEventHandler {
     }
 
     public static List<Ability> getCurrentDisplayedAbilities(PlayerEntity player) {
-        List<Ability> abilities = new ArrayList<>(), list = new ArrayList<>();
-        abilities.addAll(HUAbilityCap.getCap(player).getAbilities().values().stream()
+        List<Ability> abilities, list = new ArrayList<>();
+        abilities = AbilityHelper.getAbilityMap(player).values().stream()
                 .filter(a -> a != null && !a.isHidden(player)
                         && a.getConditionManager().isEnabled(player, "canActivate") && a.getConditionManager().isEnabled(player, "canBeEnabled"))
-                .sorted(Comparator.comparingInt(Ability::getKey))
-                .collect(Collectors.toList()));
+                .sorted(Comparator.comparingInt(Ability::getKey)).collect(Collectors.toList());
 
         if (abilities.isEmpty()) {
             return list;

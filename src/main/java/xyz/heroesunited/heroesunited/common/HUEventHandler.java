@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.common;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
@@ -87,13 +88,10 @@ public class HUEventHandler {
                     }
                 }
             });
-            for (Ability ability : AbilityHelper.getAbilities(player)) {
-                if (ability instanceof SizeChangeAbility) {
-                    float size = ((SizeChangeAbility) ability).getSize();
-                    if (size != 1.0F) {
-                        event.setNewSize(event.getNewSize().scale(size));
-                        event.setNewEyeHeight(event.getNewEyeHeight() * size);
-                    }
+            for (SizeChangeAbility a : AbilityHelper.getListOfType(AbilityHelper.getAbilities(player), SizeChangeAbility.class)) {
+                if (a.getSize() != 1.0F) {
+                    event.setNewSize(event.getNewSize().scale(a.getSize()));
+                    event.setNewEyeHeight(event.getNewEyeHeight() * a.getSize());
                 }
             }
         }
@@ -249,8 +247,8 @@ public class HUEventHandler {
                         if (pl.zza > 0F) {
                             Vector3d vec = pl.getLookAngle();
                             double speed = pl.isSprinting() ? 2.5f : 1f;
-                            for (Ability ability : AbilityHelper.getAbilities(pl)) {
-                                if (ability instanceof FlightAbility && ability.getJsonObject() != null && ability.getJsonObject().has("speed")) {
+                            for (FlightAbility ability : AbilityHelper.getListOfType(AbilityHelper.getAbilities(pl), FlightAbility.class)) {
+                                if (ability.getJsonObject() != null && ability.getJsonObject().has("speed")) {
                                     speed = pl.isSprinting() ? JSONUtils.getAsFloat(ability.getJsonObject(), "maxSpeed", 2.5F) : JSONUtils.getAsFloat(ability.getJsonObject(), "speed");
                                 }
                             }
@@ -270,9 +268,12 @@ public class HUEventHandler {
             event.setCanceled(true);
         }
         if (event.getEntityLiving() instanceof PlayerEntity) {
-            for (Ability ability : AbilityHelper.getAbilities(event.getEntityLiving())) {
-                if (ability instanceof DamageImmunityAbility && ((DamageImmunityAbility) ability).haveImmuneTo(event.getSource())) {
-                    event.setCanceled(true);
+            for (DamageImmunityAbility a : AbilityHelper.getListOfType(AbilityHelper.getAbilities(event.getEntityLiving()), DamageImmunityAbility.class)) {
+                JsonArray jsonArray = JSONUtils.getAsJsonArray(a.getJsonObject(), "damage_sources");
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    if (jsonArray.get(i).getAsString().equals(event.getSource().getMsgId()) && a.getEnabled()) {
+                        event.setCanceled(true);
+                    }
                 }
             }
         }
