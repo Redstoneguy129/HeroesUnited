@@ -238,4 +238,9 @@ public class HUPlayer implements IHUPlayer {
         ItemStackHelper.loadAllItems(nbt, inventory.getItems());
 
     }
+
+    @Override
+    public int tickTimer() {
+        return this.player.tickCount;
+    }
 }

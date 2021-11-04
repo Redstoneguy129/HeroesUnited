@@ -6,7 +6,7 @@ import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.util.ResourceLocation;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib3.model.AnimatedTickingGeoModel;
 import software.bernie.geckolib3.resource.GeckoLibCache;
 import software.bernie.shadowed.eliotlash.molang.MolangParser;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -14,7 +14,7 @@ import xyz.heroesunited.heroesunited.util.PlayerPart;
 
 import javax.annotation.Nullable;
 
-public class PlayerGeoModel extends AnimatedGeoModel<IHUPlayer> {
+public class PlayerGeoModel extends AnimatedTickingGeoModel<IHUPlayer> {
     @Nullable
     private ModelData modelData;
 

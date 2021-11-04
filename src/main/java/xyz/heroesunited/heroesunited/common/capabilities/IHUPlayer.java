@@ -4,13 +4,18 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.INBTSerializable;
 import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.IAnimationTickable;
 import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib3.model.AnimatedTickingGeoModel;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesInventory;
 
 import java.util.Map;
 
-public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable {
+public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable, IAnimationTickable {
+
+    @Override
+    default void tick() {
+    }
 
     void updateFlyAmount();
 
@@ -23,7 +28,7 @@ public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable {
      */
     void setAnimation(String name, String controllerName, ResourceLocation animationFile, boolean loop);
 
-    AnimatedGeoModel getAnimatedModel();
+    AnimatedTickingGeoModel getAnimatedModel();
 
     AnimationController<IHUPlayer> getController(String controllerName);
 
