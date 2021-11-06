@@ -20,7 +20,7 @@ import java.util.Objects;
 public class JSItem extends Item implements IJSItem {
 
     private final NashornScriptEngine engine;
-    private final String power;
+    private final ResourceLocation power;
 
     public JSItem(Map.Entry<JSItemProperties, NashornScriptEngine> entry) {
         super(entry.getKey());
@@ -54,13 +54,10 @@ public class JSItem extends Item implements IJSItem {
     @Override
     public Map<String, Ability> getAbilities(PlayerEntity player) {
         Map<String, Ability> map = Maps.newHashMap();
-        HUPackPowers.getPower(new ResourceLocation(this.power)).forEach(abilityCreator -> {
-            Ability a = abilityCreator.getAbilityType().create(abilityCreator.getKey());
-            a.getAdditionalData().putString("Item", Objects.requireNonNull(this.getRegistryName()).toString());
-            if (abilityCreator.getJsonObject() != null) {
-                a.setJsonObject(player, abilityCreator.getJsonObject());
-            }
-            map.put(a.name, a);
+        HUPackPowers.getPower(this.power).forEach(a -> {
+            Ability ability = a.create(player);
+            ability.getAdditionalData().putString("Item", Objects.requireNonNull(this.getRegistryName()).toString());
+            map.put(ability.name, ability);
         });
         return map;
     }

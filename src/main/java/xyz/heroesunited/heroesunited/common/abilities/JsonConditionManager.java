@@ -20,10 +20,25 @@ public class JsonConditionManager implements INBTSerializable<CompoundNBT> {
 
     protected ConcurrentHashMap<JsonObject, Boolean> conditions = new ConcurrentHashMap<>();
 
+    private final Ability ability;
+
+    public JsonConditionManager() {
+        this(null);
+    }
+
+    public JsonConditionManager(Ability ability) {
+        this.ability = ability;
+    }
+
+
     public void registerConditions(JsonObject jsonObject) {
+        this.registerConditions("conditions", jsonObject);
+    }
+
+    public void registerConditions(String arrayName, JsonObject jsonObject) {
         if (jsonObject == null) return;
-        if (JSONUtils.isValidNode(jsonObject, "conditions")) {
-            JsonArray jsonArray = JSONUtils.getAsJsonArray(jsonObject, "conditions");
+        if (JSONUtils.isValidNode(jsonObject, arrayName)) {
+            JsonArray jsonArray = JSONUtils.getAsJsonArray(jsonObject, arrayName);
             for (JsonElement jsonElement : jsonArray) {
                 JsonObject jsonCondition = jsonElement.getAsJsonObject();
                 if (getFromJson(jsonCondition) != null) {
@@ -47,7 +62,7 @@ public class JsonConditionManager implements INBTSerializable<CompoundNBT> {
         ConcurrentHashMap<String, Boolean> methodConditions = new ConcurrentHashMap<>();
 
         for (JsonObject jsonObject : this.conditions.keySet()) {
-            boolean b = JSONUtils.getAsBoolean(jsonObject, "invert", false) != getFromJson(jsonObject).getBiFunction().apply(player, jsonObject);
+            boolean b = JSONUtils.getAsBoolean(jsonObject, "invert", false) != getFromJson(jsonObject).apply(player, jsonObject, ability);
             if (b != this.conditions.get(jsonObject)) {
                 this.conditions.put(jsonObject, b);
                 this.sync(player);

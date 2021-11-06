@@ -50,7 +50,7 @@ public class HUData<T> {
         this.dirty = dirty;
     }
 
-    public Object getFromJson(JsonObject json, String id, T defaultValue) {
+    public Object getFromJson(JsonObject json, String id, Object defaultValue) {
         if (json.has(id)) {
             if (defaultValue instanceof Boolean) {
                 return JSONUtils.getAsBoolean(json, id);

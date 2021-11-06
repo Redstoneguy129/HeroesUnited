@@ -82,7 +82,7 @@ public class AbilityHelper {
     public static List<AbilityCreator> parseAbilityCreators(JsonObject jsonObject, ResourceLocation resourceLocation) {
         List<AbilityCreator> abilityList = new ArrayList<>();
         if (jsonObject.has("abilities")) {
-            abilityList.addAll(parsePowers(JSONUtils.getAsJsonObject(jsonObject, "abilities"), resourceLocation));
+            abilityList.addAll(parsePowers(JSONUtils.getAsJsonObject(jsonObject, "abilities"), jsonObject, resourceLocation));
         }
         if (jsonObject.has("powers")) {
             JsonArray jsonArray = JSONUtils.getAsJsonArray(jsonObject, "powers");
@@ -96,14 +96,14 @@ public class AbilityHelper {
         return abilityList;
     }
 
-    public static List<AbilityCreator> parsePowers(JsonObject json, ResourceLocation resourceLocation) {
+    public static List<AbilityCreator> parsePowers(JsonObject jsonAbilities, JsonObject json, ResourceLocation resourceLocation) {
         List<AbilityCreator> abilityList = new ArrayList<>();
-        json.entrySet().forEach((e) -> {
+        jsonAbilities.entrySet().forEach((e) -> {
             if (e.getValue() instanceof JsonObject) {
                 JsonObject o = (JsonObject) e.getValue();
                 AbilityType ability = AbilityType.ABILITIES.get().getValue(new ResourceLocation(JSONUtils.getAsString(o, "ability")));
                 if (ability != null) {
-                    abilityList.add(new AbilityCreator(e.getKey(), ability, o));
+                    abilityList.add(new AbilityCreator(e.getKey(), ability, o, json));
                 } else {
                     HeroesUnited.LOGGER.error("Couldn't read ability {} in {}", JSONUtils.getAsString(o, "ability"), resourceLocation);
                 }

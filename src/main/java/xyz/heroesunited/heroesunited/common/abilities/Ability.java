@@ -50,7 +50,7 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     protected CompoundNBT additionalData = new CompoundNBT();
     protected JsonObject jsonObject;
     protected HUDataManager dataManager = new HUDataManager();
-    protected JsonConditionManager conditionManager = new JsonConditionManager() {
+    protected JsonConditionManager conditionManager = new JsonConditionManager(this) {
         @Override
         public void sync(PlayerEntity player) {
             super.sync(player);
@@ -245,9 +245,8 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
             this.conditionManager.registerConditions(jsonObject);
             if (entity != null) {
                 for (Map.Entry<String, HUData<?>> entry : this.dataManager.getHUDataMap().entrySet()) {
-                    HUData data = entry.getValue();
-                    if (data.isJson()) {
-                        this.dataManager.set(entry.getKey(), data.getFromJson(jsonObject, entry.getKey(), entry.getValue().getDefaultValue()));
+                    if ( entry.getValue().isJson()) {
+                        this.dataManager.set(entry.getKey(), entry.getValue().getFromJson(jsonObject, entry.getKey(), entry.getValue().getDefaultValue()));
                     }
                 }
                 if (entity instanceof ServerPlayerEntity) {
