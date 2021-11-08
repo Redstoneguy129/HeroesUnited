@@ -34,7 +34,7 @@ import java.util.Map;
 public class HUPlayer implements IHUPlayer {
     public final AccessoriesInventory inventory;
     protected final PlayerEntity player;
-    protected final AnimationFactory factory = new AnimationFactory(this);
+    protected final HUPlayerFactory factory = new HUPlayerFactory(this);
     protected Map<ResourceLocation, Level> superpowerLevels;
     private int theme;
     private float flightAmount, flightAmountO;

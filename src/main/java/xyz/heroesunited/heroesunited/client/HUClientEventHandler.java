@@ -342,7 +342,7 @@ public class HUClientEventHandler {
 
     @SubscribeEvent
     public void registerControllers(HURegisterPlayerControllers event) {
-        AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.registerPlayerControllers(event));
+        AbilityHelper.getAbilityMap(event.getPlayer()).values().forEach(ability -> ability.registerPlayerControllers(event));
     }
 
     @SuppressWarnings("unchecked")

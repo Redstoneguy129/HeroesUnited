@@ -9,7 +9,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.GameRules;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.network.NetworkDirection;
@@ -41,7 +41,7 @@ public class HUPlayerEvent {
     }
 
     @SubscribeEvent
-    public void onPlayerDeath(LivingDeathEvent event) {
+    public void onPlayerDeath(LivingDropsEvent event) {
         if (event.getEntityLiving() instanceof PlayerEntity && !event.getEntityLiving().level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
             PlayerEntity player = (PlayerEntity) event.getEntityLiving();
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
