@@ -39,10 +39,10 @@ import java.util.stream.Collectors;
  */
 public class AbilitiesScreen extends Screen {
 
-    private final ResourceLocation HEAD = new ResourceLocation(HeroesUnited.MODID, "textures/gui/head.png");
-    private final ResourceLocation BUTTON = new ResourceLocation(HeroesUnited.MODID, "textures/gui/ability_button.png");
+    private static final ResourceLocation HEAD = new ResourceLocation(HeroesUnited.MODID, "textures/gui/head.png");
+    private static final ResourceLocation BUTTON = new ResourceLocation(HeroesUnited.MODID, "textures/gui/ability_button.png");
     public static List<ResourceLocation> themes = Lists.newArrayList(getTheme("default"), getTheme("black"), getTheme("rainbow"));
-    private static int INDEX = 0;
+    public static int INDEX = 0;
     private int left, top;
 
     public AbilitiesScreen() {
@@ -68,13 +68,13 @@ public class AbilitiesScreen extends Screen {
             HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerSetTheme(cap.getTheme() + 1, themes.size()));
             minecraft.getSoundManager().play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }));
-        List<Ability> abilities = getCurrentDisplayedAbilities(this.minecraft.player);
+        List<Ability> abilities = getCurrentDisplayedAbilities(this.minecraft.player, 4);
         for (int i = 0; i < abilities.size(); i++) {
             this.addButton(new AbilityButton(left, top, i, this, abilities.get(i)));
         }
     }
 
-    public static List<Ability> getCurrentDisplayedAbilities(PlayerEntity player) {
+    public static List<Ability> getCurrentDisplayedAbilities(PlayerEntity player, int limit) {
         List<Ability> abilities, list = new ArrayList<>();
         abilities = AbilityHelper.getAbilityMap(player).values().stream().filter(a -> a != null && !a.isHidden(player)).collect(Collectors.toList());
 
@@ -88,10 +88,8 @@ public class AbilitiesScreen extends Screen {
             INDEX = abilities.size() - 1;
         }
 
-        list.add(abilities.get(INDEX));
-
-        int i = INDEX + 1, added = 1;
-        while (list.size() < 4 && added < abilities.size()) {
+        int i = INDEX, added = 0;
+        while (list.size() < limit && added < abilities.size()) {
             if (i >= abilities.size()) {
                 i = 0;
             }
@@ -115,7 +113,7 @@ public class AbilitiesScreen extends Screen {
         }
         minecraft.getTextureManager().bind(theme);
         blit(matrixStack, left, top, 0, 0, 200, 170, 200, 170);
-        if (getCurrentDisplayedAbilities(this.minecraft.player).isEmpty()) {
+        if (getCurrentDisplayedAbilities(this.minecraft.player, 4).isEmpty()) {
             drawCenteredString(matrixStack, this.font, "You don't have any ability yet", left + 95, top + 95, 16777215);
         }
 
@@ -221,7 +219,7 @@ public class AbilitiesScreen extends Screen {
             BufferBuilder builder = tessellator.getBuilder();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            mc.getTextureManager().bind(this.parent.BUTTON);
+            mc.getTextureManager().bind(BUTTON);
             builder.begin(7, DefaultVertexFormats.POSITION_COLOR_TEX);
             builder.vertex(x, y + height, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).uv(0, 1).endVertex();
             builder.vertex(x + width, y + height, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).uv(1, 1).endVertex();
