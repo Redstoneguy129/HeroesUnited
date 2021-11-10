@@ -312,6 +312,12 @@ public class HUClientEventHandler {
                 }
             }
         });
+        if (GlidingAbility.getInstance(event.getPlayer()) != null && GlidingAbility.getInstance(event.getPlayer()).canGliding(event.getPlayer())) {
+            event.getMatrixStack().pushPose();
+            event.getMatrixStack().mulPose(new Quaternion(0, -event.getPlayer().yRot, 0, true));
+            event.getMatrixStack().mulPose(new Quaternion(90F + event.getPlayer().xRot, 0, 0, true));
+            event.getMatrixStack().mulPose(new Quaternion(0, event.getPlayer().yRot, 0, true));
+        }
         AbilityHelper.getListOfType(AbilityHelper.getAbilityMap(event.getPlayer()).values(), IAlwaysRenderer.class).forEach(ability -> ability.renderPlayerPreAlways(event));
     }
 
@@ -329,6 +335,9 @@ public class HUClientEventHandler {
                 }
             }
         });
+        if (GlidingAbility.getInstance(event.getPlayer()) != null && GlidingAbility.getInstance(event.getPlayer()).canGliding(event.getPlayer())) {
+            event.getMatrixStack().popPose();
+        }
     }
 
     @SubscribeEvent

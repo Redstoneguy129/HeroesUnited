@@ -94,6 +94,14 @@ public class HUEventHandler {
                     event.setNewEyeHeight(event.getNewEyeHeight() * a.getSize());
                 }
             }
+            if (GlidingAbility.getInstance(player) != null && GlidingAbility.getInstance(player).canGliding(player)) {
+                if (event.getOldSize().fixed) {
+                    event.setNewSize(EntitySize.fixed(0.6F, 0.6F));
+                } else {
+                    event.setNewSize(EntitySize.scalable(0.6F, 0.6F));
+                }
+                event.setNewEyeHeight(0.4F);
+            }
         }
         if (event.getEntity().level.dimension().equals(HeroesUnited.SPACE)) {
             event.setNewSize(event.getNewSize().scale(0.01F, 0.01F));
