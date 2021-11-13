@@ -30,6 +30,7 @@ public class HUItems {
     public static final GeckoAccessory SMALLGILLY = register("smallgilly", new GeckoAccessory(EquipmentAccessoriesSlot.GLOVES, "Gillygogs"));
     public static final GeckoAccessory JASON_MASK = register("jason_mask", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "FalloutWolfGod"));
     public static final DefaultAccessoryItem GREEN_SHIRT = register("green_tshirt", new DefaultAccessoryItem(new Item.Properties(), EquipmentAccessoriesSlot.TSHIRT, "Blazefire"));
+    public static final DefaultAccessoryItem RED_JACKET = register("red_jacket", new DefaultAccessoryItem(new Item.Properties(), EquipmentAccessoriesSlot.JACKET, "Blazefire"));
     public static final DefaultAccessoryItem REDA_SHIRT = register("simp_tshirt", new DefaultAccessoryItem(new Item.Properties(), EquipmentAccessoriesSlot.TSHIRT, "Reda"));
     public static final DefaultAccessoryItem REDA_JACKET = register("umbrella_academy", new DefaultAccessoryItem(new Item.Properties(), EquipmentAccessoriesSlot.JACKET, "Reda"));
     public static final GeckoAccessory FINN_ARM = register("finn_arm", new GeckoAccessory(EquipmentAccessoriesSlot.RIGHT_WRIST, "Mattetull"));

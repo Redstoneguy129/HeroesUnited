@@ -169,8 +169,7 @@ public abstract class Suit {
     @OnlyIn(Dist.CLIENT)
     public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side, ItemStack stack, SuitItem suitItem) {
         ModelSuit<AbstractClientPlayerEntity> suitModel = new ModelSuit<>(getScale(suitItem.getSlot()), isSmallArms(player));
-        suitModel.copyPropertiesFrom(renderer.getModel());
-        suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(suitItem.getArmorTexture(stack, player, suitItem.getSlot(), null)))), packedLightIn, player);
+        suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(suitItem.getArmorTexture(stack, player, suitItem.getSlot(), null)))), packedLightIn, renderer.getModel());
     }
 
     public final void setRegistryName(ResourceLocation name) {
