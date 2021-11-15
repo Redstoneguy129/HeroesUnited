@@ -32,7 +32,6 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
     public Ability create(String id) {
         Ability a = this.supplier.create(this);
         a.name = id;
-        a.registerData();
         return a;
     }
 

@@ -4,6 +4,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.util.KeyMap;
+import xyz.heroesunited.heroesunited.util.hudata.HUDataManager;
 
 /**
  * Fired when player pressed keybinding
@@ -11,7 +12,7 @@ import xyz.heroesunited.heroesunited.util.KeyMap;
 
 public abstract class HUAbilityEvent extends PlayerEvent {
 
-    private final Ability ability;
+    protected final Ability ability;
 
     public HUAbilityEvent(PlayerEntity player, Ability ability) {
         super(player);
@@ -36,6 +37,22 @@ public abstract class HUAbilityEvent extends PlayerEvent {
     public static class Disabled extends HUAbilityEvent {
         public Disabled(PlayerEntity player, Ability ability) {
             super(player, ability);
+        }
+    }
+
+    public static class RegisterData extends HUAbilityEvent {
+
+        public RegisterData(PlayerEntity player, Ability ability) {
+            super(player, ability);
+        }
+
+        public HUDataManager getDataManager() {
+            return ability.getDataManager();
+        }
+
+        @Override
+        public boolean isCancelable() {
+            return false;
         }
     }
 
