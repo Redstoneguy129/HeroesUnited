@@ -88,7 +88,7 @@ public class HUClientEventHandler {
             ClientRegistry.registerKeyBinding(ACCESSORIES_SCREEN);
 
             for (int i = 1; i <= 5; i++) {
-                int key = i == 1 ? GLFW.GLFW_KEY_Z : i == 2 ? GLFW.GLFW_KEY_R : i == 3 ? GLFW.GLFW_KEY_G : i == 4 ? GLFW.GLFW_KEY_V : i == 5 ? GLFW.GLFW_KEY_B : -1;
+                int key = i == 1 ? GLFW.GLFW_KEY_Z : i == 2 ? GLFW.GLFW_KEY_R : i == 3 ? GLFW.GLFW_KEY_G : i == 4 ? GLFW.GLFW_KEY_V : GLFW.GLFW_KEY_B;
                 AbilityKeyBinding keyBinding = new AbilityKeyBinding(HeroesUnited.MODID + ".key.ability_" + i, key, i);
                 ClientRegistry.registerKeyBinding(keyBinding);
                 ABILITY_KEYS.add(keyBinding);
@@ -186,6 +186,7 @@ public class HUClientEventHandler {
         if (mc.player == null || mc.screen != null) return;
         sendToggleKey(mc.options.keyAttack, 8);
         sendToggleKey(mc.options.keyUse, 9);
+        sendToggleKey(mc.options.keyPickItem, 10);
     }
 
     public static void sendToggleKey(KeyBinding keyBind, int index) {

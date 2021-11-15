@@ -27,9 +27,4 @@ public class HURegisterSuperpower extends Event {
             this.register(superpower);
         }
     }
-
-    @Override
-    public boolean isCancelable() {
-        return false;
-    }
 }

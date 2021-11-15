@@ -5,11 +5,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.eventbus.api.Cancelable;
 
 /**
  * Fired when a block and entity collide.
  * U can cancel it to make intangible entities
  */
+@Cancelable
 public class HUCancelBlockCollision extends BlockEvent {
 
     private final Entity entity;
@@ -21,10 +23,5 @@ public class HUCancelBlockCollision extends BlockEvent {
 
     public Entity getEntity() {
         return entity;
-    }
-
-    @Override
-    public boolean isCancelable() {
-        return true;
     }
 }

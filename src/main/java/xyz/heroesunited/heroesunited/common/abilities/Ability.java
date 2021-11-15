@@ -155,27 +155,22 @@ public abstract class Ability implements INBTSerializable<CompoundNBT> {
     @OnlyIn(Dist.CLIENT)
     public void drawIcon(MatrixStack stack, int x, int y) {
         Minecraft.getInstance().getItemRenderer().blitOffset -= 100f;
-        if (getJsonObject() != null) {
-            JsonObject icon = JSONUtils.getAsJsonObject(getJsonObject(), "icon", null);
-            if (icon != null) {
-                String type = JSONUtils.getAsString(icon, "type");
-                if (type.equals("texture")) {
-                    ResourceLocation texture = new ResourceLocation(JSONUtils.getAsString(icon, "texture"));
-                    int width = JSONUtils.getAsInt(icon, "width", 16);
-                    int height = JSONUtils.getAsInt(icon, "height", 16);
-                    int textureWidth = JSONUtils.getAsInt(icon, "texture_width", 256);
-                    int textureHeight = JSONUtils.getAsInt(icon, "texture_height", 256);
-                    Minecraft.getInstance().getTextureManager().bind(texture);
-                    AbstractGui.blit(stack, x, y, JSONUtils.getAsInt(icon, "u"), JSONUtils.getAsInt(icon, "v"), width, height, textureWidth, textureHeight);
-                } else if (type.equals("item")) {
-                    String item = JSONUtils.getAsString(icon, "item");
-                    Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(item))), x, y);
-                }
-            } else {
-                Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(new ItemStack(Items.APPLE), x, y);
+        if (getJsonObject() != null && getJsonObject().has("icon")) {
+            JsonObject icon = getJsonObject().getAsJsonObject("icon");
+            String type = JSONUtils.getAsString(icon, "type");
+            if (type.equals("texture")) {
+                ResourceLocation texture = new ResourceLocation(JSONUtils.getAsString(icon, "texture"));
+                int width = JSONUtils.getAsInt(icon, "width", 16);
+                int height = JSONUtils.getAsInt(icon, "height", 16);
+                int textureWidth = JSONUtils.getAsInt(icon, "texture_width", 256);
+                int textureHeight = JSONUtils.getAsInt(icon, "texture_height", 256);
+                Minecraft.getInstance().getTextureManager().bind(texture);
+                AbstractGui.blit(stack, x, y, JSONUtils.getAsInt(icon, "u", 0), JSONUtils.getAsInt(icon, "v", 0), width, height, textureWidth, textureHeight);
+            } else if (type.equals("item")) {
+                Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(JSONUtils.getAsString(icon, "item")))), x, y);
             }
         } else {
-            Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(new ItemStack(Items.DIAMOND), x, y);
+            Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(new ItemStack(Items.APPLE), x, y);
         }
         Minecraft.getInstance().getItemRenderer().blitOffset += 100f;
     }

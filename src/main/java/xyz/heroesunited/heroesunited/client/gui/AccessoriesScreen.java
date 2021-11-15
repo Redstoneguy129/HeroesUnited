@@ -4,11 +4,13 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
+import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.client.HUClientEventHandler;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesContainer;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 
@@ -32,6 +34,16 @@ public class AccessoriesScreen extends ContainerScreen<AccessoriesContainer> {
         this.renderTooltip(matrix, mouseX, mouseY);
         this.oldMouseX = (float) mouseX;
         this.oldMouseY = (float) mouseY;
+    }
+
+    @Override
+    public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+        InputMappings.Input mouseKey = InputMappings.getKey(pKeyCode, pScanCode);
+        if (HUClientEventHandler.ACCESSORIES_SCREEN.isActiveAndMatches(mouseKey)) {
+            this.onClose();
+            return true;
+        }
+        return super.keyPressed(pKeyCode, pScanCode, pModifiers);
     }
 
     @Override

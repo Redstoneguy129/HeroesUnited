@@ -3,8 +3,8 @@ package xyz.heroesunited.heroesunited.common.networking.server;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
-import xyz.heroesunited.heroesunited.common.abilities.KeyMap;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
+import xyz.heroesunited.heroesunited.util.KeyMap;
 
 import java.util.function.Supplier;
 

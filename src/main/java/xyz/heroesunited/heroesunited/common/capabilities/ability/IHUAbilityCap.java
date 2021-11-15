@@ -4,7 +4,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.INBTSerializable;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
-import xyz.heroesunited.heroesunited.common.abilities.KeyMap;
+import xyz.heroesunited.heroesunited.util.KeyMap;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -21,7 +21,7 @@ public interface IHUAbilityCap extends INBTSerializable<CompoundNBT> {
      * Ability - Gen Rex abilities, Aliens powers, Danny Phantom powers active, etc.
      * If using unofficial mod like *The Boys - By Chappie* then you can set ability to A-Train to make so other mods abilities don't work.
      **/
-    void enable(String id);
+    <T extends Ability> void enable(String id);
 
     void disable(String id);
 

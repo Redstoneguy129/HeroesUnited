@@ -7,6 +7,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.fml.network.NetworkDirection;
@@ -14,13 +15,15 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
-import xyz.heroesunited.heroesunited.common.abilities.KeyMap;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
+import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
+import xyz.heroesunited.heroesunited.common.events.HUAbilityEvent;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientDisableAbility;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientEnableAbility;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilities;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityCap;
+import xyz.heroesunited.heroesunited.util.KeyMap;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -52,6 +55,7 @@ public class HUAbilityCap implements IHUAbilityCap {
     public void enable(String id) {
         if (!this.activeAbilities.containsKey(id)) {
             Ability ability = this.containedAbilities.get(id);
+            if (!MinecraftForge.EVENT_BUS.post(new HUAbilityEvent.Enabled(this.player, ability))) return;
             this.activeAbilities.put(id, ability);
             ability.onActivated(player);
             if (!player.level.isClientSide)
@@ -62,6 +66,7 @@ public class HUAbilityCap implements IHUAbilityCap {
     @Override
     public void disable(String id) {
         if (this.activeAbilities.containsKey(id)) {
+            if (!MinecraftForge.EVENT_BUS.post(new HUAbilityEvent.Disabled(this.player, this.activeAbilities.get(id)))) return;
             this.containedAbilities.put(id, this.activeAbilities.get(id));
             this.containedAbilities.get(id).onDeactivated(player);
             this.activeAbilities.remove(id);
@@ -112,13 +117,14 @@ public class HUAbilityCap implements IHUAbilityCap {
     @Override
     public void onKeyInput(KeyMap map) {
         this.activeAbilities.forEach((name, ability) -> {
-            if (ability != null) {
+            if (ability != null && !MinecraftForge.EVENT_BUS.post(new HUAbilityEvent.KeyInput(this.player, ability, map))) {
                 ability.onKeyInput(player, map);
             }
         });
         for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
-            if (Suit.getSuitItem(equipmentSlot, player) != null) {
-                Suit.getSuitItem(equipmentSlot, player).getSuit().onKeyInput(player, equipmentSlot, map);
+            SuitItem item = Suit.getSuitItem(equipmentSlot, player);
+            if (item != null) {
+                item.getSuit().onKeyInput(player, equipmentSlot, map);
             }
         }
     }

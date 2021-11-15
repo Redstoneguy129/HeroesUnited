@@ -11,8 +11,6 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPlaySoundPacket;
-import net.minecraft.network.play.server.SSpawnParticlePacket;
-import net.minecraft.particles.IParticleData;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
@@ -56,14 +54,6 @@ public class HUPlayerUtil {
         for (PlayerEntity player : world.getEntitiesOfClass(PlayerEntity.class, getCollisionBoxWithRange(vec, range))) {
             if (player instanceof ServerPlayerEntity && sound.getRegistryName() != null) {
                 ((ServerPlayerEntity) player).connection.send(new SPlaySoundPacket(sound.getRegistryName(), category, new Vector3d(vec.x, vec.y, vec.z), volume, pitch));
-            }
-        }
-    }
-
-    public static void spawnParticleForAll(World world, double range, IParticleData particleIn, boolean longDistanceIn, Vector3d posVc3d, Vector3d offsetVc3d, float speedIn, int countIn) {
-        for (PlayerEntity player : world.getEntitiesOfClass(PlayerEntity.class, getCollisionBoxWithRange(posVc3d, range))) {
-            if (player instanceof ServerPlayerEntity) {
-                ((ServerPlayerEntity) player).connection.send(new SSpawnParticlePacket(particleIn, longDistanceIn, posVc3d.x, posVc3d.y, posVc3d.z, (float) offsetVc3d.x, (float) offsetVc3d.y, (float) offsetVc3d.z, speedIn, countIn));
             }
         }
     }

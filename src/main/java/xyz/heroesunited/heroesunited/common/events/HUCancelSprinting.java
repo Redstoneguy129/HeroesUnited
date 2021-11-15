@@ -13,9 +13,4 @@ public class HUCancelSprinting extends EntityEvent {
     public HUCancelSprinting(Entity entity) {
         super(entity);
     }
-
-    @Override
-    public boolean isCancelable() {
-        return true;
-    }
 }
