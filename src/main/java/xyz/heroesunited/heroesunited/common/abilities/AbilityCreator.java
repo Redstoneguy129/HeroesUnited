@@ -2,8 +2,6 @@ package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.gson.JsonObject;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraftforge.common.MinecraftForge;
-import xyz.heroesunited.heroesunited.common.events.HUAbilityEvent;
 
 public class AbilityCreator {
 
@@ -23,9 +21,7 @@ public class AbilityCreator {
     }
 
     public Ability create(PlayerEntity player) {
-        Ability ability = this.abilityType.create(this.key);
-        ability.registerData();
-        MinecraftForge.EVENT_BUS.post(new HUAbilityEvent.RegisterData(player, ability));
+        Ability ability = this.abilityType.create(player, this.key);
 
         if (this.jsonObject != null) {
             ability.getConditionManager().registerConditions("conditions_for_abilities", this.jsonObject);

@@ -34,7 +34,7 @@ public class ClientSyncAbilities {
         for (int i = 0; i < amount; i++) {
             String id = buf.readUtf(32767);
             CompoundNBT nbt = buf.readNbt();
-            Ability ability = AbilityType.ABILITIES.get().getValue(new ResourceLocation(nbt.getString("AbilityType"))).create(id);
+            Ability ability = AbilityType.ABILITIES.get().getValue(new ResourceLocation(nbt.getString("AbilityType"))).create(null, id);
             ability.deserializeNBT(nbt);
             this.abilities.put(id, ability);
         }

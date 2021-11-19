@@ -117,7 +117,7 @@ public class HUAbilityCap implements IHUAbilityCap {
     @Override
     public void onKeyInput(KeyMap map) {
         this.activeAbilities.forEach((name, ability) -> {
-            if (ability != null && MinecraftForge.EVENT_BUS.post(new HUAbilityEvent.KeyInput(this.player, ability, map))) {
+            if (ability != null && !MinecraftForge.EVENT_BUS.post(new HUAbilityEvent.KeyInput(this.player, ability, map))) {
                 ability.onKeyInput(player, map);
             }
         });
@@ -178,7 +178,7 @@ public class HUAbilityCap implements IHUAbilityCap {
             CompoundNBT tag = activeAbilities.getCompound(id);
             AbilityType abilityType = AbilityType.ABILITIES.get().getValue(new ResourceLocation(tag.getString("AbilityType")));
             if (abilityType != null) {
-                Ability ability = abilityType.create(id);
+                Ability ability = abilityType.create(this.player, id);
                 ability.deserializeNBT(tag);
                 this.activeAbilities.put(id, ability);
             }
@@ -187,7 +187,7 @@ public class HUAbilityCap implements IHUAbilityCap {
             CompoundNBT tag = abilities.getCompound(id);
             AbilityType abilityType = AbilityType.ABILITIES.get().getValue(new ResourceLocation(tag.getString("AbilityType")));
             if (abilityType != null) {
-                Ability ability = abilityType.create(id);
+                Ability ability = abilityType.create(this.player, id);
                 ability.deserializeNBT(tag);
                 containedAbilities.put(id, ability);
             }

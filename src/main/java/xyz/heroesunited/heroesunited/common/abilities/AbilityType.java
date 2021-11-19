@@ -1,11 +1,14 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryBuilder;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.common.events.HUAbilityEvent;
 
 import java.util.function.Supplier;
 
@@ -29,9 +32,11 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
         this.setRegistryName(modid, name);
     }
 
-    public Ability create(String id) {
+    public Ability create(PlayerEntity player, String id) {
         Ability a = this.supplier.create(this);
         a.name = id;
+        a.registerData();
+        MinecraftForge.EVENT_BUS.post(new HUAbilityEvent.RegisterData(player, a));
         return a;
     }
 

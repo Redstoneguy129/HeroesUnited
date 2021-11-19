@@ -24,6 +24,16 @@ import java.util.stream.IntStream;
 
 public class HUJsonUtils {
 
+    public static List<String> getStringsFromArray(JsonArray jsonArray) {
+        List<String> list = new ArrayList<>();
+
+        for (int i = 0; i < jsonArray.size(); i++) {
+            list.add(jsonArray.get(i).getAsString());
+        }
+
+        return list;
+    }
+
     public static Color getColor(JsonObject json) {
         if (json != null && json.has("color")) {
             JsonArray jsonColor = JSONUtils.getAsJsonArray(json, "color");

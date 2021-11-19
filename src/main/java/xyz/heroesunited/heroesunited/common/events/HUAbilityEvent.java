@@ -6,6 +6,8 @@ import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.util.KeyMap;
 import xyz.heroesunited.heroesunited.util.hudata.HUDataManager;
 
+import javax.annotation.Nullable;
+
 /**
  * Fired when player pressed keybinding
  */
@@ -44,6 +46,12 @@ public abstract class HUAbilityEvent extends PlayerEvent {
 
         public RegisterData(PlayerEntity player, Ability ability) {
             super(player, ability);
+        }
+
+        @Nullable
+        @Override
+        public PlayerEntity getPlayer() {
+            return super.getPlayer();
         }
 
         public HUDataManager getDataManager() {
