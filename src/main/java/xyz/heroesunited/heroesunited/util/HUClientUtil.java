@@ -57,25 +57,6 @@ import java.util.Random;
 @OnlyIn(Dist.CLIENT)
 public class HUClientUtil {
 
-    @SuppressWarnings("unchecked")
-    public static <M extends PlayerModel<AbstractClientPlayerEntity>> void renderModel(PlayerRenderer renderer, M model, AbstractClientPlayerEntity entity, MatrixStack matrixStack, IRenderTypeBuffer buffer, IVertexBuilder builder, int light, int overlay, float red, float green, float blue, float alpha, float limbSwing, float limbSwingAmount, float ageInTicks, float headPitch, float netHeadYaw) {
-        entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-            cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap));
-            PlayerGeoModel.ModelData modelData = new PlayerGeoModel.ModelData(renderer, limbSwing, limbSwingAmount, ageInTicks, headPitch, netHeadYaw);
-            AnimationEvent<IHUPlayer> animationEvent = new AnimationEvent<>(cap, limbSwing, limbSwingAmount, Minecraft.getInstance().getFrameTime(), false, Arrays.asList(entity, modelData, entity.getUUID()));
-            if (!(Minecraft.getInstance().getOverlay() instanceof ResourceLoadProgressGui)) {
-                cap.getAnimatedModel().setLivingAnimations(cap, entity.getUUID().hashCode(), animationEvent);
-            }
-        });
-
-        MinecraftForge.EVENT_BUS.post(new HUSetRotationAnglesEvent(entity, model, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch));
-        HUClientUtil.copyAnglesToWear(model);
-
-        if (!MinecraftForge.EVENT_BUS.post(new HUChangeRendererEvent(entity, renderer, matrixStack, buffer, builder, light, overlay, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch))) {
-            model.renderToBuffer(matrixStack, builder, light, overlay, red, green, blue, alpha);
-        }
-    }
-
     public static void renderGeckoRecursively(GeoBone bone, MatrixStack stack, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
         stack.pushPose();
         RenderUtils.translate(bone, stack);
