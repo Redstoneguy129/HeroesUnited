@@ -40,7 +40,7 @@ public class HideBodyPartsAbility extends JSONAbility {
     public boolean renderFirstPersonArm(PlayerEntity player) {
         if (getJsonObject().has("visibility_parts") && getEnabled()) {
             for (Map.Entry<String, JsonElement> entry : JSONUtils.getAsJsonObject(getJsonObject(), "visibility_parts").entrySet()) {
-                if (PlayerPart.getByName(entry.getKey()) == PlayerPart.ALL) {
+                if (entry.getKey().equals("all")) {
                     return false;
                 }
             }

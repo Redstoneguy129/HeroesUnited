@@ -44,7 +44,7 @@ public interface IAccessory {
         return true;
     }
 
-    default List<PlayerPart> getHiddenParts() {
+    default List<PlayerPart> getHiddenParts(boolean firstPerson) {
         return null;
     }
 

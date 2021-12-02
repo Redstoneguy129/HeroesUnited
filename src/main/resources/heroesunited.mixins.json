@@ -4,7 +4,6 @@
   "refmap": "heroesunited.refmap.json",
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.8",
-  "plugin": "xyz.heroesunited.heroesunited.mixin.HUMixinPlugin",
   "client": [
     "client.MixinArmorLayerRenderer",
     "client.MixinEntityRenderer",
@@ -13,7 +12,6 @@
     "client.MixinLivingRenderer",
     "client.MixinMinecraft",
     "client.MixinNetworkPlayerInfo",
-    "client.MixinOptifineLivingRenderer",
     "client.MixinPlayerModel",
     "client.MixinPlayerRenderer",
     "client.MixinServerWorldInfo"
@@ -30,7 +28,6 @@
     "client.AccessorDimensionRenderInfo",
     "client.InvokerActiveRenderInfo",
     "client.InvokerKeyBinding",
-    "client.MixinLivingLayers",
     "client.MixinModelRenderer",
     "client.MixinTexturedParticle",
     "entity.AccessorLivingEntity",

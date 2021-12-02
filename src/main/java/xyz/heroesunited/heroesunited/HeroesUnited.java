@@ -21,7 +21,6 @@ import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
@@ -72,7 +71,6 @@ import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.mixin.client.AccessorDimensionRenderInfo;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
-import xyz.heroesunited.heroesunited.util.compat.ObfuscateHandler;
 
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.FALL_RESISTANCE;
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOOST;
@@ -183,11 +181,6 @@ public class HeroesUnited {
         new HorasInfo.DimensionInfo("Overworld", "Default      Dimension", new ResourceLocation("overworld"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/overworld.png"));
         new HorasInfo.DimensionInfo("Nether", "Default      Dimension", new ResourceLocation("the_nether"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/the_nether.png"));
         new HorasInfo.DimensionInfo("End", "Default      Dimension", new ResourceLocation("the_end"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/the_end.png"));
-
-
-        if (ModList.get().isLoaded("obfuscate")) {
-            MinecraftForge.EVENT_BUS.register(new ObfuscateHandler());
-        }
 
         HURichPresence.getPresence().setDiscordRichPresence("In the Menus", null, HURichPresence.MiniLogos.NONE, null);
 

@@ -47,17 +47,15 @@ public class PlayerGeoModel extends AnimatedTickingGeoModel<IHUPlayer> {
         super.setMolangQueries(animatable, currentTick);
         MolangParser parser = GeckoLibCache.getInstance().parser;
         if (animatable instanceof IHUPlayer && this.modelData != null) {
-            for (PlayerPart part : PlayerPart.values()) {
-                ModelRenderer renderer = part.getMainModelRenderers(this.modelData.renderer.getModel());
-                if (renderer != null) {
-                    parser.setValue(String.format("player.%s.x_rot", part.name().toLowerCase()), renderer.xRot / Math.PI * 180.0);
-                    parser.setValue(String.format("player.%s.y_rot", part.name().toLowerCase()), renderer.yRot / Math.PI * 180.0);
-                    parser.setValue(String.format("player.%s.z_rot", part.name().toLowerCase()), renderer.zRot / Math.PI * 180.0);
+            for (PlayerPart part : PlayerPart.bodyParts()) {
+                ModelRenderer renderer = part.getModelRendererByBodyPart(this.modelData.renderer.getModel());
+                parser.setValue(String.format("player.%s.x_rot", part.name().toLowerCase()), renderer.xRot / Math.PI * 180.0);
+                parser.setValue(String.format("player.%s.y_rot", part.name().toLowerCase()), renderer.yRot / Math.PI * 180.0);
+                parser.setValue(String.format("player.%s.z_rot", part.name().toLowerCase()), renderer.zRot / Math.PI * 180.0);
 
-                    parser.setValue(String.format("player.%s.x", part.name().toLowerCase()), renderer.x);
-                    parser.setValue(String.format("player.%s.y", part.name().toLowerCase()), renderer.y);
-                    parser.setValue(String.format("player.%s.z", part.name().toLowerCase()), renderer.z);
-                }
+                parser.setValue(String.format("player.%s.x", part.name().toLowerCase()), renderer.x);
+                parser.setValue(String.format("player.%s.y", part.name().toLowerCase()), renderer.y);
+                parser.setValue(String.format("player.%s.z", part.name().toLowerCase()), renderer.z);
             }
             parser.setValue("player.limbSwing", this.modelData.limbSwing);
             parser.setValue("player.limbSwingAmount", this.modelData.limbSwingAmount);

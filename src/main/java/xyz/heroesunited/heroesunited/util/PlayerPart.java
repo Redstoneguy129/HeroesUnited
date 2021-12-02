@@ -1,11 +1,11 @@
 package xyz.heroesunited.heroesunited.util;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 
 public enum PlayerPart {
 
-    ALL,
     HEAD, HEAD_WEAR,
     CHEST, CHEST_WEAR,
     RIGHT_ARM, RIGHT_ARM_WEAR,
@@ -15,9 +15,7 @@ public enum PlayerPart {
 
     public void setVisibility(PlayerModel<?> model, boolean visible) {
         ModelRenderer modelRenderer = getModelRendererByPart(model);
-        if (modelRenderer == null) {
-            model.setAllVisible(visible);
-        } else {
+        if (modelRenderer != null) {
             modelRenderer.visible = visible;
         }
     }
@@ -37,10 +35,10 @@ public enum PlayerPart {
             case LEFT_LEG_WEAR:
                 return model.leftPants;
         }
-        return getMainModelRenderers(model);
+        return getModelRendererByBodyPart(model);
     }
 
-    public ModelRenderer getMainModelRenderers(PlayerModel<?> model) {
+    public ModelRenderer getModelRendererByBodyPart(PlayerModel<?> model) {
         switch (this) {
             case HEAD:
                 return model.head;
@@ -52,10 +50,8 @@ public enum PlayerPart {
                 return model.leftArm;
             case RIGHT_LEG:
                 return model.rightLeg;
-            case LEFT_LEG:
-                return model.leftLeg;
         }
-        return null;
+        return model.leftLeg;
     }
 
     public static PlayerPart getByName(String name) {
@@ -65,6 +61,14 @@ public enum PlayerPart {
             }
         }
         return null;
+    }
+
+    public static Iterable<PlayerPart> bodyParts() {
+        return ImmutableList.of(HEAD, CHEST, RIGHT_ARM, LEFT_ARM, RIGHT_LEG, LEFT_LEG);
+    }
+
+    public static Iterable<PlayerPart> wearParts() {
+        return ImmutableList.of(HEAD, CHEST, RIGHT_ARM, LEFT_ARM, RIGHT_LEG, LEFT_LEG);
     }
 
 }

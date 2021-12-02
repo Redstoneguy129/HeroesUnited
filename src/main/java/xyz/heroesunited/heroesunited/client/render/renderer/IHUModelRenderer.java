@@ -1,4 +1,4 @@
-package xyz.heroesunited.heroesunited.util;
+package xyz.heroesunited.heroesunited.client.render.renderer;
 
 import net.minecraft.util.math.vector.Vector3f;
 

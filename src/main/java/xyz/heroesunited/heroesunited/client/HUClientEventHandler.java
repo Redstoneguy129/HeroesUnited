@@ -48,6 +48,7 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.*;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.client.render.HULayerRenderer;
+import xyz.heroesunited.heroesunited.client.render.renderer.IHUModelRenderer;
 import xyz.heroesunited.heroesunited.client.render.renderer.space.CelestialBodyRenderer;
 import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
@@ -404,8 +405,8 @@ public class HUClientEventHandler {
                 ItemStack stack = cap.getInventory().getItem(slot);
                 if (stack != null && stack.getItem() instanceof IAccessory) {
                     IAccessory accessory = ((IAccessory) stack.getItem());
-                    if (accessory.getHiddenParts() != null) {
-                        for (PlayerPart part : accessory.getHiddenParts()) {
+                    if (accessory.getHiddenParts(false) != null) {
+                        for (PlayerPart part : accessory.getHiddenParts(false)) {
                             part.setVisibility(event.getPlayerModel(), false);
                         }
                     }

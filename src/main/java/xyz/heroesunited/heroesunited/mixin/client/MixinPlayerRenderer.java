@@ -29,6 +29,7 @@ import xyz.heroesunited.heroesunited.common.capabilities.PlayerGeoModel;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
+import xyz.heroesunited.heroesunited.util.PlayerPart;
 
 import java.util.Arrays;
 
@@ -92,6 +93,11 @@ public abstract class MixinPlayerRenderer {
                             }
                         }
                         if (shouldRender) {
+                            if (accessoire.getHiddenParts(true) != null) {
+                                for (PlayerPart part : accessoire.getHiddenParts(true)) {
+                                    part.setVisibility(playerRenderer.getModel(), false);
+                                }
+                            }
                             if (accessoire.renderDefaultModel()) {
                                 ModelSuit<AbstractClientPlayerEntity> suitModel = new ModelSuit<>(accessoire.getScale(stack), HUPlayerUtil.haveSmallArms(player));
                                 suitModel.renderArm(side, matrixStackIn, bufferIn.getBuffer(RenderType.entityTranslucent(accessoire.getTexture(stack, player, EquipmentAccessoriesSlot.getFromSlotIndex(slot)))), combinedLightIn, playerRenderer.getModel());
