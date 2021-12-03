@@ -1,9 +1,9 @@
 package xyz.heroesunited.heroesunited.common.networking.client;
 
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
+import net.minecraftforge.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.networking.HUTypes;
 
 import java.util.function.Supplier;
@@ -20,13 +20,13 @@ public class ClientSyncHUType {
         this.value = value;
     }
 
-    public ClientSyncHUType(PacketBuffer buffer) {
+    public ClientSyncHUType(FriendlyByteBuf buffer) {
         this.entityId = buffer.readInt();
         this.data = buffer.readEnum(HUTypes.class);
         this.value = buffer.readBoolean();
     }
 
-    public void toBytes(PacketBuffer buffer) {
+    public void toBytes(FriendlyByteBuf buffer) {
         buffer.writeInt(this.entityId);
         buffer.writeEnum(this.data);
         buffer.writeBoolean(this.value);
@@ -36,7 +36,7 @@ public class ClientSyncHUType {
         ctx.get().enqueueWork(() -> {
             Entity entity = net.minecraft.client.Minecraft.getInstance().level.getEntity(this.entityId);
 
-            if (entity instanceof AbstractClientPlayerEntity) {
+            if (entity instanceof AbstractClientPlayer) {
                 HUTypes.set(entity, this.data, this.value, false);
             }
         });

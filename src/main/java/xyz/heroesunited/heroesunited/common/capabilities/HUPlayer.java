@@ -1,18 +1,18 @@
 package xyz.heroesunited.heroesunited.common.capabilities;
 
 import com.google.common.collect.Maps;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.ItemStackHelper;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.PacketDistributor;
 import software.bernie.geckolib3.core.AnimationState;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class HUPlayer implements IHUPlayer {
     public final AccessoriesInventory inventory;
-    protected final PlayerEntity player;
+    protected final Player player;
     protected final HUPlayerFactory factory = new HUPlayerFactory(this);
     protected Map<ResourceLocation, Level> superpowerLevels;
     private int theme;
@@ -43,7 +43,7 @@ public class HUPlayer implements IHUPlayer {
     protected ResourceLocation animationFile;
     private final PlayerGeoModel modelProvider = new PlayerGeoModel();
 
-    public HUPlayer(PlayerEntity player) {
+    public HUPlayer(Player player) {
         this.player = player;
         this.superpowerLevels = Maps.newHashMap();
         this.inventory = new AccessoriesInventory(player);
@@ -66,7 +66,7 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public float getFlightAmount(float partialTicks) {
-        return MathHelper.lerp(partialTicks, this.flightAmountO, this.flightAmount);
+        return Mth.lerp(partialTicks, this.flightAmountO, this.flightAmount);
     }
 
     @Override
@@ -144,8 +144,8 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public IHUPlayer sync() {
-        if (player instanceof ServerPlayerEntity) {
-            HUNetworking.INSTANCE.sendTo(new ClientSyncHUPlayer(player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+        if (player instanceof ServerPlayer) {
+            HUNetworking.INSTANCE.sendTo(new ClientSyncHUPlayer(player.getId(), this.serializeNBT()), ((ServerPlayer) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
         }
         return this;
     }
@@ -153,9 +153,9 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public IHUPlayer syncToAll() {
         this.sync();
-        for (PlayerEntity player : this.player.level.players()) {
-            if (player instanceof ServerPlayerEntity) {
-                HUNetworking.INSTANCE.sendTo(new ClientSyncHUPlayer(this.player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+        for (Player player : this.player.level.players()) {
+            if (player instanceof ServerPlayer) {
+                HUNetworking.INSTANCE.sendTo(new ClientSyncHUPlayer(this.player.getId(), this.serializeNBT()), ((ServerPlayer) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
             }
         }
         return this;
@@ -195,10 +195,10 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag nbt = new CompoundTag();
 
-        CompoundNBT levels = new CompoundNBT();
+        CompoundTag levels = new CompoundTag();
         superpowerLevels.forEach((resourceLocation, level) -> levels.put(resourceLocation.toString(), level.writeNBT()));
         nbt.put("levels", levels);
         nbt.putBoolean("Flying", this.flying);
@@ -208,13 +208,13 @@ public class HUPlayer implements IHUPlayer {
         if (this.animationFile != null) {
             nbt.putString("AnimationFile", this.animationFile.toString());
         }
-        ItemStackHelper.saveAllItems(nbt, this.inventory.getItems());
+        ContainerHelper.saveAllItems(nbt, this.inventory.getItems());
         return nbt;
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
-        CompoundNBT levels = nbt.getCompound("levels");
+    public void deserializeNBT(CompoundTag nbt) {
+        CompoundTag levels = nbt.getCompound("levels");
         superpowerLevels.clear();
         for (String key : levels.getAllKeys()) {
             superpowerLevels.put(new ResourceLocation(key), Level.readFromNBT(levels.getCompound(key)));
@@ -235,7 +235,7 @@ public class HUPlayer implements IHUPlayer {
             this.animationFile = new ResourceLocation(nbt.getString("AnimationFile"));
         }
         inventory.getItems().clear();
-        ItemStackHelper.loadAllItems(nbt, inventory.getItems());
+        ContainerHelper.loadAllItems(nbt, inventory.getItems());
 
     }
 

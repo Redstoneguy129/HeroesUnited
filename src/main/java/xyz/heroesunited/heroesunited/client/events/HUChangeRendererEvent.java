@@ -1,11 +1,11 @@
 package xyz.heroesunited.heroesunited.client.events;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.Cancelable;
 
@@ -20,13 +20,13 @@ import net.minecraftforge.eventbus.api.Cancelable;
 public class HUChangeRendererEvent extends PlayerEvent {
 
     private final PlayerRenderer renderer;
-    private final MatrixStack stack;
-    private final IRenderTypeBuffer buffers;
-    private final IVertexBuilder builder;
+    private final PoseStack stack;
+    private final MultiBufferSource buffers;
+    private final VertexConsumer builder;
     private final int light, overlay;
     private final float limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, partialTicks;
 
-    public HUChangeRendererEvent(AbstractClientPlayerEntity playerEntity, PlayerRenderer renderer, MatrixStack stack, IRenderTypeBuffer buffers, IVertexBuilder builder, int light, int overlay, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public HUChangeRendererEvent(AbstractClientPlayer playerEntity, PlayerRenderer renderer, PoseStack stack, MultiBufferSource buffers, VertexConsumer builder, int light, int overlay, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         super(playerEntity);
         this.renderer = renderer;
         this.stack = stack;
@@ -43,27 +43,27 @@ public class HUChangeRendererEvent extends PlayerEvent {
     }
 
     @Override
-    public AbstractClientPlayerEntity getPlayer() {
-        return (AbstractClientPlayerEntity) super.getPlayer();
+    public AbstractClientPlayer getPlayer() {
+        return (AbstractClientPlayer) super.getPlayer();
     }
 
     public PlayerRenderer getRenderer() {
         return renderer;
     }
 
-    public MatrixStack getMatrixStack() {
+    public PoseStack getPoseStack() {
         return stack;
     }
 
-    public IRenderTypeBuffer getBuffers() {
+    public MultiBufferSource getMultiBufferSource() {
         return buffers;
     }
 
-    public IVertexBuilder getBuilder() {
+    public VertexConsumer getBuilder() {
         return builder;
     }
 
-    public int getLight() {
+    public int getPackedLight() {
         return light;
     }
 

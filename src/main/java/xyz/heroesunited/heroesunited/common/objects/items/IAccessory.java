@@ -1,14 +1,14 @@
 package xyz.heroesunited.heroesunited.common.objects.items;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
@@ -24,23 +24,23 @@ public interface IAccessory {
     }
 
     @OnlyIn(Dist.CLIENT)
-    default void render(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {
+    default void render(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {
     }
 
     @OnlyIn(Dist.CLIENT)
-    default void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side, ItemStack stack, int slot) {
+    default void renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side, ItemStack stack, int slot) {
     }
 
     @OnlyIn(Dist.CLIENT)
-    ResourceLocation getTexture(ItemStack stack, PlayerEntity entity, EquipmentAccessoriesSlot slot);
+    ResourceLocation getTexture(ItemStack stack, Player entity, EquipmentAccessoriesSlot slot);
 
     EquipmentAccessoriesSlot getSlot();
 
-    default boolean canTakeStack(PlayerEntity player, ItemStack stack) {
+    default boolean canTakeStack(Player player, ItemStack stack) {
         return stack.isEmpty() || player.isCreative() || !EnchantmentHelper.hasBindingCurse(stack);
     }
 
-    default boolean dropAfterDeath(PlayerEntity player, ItemStack stack) {
+    default boolean dropAfterDeath(Player player, ItemStack stack) {
         return true;
     }
 

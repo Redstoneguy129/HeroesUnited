@@ -1,18 +1,18 @@
 package xyz.heroesunited.heroesunited.mixin.client;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.gui.ResourceLoadProgressGui;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.gui.screens.LoadingOverlay;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.LivingRenderer;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -33,9 +33,9 @@ import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 
-import static net.minecraft.client.renderer.entity.LivingRenderer.getOverlayCoords;
+import static net.minecraft.client.renderer.entity.LivingEntityRenderer.getOverlayCoords;
 
-@Mixin(LivingRenderer.class)
+@Mixin(LivingEntityRenderer.class)
 public abstract class MixinLivingRenderer<T extends LivingEntity, M extends EntityModel<T>> {
     @Shadow @Nullable protected abstract RenderType getRenderType(T p_230496_1_, boolean p_230496_2_, boolean p_230496_3_, boolean p_230496_4_);
     @Shadow protected abstract boolean isBodyVisible(T p_225622_1_);
@@ -43,10 +43,10 @@ public abstract class MixinLivingRenderer<T extends LivingEntity, M extends Enti
     @Shadow protected M model;
 
     @SuppressWarnings("unchecked")
-    @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/LivingRenderer;getRenderType(Lnet/minecraft/entity/LivingEntity;ZZZ)Lnet/minecraft/client/renderer/RenderType;"))
-    public void captureThings(T entity, float entityYaw, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer buffer, int light, CallbackInfo ci) {
-        if (!(entity instanceof AbstractClientPlayerEntity) || !(this.model instanceof PlayerModel)) return;
-        AbstractClientPlayerEntity player = (AbstractClientPlayerEntity) entity;
+    @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;getRenderType(Lnet/minecraft/world/entity/LivingEntity;ZZZ)Lnet/minecraft/client/renderer/RenderType;"))
+    public void captureThings(T entity, float entityYaw, float partialTicks, PoseStack matrixStack, MultiBufferSource buffer, int light, CallbackInfo ci) {
+        if (!(entity instanceof AbstractClientPlayer) || !(this.model instanceof PlayerModel)) return;
+        AbstractClientPlayer player = (AbstractClientPlayer) entity;
         PlayerRenderer renderer = (PlayerRenderer) (Object) this;
         PlayerModel<T> playerModel = (PlayerModel<T>) this.model;
         IPlayerModel iModel = ((IPlayerModel) playerModel);
@@ -58,7 +58,7 @@ public abstract class MixinLivingRenderer<T extends LivingEntity, M extends Enti
                 cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap));
                 PlayerGeoModel.ModelData modelData = new PlayerGeoModel.ModelData(renderer, iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch());
                 AnimationEvent<IHUPlayer> animationEvent = new AnimationEvent<>(cap, iModel.limbSwing(), iModel.limbSwingAmount(), Minecraft.getInstance().getFrameTime(), false, Arrays.asList(player, modelData, player.getUUID()));
-                if (!(Minecraft.getInstance().getOverlay() instanceof ResourceLoadProgressGui)) {
+                if (!(Minecraft.getInstance().getOverlay() instanceof LoadingOverlay)) {
                     cap.getAnimatedModel().setLivingAnimations(cap, player.getUUID().hashCode(), animationEvent);
                 }
             });
@@ -72,12 +72,12 @@ public abstract class MixinLivingRenderer<T extends LivingEntity, M extends Enti
         }
     }
 
-    @Redirect(method = "render(Lnet/minecraft/entity/LivingEntity;FFLcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/LayerRenderer;render(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;ILnet/minecraft/entity/Entity;FFFFFF)V"))
-    public void addLayer(LayerRenderer layerRenderer, MatrixStack pMatrixStack, IRenderTypeBuffer pBuffer, int pPackedLight, Entity pLivingEntity, float pLimbSwing, float pLimbSwingAmount, float pPartialTicks, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
-        HUHideLayerEvent event = new HUHideLayerEvent(pLivingEntity);
+    @Redirect(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/RenderLayer;render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/Entity;FFFFFF)V"))
+    public void addLayer(RenderLayer layerRenderer, PoseStack p_225628_1_, MultiBufferSource p_225628_2_, int p_225628_3_, Entity p_225628_4_, float p_225628_5_, float p_225628_6_, float p_225628_7_, float p_225628_8_, float p_225628_9_, float p_225628_10_) {
+        HUHideLayerEvent event = new HUHideLayerEvent(p_225628_4_);
         MinecraftForge.EVENT_BUS.post(event);
         if (!event.getBlockedLayers().contains(layerRenderer.getClass())) {
-            layerRenderer.render(pMatrixStack, pBuffer, pPackedLight, pLivingEntity, pLimbSwing, pLimbSwingAmount, pPartialTicks, pAgeInTicks, pNetHeadYaw, pHeadPitch);
+            layerRenderer.render(p_225628_1_, p_225628_2_, p_225628_3_, p_225628_4_, p_225628_5_, p_225628_6_, p_225628_7_, p_225628_8_, p_225628_9_, p_225628_10_);
         }
     }
 }

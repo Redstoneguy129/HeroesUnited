@@ -3,13 +3,13 @@ package xyz.heroesunited.heroesunited.common.abilities;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.hupacks.HUPackPowers;
@@ -58,7 +58,7 @@ public class AbilityHelper {
 
     //For remove modifier set amount to 0
     public static void setAttribute(LivingEntity entity, String name, Attribute attribute, UUID uuid, double amount, AttributeModifier.Operation operation) {
-        ModifiableAttributeInstance instance = entity.getAttribute(attribute);
+        AttributeInstance instance = entity.getAttribute(attribute);
 
         if (instance == null || entity.level.isClientSide) {
             return;
@@ -82,16 +82,16 @@ public class AbilityHelper {
     public static List<AbilityCreator> parseAbilityCreators(JsonObject jsonObject, ResourceLocation resourceLocation) {
         List<AbilityCreator> abilityList = new ArrayList<>();
         if (jsonObject.has("abilities")) {
-            abilityList.addAll(parsePowers(JSONUtils.getAsJsonObject(jsonObject, "abilities"), jsonObject, resourceLocation));
+            abilityList.addAll(parsePowers(GsonHelper.getAsJsonObject(jsonObject, "abilities"), jsonObject, resourceLocation));
         }
         if (jsonObject.has("powers")) {
-            JsonArray jsonArray = JSONUtils.getAsJsonArray(jsonObject, "powers");
+            JsonArray jsonArray = GsonHelper.getAsJsonArray(jsonObject, "powers");
             for (int i = 0; i < jsonArray.size(); i++) {
                 abilityList.addAll(HUPackPowers.getPower(new ResourceLocation(jsonArray.get(i).getAsString())));
             }
         }
         if (jsonObject.has("power")) {
-            abilityList.addAll(HUPackPowers.getPower(new ResourceLocation(JSONUtils.getAsString(jsonObject, "power"))));
+            abilityList.addAll(HUPackPowers.getPower(new ResourceLocation(GsonHelper.getAsString(jsonObject, "power"))));
         }
         return abilityList;
     }
@@ -101,11 +101,11 @@ public class AbilityHelper {
         jsonAbilities.entrySet().forEach((e) -> {
             if (e.getValue() instanceof JsonObject) {
                 JsonObject o = (JsonObject) e.getValue();
-                AbilityType ability = AbilityType.ABILITIES.get().getValue(new ResourceLocation(JSONUtils.getAsString(o, "ability")));
+                AbilityType ability = AbilityType.ABILITIES.get().getValue(new ResourceLocation(GsonHelper.getAsString(o, "ability")));
                 if (ability != null) {
                     abilityList.add(new AbilityCreator(e.getKey(), ability, o, json));
                 } else {
-                    HeroesUnited.LOGGER.error("Couldn't read ability {} in {}", JSONUtils.getAsString(o, "ability"), resourceLocation);
+                    HeroesUnited.LOGGER.error("Couldn't read ability {} in {}", GsonHelper.getAsString(o, "ability"), resourceLocation);
                 }
             }
         });

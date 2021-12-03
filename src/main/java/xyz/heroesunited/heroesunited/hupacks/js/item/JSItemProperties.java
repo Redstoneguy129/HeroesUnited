@@ -1,13 +1,13 @@
 package xyz.heroesunited.heroesunited.hupacks.js.item;
 
-import net.minecraft.item.IItemTier;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemTier;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.Tiers;
 
 public class JSItemProperties extends Item.Properties {
     public String type = "heroesunited:default";
-    protected IItemTier tier = ItemTier.DIAMOND;
+    protected Tier tier = Tiers.DIAMOND;
     protected int attackDamage = 1;
     protected float attackSpeed = 0.5f;
     public ResourceLocation power = new ResourceLocation("");
@@ -22,7 +22,7 @@ public class JSItemProperties extends Item.Properties {
         return this;
     }
 
-    public Item.Properties tier(IItemTier tier) {
+    public Item.Properties tier(Tier tier) {
         this.tier = tier;
         return this;
     }

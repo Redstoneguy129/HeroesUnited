@@ -1,7 +1,7 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.gson.JsonObject;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 
 public class AbilityCreator {
 
@@ -20,7 +20,7 @@ public class AbilityCreator {
         return key;
     }
 
-    public Ability create(PlayerEntity player) {
+    public Ability create(Player player) {
         Ability ability = this.abilityType.create(player, this.key);
 
         if (this.jsonObject != null) {

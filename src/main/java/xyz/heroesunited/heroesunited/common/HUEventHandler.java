@@ -2,23 +2,33 @@ package xyz.heroesunited.heroesunited.common;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.util.*;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.GenerationStage;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.OreFeatureConfig;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.Registry;
+import net.minecraft.data.worldgen.features.OreFeatures;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.VerticalAnchor;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
+import net.minecraft.world.level.levelgen.placement.BiomeFilter;
+import net.minecraft.world.level.levelgen.placement.CountPlacement;
+import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
+import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.util.ITeleporter;
@@ -32,7 +42,7 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraftforge.network.NetworkDirection;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
@@ -61,6 +71,7 @@ import xyz.heroesunited.heroesunited.util.HUTickrate;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -73,16 +84,16 @@ public class HUEventHandler {
 
     @SubscribeEvent
     public void playerSize(EntityEvent.Size event) {
-        if (event.getEntity().isAddedToWorld() && event.getEntity() instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) event.getEntity();
+        if (event.getEntity().isAddedToWorld() && event.getEntity() instanceof Player) {
+            Player player = (Player) event.getEntity();
             IFlyingAbility flying = IFlyingAbility.getFlyingAbility(player);
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
                 if ((flying != null && flying.isFlying(player)) || a.isFlying()) {
                     if (!player.isOnGround() && player.isSprinting()) {
                         if (event.getOldSize().fixed) {
-                            event.setNewSize(EntitySize.fixed(0.6F, 0.6F));
+                            event.setNewSize(EntityDimensions.fixed(0.6F, 0.6F));
                         } else {
-                            event.setNewSize(EntitySize.scalable(0.6F, 0.6F));
+                            event.setNewSize(EntityDimensions.scalable(0.6F, 0.6F));
                         }
                         event.setNewEyeHeight(0.4F);
                     }
@@ -96,9 +107,9 @@ public class HUEventHandler {
             }
             if (GlidingAbility.getInstance(player) != null && GlidingAbility.getInstance(player).canGliding(player)) {
                 if (event.getOldSize().fixed) {
-                    event.setNewSize(EntitySize.fixed(0.6F, 0.6F));
+                    event.setNewSize(EntityDimensions.fixed(0.6F, 0.6F));
                 } else {
-                    event.setNewSize(EntitySize.scalable(0.6F, 0.6F));
+                    event.setNewSize(EntityDimensions.scalable(0.6F, 0.6F));
                 }
                 event.setNewEyeHeight(0.4F);
             }
@@ -120,8 +131,8 @@ public class HUEventHandler {
             if (!event.player.level.isClientSide)
                 for (CelestialBody celestialBody : CelestialBody.CELESTIAL_BODIES.getValues()) {
                     celestialBody.tick();
-                    for (PlayerEntity mpPlayer : event.player.level.players()) {
-                        HUNetworking.INSTANCE.sendTo(new ClientSyncCelestialBody(celestialBody.writeNBT(), celestialBody.getRegistryName()), ((ServerPlayerEntity) mpPlayer).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                    for (Player mpPlayer : event.player.level.players()) {
+                        HUNetworking.INSTANCE.sendTo(new ClientSyncCelestialBody(celestialBody.writeNBT(), celestialBody.getRegistryName()), ((ServerPlayer) mpPlayer).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                     }
                 }
             for (Ability a : AbilityHelper.getAbilities(event.player)) {
@@ -140,21 +151,21 @@ public class HUEventHandler {
             if (!entity.level.isClientSide && !HUPlayerUtil.canBreath(entity)) {
                 entity.hurt((new DamageSource("space_drown")).bypassArmor(), 1);
             }
-            if (!(entity.level.dimension().equals(World.OVERWORLD) || entity.level.dimension().equals(World.NETHER) || entity.level.dimension().equals(World.END))) {
+            if (!(entity.level.dimension().equals(Level.OVERWORLD) || entity.level.dimension().equals(Level.NETHER) || entity.level.dimension().equals(Level.END))) {
                 JsonObject jsonObject = null;
-                if (entity.level instanceof ServerWorld) {
+                if (entity.level instanceof ServerLevel) {
                     ResourceLocation res = entity.level.dimension().location();
                     try (
-                            InputStreamReader reader = new InputStreamReader(entity.level.getServer().getDataPackRegistries().getResourceManager().getResource(
+                            InputStreamReader reader = new InputStreamReader(entity.level.getServer().getResourceManager().getResource(
                                     new ResourceLocation(res.getNamespace(), String.format("dimension_type/%s.json", res.getPath()))).getInputStream(), StandardCharsets.UTF_8)
                     ) {
-                        jsonObject = JSONUtils.fromJson(HUPacks.GSON, reader, JsonObject.class);
+                        jsonObject = GsonHelper.fromJson(HUPacks.GSON, reader, JsonObject.class);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
                 if (jsonObject != null && jsonObject.has("gravity")) {
-                    AbilityHelper.setAttribute(entity, "hu_gravity", ForgeMod.ENTITY_GRAVITY.get(), UUID.fromString("f308847a-43e7-4aaa-a0a5-f474dac5404e"), JSONUtils.getAsFloat(jsonObject, "gravity"), AttributeModifier.Operation.MULTIPLY_TOTAL);
+                    AbilityHelper.setAttribute(entity, "hu_gravity", ForgeMod.ENTITY_GRAVITY.get(), UUID.fromString("f308847a-43e7-4aaa-a0a5-f474dac5404e"), GsonHelper.getAsFloat(jsonObject, "gravity"), AttributeModifier.Operation.MULTIPLY_TOTAL);
                 }
             } else {
                 AttributeModifier modifier = entity.getAttribute(ForgeMod.ENTITY_GRAVITY.get()).getModifier(UUID.fromString("f308847a-43e7-4aaa-a0a5-f474dac5404e"));
@@ -181,9 +192,9 @@ public class HUEventHandler {
                 if (Planet.PLANETS_MAP.containsKey(entity.level.dimension()) && entity.position().y > 10050 && !entity.level.isClientSide) {
                     Planet planet = Planet.PLANETS_MAP.get(entity.level.dimension());
                     if (entity.getVehicle() == null) {
-                        entity.changeDimension(((ServerWorld) entity.level).getServer().getLevel(HeroesUnited.SPACE), new ITeleporter() {
+                        entity.changeDimension(((ServerLevel) entity.level).getServer().getLevel(HeroesUnited.SPACE), new ITeleporter() {
                             @Override
-                            public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
+                            public Entity placeEntity(Entity entity, ServerLevel currentWorld, ServerLevel destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
                                 Entity repositionedEntity = repositionEntity.apply(false);
 
                                 repositionedEntity.teleportTo(planet.getOutCoordinates().x, planet.getOutCoordinates().y, planet.getOutCoordinates().z);
@@ -192,9 +203,9 @@ public class HUEventHandler {
                             }
                         });
                     } else {
-                        entity.getVehicle().changeDimension(((ServerWorld) entity.level).getServer().getLevel(HeroesUnited.SPACE), new ITeleporter() {
+                        entity.getVehicle().changeDimension(((ServerLevel) entity.level).getServer().getLevel(HeroesUnited.SPACE), new ITeleporter() {
                             @Override
-                            public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
+                            public Entity placeEntity(Entity entity, ServerLevel currentWorld, ServerLevel destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
                                 Entity repositionedEntity = repositionEntity.apply(false);
 
                                 repositionedEntity.teleportTo(planet.getOutCoordinates().x, planet.getOutCoordinates().y, planet.getOutCoordinates().z);
@@ -206,8 +217,8 @@ public class HUEventHandler {
 
                 }
             }
-            if (entity instanceof PlayerEntity) {
-                PlayerEntity pl = (PlayerEntity) entity;
+            if (entity instanceof Player) {
+                Player pl = (Player) entity;
                 pl.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
                     for (Map.Entry<String, Ability> e : a.getAbilities().entrySet()) {
                         Ability ability = e.getValue();
@@ -232,7 +243,7 @@ public class HUEventHandler {
                             a.getInventory().getItems().get(i).inventoryTick(pl.level, pl, i, false);
                         }
                     }
-                    for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
+                    for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
                         if (Suit.getSuitItem(equipmentSlot, pl) != null) {
                             Suit.getSuitItem(equipmentSlot, pl).getSuit().onUpdate(pl, equipmentSlot);
                         }
@@ -241,7 +252,7 @@ public class HUEventHandler {
                     IFlyingAbility b = IFlyingAbility.getFlyingAbility(pl);
                     if ((b != null && b.isFlying(pl) && !pl.isOnGround()) || a.isFlying() && !pl.isOnGround()) {
                         a.updateFlyAmount();
-                        HUPlayerUtil.playSoundToAll(pl.level, HUPlayerUtil.getPlayerPos(pl), 10, IFlyingAbility.getFlyingAbility(pl) != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() : HUSounds.FLYING, SoundCategory.PLAYERS, 0.05F, 0.5F);
+                        HUPlayerUtil.playSoundToAll(pl.level, HUPlayerUtil.getPlayerPos(pl), 10, IFlyingAbility.getFlyingAbility(pl) != null ? IFlyingAbility.getFlyingAbility(pl).getSoundEvent() : HUSounds.FLYING, SoundSource.PLAYERS, 0.05F, 0.5F);
 
                         float j = 0.0F;
                         if (pl.isShiftKeyDown()) {
@@ -253,16 +264,16 @@ public class HUEventHandler {
                         }
 
                         if (pl.zza > 0F) {
-                            Vector3d vec = pl.getLookAngle();
+                            Vec3 vec = pl.getLookAngle();
                             double speed = pl.isSprinting() ? 2.5f : 1f;
                             for (FlightAbility ability : AbilityHelper.getListOfType(AbilityHelper.getAbilities(pl), FlightAbility.class)) {
                                 if (ability.getJsonObject() != null && ability.getJsonObject().has("speed")) {
-                                    speed = pl.isSprinting() ? JSONUtils.getAsFloat(ability.getJsonObject(), "maxSpeed", 2.5F) : JSONUtils.getAsFloat(ability.getJsonObject(), "speed");
+                                    speed = pl.isSprinting() ? GsonHelper.getAsFloat(ability.getJsonObject(), "maxSpeed", 2.5F) : GsonHelper.getAsFloat(ability.getJsonObject(), "speed");
                                 }
                             }
                             pl.setDeltaMovement(vec.x * speed, j + vec.y * speed, vec.z * speed);
                         } else {
-                            pl.setDeltaMovement(new Vector3d(pl.getDeltaMovement().x, j + Math.sin(pl.tickCount / 10F) / 100F, pl.getDeltaMovement().z));
+                            pl.setDeltaMovement(new Vec3(pl.getDeltaMovement().x, j + Math.sin(pl.tickCount / 10F) / 100F, pl.getDeltaMovement().z));
                         }
                     }
                 });
@@ -275,9 +286,9 @@ public class HUEventHandler {
         if (!event.getEntityLiving().level.isClientSide && event.getEntityLiving().level.dimension().equals(HeroesUnited.SPACE) && event.getSource() == DamageSource.OUT_OF_WORLD) {
             event.setCanceled(true);
         }
-        if (event.getEntityLiving() instanceof PlayerEntity) {
+        if (event.getEntityLiving() instanceof Player) {
             for (DamageImmunityAbility a : AbilityHelper.getListOfType(AbilityHelper.getAbilities(event.getEntityLiving()), DamageImmunityAbility.class)) {
-                JsonArray jsonArray = JSONUtils.getAsJsonArray(a.getJsonObject(), "damage_sources");
+                JsonArray jsonArray = GsonHelper.getAsJsonArray(a.getJsonObject(), "damage_sources");
                 for (int i = 0; i < jsonArray.size(); i++) {
                     if (jsonArray.get(i).getAsString().equals(event.getSource().getMsgId()) && a.getEnabled()) {
                         event.setCanceled(true);
@@ -291,13 +302,13 @@ public class HUEventHandler {
     public void onCancelCollision(HUCancelBlockCollision event) {
         Entity entity = event.getEntity();
         AtomicBoolean collidable = new AtomicBoolean(true);
-        if (entity instanceof PlayerEntity) {
+        if (entity instanceof Player) {
             entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                 if (cap.isIntangible()) {
-                    if (event.getState().getShape(event.getWorld(), event.getPos()) != VoxelShapes.empty()) {
+                    if (event.getState().getShape(event.getWorld(), event.getPos()) != Shapes.empty()) {
                         if (entity.position().y >= (event.getPos().getY() + event.getState().getShape(event.getWorld(), event.getPos()).bounds().getYsize())) {
-                            IFlyingAbility b = IFlyingAbility.getFlyingAbility((PlayerEntity) entity);
-                            collidable.set(((b != null && !b.isFlying((PlayerEntity) entity)) || !cap.isFlying()) && !entity.isCrouching());
+                            IFlyingAbility b = IFlyingAbility.getFlyingAbility((Player) entity);
+                            collidable.set(((b != null && !b.isFlying((Player) entity)) || !cap.isFlying()) && !entity.isCrouching());
                         } else {
                             collidable.set(false);
                         }
@@ -317,17 +328,15 @@ public class HUEventHandler {
 
     @SubscribeEvent
     public void onChangeEquipment(LivingEquipmentChangeEvent event) {
-        if (event.getEntityLiving() instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) event.getEntityLiving();
+        if (event.getEntityLiving() instanceof Player player) {
             player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
-                if (event.getSlot().getType() == EquipmentSlotType.Group.ARMOR) {
-                    if (event.getFrom().getItem() instanceof SuitItem && !cap.getAbilities().isEmpty()) {
-                        SuitItem suitItem = (SuitItem) event.getFrom().getItem();
+                if (event.getSlot().getType() == EquipmentSlot.Type.ARMOR) {
+                    if (event.getFrom().getItem() instanceof SuitItem suitItem && !cap.getAbilities().isEmpty()) {
                         if (!(event.getTo().getItem() instanceof SuitItem) || ((SuitItem) event.getTo().getItem()).getSuit() != suitItem.getSuit()) {
                             cap.clearAbilities((a) -> {
                                 if (suitItem.getAbilities(player).containsKey(a.name) && a.getAdditionalData().equals(suitItem.getAbilities(player).get(a.name).getAdditionalData()) && a.getAdditionalData().contains("Suit")) {
                                     if (a.getJsonObject() != null && a.getJsonObject().has("slot")) {
-                                        return suitItem.getSlot().getName().toLowerCase().equals(JSONUtils.getAsString(a.getJsonObject(), "slot"));
+                                        return suitItem.getSlot().getName().toLowerCase().equals(GsonHelper.getAsString(a.getJsonObject(), "slot"));
                                     } else return true;
                                 }
                                 return false;
@@ -335,13 +344,12 @@ public class HUEventHandler {
                             suitItem.getSuit().onDeactivated(player, suitItem.getSlot());
                         }
                     }
-                    if (event.getTo().getItem() instanceof SuitItem) {
-                        SuitItem suitItem = (SuitItem) event.getTo().getItem();
+                    if (event.getTo().getItem() instanceof SuitItem suitItem) {
 
                         if (!suitItem.getAbilities(player).isEmpty()) {
                             for (Map.Entry<String, Ability> entry : suitItem.getAbilities(player).entrySet()) {
                                 Ability a = entry.getValue();
-                                boolean canAdd = a.getJsonObject() != null && a.getJsonObject().has("slot") && suitItem.getSlot().getName().toLowerCase().equals(JSONUtils.getAsString(a.getJsonObject(), "slot"));
+                                boolean canAdd = a.getJsonObject() != null && a.getJsonObject().has("slot") && suitItem.getSlot().getName().toLowerCase().equals(GsonHelper.getAsString(a.getJsonObject(), "slot"));
                                 if (canAdd || Suit.getSuit(player) != null) {
                                     cap.addAbility(entry.getKey(), a);
                                 }
@@ -350,14 +358,12 @@ public class HUEventHandler {
                         suitItem.getSuit().onActivated(player, suitItem.getSlot());
                     }
                 }
-                if (event.getFrom().getItem() instanceof IJSItem && !cap.getAbilities().isEmpty()) {
-                    IJSItem item = (IJSItem) event.getFrom().getItem();
+                if (event.getFrom().getItem() instanceof IJSItem item && !cap.getAbilities().isEmpty()) {
                     cap.clearAbilities((a) -> item.getAbilities(player).containsKey(a.name) && a.getAdditionalData().getString("Item")
                             .equals(item.getAbilities(player).get(a.name).getAdditionalData().getString("Item")));
                 }
-                if (event.getTo().getItem() instanceof IJSItem) {
-                    IJSItem item = (IJSItem) event.getTo().getItem();
-                    EquipmentSlotType slot = event.getTo().getEquipmentSlot() == null ? EquipmentSlotType.MAINHAND : event.getTo().getEquipmentSlot();
+                if (event.getTo().getItem() instanceof IJSItem item) {
+                    EquipmentSlot slot = event.getTo().getEquipmentSlot() == null ? EquipmentSlot.MAINHAND : event.getTo().getEquipmentSlot();
                     if (!item.getAbilities(player).isEmpty()) {
                         for (Map.Entry<String, Ability> entry : item.getAbilities(player).entrySet()) {
                             if (slot == event.getSlot()) {
@@ -372,8 +378,8 @@ public class HUEventHandler {
 
     @SubscribeEvent
     public void LivingFallEvent(LivingFallEvent event) {
-        ModifiableAttributeInstance fallAttribute = event.getEntityLiving().getAttribute(HUAttributes.FALL_RESISTANCE);
-        if (fallAttribute != null && event.getEntityLiving() instanceof PlayerEntity) {
+        AttributeInstance fallAttribute = event.getEntityLiving().getAttribute(HUAttributes.FALL_RESISTANCE);
+        if (fallAttribute != null && event.getEntityLiving() instanceof Player) {
             fallAttribute.setBaseValue(event.getDamageMultiplier());
             event.setDamageMultiplier((float) fallAttribute.getValue());
         }
@@ -381,7 +387,7 @@ public class HUEventHandler {
 
     @SubscribeEvent
     public void LivingJumpEvent(LivingEvent.LivingJumpEvent event) {
-        if (!event.getEntityLiving().isCrouching() && event.getEntityLiving() instanceof PlayerEntity) {
+        if (!event.getEntityLiving().isCrouching() && event.getEntityLiving() instanceof Player) {
             event.getEntityLiving().setDeltaMovement(event.getEntity().getDeltaMovement().x, event.getEntity().getDeltaMovement().y + 0.1F * event.getEntityLiving().getAttribute(JUMP_BOOST).getValue(), event.getEntity().getDeltaMovement().z);
         }
     }
@@ -394,9 +400,9 @@ public class HUEventHandler {
 
     @SubscribeEvent
     public void biomeLoading(BiomeLoadingEvent event) {
-        if (BiomeDictionary.hasType(RegistryKey.create(Registry.BIOME_REGISTRY, Objects.requireNonNull(event.getName())), BiomeDictionary.Type.OVERWORLD)) {
-            event.getGeneration().addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, Feature.ORE.configured(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.NATURAL_STONE,
-                    HUBlocks.TITANIUM_ORE.defaultBlockState(), 4)).range(32).squared().count(2));
+        if (BiomeDictionary.hasType(ResourceKey.create(Registry.BIOME_REGISTRY, Objects.requireNonNull(event.getName())), BiomeDictionary.Type.OVERWORLD)) {
+            event.getGeneration().addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Feature.ORE.configured(new OreConfiguration(OreFeatures.NATURAL_STONE,
+                    HUBlocks.TITANIUM_ORE.defaultBlockState(), 4, 0.5F)).placed(List.of(CountPlacement.of(2), InSquarePlacement.spread(), HeightRangePlacement.uniform(VerticalAnchor.aboveBottom(-32), VerticalAnchor.aboveBottom(32)), BiomeFilter.biome())));
         }
         //event.getGeneration().getStructures().add(() -> HUConfiguredStructures.CONFIGURED_CITY);
     }

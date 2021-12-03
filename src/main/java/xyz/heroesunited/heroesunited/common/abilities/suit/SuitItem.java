@@ -1,30 +1,36 @@
 package xyz.heroesunited.heroesunited.common.abilities.suit;
 
 import com.google.common.collect.Maps;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.IArmorMaterial;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.*;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.IItemRenderProperties;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
@@ -43,13 +49,14 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable {
 
     protected final AnimationFactory factory = new AnimationFactory(this);
     protected final Suit suit;
 
-    public SuitItem(IArmorMaterial materialIn, EquipmentSlotType slot, Properties builder, Suit suit) {
+    public SuitItem(ArmorMaterial materialIn, EquipmentSlot slot, Properties builder, Suit suit) {
         super(materialIn, slot, builder);
         this.suit = suit;
     }
@@ -60,12 +67,12 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     }
 
     @Override
-    public Map<String, Ability> getAbilities(PlayerEntity player) {
+    public Map<String, Ability> getAbilities(Player player) {
         Map<String, Ability> map = Maps.newHashMap();
         suit.getAbilities(player).forEach((id, a) -> {
             a.getAdditionalData().putString("Suit", suit.getRegistryName().toString());
             if (suit instanceof JsonSuit && a.getJsonObject().has("slot")) {
-                a.getAdditionalData().putString("Slot", JSONUtils.getAsString(a.getJsonObject(), "slot"));
+                a.getAdditionalData().putString("Slot", GsonHelper.getAsString(a.getJsonObject(), "slot"));
             }
             map.put(id, a);
         });
@@ -74,40 +81,45 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World p_77624_2_, List<ITextComponent> tooltip, ITooltipFlag p_77624_4_) {
+    public void appendHoverText(ItemStack stack, @Nullable Level p_77624_2_, List<Component> tooltip, TooltipFlag p_77624_4_) {
         if (getSuit().getDescription(stack) != null) tooltip.addAll(getSuit().getDescription(stack));
     }
 
     @Override
-    public void onArmorTick(ItemStack stack, World world, PlayerEntity player) {
+    public void onArmorTick(ItemStack stack, Level world, Player player) {
         if (!getSuit().canEquip(player)) {
-            player.inventory.add(player.getItemBySlot(slot));
+            player.getInventory().add(player.getItemBySlot(slot));
             player.setItemSlot(slot, ItemStack.EMPTY);
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
-    public <A extends BipedModel<?>> A getArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlotType armorSlot, A _default) {
-        try {
-            return (A) getArmorRenderer()
-                    .setCurrentItem(entity, stack, armorSlot)
-                    .applyEntityStats(_default).applySlot(armorSlot);
-        } catch (GeckoLibException | IllegalArgumentException e) {
-            if (stack != ItemStack.EMPTY) {
-                if (stack.getItem() instanceof SuitItem) {
-                    BipedModel model = getSuit().getArmorModel(entity, stack, armorSlot, _default);
-                    model.copyPropertiesTo(_default);
-                    return (A) model;
+    public void initializeClient(Consumer<IItemRenderProperties> consumer) {
+        super.initializeClient(consumer);
+        consumer.accept(new IItemRenderProperties() {
+            @Override
+            public <A extends HumanoidModel<?>> A getArmorModel(LivingEntity entityLiving, ItemStack itemStack, EquipmentSlot armorSlot, A _default) {
+                try {
+                    return (A) getArmorRenderer()
+                            .setCurrentItem(entityLiving, itemStack, armorSlot)
+                            .applyEntityStats(_default).applySlot(armorSlot);
+                } catch (GeckoLibException | IllegalArgumentException e) {
+                    if (itemStack != ItemStack.EMPTY) {
+                        if (itemStack.getItem() instanceof SuitItem) {
+                            HumanoidModel model = getSuit().getArmorModel(entityLiving, itemStack, armorSlot, _default);
+                            model.copyPropertiesTo(_default);
+                            return (A) model;
+                        }
+                    }
+                    return IItemRenderProperties.super.getArmorModel(entityLiving, itemStack, armorSlot, _default);
                 }
             }
-            return super.getArmorModel(entity, stack, armorSlot, _default);
-        }
+        });
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, HandSide side, ItemStack stack) {
-        if (getSlot() != EquipmentSlotType.CHEST) return;
+    public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side, ItemStack stack) {
+        if (getSlot() != EquipmentSlot.CHEST) return;
         try {
             GeoArmorRenderer geo = getArmorRenderer();
             GeoModel model = geo.getGeoModelProvider().getModel(geo.getGeoModelProvider().getModelLocation(this));
@@ -122,7 +134,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
             }
             if (model.topLevelBones.isEmpty())
                 throw new GeckoLibException(getRegistryName(), "Model doesn't have any parts");
-            GeoBone bone = model.getBone(side == HandSide.LEFT ? geo.leftArmBone : geo.rightArmBone).get();
+            GeoBone bone = model.getBone(side == HumanoidArm.LEFT ? geo.leftArmBone : geo.rightArmBone).get();
             geo.attackTime = 0.0F;
             geo.crouching = false;
             geo.swimAmount = 0.0F;
@@ -130,9 +142,9 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
             matrix.translate(0.0D, 1.5F, 0.0D);
             matrix.scale(-1.0F, -1.0F, 1.0F);
 
-            ModelRenderer modelRenderer = side == HandSide.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
+            ModelPart modelRenderer = side == HumanoidArm.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
             GeoUtils.copyRotations(modelRenderer, bone);
-            bone.setPositionX(side == HandSide.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
+            bone.setPositionX(side == HumanoidArm.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
             bone.setPositionY(2 - modelRenderer.y);
             bone.setPositionZ(modelRenderer.z);
 
@@ -146,8 +158,8 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
             }
 
             matrix.pushPose();
-            Minecraft.getInstance().textureManager.bind(geo.getTextureLocation(this));
-            IVertexBuilder builder = bufferIn.getBuffer(RenderType.entityTranslucent(geo.getTextureLocation(this)));
+            RenderSystem.setShaderTexture(0, geo.getTextureLocation(this));
+            VertexConsumer builder = bufferIn.getBuffer(RenderType.entityTranslucent(geo.getTextureLocation(this)));
             Color renderColor = geo.getRenderColor(this, 0, matrix, null, builder, packedLightIn);
 
             geo.render(model, stack.getItem(), Minecraft.getInstance().getFrameTime(), RenderType.entityTranslucent(geo.getTextureLocation(this)), matrix, bufferIn, builder, packedLightIn,
@@ -170,7 +182,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
 
     @Nonnull
     @Override
-    public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlotType slot, String type) {
+    public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
         try {
             ResourceLocation location = getArmorRenderer().getTextureLocation((ArmorItem) stack.getItem());
             if (Minecraft.getInstance().getResourceManager().hasResource(location)) {
@@ -186,14 +198,14 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
 
     @Nullable
     @Override
-    public CompoundNBT getShareTag(ItemStack stack) {
-        CompoundNBT nbt = stack.getOrCreateTag();
+    public CompoundTag getShareTag(ItemStack stack) {
+        CompoundTag nbt = stack.getOrCreateTag();
         getSuit().serializeNBT(nbt, stack);
         return nbt;
     }
 
     @Override
-    public void readShareTag(ItemStack stack, @Nullable CompoundNBT nbt) {
+    public void readShareTag(ItemStack stack, @Nullable CompoundTag nbt) {
         super.readShareTag(stack, nbt);
         if (nbt != null) {
             getSuit().deserializeNBT(nbt, stack);
@@ -201,15 +213,15 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     }
 
     @Override
-    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
+    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
         ItemStack stack = playerIn.getItemInHand(handIn);
         ItemStack armorStack = playerIn.getItemBySlot(slot);
         if (getSuit().canEquip(playerIn) && armorStack.isEmpty()) {
             playerIn.setItemSlot(slot, stack.copy());
             stack.setCount(0);
-            return ActionResult.sidedSuccess(stack, worldIn.isClientSide());
+            return InteractionResultHolder.sidedSuccess(stack, worldIn.isClientSide());
         } else {
-            return ActionResult.fail(stack);
+            return InteractionResultHolder.fail(stack);
         }
     }
 
@@ -219,9 +231,9 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     }
 
     @Override
-    public boolean canEquip(ItemStack stack, EquipmentSlotType armorType, Entity entity) {
-        if (entity instanceof PlayerEntity) {
-            return super.canEquip(stack, armorType, entity) && getSuit().canEquip((PlayerEntity) entity);
+    public boolean canEquip(ItemStack stack, EquipmentSlot armorType, Entity entity) {
+        if (entity instanceof Player) {
+            return super.canEquip(stack, armorType, entity) && getSuit().canEquip((Player) entity);
         }
         return super.canEquip(stack, armorType, entity);
     }

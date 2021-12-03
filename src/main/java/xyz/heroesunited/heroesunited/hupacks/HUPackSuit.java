@@ -2,11 +2,11 @@ package xyz.heroesunited.heroesunited.hupacks;
 
 import com.google.common.collect.Maps;
 import com.google.gson.*;
-import net.minecraft.client.resources.JsonReloadListener;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.util.profiling.ProfilerFiller;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.suit.JsonSuit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-public class HUPackSuit extends JsonReloadListener {
+public class HUPackSuit extends SimpleJsonResourceReloadListener {
 
     private static final Map<ResourceLocation, Function<Map.Entry<ResourceLocation, JsonObject>, Suit>> suitTypes = Maps.newHashMap();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
@@ -31,15 +31,15 @@ public class HUPackSuit extends JsonReloadListener {
     }
 
     private static Suit parse(Map.Entry<ResourceLocation, JsonObject> map) {
-        Function<Map.Entry<ResourceLocation, JsonObject>, Suit> function = suitTypes.get(new ResourceLocation(JSONUtils.getAsString(map.getValue(), "type")));
+        Function<Map.Entry<ResourceLocation, JsonObject>, Suit> function = suitTypes.get(new ResourceLocation(GsonHelper.getAsString(map.getValue(), "type")));
         if (function == null) {
-            throw new JsonParseException("The type of a suit '" + JSONUtils.getAsString(map.getValue(), "type") + "' doesn't exist!");
+            throw new JsonParseException("The type of a suit '" + GsonHelper.getAsString(map.getValue(), "type") + "' doesn't exist!");
         }
         return Objects.requireNonNull(function.apply(map));
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> suits, IResourceManager manager, IProfiler profiler) {
+    protected void apply(Map<ResourceLocation, JsonElement> suits, ResourceManager manager, ProfilerFiller profiler) {
         for (Map.Entry<ResourceLocation, JsonElement> map : suits.entrySet()) {
             try {
                 if (map.getValue() instanceof JsonObject) {

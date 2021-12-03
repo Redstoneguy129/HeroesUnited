@@ -1,8 +1,8 @@
 package xyz.heroesunited.heroesunited.util.hudata;
 
 import com.google.gson.JsonObject;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.JSONUtils;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.GsonHelper;
 
 import java.util.UUID;
 
@@ -53,29 +53,29 @@ public class HUData<T> {
     public Object getFromJson(JsonObject json, String id, Object defaultValue) {
         if (json.has(id)) {
             if (defaultValue instanceof Boolean) {
-                return JSONUtils.getAsBoolean(json, id);
+                return GsonHelper.getAsBoolean(json, id);
             } else if (defaultValue instanceof Integer) {
-                return JSONUtils.getAsInt(json, id);
+                return GsonHelper.getAsInt(json, id);
             } else if (defaultValue instanceof String) {
-                return JSONUtils.getAsString(json, id);
+                return GsonHelper.getAsString(json, id);
             } else if (defaultValue instanceof Float) {
-                return JSONUtils.getAsFloat(json, id);
+                return GsonHelper.getAsFloat(json, id);
             } else if (defaultValue instanceof Double) {
-                return (double) JSONUtils.getAsFloat(json, id);
+                return (double) GsonHelper.getAsFloat(json, id);
             } else if (defaultValue instanceof Long) {
-                return JSONUtils.getAsLong(json, id);
+                return GsonHelper.getAsLong(json, id);
             } else if (defaultValue instanceof UUID) {
-                return UUID.fromString(JSONUtils.getAsString(json, id));
+                return UUID.fromString(GsonHelper.getAsString(json, id));
             }
         }
         return defaultValue;
     }
 
-    public CompoundNBT serializeNBT(String id, T value) {
-        return this.serializeNBT(new CompoundNBT(), id, value);
+    public CompoundTag serializeNBT(String id, T value) {
+        return this.serializeNBT(new CompoundTag(), id, value);
     }
 
-    public CompoundNBT serializeNBT(CompoundNBT nbt, String id, T value) {
+    public CompoundTag serializeNBT(CompoundTag nbt, String id, T value) {
         if (value instanceof Boolean) {
             nbt.putBoolean(id, (Boolean) value);
         } else if (value instanceof Integer) {
@@ -94,7 +94,7 @@ public class HUData<T> {
         return nbt;
     }
 
-    public Object deserializeNBT(CompoundNBT nbt, String id, T defaultValue) {
+    public Object deserializeNBT(CompoundTag nbt, String id, T defaultValue) {
         if (nbt.contains(id)) {
             if (defaultValue instanceof Boolean) {
                 return nbt.getBoolean(id);

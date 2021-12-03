@@ -1,14 +1,14 @@
 package xyz.heroesunited.heroesunited.hupacks.js;
 
 import com.google.common.collect.Maps;
-import jdk.nashorn.api.scripting.NashornScriptEngine;
-import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
-import net.minecraft.item.Item;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import org.openjdk.nashorn.api.scripting.NashornScriptEngine;
+import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.hupacks.js.item.*;
 
@@ -35,7 +35,7 @@ public class JSItemManager extends JSReloadListener {
     }
 
     @Override
-    public void apply(Map<ResourceLocation, NashornScriptEngine> map, IResourceManager resourceManagerIn, IProfiler profilerIn) {
+    public void apply(Map<ResourceLocation, NashornScriptEngine> map, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
         for (Map.Entry<ResourceLocation, NashornScriptEngine> entry : map.entrySet()) {
             try {
                 JSItemProperties properties = new JSItemProperties();

@@ -1,7 +1,7 @@
 package xyz.heroesunited.heroesunited.common.capabilities;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.util.INBTSerializable;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.IAnimationTickable;
@@ -11,7 +11,7 @@ import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesInvento
 
 import java.util.Map;
 
-public interface IHUPlayer extends INBTSerializable<CompoundNBT>, IAnimatable, IAnimationTickable {
+public interface IHUPlayer extends INBTSerializable<CompoundTag>, IAnimatable, IAnimationTickable {
 
     @Override
     default void tick() {

@@ -1,9 +1,8 @@
 package xyz.heroesunited.heroesunited.mixin.client;
 
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,11 +22,9 @@ public abstract class MixinPlayerModel implements IPlayerModel {
 
     @Shadow @Final private boolean slim;
 
-    @Shadow protected abstract Iterable<ModelRenderer> bodyParts();
-
     @Inject(method = "setupAnim", at = @At(value = "HEAD"))
     private void setRotationAngles(LivingEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
-        if (!(entityIn instanceof PlayerEntity)) return;
+        if (!(entityIn instanceof Player)) return;
         PlayerModel model = (PlayerModel) (Object) this;
         this.limbSwing = limbSwing;
         this.limbSwingAmount = limbSwingAmount;

@@ -1,23 +1,23 @@
 buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net' }
-        maven { url = 'https://maven.parchmentmc.org' }
+        //maven { url = 'https://maven.parchmentmc.org' }
         maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
         gradlePluginPortal()
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         classpath "gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0"
         classpath 'org.spongepowered:mixingradle:0.7.+'
-        classpath 'org.parchmentmc:librarian:1.+'
+        //classpath 'org.parchmentmc:librarian:1.+'
     }
 }
 
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'org.parchmentmc.librarian.forgegradle'
+//apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'idea'
 
@@ -25,18 +25,17 @@ version = build_version
 group = "xyz.heroesunited"
 archivesBaseName = "heroesunited"
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
-    mappings channel: 'parchment', version: '2021.10.17-1.16.5'
+    //mappings channel: 'parchment', version: '2021.10.17-1.16.5'
+    mappings channel: 'official', version: '1.18'
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     runs {
         client {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'SCAN,REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
                 heroesunited {
                     source sourceSets.main
@@ -46,8 +45,6 @@ minecraft {
 
         clientWithCredentials {
             parent runs.client
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             args '--username', 'jeb_', '--uuid', '853c80ef-3c37-49fd-aa49-938b674adae6'
         }
 
@@ -55,8 +52,6 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'SCAN,REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
                 heroesunited {
                     source sourceSets.main
@@ -69,9 +64,6 @@ minecraft {
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
             args '--mod', 'heroesunited', '--all', '--output', file('src/generated/resources/')
-
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
                 heroesunited {
                     source sourceSets.main
@@ -82,8 +74,18 @@ minecraft {
 }
 
 configurations {
+    library
     shade
-    compile.extendsFrom(shade)
+    implementation.extendsFrom library
+    shade.extendsFrom library
+}
+
+minecraft.runs.all {
+    property 'mixin.env.remapRefMap', 'true'
+    property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+    lazyToken('minecraft_classpath') {
+        configurations.library.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
+    }
 }
 
 shadowJar {
@@ -100,6 +102,8 @@ repositories {
     maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
     maven { url 'https://jitpack.io' }
     maven { url "https://www.cursemaven.com" }
+    jcenter()
+
 }
 
 dependencies {
@@ -108,12 +112,16 @@ dependencies {
 
     compileOnly fg.deobf('curse.maven:obfuscate-289380:3148131')
 
-    implementation 'com.github.Vatuu:discord-rpc:1.6.2'
-    implementation fg.deobf("software.bernie.geckolib:geckolib-forge-1.16.5:$project.geckolib_version")
+    implementation fg.deobf("software.bernie.geckolib:geckolib-1.18:$project.geckolib_version")
+    shade fg.deobf("software.bernie.geckolib:geckolib-1.18:$project.geckolib_version")
 
-    shade 'com.github.Vatuu:discord-rpc:1.6.2'
-    shade 'com.github.Vatuu:discord-rpc-binaries:3.4.0'
-    shade fg.deobf("software.bernie.geckolib:geckolib-forge-1.16.5:$project.geckolib_version")
+    library('com.jagrosh:DiscordIPC:0.4') {
+        exclude group: 'org.slf4j'
+    }
+
+    shade ('com.jagrosh:DiscordIPC:0.4') {
+        exclude group: 'org.slf4j'
+    }
 }
 
 task deobfJar(type: Jar) {

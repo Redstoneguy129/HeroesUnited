@@ -5,10 +5,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.minecraft.client.resources.JsonReloadListener;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityCreator;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
@@ -16,7 +16,7 @@ import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import java.util.List;
 import java.util.Map;
 
-public class HUPackPowers extends JsonReloadListener {
+public class HUPackPowers extends SimpleJsonResourceReloadListener {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private static HUPackPowers INSTANCE;
     private final Map<ResourceLocation, List<AbilityCreator>> registeredPowers = Maps.newHashMap();
@@ -27,7 +27,7 @@ public class HUPackPowers extends JsonReloadListener {
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> map, IResourceManager iResourceManager, IProfiler iProfiler) {
+    protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager iResourceManager, ProfilerFiller iProfiler) {
         for (Map.Entry<ResourceLocation, JsonElement> entry : map.entrySet()) {
             ResourceLocation location = entry.getKey();
             try {

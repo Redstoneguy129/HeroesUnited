@@ -1,19 +1,19 @@
 package xyz.heroesunited.heroesunited.common.objects.container;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ItemStackHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.Container;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 
-public class AccessoriesInventory implements IInventory {
+public class AccessoriesInventory implements Container {
 
     private final NonNullList<ItemStack> items;
-    private final PlayerEntity player;
+    private final Player player;
 
-    public AccessoriesInventory(PlayerEntity player) {
+    public AccessoriesInventory(Player player) {
         this.player = player;
         this.items = NonNullList.withSize(10, ItemStack.EMPTY);
     }
@@ -51,7 +51,7 @@ public class AccessoriesInventory implements IInventory {
         ItemStack itemstack = this.items.get(index);
         if (!itemstack.isEmpty()) {
             if (itemstack.getCount() > count) {
-                itemstack = ItemStackHelper.removeItem(this.items, index, count);
+                itemstack = ContainerHelper.removeItem(this.items, index, count);
             } else setItem(index, ItemStack.EMPTY);
             setChanged();
             return itemstack;
@@ -82,7 +82,7 @@ public class AccessoriesInventory implements IInventory {
     }
 
     @Override
-    public boolean stillValid(PlayerEntity playerEntity) {
+    public boolean stillValid(Player playerEntity) {
         return true;
     }
 

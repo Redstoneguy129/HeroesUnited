@@ -1,6 +1,6 @@
 package xyz.heroesunited.heroesunited.mixin;
 
-import net.minecraft.world.DimensionType;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;

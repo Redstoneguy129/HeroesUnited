@@ -1,9 +1,9 @@
 package xyz.heroesunited.heroesunited.common.networking.server;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
 import java.util.function.Supplier;
@@ -22,14 +22,14 @@ public class ServerSetPlayerAnimation {
         this.loop = loop;
     }
 
-    public ServerSetPlayerAnimation(PacketBuffer buffer) {
+    public ServerSetPlayerAnimation(FriendlyByteBuf buffer) {
         this.name = buffer.readUtf();
         this.controllerName = buffer.readUtf();
         this.animationFile = new ResourceLocation(buffer.readUtf());
         this.loop = buffer.readBoolean();
     }
 
-    public void toBytes(PacketBuffer buffer) {
+    public void toBytes(FriendlyByteBuf buffer) {
         buffer.writeUtf(this.name);
         buffer.writeUtf(this.controllerName);
         buffer.writeUtf(this.animationFile.toString());
@@ -38,7 +38,7 @@ public class ServerSetPlayerAnimation {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            PlayerEntity player = ctx.get().getSender();
+            Player player = ctx.get().getSender();
             if (player != null) {
                 player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> cap.setAnimation(this.name, this.controllerName, this.animationFile, this.loop));
             }

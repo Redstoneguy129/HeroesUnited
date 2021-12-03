@@ -1,7 +1,7 @@
 package xyz.heroesunited.heroesunited.client.events;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.Event;
 
 /**

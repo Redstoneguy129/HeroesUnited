@@ -1,6 +1,6 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.registries.DeferredRegister;
@@ -32,7 +32,7 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
         this.setRegistryName(modid, name);
     }
 
-    public Ability create(PlayerEntity player, String id) {
+    public Ability create(Player player, String id) {
         Ability a = this.supplier.create(this);
         a.name = id;
         a.registerData();

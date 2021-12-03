@@ -1,8 +1,8 @@
 package xyz.heroesunited.heroesunited.client.render.renderer;
 
-import net.minecraft.util.math.vector.Vector3f;
+import com.mojang.math.Vector3f;
 
-public interface IHUModelRenderer {
+public interface IHUModelPart {
 
     void setSize(Vector3f size);
 

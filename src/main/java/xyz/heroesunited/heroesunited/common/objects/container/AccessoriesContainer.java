@@ -1,17 +1,17 @@
 package xyz.heroesunited.heroesunited.common.objects.container;
 
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
@@ -22,18 +22,18 @@ import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class AccessoriesContainer extends Container {
+public class AccessoriesContainer extends AbstractContainerMenu {
 
-    private static final ResourceLocation[] ARMOR_SLOT_TEXTURES = new ResourceLocation[]{PlayerContainer.EMPTY_ARMOR_SLOT_BOOTS, PlayerContainer.EMPTY_ARMOR_SLOT_LEGGINGS, PlayerContainer.EMPTY_ARMOR_SLOT_CHESTPLATE, PlayerContainer.EMPTY_ARMOR_SLOT_HELMET};
-    private static final EquipmentSlotType[] VALID_EQUIPMENT_SLOTS = new EquipmentSlotType[]{EquipmentSlotType.HEAD, EquipmentSlotType.CHEST, EquipmentSlotType.LEGS, EquipmentSlotType.FEET};
+    private static final ResourceLocation[] ARMOR_SLOT_TEXTURES = new ResourceLocation[]{InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS, InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS, InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE, InventoryMenu.EMPTY_ARMOR_SLOT_HELMET};
+    private static final EquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 
-    public AccessoriesContainer(int id, PlayerInventory playerInventory) {
+    public AccessoriesContainer(int id, Inventory playerInventory) {
         this(id, playerInventory, HUPlayer.getCap(playerInventory.player).getInventory());
     }
 
-    public AccessoriesContainer(int id, PlayerInventory playerInventory, AccessoriesInventory inventory) {
+    public AccessoriesContainer(int id, Inventory playerInventory, AccessoriesInventory inventory) {
         super(HUContainers.ACCESSORIES, id);
-        PlayerEntity player = playerInventory.player;
+        Player player = playerInventory.player;
 
         for (int i = 0; i < 10; ++i) {
             if (i == EquipmentAccessoriesSlot.BACKPACK.getSlot()) {
@@ -50,7 +50,7 @@ public class AccessoriesContainer extends Container {
         }
 
         for (int k = 0; k < 4; ++k) {
-            final EquipmentSlotType type = VALID_EQUIPMENT_SLOTS[k];
+            final EquipmentSlot type = VALID_EQUIPMENT_SLOTS[k];
             this.addSlot(new Slot(playerInventory, 36 + (3 - k), 8, 8 + k * 18) {
                 @Override
                 public int getMaxStackSize() {
@@ -63,14 +63,14 @@ public class AccessoriesContainer extends Container {
                 }
 
                 @Override
-                public boolean mayPickup(PlayerEntity playerIn) {
+                public boolean mayPickup(Player playerIn) {
                     ItemStack itemstack = this.getItem();
                     return (itemstack.isEmpty() || playerIn.isCreative() || !EnchantmentHelper.hasBindingCurse(itemstack)) && super.mayPickup(playerIn);
                 }
 
                 @OnlyIn(Dist.CLIENT)
                 public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
-                    return Pair.of(PlayerContainer.BLOCK_ATLAS, AccessoriesContainer.ARMOR_SLOT_TEXTURES[type.getIndex()]);
+                    return Pair.of(InventoryMenu.BLOCK_ATLAS, AccessoriesContainer.ARMOR_SLOT_TEXTURES[type.getIndex()]);
                 }
             });
         }
@@ -88,7 +88,7 @@ public class AccessoriesContainer extends Container {
         this.addSlot(new Slot(playerInventory, 40, 77, 62) {
             @OnlyIn(Dist.CLIENT)
             public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
-                return Pair.of(PlayerContainer.BLOCK_ATLAS, PlayerContainer.EMPTY_ARMOR_SLOT_SHIELD);
+                return Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD);
             }
         });
     }
@@ -96,14 +96,14 @@ public class AccessoriesContainer extends Container {
 
     @Nonnull
     @Override
-    public ItemStack quickMoveStack(@Nullable PlayerEntity player, int index) {
+    public ItemStack quickMoveStack(@Nullable Player player, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
         if (slot != null && slot.hasItem()) {
             ItemStack itemstack1 = slot.getItem();
             itemstack = itemstack1.copy();
             EquipmentAccessoriesSlot accessorySlot = IAccessory.getEquipmentSlotForItem(itemstack);
-            EquipmentSlotType equipmentSlot = MobEntity.getEquipmentSlotForItem(itemstack);
+            EquipmentSlot equipmentSlot = Mob.getEquipmentSlotForItem(itemstack);
             if (index == 0) {
                 if (!this.moveItemStackTo(itemstack1, 9, 45, true)) {
                     return ItemStack.EMPTY;
@@ -117,12 +117,12 @@ public class AccessoriesContainer extends Container {
                 if (!this.moveItemStackTo(itemstack1, 9, 45, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (equipmentSlot.getType() == EquipmentSlotType.Group.ARMOR && !this.slots.get(8 - equipmentSlot.getIndex()).hasItem()) {
+            } else if (equipmentSlot.getType() == EquipmentSlot.Type.ARMOR && !this.slots.get(8 - equipmentSlot.getIndex()).hasItem()) {
                 int i = 8 - equipmentSlot.getIndex();
                 if (!this.moveItemStackTo(itemstack1, i, i + 1, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (equipmentSlot == EquipmentSlotType.OFFHAND && !this.slots.get(45).hasItem()) {
+            } else if (equipmentSlot == EquipmentSlot.OFFHAND && !this.slots.get(45).hasItem()) {
                 if (!this.moveItemStackTo(itemstack1, 45, 46, false)) {
                     return ItemStack.EMPTY;
                 }
@@ -151,27 +151,22 @@ public class AccessoriesContainer extends Container {
             if (itemstack1.getCount() == itemstack.getCount()) {
                 return ItemStack.EMPTY;
             }
-
-            ItemStack itemstack2 = slot.onTake(player, itemstack1);
-            if (index == 0) {
-                player.drop(itemstack2, false);
-            }
         }
 
         return itemstack;
     }
 
     @Override
-    public boolean stillValid(PlayerEntity playerIn) {
+    public boolean stillValid(Player playerIn) {
         return true;
     }
 
     public static class AccessorySlot extends Slot {
 
         protected final EquipmentAccessoriesSlot accessoriesSlot;
-        protected final PlayerEntity player;
+        protected final Player player;
 
-        public AccessorySlot(IInventory inventoryIn, PlayerEntity player, int index, int xPosition, int yPosition) {
+        public AccessorySlot(Container inventoryIn, Player player, int index, int xPosition, int yPosition) {
             super(inventoryIn, index, xPosition, yPosition);
             this.player = player;
             this.accessoriesSlot = EquipmentAccessoriesSlot.getFromSlotIndex(index);
@@ -183,7 +178,7 @@ public class AccessoriesContainer extends Container {
         }
 
         @Override
-        public boolean mayPickup(PlayerEntity playerIn) {
+        public boolean mayPickup(Player playerIn) {
             ItemStack stack = this.getItem();
             if (stack.getItem() instanceof IAccessory && ((IAccessory) stack.getItem()).canTakeStack(playerIn, stack) && super.mayPickup(playerIn)) {
                 player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {

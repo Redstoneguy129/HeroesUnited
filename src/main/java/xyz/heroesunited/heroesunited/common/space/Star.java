@@ -1,21 +1,21 @@
 package xyz.heroesunited.heroesunited.common.space;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 public class Star extends CelestialBody {
 
 
-    private final AxisAlignedBB hitbox;
+    private final AABB hitbox;
 
-    public Star(Vector3d coordinates, float scale) {
+    public Star(Vec3 coordinates, float scale) {
         super(coordinates);
-        hitbox = new AxisAlignedBB(coordinates.x - scale / 2, coordinates.y - scale / 2, coordinates.z - scale / 2, coordinates.x + scale / 2, coordinates.y + scale / 2, coordinates.z + scale / 2);
+        hitbox = new AABB(coordinates.x - scale / 2, coordinates.y - scale / 2, coordinates.z - scale / 2, coordinates.x + scale / 2, coordinates.y + scale / 2, coordinates.z + scale / 2);
     }
 
     @Override
-    public AxisAlignedBB getHitbox() {
+    public AABB getHitbox() {
         return hitbox;
     }
 

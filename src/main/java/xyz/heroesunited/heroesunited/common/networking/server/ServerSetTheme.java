@@ -1,8 +1,8 @@
 package xyz.heroesunited.heroesunited.common.networking.server;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
 import java.util.function.Supplier;
@@ -29,7 +29,7 @@ public class ServerSetTheme {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            PlayerEntity player = ctx.get().getSender();
+            Player player = ctx.get().getSender();
             if (player != null) {
                 player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                     if (cap.getTheme() >= maxThemes)

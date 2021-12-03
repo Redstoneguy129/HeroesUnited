@@ -1,13 +1,13 @@
 package xyz.heroesunited.heroesunited.hupacks.js;
 
-import jdk.nashorn.api.scripting.NashornScriptEngine;
-import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import org.openjdk.nashorn.api.scripting.NashornScriptEngine;
+import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
@@ -28,7 +28,7 @@ public class JSAbilityManager extends JSReloadListener {
     }
 
     @Override
-    public void apply(Map<ResourceLocation, NashornScriptEngine> map, IResourceManager resourceManagerIn, IProfiler profilerIn) {
+    public void apply(Map<ResourceLocation, NashornScriptEngine> map, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
         for (Map.Entry<ResourceLocation, NashornScriptEngine> entry : map.entrySet()) {
             try {
                 types.add(new AbilityType(type -> new JSAbility(type, entry.getValue())).setRegistryName(entry.getKey()));
@@ -63,7 +63,7 @@ public class JSAbilityManager extends JSReloadListener {
         }
 
         @Override
-        public boolean canActivate(PlayerEntity player) {
+        public boolean canActivate(Player player) {
             try {
                 return (boolean) engine.invokeFunction("canActivate", player, this);
             } catch (ScriptException | NoSuchMethodException e) {
@@ -72,7 +72,7 @@ public class JSAbilityManager extends JSReloadListener {
         }
 
         @Override
-        public void onUpdate(PlayerEntity player) {
+        public void onUpdate(Player player) {
             super.onUpdate(player);
             try {
                 engine.invokeFunction("update", player, this);
@@ -81,7 +81,7 @@ public class JSAbilityManager extends JSReloadListener {
         }
 
         @Override
-        public void onKeyInput(PlayerEntity player, Map<Integer, Boolean> map) {
+        public void onKeyInput(Player player, Map<Integer, Boolean> map) {
             super.onKeyInput(player, map);
             try {
                 engine.invokeFunction("keyInput", player, this, map);

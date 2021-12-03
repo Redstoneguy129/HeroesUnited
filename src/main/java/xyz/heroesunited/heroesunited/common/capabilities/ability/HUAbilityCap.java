@@ -1,17 +1,18 @@
 package xyz.heroesunited.heroesunited.common.capabilities.ability;
 
 import com.google.common.collect.Maps;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.PacketDistributor;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
@@ -31,12 +32,12 @@ import java.util.Optional;
 
 public class HUAbilityCap implements IHUAbilityCap {
 
-    @CapabilityInject(IHUAbilityCap.class)
-    public static Capability<IHUAbilityCap> CAPABILITY = null;
-    private final PlayerEntity player;
+    public static final Capability<IHUAbilityCap> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
+
+    private final Player player;
     protected Map<String, Ability> activeAbilities, containedAbilities;
 
-    public HUAbilityCap(PlayerEntity player) {
+    public HUAbilityCap(Player player) {
         this.player = player;
         this.activeAbilities = Maps.newHashMap();
         this.containedAbilities = Maps.newHashMap();
@@ -121,7 +122,7 @@ public class HUAbilityCap implements IHUAbilityCap {
                 ability.onKeyInput(player, map);
             }
         });
-        for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
+        for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
             SuitItem item = Suit.getSuitItem(equipmentSlot, player);
             if (item != null) {
                 item.getSuit().onKeyInput(player, equipmentSlot, map);
@@ -139,8 +140,8 @@ public class HUAbilityCap implements IHUAbilityCap {
 
     @Override
     public IHUAbilityCap sync() {
-        if (player instanceof ServerPlayerEntity) {
-            HUNetworking.INSTANCE.sendTo(new ClientSyncAbilityCap(player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+        if (player instanceof ServerPlayer) {
+            HUNetworking.INSTANCE.sendTo(new ClientSyncAbilityCap(player.getId(), this.serializeNBT()), ((ServerPlayer) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
         }
         return this;
     }
@@ -148,18 +149,18 @@ public class HUAbilityCap implements IHUAbilityCap {
     @Override
     public IHUAbilityCap syncToAll() {
         this.sync();
-        for (PlayerEntity player : this.player.level.players()) {
-            if (player instanceof ServerPlayerEntity) {
-                HUNetworking.INSTANCE.sendTo(new ClientSyncAbilityCap(this.player.getId(), this.serializeNBT()), ((ServerPlayerEntity) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+        for (Player player : this.player.level.players()) {
+            if (player instanceof ServerPlayer) {
+                HUNetworking.INSTANCE.sendTo(new ClientSyncAbilityCap(this.player.getId(), this.serializeNBT()), ((ServerPlayer) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
             }
         }
         return this;
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
-        CompoundNBT activeAbilities = new CompoundNBT(), abilities = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag nbt = new CompoundTag();
+        CompoundTag activeAbilities = new CompoundTag(), abilities = new CompoundTag();
         this.activeAbilities.forEach((id, ability) -> activeAbilities.put(id, ability.serializeNBT()));
         this.containedAbilities.forEach((id, ability) -> abilities.put(id, ability.serializeNBT()));
 
@@ -169,13 +170,13 @@ public class HUAbilityCap implements IHUAbilityCap {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
-        CompoundNBT activeAbilities = nbt.getCompound("ActiveAbilities"), abilities = nbt.getCompound("Abilities");
+    public void deserializeNBT(CompoundTag nbt) {
+        CompoundTag activeAbilities = nbt.getCompound("ActiveAbilities"), abilities = nbt.getCompound("Abilities");
         this.activeAbilities.clear();
         this.containedAbilities.clear();
 
         for (String id : activeAbilities.getAllKeys()) {
-            CompoundNBT tag = activeAbilities.getCompound(id);
+            CompoundTag tag = activeAbilities.getCompound(id);
             AbilityType abilityType = AbilityType.ABILITIES.get().getValue(new ResourceLocation(tag.getString("AbilityType")));
             if (abilityType != null) {
                 Ability ability = abilityType.create(this.player, id);
@@ -184,7 +185,7 @@ public class HUAbilityCap implements IHUAbilityCap {
             }
         }
         for (String id : abilities.getAllKeys()) {
-            CompoundNBT tag = abilities.getCompound(id);
+            CompoundTag tag = abilities.getCompound(id);
             AbilityType abilityType = AbilityType.ABILITIES.get().getValue(new ResourceLocation(tag.getString("AbilityType")));
             if (abilityType != null) {
                 Ability ability = abilityType.create(this.player, id);

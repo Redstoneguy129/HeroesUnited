@@ -1,29 +1,19 @@
 package xyz.heroesunited.heroesunited.client.render.model.space;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.*;
 
-public class VenusModel extends PlanetModel {
-    private final ModelRenderer venus;
-    private final ModelRenderer clouds;
+public class VenusModel extends PlanetModel{
 
-    public VenusModel() {
-        texWidth = 128;
-        texHeight = 64;
-
-        venus = new ModelRenderer(this);
-        venus.setPos(0.0F, 24.0F, 0.0F);
-        venus.texOffs(0, 0).addBox(-8.0F, -16.0F, -8.0F, 16.0F, 16.0F, 16.0F, 0.0F, false);
-
-        clouds = new ModelRenderer(this);
-        clouds.setPos(0.0F, 0.0F, 0.0F);
-        venus.addChild(clouds);
-        clouds.texOffs(64, 0).addBox(-8.0F, -16.0F, -8.0F, 16.0F, 16.0F, 16.0F, 0.5F, false);
+    public VenusModel(ModelPart planet) {
+        super(planet);
     }
 
-    @Override
-    public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        venus.render(matrixStack, buffer, packedLight, packedOverlay);
+    public static LayerDefinition createLayerDefinition() {
+        MeshDefinition mesh = new MeshDefinition();
+        PartDefinition venus = mesh.getRoot().addOrReplaceChild("venus", CubeListBuilder.create().texOffs(0, 0).addBox(-8.0F, -16.0F, -8.0F, 16.0F, 16.0F, 16.0F, false), PartPose.offset(0, 24.0F, 0));
+        venus.addOrReplaceChild("clouds", CubeListBuilder.create().texOffs(64, 0).addBox(-8.0F, -16.0F, -8.0F, 16.0F, 16.0F, 16.0F, new CubeDeformation(0.5F)), PartPose.ZERO);
+        return LayerDefinition.create(mesh, 128, 64);
     }
 }

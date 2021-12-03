@@ -1,21 +1,21 @@
 package xyz.heroesunited.heroesunited.client.render;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.LivingRenderer;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.client.renderer.entity.model.BipedModel;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import xyz.heroesunited.heroesunited.client.events.HURenderLayerEvent;
-import xyz.heroesunited.heroesunited.client.render.model.ModelSuit;
+import xyz.heroesunited.heroesunited.client.render.model.SuitModel;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
@@ -23,34 +23,33 @@ import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
-import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
-public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> extends LayerRenderer<T, M> {
+public class HULayerRenderer<T extends LivingEntity, M extends HumanoidModel<T>> extends RenderLayer<T, M> {
 
-    public LivingRenderer<T, M> entityRendererIn;
+    public LivingEntityRenderer<T, M> entityRendererIn;
 
-    public HULayerRenderer(LivingRenderer<T, M> entityRendererIn) {
+    public HULayerRenderer(LivingEntityRenderer<T, M> entityRendererIn) {
         super(entityRendererIn);
         this.entityRendererIn = entityRendererIn;
     }
 
     @Override
-    public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void render(PoseStack matrixStack, MultiBufferSource buffer, int packedLight, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         if (MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Pre(entityRendererIn, entity, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch)))
             return;
 
-        if (entityRendererIn instanceof PlayerRenderer && entity instanceof AbstractClientPlayerEntity) {
+        if (entityRendererIn instanceof PlayerRenderer && entity instanceof AbstractClientPlayer) {
             PlayerRenderer playerRenderer = (PlayerRenderer) entityRendererIn;
-            AbstractClientPlayerEntity player = (AbstractClientPlayerEntity) entity;
+            AbstractClientPlayer player = (AbstractClientPlayer) entity;
             AbilityHelper.getAbilities(player).forEach(ability -> ability.render(playerRenderer, matrixStack, buffer, packedLight, player, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch));
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                 for (int slot = 0; slot < cap.getInventory().getContainerSize(); ++slot) {
                     ItemStack stack = cap.getInventory().getItem(slot);
                     if (stack != null && stack.getItem() instanceof IAccessory && !MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Accessories(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch))) {
                         IAccessory accessoire = ((IAccessory) stack.getItem());
-                        ModelSuit<AbstractClientPlayerEntity> suitModel = new ModelSuit<>(accessoire.getScale(stack), HUPlayerUtil.haveSmallArms(player));
+                        SuitModel<AbstractClientPlayer> suitModel = new SuitModel<>(player);
                         boolean shouldRender = true;
-                        for (EquipmentSlotType equipmentSlot : EquipmentSlotType.values()) {
+                        for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
                             SuitItem item = Suit.getSuitItem(equipmentSlot, player);
                             if (item != null && item.getSuit().getSlotForHide(equipmentSlot).contains(EquipmentAccessoriesSlot.getFromSlotIndex(slot))) {
                                 shouldRender = false;
@@ -69,8 +68,8 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
             MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Player(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch));
         }
 
-        for (EquipmentSlotType slot : EquipmentSlotType.values()) {
-            if (slot.getType() == EquipmentSlotType.Group.ARMOR) {
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            if (slot.getType() == EquipmentSlot.Type.ARMOR) {
                 renderSuit(matrixStack, buffer, entity, slot, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
             }
         }
@@ -78,7 +77,7 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
         MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Post(entityRendererIn, entity, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch));
     }
 
-    private void renderAccessories(ModelSuit<AbstractClientPlayerEntity> suitModel, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, PlayerEntity player, PlayerRenderer playerRenderer, IAccessory accessoire, ItemStack stack, IHUPlayer cap, EquipmentAccessoriesSlot slot) {
+    private void renderAccessories(SuitModel<AbstractClientPlayer> suitModel, PoseStack matrixStack, MultiBufferSource buffer, int packedLight, Player player, PlayerRenderer playerRenderer, IAccessory accessoire, ItemStack stack, IHUPlayer cap, EquipmentAccessoriesSlot slot) {
         suitModel.setAllVisible(false);
         if (slot == EquipmentAccessoriesSlot.HELMET) {
             suitModel.hat.visible = suitModel.head.visible = cap.getInventory().haveStack(slot);
@@ -106,7 +105,7 @@ public class HULayerRenderer<T extends LivingEntity, M extends BipedModel<T>> ex
         suitModel.renderToBuffer(matrixStack, buffer.getBuffer(RenderType.entityTranslucent(accessoire.getTexture(stack, player, slot))), packedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
     }
 
-    private void renderSuit(MatrixStack stack, IRenderTypeBuffer buffer, T entity, EquipmentSlotType slot, int packedLight, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    private void renderSuit(PoseStack stack, MultiBufferSource buffer, T entity, EquipmentSlot slot, int packedLight, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         ItemStack itemstack = entity.getItemBySlot(slot);
         if (itemstack.getItem() instanceof SuitItem) {
             SuitItem suitItem = (SuitItem) itemstack.getItem();

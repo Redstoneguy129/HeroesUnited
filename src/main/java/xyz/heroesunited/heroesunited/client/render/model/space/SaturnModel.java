@@ -1,30 +1,23 @@
 package xyz.heroesunited.heroesunited.client.render.model.space;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.CubeListBuilder;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.model.geom.builders.PartDefinition;
 
 public class SaturnModel extends PlanetModel {
-    private final ModelRenderer bb_main;
 
-    public SaturnModel() {
-        texWidth = 148;
-        texHeight = 74;
-
-        bb_main = new ModelRenderer(this);
-        bb_main.setPos(0.0F, 24.0F, 0.0F);
-        bb_main.texOffs(0, 0).addBox(-8.0F, -16.0F, -8.0F, 16.0F, 16.0F, 16.0F, 0.0F, false);
-        bb_main.texOffs(0, 32).addBox(-21.0F, -8.0F, -21.0F, 42.0F, 0.0F, 42.0F, 0.0F, false);
+    public SaturnModel(ModelPart part) {
+        super(part);
     }
 
-    @Override
-    public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        bb_main.render(matrixStack, buffer, packedLight, packedOverlay);
-    }
-
-    public void setRotationAngle(ModelRenderer modelRenderer, float x, float y, float z) {
-        modelRenderer.xRot = x;
-        modelRenderer.yRot = y;
-        modelRenderer.zRot = z;
+    public static LayerDefinition createLayerDefinition() {
+        MeshDefinition mesh = new MeshDefinition();
+        PartDefinition root = mesh.getRoot();
+        root.addOrReplaceChild("main", CubeListBuilder.create().texOffs(0, 0).addBox(-8.0F, -16.0F, -8.0F, 16.0F, 16.0F, 16.0F, false), PartPose.offset(0, 24.0F, 0));
+        root.addOrReplaceChild("planet", CubeListBuilder.create().texOffs(0, 32).addBox(-21.0F, -8.0F, -21.0F, 42.0F, 0.0F, 42.0F, false), PartPose.offset(0, 24.0F, 0));
+        return LayerDefinition.create(mesh, 148, 74);
     }
 }

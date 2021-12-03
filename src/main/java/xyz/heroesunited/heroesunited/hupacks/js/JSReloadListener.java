@@ -1,20 +1,22 @@
 package xyz.heroesunited.heroesunited.hupacks.js;
 
 import com.google.common.collect.Maps;
-import jdk.nashorn.api.scripting.NashornScriptEngine;
-import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
-import net.minecraft.client.resources.ReloadListener;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
+import org.openjdk.nashorn.api.scripting.NashornScriptEngine;
+import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
-import javax.script.ScriptException;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-public abstract class JSReloadListener extends ReloadListener<Map<ResourceLocation, NashornScriptEngine>> {
+public abstract class JSReloadListener extends SimplePreparableReloadListener<Map<ResourceLocation, NashornScriptEngine>> {
     protected final NashornScriptEngineFactory manager;
     private final String directory;
 
@@ -24,7 +26,7 @@ public abstract class JSReloadListener extends ReloadListener<Map<ResourceLocati
     }
 
     @Override
-    public Map<ResourceLocation, NashornScriptEngine> prepare(IResourceManager manager, IProfiler profiler) {
+    public Map<ResourceLocation, NashornScriptEngine> prepare(ResourceManager manager, ProfilerFiller profiler) {
         Map<ResourceLocation, NashornScriptEngine> map = Maps.newHashMap();
         for (ResourceLocation resourcelocation : manager.listResources(this.directory, (s) -> s.endsWith(".js"))) {
             String s = resourcelocation.getPath();
@@ -32,13 +34,17 @@ public abstract class JSReloadListener extends ReloadListener<Map<ResourceLocati
 
             try (
                     InputStream inputstream = manager.getResource(resourcelocation).getInputStream();
-                    Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8))
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8))
             ) {
                 NashornScriptEngine engine = (NashornScriptEngine) this.manager.getScriptEngine();
                 engine.put("path", location.toString());
-                engine.eval(reader);
+                try {
+                    engine.eval(reader);
+                } catch (Throwable ex) {
+                    ex.printStackTrace();
+                }
                 map.put(location, engine);
-            } catch (IOException | ScriptException jsonparseexception) {
+            } catch (IOException jsonparseexception) {
                 HeroesUnited.LOGGER.error("Couldn't parse data file {} from {}", location, resourcelocation, jsonparseexception);
             }
         }

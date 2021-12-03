@@ -3,14 +3,14 @@ package xyz.heroesunited.heroesunited.common.abilities;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.netty.util.internal.StringUtil;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.Item;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.registries.*;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -47,18 +47,18 @@ public class Condition extends ForgeRegistryEntry<Condition> {
         this.setRegistryName(modid, name);
     }
 
-    public boolean apply(PlayerEntity player, JsonObject jsonObject, Ability ability) {
+    public boolean apply(Player player, JsonObject jsonObject, Ability ability) {
         ConditionVariables variables = new ConditionVariables(player, jsonObject, ability);
         this.earlyFunction.accept(variables);
         if (jsonObject.has("creative") && player.isCreative()) {
-            return !JSONUtils.getAsBoolean(jsonObject, "invert", false);
+            return !GsonHelper.getAsBoolean(jsonObject, "invert", false);
         }
         return function.test(variables);
     }
 
     public static final Condition HAS_SUPERPOWER = register("has_superpower", new Condition((c) -> {
         if (c.jsonObject().has("superpower")) {
-            return HUPackSuperpowers.hasSuperpower(c.player(), new ResourceLocation(JSONUtils.getAsString(c.jsonObject(), "superpower")));
+            return HUPackSuperpowers.hasSuperpower(c.player(), new ResourceLocation(GsonHelper.getAsString(c.jsonObject(), "superpower")));
         }
         return HUPackSuperpowers.hasSuperpowers(c.player());
     }));
@@ -82,30 +82,30 @@ public class Condition extends ForgeRegistryEntry<Condition> {
             }
             return true;
         }
-        return AbilityHelper.isActivated(JSONUtils.getAsString(c.jsonObject(), "ability", c.ability().name), c.player());
+        return AbilityHelper.isActivated(GsonHelper.getAsString(c.jsonObject(), "ability", c.ability().name), c.player());
     }));
     public static final Condition HAS_LEVEL = register("has_level", new Condition((c) -> {
         IHUPlayer hu = HUPlayer.getCap(c.player());
         if (hu != null) {
-            Level level = hu.getSuperpowerLevels().get(c.jsonObject().has("superpower") ? new ResourceLocation(JSONUtils.getAsString(c.jsonObject(), "superpower")) : HUPackSuperpowers.getSuperpower(c.player()));
-            return level.getLevel() >= JSONUtils.getAsInt(c.jsonObject(), "level");
+            Level level = hu.getSuperpowerLevels().get(c.jsonObject().has("superpower") ? new ResourceLocation(GsonHelper.getAsString(c.jsonObject(), "superpower")) : HUPackSuperpowers.getSuperpower(c.player()));
+            return level.getLevel() >= GsonHelper.getAsInt(c.jsonObject(), "level");
         }
         return false;
     }));
 
     public static final Condition HAS_ITEM = register("has_item", new Condition((c) -> {
-        Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(JSONUtils.getAsString(c.jsonObject(), "item")));
+        Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(GsonHelper.getAsString(c.jsonObject(), "item")));
         boolean b = false;
         if (c.jsonObject().has("slots")) {
-            JsonArray array = JSONUtils.getAsJsonArray(c.jsonObject(), "slots");
+            JsonArray array = GsonHelper.getAsJsonArray(c.jsonObject(), "slots");
             for (int i = 0; i < array.size(); i++) {
-                if (c.player().getItemBySlot(EquipmentSlotType.byName(array.get(i).getAsString().toLowerCase())).getItem() == item) {
+                if (c.player().getItemBySlot(EquipmentSlot.byName(array.get(i).getAsString().toLowerCase())).getItem() == item) {
                     b = true;
                     break;
                 }
             }
         } else {
-            if (c.player().getItemBySlot(EquipmentSlotType.byName(JSONUtils.getAsString(c.jsonObject(), "slot", EquipmentSlotType.MAINHAND.getName()).toLowerCase())).getItem() == item) {
+            if (c.player().getItemBySlot(EquipmentSlot.byName(GsonHelper.getAsString(c.jsonObject(), "slot", EquipmentSlot.MAINHAND.getName()).toLowerCase())).getItem() == item) {
                 b = true;
             }
         }
@@ -135,12 +135,12 @@ public class Condition extends ForgeRegistryEntry<Condition> {
             }
             return true;
         }
-        return AbilityHelper.getActiveAbilityMap(c.player()).getOrDefault(JSONUtils.getAsString(c.jsonObject(), "ability"), c.ability()).getEnabled();
+        return AbilityHelper.getActiveAbilityMap(c.player()).getOrDefault(GsonHelper.getAsString(c.jsonObject(), "ability"), c.ability()).getEnabled();
     }));
 
     public static final Condition HAS_SUIT = register("has_suit", new Condition((c) -> {
         Suit suit = Suit.getSuit(c.player());
-        String suitName = JSONUtils.getAsString(c.jsonObject(), "suit", "");
+        String suitName = GsonHelper.getAsString(c.jsonObject(), "suit", "");
         if (!StringUtil.isNullOrEmpty(suitName) && suit != null) {
             return suit.getRegistryName().toString().equals(suitName);
         }
@@ -148,8 +148,8 @@ public class Condition extends ForgeRegistryEntry<Condition> {
     }));
 
     public static final Condition IS_IN_FLUID = register("is_in_fluid", new Condition((c) -> {
-        for (ITag.INamedTag<Fluid> tag : FluidTags.getWrappers()) {
-            if (tag.getName().getPath().equals(JSONUtils.getAsString(c.jsonObject(), "fluid"))) {
+        for(Tag<Fluid> tag : FluidTags.getAllTags().getAllTags().values()) {
+            if (tag instanceof Tag.Named && ((Tag.Named<Fluid>) tag).getName().getPath().equals(GsonHelper.getAsString(c.jsonObject(), "fluid"))) {
                 return c.player().isEyeInFluid(tag);
             }
         }
@@ -166,17 +166,17 @@ public class Condition extends ForgeRegistryEntry<Condition> {
 
 
     public static class ConditionVariables {
-        private final PlayerEntity player;
+        private final Player player;
         private final JsonObject jsonObject;
         private final Ability ability;
 
-        private ConditionVariables(PlayerEntity player, JsonObject jsonObject, Ability ability) {
+        private ConditionVariables(Player player, JsonObject jsonObject, Ability ability) {
             this.player = player;
             this.jsonObject = jsonObject;
             this.ability = ability;
         }
 
-        public PlayerEntity player() {
+        public Player player() {
             return player;
         }
 

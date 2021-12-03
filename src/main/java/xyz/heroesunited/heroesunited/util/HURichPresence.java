@@ -1,11 +1,14 @@
 package xyz.heroesunited.heroesunited.util;
 
-import net.arikia.dev.drpc.DiscordEventHandlers;
-import net.arikia.dev.drpc.DiscordRPC;
-import net.arikia.dev.drpc.DiscordRichPresence;
+import com.jagrosh.discordipc.IPCClient;
+import com.jagrosh.discordipc.IPCListener;
+import com.jagrosh.discordipc.entities.DiscordBuild;
+import com.jagrosh.discordipc.entities.RichPresence;
+import com.jagrosh.discordipc.exceptions.NoDiscordClientException;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.IResource;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -15,7 +18,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,18 +37,28 @@ public class HURichPresence {
 
     private final Random random = new Random();
     private final List<String> list = new ArrayList<>();
+    private final IPCClient client;
 
     public HURichPresence(String clientID) {
         this.list.addAll(getListFromTXT(new ResourceLocation(HeroesUnited.MODID, "splash.txt")));
         this.list.addAll(getListFromTXT(new ResourceLocation("texts/splashes.txt")));
-        DiscordEventHandlers handlers = new DiscordEventHandlers.Builder().setReadyEventHandler(user -> HeroesUnited.LOGGER.info(String.format("Logged into Discord as %s!", user.username + "#" + user.discriminator))).build();
-        DiscordRPC.discordInitialize(clientID, handlers, true);
-        DiscordRPC.discordClearPresence();
+        this.client = new IPCClient(Long.parseLong(clientID));
+        client.setListener(new IPCListener() {
+            @Override
+            public void onReady(IPCClient client) {
+                HeroesUnited.LOGGER.info("Logged into Discord");
+            }
+        });
+        try {
+            client.connect(DiscordBuild.ANY);
+        } catch (NoDiscordClientException e) {
+            HeroesUnited.LOGGER.info("No discord founded.");
+        }
     }
 
     private List<String> getListFromTXT(ResourceLocation resourceLocation) {
         try {
-            IResource iresource = Minecraft.getInstance().getResourceManager().getResource(resourceLocation);
+            Resource iresource = Minecraft.getInstance().getResourceManager().getResource(resourceLocation);
             BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(iresource.getInputStream(), StandardCharsets.UTF_8));
             return bufferedreader.lines().map(String::trim).filter((p_215277_0_) -> p_215277_0_.hashCode() != 125780783).collect(Collectors.toList());
         } catch (IOException ignored) {
@@ -55,9 +68,20 @@ public class HURichPresence {
 
     public void setDiscordRichPresence(String title, String description, MiniLogos logo, String caption) {
         if (!HURichPresence.isHiddenRPC()) {
-            DiscordRichPresence discordRichPresence = new DiscordRichPresence.Builder(getQuote(description)).setDetails(title).setBigImage("heroes_united", null).setSmallImage(logo.getLogo(), caption).setStartTimestamps(new Timestamp(System.currentTimeMillis()).getTime()).build();
-            DiscordRPC.discordUpdatePresence(discordRichPresence);
+            RichPresence.Builder builder = new RichPresence.Builder();
+            builder.setState(getQuote(description))
+                    .setDetails(title)
+                    .setStartTimestamp(OffsetDateTime.now())
+                    .setLargeImage("heroes_united", "Heroes United " + SharedConstants.getCurrentVersion().getName());
+            if (logo.getLogo() != null) {
+                builder.setSmallImage(logo.getLogo(), caption);
+            }
+            client.sendRichPresence(builder.build());
         }
+    }
+
+    public static void close() {
+        HURichPresence.getPresence().client.close();
     }
 
     private String getQuote(String notNull) {

@@ -1,7 +1,7 @@
 package xyz.heroesunited.heroesunited.client.render.model;
 
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import xyz.heroesunited.heroesunited.common.abilities.suit.JsonSuit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
@@ -29,7 +29,7 @@ public class GeckoSuitModel<T extends SuitItem> extends AnimatedGeoModel<T> {
             return layer.getTexture(type);
         }
         if (item.getSuit() instanceof JsonSuit && ((JsonSuit) item.getSuit()).getJsonObject() != null && ((JsonSuit) item.getSuit()).getJsonObject().has(type))
-            return new ResourceLocation(JSONUtils.getAsString(((JsonSuit) item.getSuit()).getJsonObject(), type));
+            return new ResourceLocation(GsonHelper.getAsString(((JsonSuit) item.getSuit()).getJsonObject(), type));
         return path;
     }
 }

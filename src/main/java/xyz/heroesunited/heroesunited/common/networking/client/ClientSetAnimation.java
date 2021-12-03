@@ -1,11 +1,11 @@
 package xyz.heroesunited.heroesunited.common.networking.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraftforge.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
 import java.util.function.Supplier;
@@ -26,7 +26,7 @@ public class ClientSetAnimation {
         this.loop = loop;
     }
 
-    public ClientSetAnimation(PacketBuffer buffer) {
+    public ClientSetAnimation(FriendlyByteBuf buffer) {
         this.entityId = buffer.readInt();
         this.name = buffer.readUtf();
         this.controllerName = buffer.readUtf();
@@ -34,7 +34,7 @@ public class ClientSetAnimation {
         this.loop = buffer.readBoolean();
     }
 
-    public void toBytes(PacketBuffer buffer) {
+    public void toBytes(FriendlyByteBuf buffer) {
         buffer.writeInt(this.entityId);
         buffer.writeUtf(this.name);
         buffer.writeUtf(this.controllerName);
@@ -45,7 +45,7 @@ public class ClientSetAnimation {
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             Entity entity = Minecraft.getInstance().level.getEntity(this.entityId);
-            if (entity instanceof AbstractClientPlayerEntity) {
+            if (entity instanceof AbstractClientPlayer) {
                 entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> cap.setAnimation(this.name, this.controllerName, this.animationFile, this.loop));
             }
         });

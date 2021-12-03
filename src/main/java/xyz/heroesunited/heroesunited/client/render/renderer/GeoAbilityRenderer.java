@@ -1,17 +1,19 @@
 package xyz.heroesunited.heroesunited.client.render.renderer;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.HumanoidArm;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.processor.IBone;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
@@ -24,10 +26,10 @@ import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import java.util.Arrays;
 import java.util.Optional;
 
-public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends BipedModel implements IGeoRenderer<T> {
+public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends HumanoidModel implements IGeoRenderer<T> {
 
     protected T currentAbility;
-    protected AbstractClientPlayerEntity player;
+    protected AbstractClientPlayer player;
 
     public String headBone = "armorHead";
     public String bodyBone = "armorBody";
@@ -41,18 +43,18 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends BipedMo
     protected final AnimatedGeoModel<T> modelProvider;
 
     public GeoAbilityRenderer(T ability) {
-        super(1);
+        super(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_INNER_ARMOR));
         this.currentAbility = ability;
         this.modelProvider = ability.getGeoModel();
     }
 
     public GeoAbilityRenderer(AnimatedGeoModel<T> modelProvider) {
-        super(1);
+        super(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_INNER_ARMOR));
         this.modelProvider = modelProvider;
     }
 
     @Override
-    public void renderToBuffer(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
 
         GeoModel model = modelProvider.getModel(modelProvider.getModelLocation(currentAbility));
         AnimationEvent abilityEvent = new AnimationEvent(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.player));
@@ -65,7 +67,7 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends BipedMo
             matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
             this.fitToBiped();
             matrixStackIn.pushPose();
-            Minecraft.getInstance().textureManager.bind(this.getTextureLocation(this.currentAbility));
+            RenderSystem.setShaderTexture(0, this.getTextureLocation(this.currentAbility));
             RenderType renderType = this.getRenderType(this.currentAbility, 0, matrixStackIn, null, bufferIn, packedLightIn, this.getTextureLocation(this.currentAbility));
             this.render(model, this.currentAbility, 0, renderType, matrixStackIn, null, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
             matrixStackIn.popPose();
@@ -138,18 +140,18 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends BipedMo
         }
     }
 
-    public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer buffer, int packedLightIn, HandSide side) {
+    public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource buffer, int packedLightIn, HumanoidArm side) {
         this.renderFirstPersonArm(renderer, matrix, buffer.getBuffer(RenderType.entityTranslucent(getTextureLocation(currentAbility))), packedLightIn, OverlayTexture.NO_OVERLAY, side, 1f, 1f, 1f, 1f);
     }
 
-    public void renderFirstPersonArm(PlayerRenderer renderer, MatrixStack matrix, IVertexBuilder builder, int packedLightIn, int packedOverlayIn, HandSide side, float red, float green, float blue, float alpha) {
+    public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, VertexConsumer builder, int packedLightIn, int packedOverlayIn, HumanoidArm side, float red, float green, float blue, float alpha) {
         GeoModel model = modelProvider.getModel(modelProvider.getModelLocation(currentAbility));
         AnimationEvent abilityEvent = new AnimationEvent(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.player));
         modelProvider.setLivingAnimations(currentAbility, this.getUniqueID(this.currentAbility), abilityEvent);
 
         if (model.topLevelBones.isEmpty())
             return;
-        Optional<GeoBone> bone = model.getBone(side == HandSide.LEFT ? this.leftArmBone : this.rightArmBone);
+        Optional<GeoBone> bone = model.getBone(side == HumanoidArm.LEFT ? this.leftArmBone : this.rightArmBone);
         if (!bone.isPresent() || bone.get().childBones.isEmpty() && bone.get().childCubes.isEmpty())
             return;
 
@@ -159,15 +161,15 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends BipedMo
         matrix.pushPose();
         matrix.translate(0.0D, 1.5F, 0.0D);
         matrix.scale(-1.0F, -1.0F, 1.0F);
-        ModelRenderer modelRenderer = side == HandSide.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
+        ModelPart modelRenderer = side == HumanoidArm.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
         GeoUtils.copyRotations(modelRenderer, bone.get());
-        bone.get().setPositionX(side == HandSide.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
+        bone.get().setPositionX(side == HumanoidArm.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
         bone.get().setPositionY(2 - modelRenderer.y);
         bone.get().setPositionZ(modelRenderer.z);
         bone.get().setHidden(false);
 
         matrix.pushPose();
-        Minecraft.getInstance().textureManager.bind(this.getTextureLocation(this.currentAbility));
+        RenderSystem.setShaderTexture(0, this.getTextureLocation(this.currentAbility));
         this.renderRecursively(bone.get(), matrix, builder, packedLightIn, packedOverlayIn, red, green, blue, alpha);
         matrix.popPose();
         matrix.scale(-1.0F, -1.0F, 1.0F);
@@ -185,23 +187,23 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends BipedMo
         return this.modelProvider.getTextureLocation(instance);
     }
 
-    public void setCurrentAbility(AbstractClientPlayerEntity player, BipedModel from) {
+    public void setCurrentAbility(AbstractClientPlayer player, HumanoidModel from) {
         this.player = player;
         from.copyPropertiesTo(this);
     }
 
-    public void setCurrentAbility(AbstractClientPlayerEntity player, T ability, BipedModel from) {
+    public void setCurrentAbility(AbstractClientPlayer player, T ability, HumanoidModel from) {
         this.player = player;
         this.currentAbility = ability;
         from.copyPropertiesTo(this);
     }
 
     @Override
-    public RenderType getRenderType(T animatable, float partialTicks, MatrixStack stack, IRenderTypeBuffer renderTypeBuffer, IVertexBuilder vertexBuilder, int packedLightIn, ResourceLocation textureLocation) {
+    public RenderType getRenderType(T animatable, float partialTicks, PoseStack stack, MultiBufferSource renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn, ResourceLocation textureLocation) {
         return RenderType.entityTranslucent(getTextureLocation(animatable));
     }
 
-    public AbstractClientPlayerEntity getPlayer() {
+    public AbstractClientPlayer getPlayer() {
         return player;
     }
 }

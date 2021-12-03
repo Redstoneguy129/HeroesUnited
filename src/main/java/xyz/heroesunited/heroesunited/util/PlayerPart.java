@@ -1,8 +1,8 @@
 package xyz.heroesunited.heroesunited.util;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
 
 public enum PlayerPart {
 
@@ -14,44 +14,34 @@ public enum PlayerPart {
     LEFT_LEG, LEFT_LEG_WEAR;
 
     public void setVisibility(PlayerModel<?> model, boolean visible) {
-        ModelRenderer modelRenderer = getModelRendererByPart(model);
+        ModelPart modelRenderer = getModelRendererByPart(model);
         if (modelRenderer != null) {
             modelRenderer.visible = visible;
         }
     }
 
-    public ModelRenderer getModelRendererByPart(PlayerModel<?> model) {
-        switch (this) {
-            case HEAD_WEAR:
-                return model.hat;
-            case CHEST_WEAR:
-                return model.jacket;
-            case RIGHT_ARM_WEAR:
-                return model.rightSleeve;
-            case LEFT_ARM_WEAR:
-                return model.leftSleeve;
-            case RIGHT_LEG_WEAR:
-                return model.rightPants;
-            case LEFT_LEG_WEAR:
-                return model.leftPants;
-        }
-        return getModelRendererByBodyPart(model);
+    public ModelPart getModelRendererByPart(PlayerModel<?> model) {
+        return switch (this) {
+            case HEAD_WEAR -> model.hat;
+            case CHEST_WEAR -> model.jacket;
+            case RIGHT_ARM_WEAR -> model.rightSleeve;
+            case LEFT_ARM_WEAR -> model.leftSleeve;
+            case RIGHT_LEG_WEAR -> model.rightPants;
+            case LEFT_LEG_WEAR -> model.leftPants;
+            default -> getModelRendererByBodyPart(model);
+        };
     }
 
-    public ModelRenderer getModelRendererByBodyPart(PlayerModel<?> model) {
-        switch (this) {
-            case HEAD:
-                return model.head;
-            case CHEST:
-                return model.body;
-            case RIGHT_ARM:
-                return model.rightArm;
-            case LEFT_ARM:
-                return model.leftArm;
-            case RIGHT_LEG:
-                return model.rightLeg;
-        }
-        return model.leftLeg;
+    public ModelPart getModelRendererByBodyPart(PlayerModel<?> model) {
+        return switch (this) {
+            case HEAD -> model.head;
+            case CHEST -> model.body;
+            case RIGHT_ARM -> model.rightArm;
+            case LEFT_ARM -> model.leftArm;
+            case RIGHT_LEG -> model.rightLeg;
+            case LEFT_LEG -> model.leftLeg;
+            default -> null;
+        };
     }
 
     public static PlayerPart getByName(String name) {

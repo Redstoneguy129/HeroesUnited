@@ -1,17 +1,17 @@
 package xyz.heroesunited.heroesunited.common.objects.entities;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.NetworkHooks;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
 import javax.annotation.Nullable;
@@ -20,18 +20,18 @@ import java.util.List;
 
 public class Spaceship extends Entity {
 
-    public Spaceship(EntityType<?> type, World p_i48580_2_) {
+    public Spaceship(EntityType<?> type, Level p_i48580_2_) {
         super(type, p_i48580_2_);
     }
 
     @Override
-    public ActionResultType interact(PlayerEntity p_184230_1_, Hand p_184230_2_) {
+    public InteractionResult interact(Player p_184230_1_, InteractionHand p_184230_2_) {
         if (p_184230_1_.isSecondaryUseActive()) {
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
         } else if (!this.level.isClientSide) {
-            return p_184230_1_.startRiding(this) ? ActionResultType.CONSUME : ActionResultType.PASS;
+            return p_184230_1_.startRiding(this) ? InteractionResult.CONSUME : InteractionResult.PASS;
         } else {
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
     }
 
@@ -41,7 +41,7 @@ public class Spaceship extends Entity {
 
     @Nullable
     @Override
-    public Entity changeDimension(ServerWorld world, net.minecraftforge.common.util.ITeleporter teleporter) {
+    public Entity changeDimension(ServerLevel world, net.minecraftforge.common.util.ITeleporter teleporter) {
         ArrayList<Entity> entities = new ArrayList<>();
         entities.addAll(getPassengers());
         Spaceship entity = (Spaceship) super.changeDimension(world, teleporter);
@@ -54,12 +54,12 @@ public class Spaceship extends Entity {
     @Override
     public void tick() {
         super.tick();
-        if (this.getControllingPassenger() != null && this.getControllingPassenger() instanceof PlayerEntity) {
-            PlayerEntity playerEntity = (PlayerEntity) this.getControllingPassenger();
+        if (this.getControllingPassenger() != null && this.getControllingPassenger() instanceof Player) {
+            Player playerEntity = (Player) this.getControllingPassenger();
             if (isRocket()) {
                 if (level.dimension() == HeroesUnited.SPACE) {
-                    this.setRot(playerEntity.yRot, playerEntity.xRot);
-                    Vector3d vector3d = getLookAngle().multiply(playerEntity.zza, playerEntity.zza, playerEntity.zza);
+                    this.setRot(playerEntity.getYRot(), playerEntity.getXRot());
+                    Vec3 vector3d = getLookAngle().multiply(playerEntity.zza, playerEntity.zza, playerEntity.zza);
                     setDeltaMovement(vector3d.x, vector3d.y, vector3d.z);
                 } else {
                     if (playerEntity.zza > 0) {
@@ -73,8 +73,8 @@ public class Spaceship extends Entity {
                     }
                 }
             } else {
-                this.setRot(playerEntity.yRot, playerEntity.xRot);
-                Vector3d vector3d = getLookAngle().multiply(playerEntity.zza * 10, playerEntity.zza * 10, playerEntity.zza * 10);
+                this.setRot(playerEntity.getYRot(), playerEntity.getXRot());
+                Vec3 vector3d = getLookAngle().multiply(playerEntity.zza * 10, playerEntity.zza * 10, playerEntity.zza * 10);
                 setDeltaMovement(vector3d.x, vector3d.y, vector3d.z);
             }
             this.move(MoverType.SELF, this.getDeltaMovement());
@@ -122,17 +122,17 @@ public class Spaceship extends Entity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT p_70037_1_) {
+    protected void readAdditionalSaveData(CompoundTag p_70037_1_) {
 
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT p_213281_1_) {
+    protected void addAdditionalSaveData(CompoundTag p_213281_1_) {
 
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 }

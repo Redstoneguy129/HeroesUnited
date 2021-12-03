@@ -1,9 +1,9 @@
 package xyz.heroesunited.heroesunited.common.capabilities;
 
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.model.AnimatedTickingGeoModel;
@@ -25,7 +25,7 @@ public class PlayerGeoModel extends AnimatedTickingGeoModel<IHUPlayer> {
 
     @Override
     public ResourceLocation getTextureLocation(IHUPlayer o) {
-        return ((ClientPlayerEntity) ((HUPlayer) o).player).getSkinTextureLocation();
+        return ((LocalPlayer) ((HUPlayer) o).player).getSkinTextureLocation();
     }
 
     @Override
@@ -48,7 +48,7 @@ public class PlayerGeoModel extends AnimatedTickingGeoModel<IHUPlayer> {
         MolangParser parser = GeckoLibCache.getInstance().parser;
         if (animatable instanceof IHUPlayer && this.modelData != null) {
             for (PlayerPart part : PlayerPart.bodyParts()) {
-                ModelRenderer renderer = part.getModelRendererByBodyPart(this.modelData.renderer.getModel());
+                ModelPart renderer = part.getModelRendererByBodyPart(this.modelData.renderer.getModel());
                 parser.setValue(String.format("player.%s.x_rot", part.name().toLowerCase()), renderer.xRot / Math.PI * 180.0);
                 parser.setValue(String.format("player.%s.y_rot", part.name().toLowerCase()), renderer.yRot / Math.PI * 180.0);
                 parser.setValue(String.format("player.%s.z_rot", part.name().toLowerCase()), renderer.zRot / Math.PI * 180.0);

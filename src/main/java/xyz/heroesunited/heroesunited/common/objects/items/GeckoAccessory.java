@@ -1,21 +1,23 @@
 package xyz.heroesunited.heroesunited.common.objects.items;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.IItemRenderProperties;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
@@ -25,16 +27,31 @@ import software.bernie.geckolib3.util.GeoUtils;
 import xyz.heroesunited.heroesunited.client.render.renderer.GeckoAccessoryRenderer;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 
+import java.util.function.Consumer;
+
 public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable {
 
     private final AnimationFactory factory = new AnimationFactory(this);
 
     public GeckoAccessory(EquipmentAccessoriesSlot accessorySlot) {
-        super(new Properties().setISTER(() -> GeckoAccessoryRenderer::new), accessorySlot);
+        super(new Properties(), accessorySlot);
     }
 
     public GeckoAccessory(EquipmentAccessoriesSlot accessorySlot, String name) {
-        super(new Properties().setISTER(() -> GeckoAccessoryRenderer::new), accessorySlot, name);
+        super(new Properties(), accessorySlot, name);
+    }
+
+    @Override
+    public void initializeClient(Consumer<IItemRenderProperties> consumer) {
+        super.initializeClient(consumer);
+        consumer.accept(new IItemRenderProperties() {
+            private final BlockEntityWithoutLevelRenderer renderer = new GeckoAccessoryRenderer();
+
+            @Override
+            public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
+                return renderer;
+            }
+        });
     }
 
     public ResourceLocation getTextureFile() {
@@ -51,7 +68,7 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void render(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {
+    public void render(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {
         if (stack.getItem() == HUItems.HOKAGE_CAPE) {
             matrix.pushPose();
             matrix.translate(0.0D, 24 / 16F, 0.0D);
@@ -63,36 +80,36 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
             return;
         }
         if (EquipmentAccessoriesSlot.getWristAccessories().contains(accessorySlot)) {
-            HandSide side = slot == EquipmentAccessoriesSlot.LEFT_WRIST.getSlot() ? HandSide.LEFT : HandSide.RIGHT;
-            ItemCameraTransforms.TransformType transformType = side == HandSide.LEFT ? ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND : ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
+            HumanoidArm side = slot == EquipmentAccessoriesSlot.LEFT_WRIST.getSlot() ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
+            ItemTransforms.TransformType transformType = side == HumanoidArm.LEFT ? ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND : ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
             if (stack.getItem() == HUItems.FINN_ARM || stack.getItem() == HUItems.MADNESSCLAW) {
-                transformType = ItemCameraTransforms.TransformType.HEAD;
+                transformType = ItemTransforms.TransformType.HEAD;
             }
 
             matrix.pushPose();
             renderer.getModel().translateToHand(side, matrix);
             matrix.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
             matrix.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-            matrix.translate((side == HandSide.LEFT ? -1 : 1) / 16.0F, 0.125D, -0.625D);
-            Minecraft.getInstance().getItemInHandRenderer().renderItem(player, stack, transformType, side == HandSide.LEFT, matrix, bufferIn, packedLightIn);
+            matrix.translate((side == HumanoidArm.LEFT ? -1 : 1) / 16.0F, 0.125D, -0.625D);
+            Minecraft.getInstance().getItemInHandRenderer().renderItem(player, stack, transformType, side == HumanoidArm.LEFT, matrix, bufferIn, packedLightIn);
             matrix.popPose();
         }
         if (this.accessorySlot.equals(EquipmentAccessoriesSlot.GLOVES)) {
-            for (HandSide side : HandSide.values()) {
-                ItemCameraTransforms.TransformType transformType = side == HandSide.LEFT ? ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND : ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
+            for (HumanoidArm side : HumanoidArm.values()) {
+                ItemTransforms.TransformType transformType = side == HumanoidArm.LEFT ? ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND : ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
                 matrix.pushPose();
                 renderer.getModel().translateToHand(side, matrix);
                 if (stack.getItem() == HUItems.SMALLGILLY) {
                     matrix.mulPose(Vector3f.YP.rotationDegrees(180.0F));
                     matrix.scale(0.625F, -0.625F, -0.625F);
-                    matrix.translate(side == HandSide.LEFT ? -0.6 : -0.4, -0.35D, -0.625D);
-                    ResourceLocation modelFile = new ResourceLocation(this.getRegistryName().getNamespace(), String.format("geo/%s.geo.json", this.getRegistryName().getPath() + (side == HandSide.LEFT ? "" : "_v2")));
+                    matrix.translate(side == HumanoidArm.LEFT ? -0.6 : -0.4, -0.35D, -0.625D);
+                    ResourceLocation modelFile = new ResourceLocation(this.getRegistryName().getNamespace(), String.format("geo/%s.geo.json", this.getRegistryName().getPath() + (side == HumanoidArm.LEFT ? "" : "_v2")));
                     new GeckoAccessoryRenderer(modelFile).render(this, matrix, bufferIn, packedLightIn, stack);
                 } else {
                     matrix.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
                     matrix.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-                    matrix.translate((side == HandSide.LEFT ? -1 : 1) / 16.0F, 0.125D, -0.625D);
-                    Minecraft.getInstance().getItemInHandRenderer().renderItem(player, stack, transformType, side == HandSide.LEFT, matrix, bufferIn, packedLightIn);
+                    matrix.translate((side == HumanoidArm.LEFT ? -1 : 1) / 16.0F, 0.125D, -0.625D);
+                    Minecraft.getInstance().getItemInHandRenderer().renderItem(player, stack, transformType, side == HumanoidArm.LEFT, matrix, bufferIn, packedLightIn);
                 }
                 matrix.popPose();
             }
@@ -104,7 +121,7 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
             matrix.translate(0.0D, -0.25D, 0.0D);
             matrix.mulPose(Vector3f.YP.rotationDegrees(180.0F));
             matrix.scale(0.625F, -0.625F, -0.625F);
-            Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemCameraTransforms.TransformType.HEAD, packedLightIn, OverlayTexture.NO_OVERLAY, matrix, bufferIn);
+            Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemTransforms.TransformType.HEAD, packedLightIn, OverlayTexture.NO_OVERLAY, matrix, bufferIn, 0);
             matrix.popPose();
         }
 
@@ -114,13 +131,13 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
             matrix.translate(0.0D, -0.25D, 0.0D);
             matrix.mulPose(Vector3f.YP.rotationDegrees(180.0F));
             matrix.scale(0.625F, -0.625F, -0.625F);
-            Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemCameraTransforms.TransformType.HEAD, packedLightIn, OverlayTexture.NO_OVERLAY, matrix, bufferIn);
+            Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemTransforms.TransformType.HEAD, packedLightIn, OverlayTexture.NO_OVERLAY, matrix, bufferIn, 0);
             matrix.popPose();
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderHokageCape(PlayerRenderer renderer, MatrixStack matrix, IRenderTypeBuffer bufferIn, int packedLightIn, AbstractClientPlayerEntity player, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {
+    public void renderHokageCape(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {
         GeckoAccessoryRenderer accessoryRenderer = new GeckoAccessoryRenderer();
         GeoModel model = accessoryRenderer.getGeoModelProvider().getModel(getModelFile());
 
@@ -148,19 +165,19 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
         leftArmBone.setPositionY(2 - renderer.getModel().leftArm.y);
         leftArmBone.setPositionZ(renderer.getModel().leftArm.z);
 
-        double d0 = MathHelper.lerp(partialTicks, player.xCloakO, player.xCloak) - MathHelper.lerp(partialTicks, player.xo, player.getX());
-        double d1 = MathHelper.lerp(partialTicks, player.yCloakO, player.yCloak) - MathHelper.lerp(partialTicks, player.yo, player.getY());
-        double d2 = MathHelper.lerp(partialTicks, player.zCloakO, player.zCloak) - MathHelper.lerp(partialTicks, player.zo, player.getZ());
+        double d0 = Mth.lerp(partialTicks, player.xCloakO, player.xCloak) - Mth.lerp(partialTicks, player.xo, player.getX());
+        double d1 = Mth.lerp(partialTicks, player.yCloakO, player.yCloak) - Mth.lerp(partialTicks, player.yo, player.getY());
+        double d2 = Mth.lerp(partialTicks, player.zCloakO, player.zCloak) - Mth.lerp(partialTicks, player.zo, player.getZ());
         float f = player.yBodyRotO + (player.yBodyRot - player.yBodyRotO);
-        double d3 = MathHelper.sin(f * ((float)Math.PI / 180F));
-        double d4 = -MathHelper.cos(f * ((float)Math.PI / 180F));
-        float f1 = MathHelper.clamp((float)d1 * 10.0F, -6.0F, 32.0F);
-        float f2 = MathHelper.clamp((float)(d0 * d3 + d2 * d4) * 100.0F, 0.0F, 150.0F);
+        double d3 = Mth.sin(f * ((float)Math.PI / 180F));
+        double d4 = -Mth.cos(f * ((float)Math.PI / 180F));
+        float f1 = Mth.clamp((float)d1 * 10.0F, -6.0F, 32.0F);
+        float f2 = Mth.clamp((float)(d0 * d3 + d2 * d4) * 100.0F, 0.0F, 150.0F);
 
-        f1 = f1 + MathHelper.sin(MathHelper.lerp(partialTicks, player.walkDistO, player.walkDist) * 6.0F) * 32.0F * MathHelper.lerp(partialTicks, player.oBob, player.bob);
+        f1 = f1 + Mth.sin(Mth.lerp(partialTicks, player.walkDistO, player.walkDist) * 6.0F) * 32.0F * Mth.lerp(partialTicks, player.oBob, player.bob);
 
         IBone cape = accessoryRenderer.getGeoModelProvider().getBone("cape");
-        float rot = MathHelper.clamp(f2 + f1, 0F, 80F);
+        float rot = Mth.clamp(f2 + f1, 0F, 80F);
         cape.setRotationX((float) Math.toRadians(-rot));
         cape.setPositionY(0);
         cape.setPositionZ(0);
@@ -192,7 +209,7 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
     }
 
     @Override
-    public ResourceLocation getTexture(ItemStack stack, PlayerEntity entity, EquipmentAccessoriesSlot slot) {
+    public ResourceLocation getTexture(ItemStack stack, Player entity, EquipmentAccessoriesSlot slot) {
         return null;
     }
 

@@ -5,16 +5,16 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.minecraft.client.resources.JsonReloadListener;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
@@ -30,7 +30,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-public class HUPackSuperpowers extends JsonReloadListener {
+public class HUPackSuperpowers extends SimpleJsonResourceReloadListener {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private static HUPackSuperpowers INSTANCE;
     private final Map<ResourceLocation, Superpower> registeredSuperpowers = Maps.newHashMap();
@@ -41,7 +41,7 @@ public class HUPackSuperpowers extends JsonReloadListener {
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> map, IResourceManager iResourceManager, IProfiler iProfiler) {
+    protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager iResourceManager, ProfilerFiller iProfiler) {
         for (Map.Entry<ResourceLocation, JsonElement> entry : map.entrySet()) {
             ResourceLocation resourcelocation = entry.getKey();
             try {
@@ -54,7 +54,7 @@ public class HUPackSuperpowers extends JsonReloadListener {
         }
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if (server != null) {
-            for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
+            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                 if (player != null && player.isAlive()) {
                     ResourceLocation resourceLocation = HUPackSuperpowers.getSuperpower(player);
                     if (resourceLocation != null && registeredSuperpowers.containsKey(resourceLocation)) {
@@ -69,7 +69,7 @@ public class HUPackSuperpowers extends JsonReloadListener {
     public static Map<ResourceLocation, Superpower> getSuperpowers() {
         Map<ResourceLocation, Superpower> superpowers = Maps.newHashMap();
         for (Map.Entry<ResourceLocation, Superpower> entry : getInstance().registeredSuperpowers.entrySet()) {
-            if (!JSONUtils.getAsBoolean(entry.getValue().jsonObject, "hidden", false)) {
+            if (!GsonHelper.getAsBoolean(entry.getValue().jsonObject, "hidden", false)) {
                 superpowers.put(entry.getKey(), entry.getValue());
             }
         }
@@ -77,14 +77,14 @@ public class HUPackSuperpowers extends JsonReloadListener {
     }
 
     public static Map<ResourceLocation, JsonObject> getSuperpowersJSONS() {
-        IResourceManager manager = HUPacks.getInstance().getResourceManager();
+        ResourceManager manager = HUPacks.getInstance().getResourceManager();
         Map<ResourceLocation, JsonObject> list = Maps.newHashMap();
         if (manager == null) return list;
         for(ResourceLocation path : manager.listResources("husuperpowers", (p_223379_0_) -> p_223379_0_.endsWith(".json"))) {
             ResourceLocation location = new ResourceLocation(path.getNamespace(), path.getPath().substring("husuperpowers".length() + 1, path.getPath().length() - ".json".length()));
 
             try {
-                JsonElement jsonelement = JSONUtils.fromJson(HUPacks.GSON, new BufferedReader(new InputStreamReader(manager.getResource(path).getInputStream(), StandardCharsets.UTF_8)), JsonElement.class);
+                JsonElement jsonelement = GsonHelper.fromJson(HUPacks.GSON, new BufferedReader(new InputStreamReader(manager.getResource(path).getInputStream(), StandardCharsets.UTF_8)), JsonElement.class);
                 if (jsonelement instanceof JsonObject) {
                     list.put(location, jsonelement.getAsJsonObject());
                 }
@@ -103,7 +103,7 @@ public class HUPackSuperpowers extends JsonReloadListener {
         return getInstance().registeredSuperpowers.get(location);
     }
 
-    public static void setSuperpower(PlayerEntity player, Superpower superpower) {
+    public static void setSuperpower(Player player, Superpower superpower) {
         try {
             if (!HUPlayer.getCap(player).getSuperpowerLevels().containsKey(superpower.getRegistryName())) {
                 HUPlayer.getCap(player).getSuperpowerLevels().put(superpower.getRegistryName(), new Level());
@@ -117,7 +117,7 @@ public class HUPackSuperpowers extends JsonReloadListener {
         }
     }
 
-    public static void removeSuperpower(PlayerEntity player) {
+    public static void removeSuperpower(Player player) {
         try {
             player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> cap.clearAbilities(ability -> ability.getAdditionalData().contains("Superpower")));
         } catch (Exception e) {
@@ -125,7 +125,7 @@ public class HUPackSuperpowers extends JsonReloadListener {
         }
     }
 
-    public static boolean hasSuperpower(PlayerEntity player, ResourceLocation location) {
+    public static boolean hasSuperpower(Player player, ResourceLocation location) {
         IHUAbilityCap abilityCap = HUAbilityCap.getCap(player);
         if (abilityCap != null) {
             for (Ability ability : abilityCap.getAbilities().values()) {
@@ -137,11 +137,11 @@ public class HUPackSuperpowers extends JsonReloadListener {
         return false;
     }
 
-    public static boolean hasSuperpower(PlayerEntity player, Superpower superpower) {
+    public static boolean hasSuperpower(Player player, Superpower superpower) {
         return hasSuperpower(player, superpower.getRegistryName());
     }
 
-    public static boolean hasSuperpowers(PlayerEntity player) {
+    public static boolean hasSuperpowers(Player player) {
         IHUAbilityCap abilityCap = HUAbilityCap.getCap(player);
         if (abilityCap != null) {
             for (Ability ability : abilityCap.getAbilities().values()) {
@@ -153,7 +153,7 @@ public class HUPackSuperpowers extends JsonReloadListener {
         return false;
     }
 
-    public static ResourceLocation getSuperpower(PlayerEntity player) {
+    public static ResourceLocation getSuperpower(Player player) {
         IHUAbilityCap abilityCap = HUAbilityCap.getCap(player);
         if (abilityCap != null) {
             for (Ability ability : abilityCap.getAbilities().values()) {

@@ -1,11 +1,10 @@
 package xyz.heroesunited.heroesunited.client.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Quaternion;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Quaternion;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.resources.ResourceLocation;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.util.HUCalendarHelper;
 
@@ -32,12 +31,12 @@ public class SnowWidget {
         this.y = -16;
     }
 
-    public void drawSnowflake(MatrixStack stack) {
+    public void drawSnowflake(PoseStack stack) {
         if (this.isDead()) return;
         stack.pushPose();
         stack.translate((float) this.x, (float) this.y, 0);
         stack.mulPose(new Quaternion(0, 0, this.rotation, true));
-        AbstractGui.blit(stack, 0, 0, 16 * this.index, 0, 16, 16, 96, 16);
+        GuiComponent.blit(stack, 0, 0, 16 * this.index, 0, 16, 16, 96, 16);
         stack.popPose();
         if (this.frictionTemp-- <= 0) {
             this.frictionTemp = this.friction;
@@ -48,10 +47,10 @@ public class SnowWidget {
             this.setDead();
     }
 
-    public static void drawSnowOnScreen(MatrixStack stack, int width, int height) {
+    public static void drawSnowOnScreen(PoseStack stack, int width, int height) {
         if (!HUCalendarHelper.isSnowTime()) return;
-        Minecraft.getInstance().getTextureManager().bind(snow);
-        RenderSystem.color4f(1, 1, 1, 1);
+        RenderSystem.setShaderTexture(0, snow);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
         int i = 0;
         for (SnowWidget snow : cloud) {
             if (snow != null && !snow.isDead()) {

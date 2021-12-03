@@ -2,12 +2,10 @@ package xyz.heroesunited.heroesunited.common.structures;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.util.registry.WorldGenRegistries;
-import net.minecraft.world.gen.feature.NoFeatureConfig;
-import net.minecraft.world.gen.feature.structure.Structure;
-import net.minecraft.world.gen.settings.DimensionStructuresSettings;
-import net.minecraft.world.gen.settings.StructureSeparationSettings;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.data.BuiltinRegistries;
+import net.minecraft.world.level.levelgen.StructureSettings;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -16,23 +14,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HUStructures {
-    public static final DeferredRegister<Structure<?>> STRUCTURES = DeferredRegister.create(ForgeRegistries.STRUCTURE_FEATURES, HeroesUnited.MODID);
+    public static final DeferredRegister<StructureFeature<?>> STRUCTURES = DeferredRegister.create(ForgeRegistries.STRUCTURE_FEATURES, HeroesUnited.MODID);
 
-    public static final RegistryObject<Structure<NoFeatureConfig>> CITY = STRUCTURES.register("city", () -> (new CityStructure(NoFeatureConfig.CODEC)));
+    //public static final RegistryObject<StructureFeature<NoneFeatureConfiguration>> CITY = STRUCTURES.register("city", () -> (new CityStructure(NoneFeatureConfiguration.CODEC)));
 
     /**
      * This is where we set the rarity of your structures and determine if land conforms to it.
      * See the comments in below for more details.
      */
     public static void setupStructures() {
-        setupMapSpacingAndLand(
-                CITY.get(), /* The instance of the structure */
-                new StructureSeparationSettings(10 /* average distance apart in chunks between spawn attempts */,
-                        5 /* minimum distance apart in chunks between spawn attempts. MUST BE LESS THAN ABOVE VALUE*/,
-                        563453565 /* this modifies the seed of the structure so no two structures always spawn over each-other. Make this large and unique. */),
-                true);
+        /*setupMapSpacingAndLand(CITY.get(),
+                // The instance of the structure
+                new StructureFeatureConfiguration(10,
+                        // average distance apart in chunks between spawn attempts,
+                        5
+                        // minimum distance apart in chunks between spawn attempts. MUST BE LESS THAN ABOVE VALUE
+                        , 563453565
+                        // this modifies the seed of the structure so no two structures always spawn over each-other. Make this large and unique.
+                        ), true);
 
-
+*/
         // Add more structures here and so on
     }
 
@@ -42,9 +43,9 @@ public class HUStructures {
      * this method in the structureSeparationSettings argument.
      * This method is called by setupStructures above.
      */
-    public static <F extends Structure<?>> void setupMapSpacingAndLand(
+    public static <F extends StructureFeature<?>> void setupMapSpacingAndLand(
             F structure,
-            StructureSeparationSettings structureSeparationSettings,
+            StructureFeatureConfiguration structureSeparationSettings,
             boolean transformSurroundingLand) {
         /*
          * We need to add our structures into the map in Structure class
@@ -53,7 +54,7 @@ public class HUStructures {
          * If the registration is setup properly for the structure,
          * getRegistryName() should never return null.
          */
-        Structure.STRUCTURES_REGISTRY.put(structure.getRegistryName().toString(), structure);
+        StructureFeature.STRUCTURES_REGISTRY.put(structure.getRegistryName().toString(), structure);
 
         /*
          * Whether surrounding land will be modified automatically to conform to the bottom of the structure.
@@ -66,9 +67,9 @@ public class HUStructures {
          * NOISE_AFFECTING_FEATURES requires AccessTransformer  (See resources/META-INF/accesstransformer.cfg)
          */
         if (transformSurroundingLand) {
-            Structure.NOISE_AFFECTING_FEATURES =
-                    ImmutableList.<Structure<?>>builder()
-                            .addAll(Structure.NOISE_AFFECTING_FEATURES)
+            StructureFeature.NOISE_AFFECTING_FEATURES =
+                    ImmutableList.<StructureFeature<?>>builder()
+                            .addAll(StructureFeature.NOISE_AFFECTING_FEATURES)
                             .add(structure)
                             .build();
         }
@@ -86,9 +87,9 @@ public class HUStructures {
          *
          * DEFAULTS requires AccessTransformer  (See resources/META-INF/accesstransformer.cfg)
          */
-        DimensionStructuresSettings.DEFAULTS =
-                ImmutableMap.<Structure<?>, StructureSeparationSettings>builder()
-                        .putAll(DimensionStructuresSettings.DEFAULTS)
+        StructureSettings.DEFAULTS =
+                ImmutableMap.<StructureFeature<?>, StructureFeatureConfiguration>builder()
+                        .putAll(StructureSettings.DEFAULTS)
                         .put(structure, structureSeparationSettings)
                         .build();
 
@@ -100,8 +101,8 @@ public class HUStructures {
          * that field only applies for the default overworld and won't add to other worldtypes or dimensions (like amplified or Nether).
          * So yeah, don't do DimensionSettings.BUILTIN_OVERWORLD. Use the NOISE_GENERATOR_SETTINGS loop below instead if you must.
          */
-        WorldGenRegistries.NOISE_GENERATOR_SETTINGS.entrySet().forEach(settings -> {
-            Map<Structure<?>, StructureSeparationSettings> structureMap = settings.getValue().structureSettings().structureConfig();
+        BuiltinRegistries.NOISE_GENERATOR_SETTINGS.entrySet().forEach(settings -> {
+            Map<StructureFeature<?>, StructureFeatureConfiguration> structureMap = settings.getValue().structureSettings().structureConfig();
 
             /*
              * Pre-caution in case a mod makes the structure map immutable like datapacks do.
@@ -110,7 +111,7 @@ public class HUStructures {
              * structureConfig requires AccessTransformer  (See resources/META-INF/accesstransformer.cfg)
              */
             if (structureMap instanceof ImmutableMap) {
-                Map<Structure<?>, StructureSeparationSettings> tempMap = new HashMap<>(structureMap);
+                Map<StructureFeature<?>, StructureFeatureConfiguration> tempMap = new HashMap<>(structureMap);
                 tempMap.put(structure, structureSeparationSettings);
                 settings.getValue().structureSettings().structureConfig = tempMap;
             } else {

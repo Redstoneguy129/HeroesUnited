@@ -1,7 +1,7 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.JSONUtils;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.player.Player;
 import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
 
 public class FlightAbility extends JSONAbility implements IFlyingAbility {
@@ -11,32 +11,32 @@ public class FlightAbility extends JSONAbility implements IFlyingAbility {
     }
 
     @Override
-    public boolean isFlying(PlayerEntity player) {
+    public boolean isFlying(Player player) {
         return getEnabled();
     }
 
     @Override
-    public boolean renderFlying(PlayerEntity player) {
-        return getJsonObject() != null && JSONUtils.getAsBoolean(this.getJsonObject(), "render", true);
+    public boolean renderFlying(Player player) {
+        return getJsonObject() != null && GsonHelper.getAsBoolean(this.getJsonObject(), "render", true);
     }
 
     @Override
-    public boolean rotateArms(PlayerEntity player) {
-        return getJsonObject() != null && JSONUtils.getAsBoolean(this.getJsonObject(), "rotateArms", false);
+    public boolean rotateArms(Player player) {
+        return getJsonObject() != null && GsonHelper.getAsBoolean(this.getJsonObject(), "rotateArms", false);
     }
 
     @Override
     public boolean setDefaultRotationAngles(HUSetRotationAnglesEvent event) {
-        return getJsonObject() == null || JSONUtils.getAsBoolean(this.getJsonObject(), "setDefaultRotationAngles", true);
+        return getJsonObject() == null || GsonHelper.getAsBoolean(this.getJsonObject(), "setDefaultRotationAngles", true);
     }
 
     @Override
-    public float getDegreesForSprint(PlayerEntity player) {
-        return getJsonObject() != null ? JSONUtils.getAsFloat(this.getJsonObject(), "degrees_for_sprint", IFlyingAbility.super.getDegreesForSprint(player)) : IFlyingAbility.super.getDegreesForSprint(player);
+    public float getDegreesForSprint(Player player) {
+        return getJsonObject() != null ? GsonHelper.getAsFloat(this.getJsonObject(), "degrees_for_sprint", IFlyingAbility.super.getDegreesForSprint(player)) : IFlyingAbility.super.getDegreesForSprint(player);
     }
 
     @Override
-    public float getDegreesForWalk(PlayerEntity player) {
-        return getJsonObject() != null ? JSONUtils.getAsFloat(this.getJsonObject(), "degrees_for_walk", IFlyingAbility.super.getDegreesForWalk(player)) : IFlyingAbility.super.getDegreesForWalk(player);
+    public float getDegreesForWalk(Player player) {
+        return getJsonObject() != null ? GsonHelper.getAsFloat(this.getJsonObject(), "degrees_for_walk", IFlyingAbility.super.getDegreesForWalk(player)) : IFlyingAbility.super.getDegreesForWalk(player);
     }
 }

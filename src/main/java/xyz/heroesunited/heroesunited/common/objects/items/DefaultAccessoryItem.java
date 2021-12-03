@@ -1,15 +1,15 @@
 package xyz.heroesunited.heroesunited.common.objects.items;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StringUtils;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringUtil;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -37,9 +37,9 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-        if (!StringUtils.isNullOrEmpty(name)) {
-            tooltip.add(new StringTextComponent("Made For " + name).withStyle(TextFormatting.ITALIC));
+    public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+        if (!StringUtil.isNullOrEmpty(name)) {
+            tooltip.add(new TextComponent("Made For " + name).withStyle(ChatFormatting.ITALIC));
         }
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
     }
@@ -88,7 +88,7 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
     }
 
     @Override
-    public ResourceLocation getTexture(ItemStack stack, PlayerEntity player, EquipmentAccessoriesSlot slot) {
+    public ResourceLocation getTexture(ItemStack stack, Player player, EquipmentAccessoriesSlot slot) {
         String slim = HUPlayerUtil.haveSmallArms(player) ? "_slim" : "";
         String name = slot.name().toLowerCase();
         if (slot.equals(EquipmentAccessoriesSlot.LEFT_WRIST) || slot.equals(EquipmentAccessoriesSlot.RIGHT_WRIST)) {

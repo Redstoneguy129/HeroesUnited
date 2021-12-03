@@ -1,6 +1,6 @@
 package xyz.heroesunited.heroesunited.common.events;
 
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.util.KeyMap;
@@ -16,7 +16,7 @@ public abstract class HUAbilityEvent extends PlayerEvent {
 
     protected final Ability ability;
 
-    public HUAbilityEvent(PlayerEntity player, Ability ability) {
+    public HUAbilityEvent(Player player, Ability ability) {
         super(player);
         this.ability = ability;
     }
@@ -31,26 +31,26 @@ public abstract class HUAbilityEvent extends PlayerEvent {
     }
 
     public static class Enabled extends HUAbilityEvent {
-        public Enabled(PlayerEntity player, Ability ability) {
+        public Enabled(Player player, Ability ability) {
             super(player, ability);
         }
     }
 
     public static class Disabled extends HUAbilityEvent {
-        public Disabled(PlayerEntity player, Ability ability) {
+        public Disabled(Player player, Ability ability) {
             super(player, ability);
         }
     }
 
     public static class RegisterData extends HUAbilityEvent {
 
-        public RegisterData(PlayerEntity player, Ability ability) {
+        public RegisterData(Player player, Ability ability) {
             super(player, ability);
         }
 
         @Nullable
         @Override
-        public PlayerEntity getPlayer() {
+        public Player getPlayer() {
             return super.getPlayer();
         }
 
@@ -67,7 +67,7 @@ public abstract class HUAbilityEvent extends PlayerEvent {
     public static class KeyInput extends HUAbilityEvent {
         private final KeyMap map;
 
-        public KeyInput(PlayerEntity player, Ability ability, KeyMap map) {
+        public KeyInput(Player player, Ability ability, KeyMap map) {
             super(player, ability);
             this.map = map;
         }

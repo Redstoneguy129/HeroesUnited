@@ -1,8 +1,8 @@
 package xyz.heroesunited.heroesunited.common.networking.server;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 
@@ -16,17 +16,17 @@ public class ServerToggleAbility {
         this.id = id;
     }
 
-    public ServerToggleAbility(PacketBuffer buf) {
+    public ServerToggleAbility(FriendlyByteBuf buf) {
         this.id = buf.readUtf(32767);
     }
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeUtf(this.id);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            PlayerEntity player = ctx.get().getSender();
+            Player player = ctx.get().getSender();
             if (player != null) {
                 player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
                     if (cap.getActiveAbilities().containsKey(this.id)) {
