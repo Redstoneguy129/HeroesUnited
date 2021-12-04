@@ -36,11 +36,11 @@ public enum EquipmentAccessoriesSlot {
         return null;
     }
 
-    public static List<EquipmentAccessoriesSlot> getAccessoriesForChest() {
+    public static List<EquipmentAccessoriesSlot> chestAccessories() {
         return Lists.newArrayList(TSHIRT, JACKET, RIGHT_WRIST, LEFT_WRIST, WRIST, GLOVES);
     }
 
-    public static List<EquipmentAccessoriesSlot> getWristAccessories() {
+    public static List<EquipmentAccessoriesSlot> wristAccessories() {
         return Lists.newArrayList(RIGHT_WRIST, LEFT_WRIST, WRIST);
     }
 }

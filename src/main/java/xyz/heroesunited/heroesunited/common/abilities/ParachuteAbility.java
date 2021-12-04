@@ -13,7 +13,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
+import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 import xyz.heroesunited.heroesunited.client.render.model.ParachuteModel;
 import xyz.heroesunited.heroesunited.util.HUModelLayers;
 
@@ -59,7 +59,7 @@ public class ParachuteAbility extends JSONAbility {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void setRotationAngles(HUSetRotationAnglesEvent event) {
+    public void setupAnim(SetupAnimEvent event) {
         if (usingParachute(event.getPlayer())) {
             event.getPlayerModel().leftLeg.xRot = 0;
             event.getPlayerModel().rightLeg.xRot = 0;

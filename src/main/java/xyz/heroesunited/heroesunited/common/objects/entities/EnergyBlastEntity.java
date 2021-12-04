@@ -51,7 +51,7 @@ public class EnergyBlastEntity extends ThrowableProjectile {
 
     @Override
     protected void onHit(HitResult result) {
-        if (result == null || !isAlive())
+        if (!isAlive())
             return;
 
         if (result.getType() == HitResult.Type.ENTITY) {

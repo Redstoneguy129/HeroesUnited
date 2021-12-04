@@ -8,7 +8,7 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryBuilder;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.common.events.HUAbilityEvent;
+import xyz.heroesunited.heroesunited.common.events.AbilityEvent;
 
 import java.util.function.Supplier;
 
@@ -36,7 +36,7 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
         Ability a = this.supplier.create(this);
         a.name = id;
         a.registerData();
-        MinecraftForge.EVENT_BUS.post(new HUAbilityEvent.RegisterData(player, a));
+        MinecraftForge.EVENT_BUS.post(new AbilityEvent.RegisterData(player, a));
         return a;
     }
 
@@ -44,7 +44,7 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
     public static final AbilityType FLIGHT = register("flight", FlightAbility::new);
     public static final AbilityType SLOW_MO = register("slow_mo", SlowMoAbility::new);
     public static final AbilityType GECKO = register("gecko", GeckoAbility::new);
-    public static final AbilityType HIDE_BODY_PARTS = register("hide_body_parts", HideBodyPartsAbility::new);
+    public static final AbilityType HIDE_PARTS = register("hide_parts", HidePartsAbility::new);
     public static final AbilityType ROTATE_PARTS = register("rotate_parts", RotatePartsAbility::new);
     public static final AbilityType SIZE_CHANGE = register("size_change", SizeChangeAbility::new);
     public static final AbilityType COMMAND = register("command", CommandAbility::new);

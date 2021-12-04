@@ -6,7 +6,7 @@ public class Level {
 
     private int level = 1;
     private float experience = 0;
-    private float expForNexLevel = (float) (100 + (Math.exp(level / 3) * 100 / 5));
+    private float expForNexLevel = (float) (100 + (Math.exp(level / 3F) * 100 / 5));
 
     public CompoundTag writeNBT() {
         CompoundTag compound = new CompoundTag();
@@ -26,7 +26,7 @@ public class Level {
 
     public void setLevel(int level) {
         this.level = level;
-        expForNexLevel = (float) (100 + (Math.exp(this.level / 3) * 100 / 5));
+        expForNexLevel = (float) (100 + (Math.exp(this.level / 3F) * 100 / 5));
     }
 
     public int getLevel() {
@@ -39,7 +39,7 @@ public class Level {
         if (expForNexLevel <= 0) {
             level++;
             this.experience = 0;
-            expForNexLevel = (float) (Math.exp(level / 3) * 100 / 5);
+            expForNexLevel = (float) (Math.exp(level / 3F) * 100 / 5);
         }
     }
 

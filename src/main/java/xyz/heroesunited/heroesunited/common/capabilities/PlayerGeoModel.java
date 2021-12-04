@@ -48,7 +48,7 @@ public class PlayerGeoModel extends AnimatedTickingGeoModel<IHUPlayer> {
         MolangParser parser = GeckoLibCache.getInstance().parser;
         if (animatable instanceof IHUPlayer && this.modelData != null) {
             for (PlayerPart part : PlayerPart.bodyParts()) {
-                ModelPart renderer = part.getModelRendererByBodyPart(this.modelData.renderer.getModel());
+                ModelPart renderer = part.initialModelPart(this.modelData.renderer.getModel());
                 parser.setValue(String.format("player.%s.x_rot", part.name().toLowerCase()), renderer.xRot / Math.PI * 180.0);
                 parser.setValue(String.format("player.%s.y_rot", part.name().toLowerCase()), renderer.yRot / Math.PI * 180.0);
                 parser.setValue(String.format("player.%s.z_rot", part.name().toLowerCase()), renderer.zRot / Math.PI * 180.0);

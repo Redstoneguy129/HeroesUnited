@@ -9,7 +9,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngine;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
+import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.JSONAbility;
 
@@ -99,8 +99,8 @@ public class JSAbilityManager extends JSReloadListener {
         }
 
         @Override
-        public void setRotationAngles(HUSetRotationAnglesEvent event) {
-            super.setRotationAngles(event);
+        public void setupAnim(SetupAnimEvent event) {
+            super.setupAnim(event);
             try {
                 engine.invokeFunction("setupAnim", event, this);
             } catch (ScriptException | NoSuchMethodException ignored) {

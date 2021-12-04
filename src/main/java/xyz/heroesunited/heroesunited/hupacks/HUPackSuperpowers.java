@@ -22,7 +22,7 @@ import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.Level;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.IHUAbilityCap;
-import xyz.heroesunited.heroesunited.common.events.HURegisterSuperpower;
+import xyz.heroesunited.heroesunited.common.events.RegisterSuperpowerEvent;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class HUPackSuperpowers extends SimpleJsonResourceReloadListener {
             try {
                 Superpower superpower = new Superpower(resourcelocation, (JsonObject) entry.getValue());
                 this.registeredSuperpowers.put(resourcelocation, superpower);
-                MinecraftForge.EVENT_BUS.post(new HURegisterSuperpower(this.registeredSuperpowers));
+                MinecraftForge.EVENT_BUS.post(new RegisterSuperpowerEvent(this.registeredSuperpowers));
             } catch (Exception e) {
                 HeroesUnited.LOGGER.error("Parsing error loading superpower {}", resourcelocation, e);
             }

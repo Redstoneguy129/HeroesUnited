@@ -20,12 +20,10 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
-import xyz.heroesunited.heroesunited.common.events.HURegisterPlayerControllers;
+import xyz.heroesunited.heroesunited.common.events.RegisterPlayerControllerEvent;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
-import xyz.heroesunited.heroesunited.common.networking.HUTypes;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSetAnimation;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUPlayer;
-import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUType;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesInventory;
 
 import javax.annotation.Nullable;
@@ -37,9 +35,8 @@ public class HUPlayer implements IHUPlayer {
     protected final HUPlayerFactory factory = new HUPlayerFactory(this);
     protected Map<ResourceLocation, Level> superpowerLevels;
     private int theme;
-    private float flightAmount, flightAmountO;
-    private float slowMo = 20F;
-    private boolean flying, intangible;
+    private float flightAmount, flightAmountO,  slowMo = 20F;
+    private boolean intangible;
     protected ResourceLocation animationFile;
     private final PlayerGeoModel modelProvider = new PlayerGeoModel();
 
@@ -95,18 +92,7 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public void setSlowMoSpeed(float slowMo) {
         this.slowMo = slowMo;
-    }
-
-    @Override
-    public boolean isFlying() {
-        return flying;
-    }
-
-    @Override
-    public void setFlying(boolean flying) {
-        this.flying = flying;
-        if (!player.level.isClientSide)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getId(), HUTypes.FLYING, flying));
+        this.syncToAll();
     }
 
     @Override
@@ -117,8 +103,7 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public void setIntangible(boolean intangible) {
         this.intangible = intangible;
-        if (!player.level.isClientSide)
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUType(player.getId(), HUTypes.INTAGIBLE, intangible));
+        this.syncToAll();
     }
 
     @Override
@@ -136,7 +121,6 @@ public class HUPlayer implements IHUPlayer {
         this.deserializeNBT(cap.serializeNBT());
         this.theme = cap.getTheme();
         this.inventory.copy(cap.getInventory());
-        this.flying = false;
         this.slowMo = 20F;
         this.sync();
         return this;
@@ -174,7 +158,7 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public void registerControllers(AnimationData data) {
         data.addAnimationController(new AnimationController<>(this, "controller", 1, this::predicate));
-        MinecraftForge.EVENT_BUS.post(new HURegisterPlayerControllers(this, player, data));
+        MinecraftForge.EVENT_BUS.post(new RegisterPlayerControllerEvent(this, player, data));
     }
 
     private <P extends IHUPlayer> PlayState predicate(AnimationEvent<P> event) {
@@ -201,7 +185,6 @@ public class HUPlayer implements IHUPlayer {
         CompoundTag levels = new CompoundTag();
         superpowerLevels.forEach((resourceLocation, level) -> levels.put(resourceLocation.toString(), level.writeNBT()));
         nbt.put("levels", levels);
-        nbt.putBoolean("Flying", this.flying);
         nbt.putFloat("SlowMo", this.slowMo);
         nbt.putBoolean("Intangible", this.intangible);
         nbt.putInt("Theme", this.theme);
@@ -218,9 +201,6 @@ public class HUPlayer implements IHUPlayer {
         superpowerLevels.clear();
         for (String key : levels.getAllKeys()) {
             superpowerLevels.put(new ResourceLocation(key), Level.readFromNBT(levels.getCompound(key)));
-        }
-        if (nbt.contains("Flying")) {
-            this.flying = nbt.getBoolean("Flying");
         }
         if (nbt.contains("Intangible")) {
             this.intangible = nbt.getBoolean("Intangible");

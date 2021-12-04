@@ -7,19 +7,19 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.render.model.HorasModel;
-import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
+import xyz.heroesunited.heroesunited.common.objects.entities.HorasEntity;
 import xyz.heroesunited.heroesunited.util.HUCalendarHelper;
 import xyz.heroesunited.heroesunited.util.HUModelLayers;
 
 @OnlyIn(Dist.CLIENT)
-public class HorasRenderer extends HumanoidMobRenderer<Horas, HorasModel> {
+public class HorasRenderer extends HumanoidMobRenderer<HorasEntity, HorasModel> {
 
     public HorasRenderer(EntityRendererProvider.Context manager) {
         super(manager, new HorasModel(manager.bakeLayer(HUModelLayers.HORAS)), 0.0F);
     }
 
     @Override
-    public ResourceLocation getTextureLocation(Horas entity) {
+    public ResourceLocation getTextureLocation(HorasEntity entity) {
         return new ResourceLocation(HeroesUnited.MODID, "textures/entity/horas" + (HUCalendarHelper.isSnowTime() ? "_new_year.png" : ".png"));
     }
 }

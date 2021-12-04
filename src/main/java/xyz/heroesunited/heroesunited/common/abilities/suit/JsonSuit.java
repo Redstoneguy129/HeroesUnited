@@ -14,7 +14,7 @@ import net.minecraft.world.item.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.IForgeRegistry;
-import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
+import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.JsonConditionManager;
@@ -157,16 +157,15 @@ public class JsonSuit extends Suit {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void setRotationAngles(HUSetRotationAnglesEvent event, EquipmentSlot slot) {
+    public void setRotationAngles(SetupAnimEvent event, EquipmentSlot slot) {
         super.setRotationAngles(event, slot);
         if (jsonObject.has("visibility_parts")) {
             JsonObject overrides = GsonHelper.getAsJsonObject(jsonObject, "visibility_parts");
 
             for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
-                PlayerPart part = PlayerPart.getByName(entry.getKey());
+                PlayerPart part = PlayerPart.byName(entry.getKey());
                 if (part != null) {
-                    if (entry.getValue() instanceof JsonObject) {
-                        JsonObject json = (JsonObject) entry.getValue();
+                    if (entry.getValue() instanceof JsonObject json) {
                         if (slot.equals(EquipmentSlot.byName(GsonHelper.getAsString(json, "slot")))) {
                             part.setVisibility(event.getPlayerModel(), GsonHelper.getAsBoolean(json, "show"));
                         }

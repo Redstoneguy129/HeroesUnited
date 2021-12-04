@@ -20,16 +20,16 @@ import java.util.List;
 
 public class Spaceship extends Entity {
 
-    public Spaceship(EntityType<?> type, Level p_i48580_2_) {
-        super(type, p_i48580_2_);
+    public Spaceship(EntityType<?> type, Level level) {
+        super(type, level);
     }
 
     @Override
-    public InteractionResult interact(Player p_184230_1_, InteractionHand p_184230_2_) {
-        if (p_184230_1_.isSecondaryUseActive()) {
+    public InteractionResult interact(Player player, InteractionHand hand) {
+        if (player.isSecondaryUseActive()) {
             return InteractionResult.PASS;
         } else if (!this.level.isClientSide) {
-            return p_184230_1_.startRiding(this) ? InteractionResult.CONSUME : InteractionResult.PASS;
+            return player.startRiding(this) ? InteractionResult.CONSUME : InteractionResult.PASS;
         } else {
             return InteractionResult.SUCCESS;
         }
@@ -103,7 +103,7 @@ public class Spaceship extends Entity {
     }
 
     @Override
-    public void push(Entity p_70108_1_) {
+    public void push(Entity entity) {
     }
 
     @Override
@@ -122,12 +122,12 @@ public class Spaceship extends Entity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag p_70037_1_) {
+    protected void readAdditionalSaveData(CompoundTag tag) {
 
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag p_213281_1_) {
+    protected void addAdditionalSaveData(CompoundTag tag) {
 
     }
 

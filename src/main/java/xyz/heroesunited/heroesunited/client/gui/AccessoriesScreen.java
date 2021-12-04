@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.client.HUClientEventHandler;
+import xyz.heroesunited.heroesunited.client.ClientEventHandler;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesContainer;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 
@@ -39,7 +39,7 @@ public class AccessoriesScreen extends AbstractContainerScreen<AccessoriesContai
     @Override
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
         InputConstants.Key mouseKey = InputConstants.getKey(pKeyCode, pScanCode);
-        if (HUClientEventHandler.ACCESSORIES_SCREEN.isActiveAndMatches(mouseKey)) {
+        if (ClientEventHandler.ACCESSORIES_SCREEN.isActiveAndMatches(mouseKey)) {
             this.onClose();
             return true;
         }

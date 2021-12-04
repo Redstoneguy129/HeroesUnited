@@ -2,7 +2,7 @@ package xyz.heroesunited.heroesunited.common.abilities;
 
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
-import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
+import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 
 public class FlightAbility extends JSONAbility implements IFlyingAbility {
 
@@ -26,7 +26,7 @@ public class FlightAbility extends JSONAbility implements IFlyingAbility {
     }
 
     @Override
-    public boolean setDefaultRotationAngles(HUSetRotationAnglesEvent event) {
+    public boolean setDefaultRotationAngles(SetupAnimEvent event) {
         return getJsonObject() == null || GsonHelper.getAsBoolean(this.getJsonObject(), "setDefaultRotationAngles", true);
     }
 

@@ -25,14 +25,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.MovementInputUpdateEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.registries.ForgeRegistries;
-import xyz.heroesunited.heroesunited.client.events.HUChangeRendererEvent;
-import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
+import xyz.heroesunited.heroesunited.client.events.RendererChangeEvent;
+import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
-import xyz.heroesunited.heroesunited.common.events.HUCancelSprinting;
-import xyz.heroesunited.heroesunited.common.events.HURegisterPlayerControllers;
+import xyz.heroesunited.heroesunited.common.events.EntitySprintingEvent;
+import xyz.heroesunited.heroesunited.common.events.RegisterPlayerControllerEvent;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbility;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityCreators;
@@ -50,14 +49,8 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
     public final AbilityType type;
     protected CompoundTag additionalData = new CompoundTag();
     protected JsonObject jsonObject;
-    protected HUDataManager dataManager = new HUDataManager();
-    protected JsonConditionManager conditionManager = new JsonConditionManager(this) {
-        @Override
-        public void sync(Player player) {
-            super.sync(player);
-            Ability.this.syncToAll(player);
-        }
-    };
+    protected final HUDataManager dataManager = new HUDataManager();
+    protected final JsonConditionManager conditionManager = new JsonConditionManager(this);
 
     public Ability(AbilityType type) {
         this.type = type;
@@ -97,16 +90,13 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
         }
     }
 
-    public void onUpdate(Player player, LogicalSide side) {
-    }
-
     public void onDeactivated(Player player) {
     }
 
     public void onKeyInput(Player player, Map<Integer, Boolean> map) {
     }
 
-    public void cancelSprinting(HUCancelSprinting event) {
+    public void cancelSprinting(EntitySprintingEvent event) {
     }
 
     public int getKey() {
@@ -125,11 +115,11 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void registerPlayerControllers(HURegisterPlayerControllers event) {
+    public void registerPlayerControllers(RegisterPlayerControllerEvent event) {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void setRotationAngles(HUSetRotationAnglesEvent event) {
+    public void setupAnim(SetupAnimEvent event) {
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -141,16 +131,12 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void huRenderPlayer(HUChangeRendererEvent event) {
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public boolean renderFirstPersonArm(Player player) {
+    public boolean renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
         return true;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void rendererChange(RendererChangeEvent event) {
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -195,7 +181,7 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
         this.conditionManager.deserializeNBT(nbt.getCompound("Conditions"));
         this.additionalData = nbt.getCompound("AdditionalData");
         if (nbt.contains("JsonObject")) {
-            this.jsonObject = new JsonParser().parse(nbt.getString("JsonObject")).getAsJsonObject();
+            this.jsonObject = JsonParser.parseString(nbt.getString("JsonObject")).getAsJsonObject();
         }
     }
 

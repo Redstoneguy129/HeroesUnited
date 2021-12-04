@@ -28,10 +28,10 @@ public class HorasItem extends HUItem {
     @Override
     public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
         ItemStack itemstack = playerIn.getItemInHand(handIn);
-        HitResult rtr = getPlayerPOVHitResult(worldIn, playerIn, ClipContext.Fluid.SOURCE_ONLY);
+        BlockHitResult rtr = getPlayerPOVHitResult(worldIn, playerIn, ClipContext.Fluid.SOURCE_ONLY);
         if (rtr.getType() != HitResult.Type.BLOCK && !worldIn.isClientSide) {
-            BlockPos pos = ((BlockHitResult) rtr).getBlockPos();
-            if (worldIn.mayInteract(playerIn, pos) && playerIn.mayUseItemAt(pos, ((BlockHitResult) rtr).getDirection(), itemstack)) {
+            BlockPos pos = rtr.getBlockPos();
+            if (worldIn.mayInteract(playerIn, pos) && playerIn.mayUseItemAt(pos, rtr.getDirection(), itemstack)) {
                 if (HUEntities.HORAS.spawn((ServerLevel) worldIn, itemstack, playerIn, pos, MobSpawnType.SPAWN_EGG, false, false) == null) {
                     return InteractionResultHolder.pass(itemstack);
                 } else {

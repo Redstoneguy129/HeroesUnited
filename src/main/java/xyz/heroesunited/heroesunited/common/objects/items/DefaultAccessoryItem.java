@@ -53,7 +53,7 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
             }
             parts.add(PlayerPart.RIGHT_ARM_WEAR);
         }
-        if (this == HUItems.REDA_SHIRT || this == HUItems.GREEN_SHIRT) {
+        if (this == HUItems.REDA_JACKET || this == HUItems.REDA_SHIRT || this == HUItems.RED_JACKET || this == HUItems.GREEN_SHIRT) {
             parts.add(PlayerPart.RIGHT_ARM_WEAR);
             parts.add(PlayerPart.LEFT_ARM_WEAR);
             parts.add(PlayerPart.CHEST_WEAR);
@@ -95,7 +95,7 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
             name = EquipmentAccessoriesSlot.WRIST.name().toLowerCase();
         }
 
-        if (EquipmentAccessoriesSlot.getAccessoriesForChest().contains(slot)) {
+        if (EquipmentAccessoriesSlot.chestAccessories().contains(slot)) {
             return new ResourceLocation(this.getRegistryName().getNamespace(), String.format("textures/accessories/%s/%s.png", this.getRegistryName().getPath(), name + slim));
         } else {
             return new ResourceLocation(this.getRegistryName().getNamespace(), String.format("textures/accessories/%s/%s.png", this.getRegistryName().getPath(), name));

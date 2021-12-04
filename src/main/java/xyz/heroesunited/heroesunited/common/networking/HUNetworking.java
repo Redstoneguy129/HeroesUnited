@@ -23,7 +23,6 @@ public class HUNetworking {
         INSTANCE.registerMessage(NextID(), ClientSyncAbilityCap.class, ClientSyncAbilityCap::toBytes, ClientSyncAbilityCap::new, ClientSyncAbilityCap::handle);
         INSTANCE.registerMessage(NextID(), ClientSetAnimation.class, ClientSetAnimation::toBytes, ClientSetAnimation::new, ClientSetAnimation::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncHUData.class, ClientSyncHUData::toBytes, ClientSyncHUData::new, ClientSyncHUData::handle);
-        INSTANCE.registerMessage(NextID(), ClientSyncHUType.class, ClientSyncHUType::toBytes, ClientSyncHUType::new, ClientSyncHUType::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncAbilityCreators.class, ClientSyncAbilityCreators::toBytes, ClientSyncAbilityCreators::new, ClientSyncAbilityCreators::handle);
         INSTANCE.registerMessage(NextID(), ClientDisableAbility.class, ClientDisableAbility::toBytes, ClientDisableAbility::new, ClientDisableAbility::handle);
         INSTANCE.registerMessage(NextID(), ClientEnableAbility.class, ClientEnableAbility::toBytes, ClientEnableAbility::new, ClientEnableAbility::handle);
@@ -34,7 +33,6 @@ public class HUNetworking {
         INSTANCE.registerMessage(NextID(), ServerSetPlayerAnimation.class, ServerSetPlayerAnimation::toBytes, ServerSetPlayerAnimation::new, ServerSetPlayerAnimation::handle);
         INSTANCE.registerMessage(NextID(), ServerSetTheme.class, ServerSetTheme::toBytes, ServerSetTheme::new, ServerSetTheme::handle);
         INSTANCE.registerMessage(NextID(), ServerSyncAbility.class, ServerSyncAbility::toBytes, ServerSyncAbility::new, ServerSyncAbility::handle);
-        INSTANCE.registerMessage(NextID(), ServerSetHUType.class, ServerSetHUType::toBytes, ServerSetHUType::new, ServerSetHUType::handle);
         INSTANCE.registerMessage(NextID(), ServerHorasPlayerSetDimension.class, ServerHorasPlayerSetDimension::toBytes, ServerHorasPlayerSetDimension::new, ServerHorasPlayerSetDimension::handle);
         INSTANCE.registerMessage(NextID(), ServerKeyInput.class, ServerKeyInput::toBytes, ServerKeyInput::new, ServerKeyInput::handle);
         INSTANCE.registerMessage(NextID(), ServerToggleAbility.class, ServerToggleAbility::toBytes, ServerToggleAbility::new, ServerToggleAbility::handle);

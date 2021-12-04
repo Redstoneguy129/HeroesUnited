@@ -14,7 +14,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import xyz.heroesunited.heroesunited.client.events.HURenderLayerEvent;
+import xyz.heroesunited.heroesunited.client.events.RenderLayerEvent;
 import xyz.heroesunited.heroesunited.client.render.model.SuitModel;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
@@ -35,9 +35,6 @@ public class HULayerRenderer<T extends LivingEntity, M extends HumanoidModel<T>>
 
     @Override
     public void render(PoseStack matrixStack, MultiBufferSource buffer, int packedLight, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        if (MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Pre(entityRendererIn, entity, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch)))
-            return;
-
         if (entityRendererIn instanceof PlayerRenderer && entity instanceof AbstractClientPlayer) {
             PlayerRenderer playerRenderer = (PlayerRenderer) entityRendererIn;
             AbstractClientPlayer player = (AbstractClientPlayer) entity;
@@ -45,9 +42,8 @@ public class HULayerRenderer<T extends LivingEntity, M extends HumanoidModel<T>>
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                 for (int slot = 0; slot < cap.getInventory().getContainerSize(); ++slot) {
                     ItemStack stack = cap.getInventory().getItem(slot);
-                    if (stack != null && stack.getItem() instanceof IAccessory && !MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Accessories(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch))) {
-                        IAccessory accessoire = ((IAccessory) stack.getItem());
-                        SuitModel<AbstractClientPlayer> suitModel = new SuitModel<>(player);
+                    if (stack != null && stack.getItem() instanceof IAccessory accessory && !MinecraftForge.EVENT_BUS.post(new RenderLayerEvent.Accessories(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch))) {
+                        SuitModel<AbstractClientPlayer> suitModel = new SuitModel<>(player, accessory.getScale(stack));
                         boolean shouldRender = true;
                         for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
                             SuitItem item = Suit.getSuitItem(equipmentSlot, player);
@@ -56,16 +52,16 @@ public class HULayerRenderer<T extends LivingEntity, M extends HumanoidModel<T>>
                             }
                         }
                         if (shouldRender) {
-                            if (accessoire.renderDefaultModel()) {
-                                renderAccessories(suitModel, matrixStack, buffer, packedLight, player, playerRenderer, accessoire, stack, cap, EquipmentAccessoriesSlot.getFromSlotIndex(slot));
+                            if (accessory.renderDefaultModel()) {
+                                renderAccessories(suitModel, matrixStack, buffer, packedLight, player, playerRenderer, accessory, stack, cap, EquipmentAccessoriesSlot.getFromSlotIndex(slot));
                             } else {
-                                accessoire.render(playerRenderer, matrixStack, buffer, packedLight, player, stack, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, slot);
+                                accessory.render(playerRenderer, matrixStack, buffer, packedLight, player, stack, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, slot);
                             }
                         }
                     }
                 }
             });
-            MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Player(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch));
+            MinecraftForge.EVENT_BUS.post(new RenderLayerEvent.Player(playerRenderer, player, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch));
         }
 
         for (EquipmentSlot slot : EquipmentSlot.values()) {
@@ -73,8 +69,6 @@ public class HULayerRenderer<T extends LivingEntity, M extends HumanoidModel<T>>
                 renderSuit(matrixStack, buffer, entity, slot, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
             }
         }
-
-        MinecraftForge.EVENT_BUS.post(new HURenderLayerEvent.Post(entityRendererIn, entity, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch));
     }
 
     private void renderAccessories(SuitModel<AbstractClientPlayer> suitModel, PoseStack matrixStack, MultiBufferSource buffer, int packedLight, Player player, PlayerRenderer playerRenderer, IAccessory accessoire, ItemStack stack, IHUPlayer cap, EquipmentAccessoriesSlot slot) {

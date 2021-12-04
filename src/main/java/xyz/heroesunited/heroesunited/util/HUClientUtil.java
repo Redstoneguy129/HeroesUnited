@@ -188,12 +188,11 @@ public class HUClientUtil {
 
                 IFlyingAbility b = IFlyingAbility.getFlyingAbility(player);
                 player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                    if ((b != null && b.isFlying(player)) || cap.isFlying())
-                        if (!entity.isOnGround() && !entity.isSwimming() && entity.isSprinting()) {
-                            model.cape.xRot = 0F;
-                            model.cape.yRot = 0F;
-                            model.cape.zRot = 0F;
-                        }
+                    if (b != null && b.isFlying(player) && !entity.isOnGround() && !entity.isSwimming() && entity.isSprinting()) {
+                        model.cape.xRot = 0F;
+                        model.cape.yRot = 0F;
+                        model.cape.zRot = 0F;
+                    }
                 });
             }
             model.renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entityTranslucent(texture)), packedLightIn, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);

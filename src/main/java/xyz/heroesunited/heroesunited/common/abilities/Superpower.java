@@ -8,7 +8,6 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +35,6 @@ public class Superpower implements IAbilityProvider {
         return new TranslatableComponent(Util.makeDescriptionId("superpowers", name));
     }
 
-    @Nullable
     public ResourceLocation getRegistryName() {
         return name;
     }

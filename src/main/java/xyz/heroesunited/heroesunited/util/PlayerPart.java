@@ -14,13 +14,13 @@ public enum PlayerPart {
     LEFT_LEG, LEFT_LEG_WEAR;
 
     public void setVisibility(PlayerModel<?> model, boolean visible) {
-        ModelPart modelRenderer = getModelRendererByPart(model);
+        ModelPart modelRenderer = modelPart(model);
         if (modelRenderer != null) {
             modelRenderer.visible = visible;
         }
     }
 
-    public ModelPart getModelRendererByPart(PlayerModel<?> model) {
+    public ModelPart modelPart(PlayerModel<?> model) {
         return switch (this) {
             case HEAD_WEAR -> model.hat;
             case CHEST_WEAR -> model.jacket;
@@ -28,11 +28,11 @@ public enum PlayerPart {
             case LEFT_ARM_WEAR -> model.leftSleeve;
             case RIGHT_LEG_WEAR -> model.rightPants;
             case LEFT_LEG_WEAR -> model.leftPants;
-            default -> getModelRendererByBodyPart(model);
+            default -> initialModelPart(model);
         };
     }
 
-    public ModelPart getModelRendererByBodyPart(PlayerModel<?> model) {
+    public ModelPart initialModelPart(PlayerModel<?> model) {
         return switch (this) {
             case HEAD -> model.head;
             case CHEST -> model.body;
@@ -44,7 +44,7 @@ public enum PlayerPart {
         };
     }
 
-    public static PlayerPart getByName(String name) {
+    public static PlayerPart byName(String name) {
         for (PlayerPart playerPart : values()) {
             if (name.equalsIgnoreCase(playerPart.name().toLowerCase())) {
                 return playerPart;

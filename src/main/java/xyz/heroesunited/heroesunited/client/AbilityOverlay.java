@@ -91,7 +91,7 @@ public class AbilityOverlay implements IIngameOverlay {
                         }
                     }
                     if (mc.screen instanceof ChatScreen && ability.getKey() != 0) {
-                        KeyMapping keyBinding = ability.getKey() < 6 ? HUClientEventHandler.ABILITY_KEYS.get(ability.getKey() - 1) : ability.getKey() == 7 ? mc.options.keyJump : ability.getKey() == 8 ? mc.options.keyAttack : mc.options.keyUse;
+                        KeyMapping keyBinding = ability.getKey() < 6 ? ClientEventHandler.ABILITY_KEYS.get(ability.getKey() - 1) : ability.getKey() == 7 ? mc.options.keyJump : ability.getKey() == 8 ? mc.options.keyAttack : mc.options.keyUse;
                         mStack.pushPose();
                         if (keyBinding.getKey().getDisplayName().getString().length() != 1) {
                             mStack.translate(5, abilityY / 4F, 0);

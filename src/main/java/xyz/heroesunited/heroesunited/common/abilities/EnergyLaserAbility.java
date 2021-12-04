@@ -11,7 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
+import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
@@ -51,8 +51,8 @@ public class EnergyLaserAbility extends JSONAbility {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void setRotationAngles(HUSetRotationAnglesEvent event) {
-        super.setRotationAngles(event);
+    public void setupAnim(SetupAnimEvent event) {
+        super.setupAnim(event);
         if (getEnabled()) {
             ModelPart modelArm = isLeftArm(event.getPlayer()) ? event.getPlayerModel().leftArm : event.getPlayerModel().rightArm;
             modelArm.xRot = (float) Math.toRadians(event.getPlayer().getXRot() - 90);

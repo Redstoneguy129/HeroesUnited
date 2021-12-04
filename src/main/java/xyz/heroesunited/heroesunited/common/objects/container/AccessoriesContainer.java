@@ -182,8 +182,7 @@ public class AccessoriesContainer extends AbstractContainerMenu {
             ItemStack stack = this.getItem();
             if (stack.getItem() instanceof IAccessory && ((IAccessory) stack.getItem()).canTakeStack(playerIn, stack) && super.mayPickup(playerIn)) {
                 player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
-                    if (stack.getItem() instanceof IAbilityProvider) {
-                        IAbilityProvider accessory = (IAbilityProvider) stack.getItem();
+                    if (stack.getItem() instanceof IAbilityProvider accessory) {
                         cap.clearAbilities((a) -> accessory.getAbilities(player).containsKey(a.name) && a.getAdditionalData().getString("Item")
                                 .equals(accessory.getAbilities(player).get(a.name).getAdditionalData().getString("Item")));
                     }
@@ -196,7 +195,7 @@ public class AccessoriesContainer extends AbstractContainerMenu {
         @Override
         public boolean mayPlace(ItemStack stack) {
             if (stack.getItem() instanceof IAccessory && super.mayPlace(stack)) {
-                if ((EquipmentAccessoriesSlot.getWristAccessories().contains(accessoriesSlot) && ((IAccessory) stack.getItem()).getSlot() == EquipmentAccessoriesSlot.WRIST) || ((IAccessory) stack.getItem()).getSlot() == accessoriesSlot) {
+                if ((EquipmentAccessoriesSlot.wristAccessories().contains(accessoriesSlot) && ((IAccessory) stack.getItem()).getSlot() == EquipmentAccessoriesSlot.WRIST) || ((IAccessory) stack.getItem()).getSlot() == accessoriesSlot) {
                     player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
                         if (stack.getItem() instanceof IAbilityProvider) {
                             cap.addAbilities((IAbilityProvider) stack.getItem());

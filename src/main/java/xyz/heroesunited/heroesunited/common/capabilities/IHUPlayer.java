@@ -37,13 +37,6 @@ public interface IHUPlayer extends INBTSerializable<CompoundTag>, IAnimatable, I
     void setTheme(int theme);
 
     /**
-     * Default ability - For using look at any HU Mods
-     **/
-    boolean isFlying();
-
-    void setFlying(boolean flying);
-
-    /**
      * Default ability - For using look at TheBoys/Ben10 mod
      **/
     float getSlowMoSpeed();

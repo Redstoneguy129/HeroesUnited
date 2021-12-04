@@ -17,9 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class JsonConditionManager implements INBTSerializable<CompoundTag> {
 
     protected ConcurrentHashMap<String, Boolean> methodConditions = new ConcurrentHashMap<>();
-
     protected ConcurrentHashMap<JsonObject, Boolean> conditions = new ConcurrentHashMap<>();
-
     private final Ability ability;
 
     public JsonConditionManager() {
@@ -29,7 +27,6 @@ public class JsonConditionManager implements INBTSerializable<CompoundTag> {
     public JsonConditionManager(Ability ability) {
         this.ability = ability;
     }
-
 
     public void registerConditions(JsonObject jsonObject) {
         this.registerConditions("conditions", jsonObject);
@@ -85,6 +82,9 @@ public class JsonConditionManager implements INBTSerializable<CompoundTag> {
     }
 
     public void sync(Player player) {
+        if (this.ability != null) {
+            this.ability.syncToAll(player);
+        }
     }
 
     public ConcurrentHashMap<JsonObject, Boolean> getConditions() {

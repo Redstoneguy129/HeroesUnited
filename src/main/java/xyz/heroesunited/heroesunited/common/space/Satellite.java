@@ -13,12 +13,8 @@ import java.util.function.Function;
 public class Satellite extends CelestialBody {
 
     private final ResourceKey<Level> dimension;
-
+    private final float scale, speed;
     private final Planet planet;
-
-    private final float scale;
-
-    private final float speed;
 
     public Satellite(ResourceKey<Level> dimension, Vec3 coordinates, float scale, float speed, Planet planet) {
         super(coordinates);
@@ -58,7 +54,7 @@ public class Satellite extends CelestialBody {
     }
 
     @Override
-    public AABB getHitbox() {
+    public AABB getBoundingBox() {
         return new AABB(coordinates.x - scale / 2, coordinates.y - scale / 2, coordinates.z - scale / 2, coordinates.x + scale / 2, coordinates.y + scale / 2, coordinates.z + scale / 2);
     }
 }

@@ -7,7 +7,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.util.INBTSerializable;
-import xyz.heroesunited.heroesunited.common.events.HUDataRegister;
+import xyz.heroesunited.heroesunited.common.events.HUDataRegisterEvent;
 import xyz.heroesunited.heroesunited.util.hudata.HUDataManager;
 
 public class HUDataCap implements IHUDataCap, INBTSerializable<CompoundTag> {
@@ -17,7 +17,7 @@ public class HUDataCap implements IHUDataCap, INBTSerializable<CompoundTag> {
 
     public HUDataCap(Entity entity) {
         this.dataManager = new HUDataManager();
-        MinecraftForge.EVENT_BUS.post(new HUDataRegister(entity, this.dataManager));
+        MinecraftForge.EVENT_BUS.post(new HUDataRegisterEvent(entity, this.dataManager));
     }
 
     public static IHUDataCap getCap(Entity entity) {

@@ -6,18 +6,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistryEntry;
-import net.minecraftforge.registries.IForgeRegistry;
 
 public class CelestialBody extends ForgeRegistryEntry<CelestialBody> {
-    public static IForgeRegistry<CelestialBody> CELESTIAL_BODIES;
-
     protected Vec3 coordinates;
-
 
     public CelestialBody(Vec3 coordinates) {
         this.coordinates = coordinates;
     }
-
 
     public Vec3 getCoordinates() {
         return coordinates;
@@ -37,7 +32,7 @@ public class CelestialBody extends ForgeRegistryEntry<CelestialBody> {
         return compound;
     }
 
-    public AABB getHitbox() {
+    public AABB getBoundingBox() {
         return new AABB(BlockPos.ZERO, BlockPos.ZERO);
     }
 

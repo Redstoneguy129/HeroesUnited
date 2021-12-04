@@ -26,7 +26,7 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerHorasPlayerSetDimension;
-import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
+import xyz.heroesunited.heroesunited.common.objects.entities.HorasEntity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,13 +63,13 @@ public class HorasScreen extends Screen {
     private final HashMap<HorasInfo.GhostInfo, LivingEntity> ghostInfoHUEntityHashMap = new HashMap<>();
     private final HashMap<HorasInfo.PlanetInfo, ResourceLocation> planetInfoHUEntityHashMap = new HashMap<>();
     private final HashMap<HorasInfo.DimensionInfo, ResourceLocation> dimensionInfoHUEntityHashMap = new HashMap<>();
-    private final Horas horas;
+    private final HorasEntity horas;
 
     private int xSize, ySize, x, y;
     private int alienMaxPages, evoMaxPages, ghostMaxPages, planetMaxPages, dimensionMaxPages;
     private TabEnum currentTab;
 
-    public HorasScreen(Horas horas) {
+    public HorasScreen(HorasEntity horas) {
         super(new TranslatableComponent("screen.heroesunited.horasscreen"));
         this.horas = horas;
     }

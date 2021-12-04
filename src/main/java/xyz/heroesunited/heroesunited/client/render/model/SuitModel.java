@@ -15,6 +15,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ArmorStand;
+import xyz.heroesunited.heroesunited.client.render.renderer.IHUModelPart;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 
 /**@TODO SIZE OF MODEL */
@@ -26,12 +27,13 @@ public class SuitModel<T extends LivingEntity> extends HumanoidModel<T> {
     public final ModelPart rightPants = this.rightLeg.getChild("right_pants");
     public final ModelPart jacket = this.body.getChild("jacket");
 
-    public SuitModel(Entity entity) {
-        this(HUClientUtil.getSuitModelPart(entity));
+    public SuitModel(Entity entity, float size) {
+        this(HUClientUtil.getSuitModelPart(entity), size);
     }
 
-    public SuitModel(ModelPart part) {
-        super(part, RenderType::entityTranslucent);
+    public SuitModel(ModelPart mainPart, float size) {
+        super(mainPart, RenderType::entityTranslucent);
+        mainPart.getAllParts().filter((p_170824_) -> !p_170824_.isEmpty()).forEach(part -> ((IHUModelPart) (Object) part).setSize(new CubeDeformation(size)));
     }
 
     public static MeshDefinition createMesh(CubeDeformation size, boolean slim) {

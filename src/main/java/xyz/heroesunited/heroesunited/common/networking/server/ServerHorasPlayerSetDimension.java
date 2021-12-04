@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.util.ITeleporter;
 import net.minecraftforge.network.NetworkEvent;
-import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
+import xyz.heroesunited.heroesunited.common.objects.entities.HorasEntity;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -40,7 +40,7 @@ public class ServerHorasPlayerSetDimension {
         ctx.get().enqueueWork(() -> {
             ServerPlayer playerEntity = ctx.get().getSender();
             if (playerEntity != null) {
-                Horas horas = (Horas) playerEntity.level.getEntity(horasID);
+                HorasEntity horas = (HorasEntity) playerEntity.level.getEntity(horasID);
                 final BlockPos[] horasPos = {new BlockPos(0, 0, 0)};
                 playerEntity.changeDimension(playerEntity.getCommandSenderWorld().getServer().getLevel(ResourceKey.create(Registry.DIMENSION_REGISTRY, this.world)), new ITeleporter() {
                     @Override

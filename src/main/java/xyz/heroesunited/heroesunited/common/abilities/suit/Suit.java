@@ -25,7 +25,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.GameData;
 import net.minecraftforge.registries.IForgeRegistry;
 import software.bernie.geckolib3.core.manager.AnimationData;
-import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
+import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 import xyz.heroesunited.heroesunited.client.render.model.SuitModel;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
@@ -103,7 +103,7 @@ public abstract class Suit {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void setRotationAngles(HUSetRotationAnglesEvent event, EquipmentSlot slot) {
+    public void setRotationAngles(SetupAnimEvent event, EquipmentSlot slot) {
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -134,7 +134,7 @@ public abstract class Suit {
 
     @OnlyIn(Dist.CLIENT)
     public HumanoidModel<?> getArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> _default) {
-        SuitModel<?> suitModel = new SuitModel<>(entity);
+        SuitModel<?> suitModel = new SuitModel<>(entity, getScale(slot));
         switch (slot) {
             case HEAD -> suitModel.hat.visible = suitModel.head.visible = true;
             case CHEST -> {
@@ -164,7 +164,7 @@ public abstract class Suit {
 
     @OnlyIn(Dist.CLIENT)
     public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side, ItemStack stack, SuitItem suitItem) {
-        SuitModel<AbstractClientPlayer> suitModel = new SuitModel<>(player);
+        SuitModel<AbstractClientPlayer> suitModel = new SuitModel<>(player, getScale(EquipmentSlot.CHEST));
         suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(suitItem.getArmorTexture(stack, player, suitItem.getSlot(), null)))), packedLightIn, renderer.getModel());
     }
 

@@ -14,14 +14,9 @@ import java.util.function.Function;
 public class Planet extends CelestialBody {
 
     public static final HashMap<ResourceKey<Level>, Planet> PLANETS_MAP = new HashMap<>();
-
     private final ResourceKey<Level> dimension;
-
+    private final float scale, speed;
     private final Star star;
-
-    private final float scale;
-
-    private final float speed;
 
     public Planet(ResourceKey<Level> dimension, Vec3 coordinates, float scale, float speed, Star star) {
         super(coordinates);
@@ -54,7 +49,6 @@ public class Planet extends CelestialBody {
                     @Override
                     public Entity placeEntity(Entity entity, ServerLevel currentWorld, ServerLevel destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
                         Entity repositionedEntity = repositionEntity.apply(false);
-
                         repositionedEntity.teleportTo(0, 9000, 0);
                         repositionedEntity.setNoGravity(false);
                         return repositionedEntity;
@@ -65,7 +59,6 @@ public class Planet extends CelestialBody {
                     @Override
                     public Entity placeEntity(Entity entity, ServerLevel currentWorld, ServerLevel destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
                         Entity repositionedEntity = repositionEntity.apply(false);
-
                         repositionedEntity.teleportTo(0, 9000, 0);
                         repositionedEntity.setNoGravity(false);
                         return repositionedEntity;
@@ -76,7 +69,7 @@ public class Planet extends CelestialBody {
     }
 
     @Override
-    public AABB getHitbox() {
+    public AABB getBoundingBox() {
         return new AABB(getCoordinates().x - scale / 2, getCoordinates().y - scale / 2, getCoordinates().z - scale / 2, getCoordinates().x + scale / 2, getCoordinates().y + scale / 2, getCoordinates().z + scale / 2);
     }
 

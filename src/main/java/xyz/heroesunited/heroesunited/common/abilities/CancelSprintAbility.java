@@ -1,6 +1,6 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
-import xyz.heroesunited.heroesunited.common.events.HUCancelSprinting;
+import xyz.heroesunited.heroesunited.common.events.EntitySprintingEvent;
 
 public class CancelSprintAbility extends JSONAbility {
 
@@ -9,7 +9,7 @@ public class CancelSprintAbility extends JSONAbility {
     }
 
     @Override
-    public void cancelSprinting(HUCancelSprinting event) {
+    public void cancelSprinting(EntitySprintingEvent event) {
         event.setCanceled(getEnabled());
     }
 }

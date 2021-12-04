@@ -18,7 +18,7 @@ import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
-import xyz.heroesunited.heroesunited.common.events.HUAbilityEvent;
+import xyz.heroesunited.heroesunited.common.events.AbilityEvent;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientDisableAbility;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientEnableAbility;
@@ -56,7 +56,7 @@ public class HUAbilityCap implements IHUAbilityCap {
     public void enable(String id) {
         if (!this.activeAbilities.containsKey(id)) {
             Ability ability = this.containedAbilities.get(id);
-            if (MinecraftForge.EVENT_BUS.post(new HUAbilityEvent.Enabled(this.player, ability))) return;
+            if (MinecraftForge.EVENT_BUS.post(new AbilityEvent.Enabled(this.player, ability))) return;
             this.activeAbilities.put(id, ability);
             ability.onActivated(player);
             if (!player.level.isClientSide)
@@ -67,7 +67,7 @@ public class HUAbilityCap implements IHUAbilityCap {
     @Override
     public void disable(String id) {
         if (this.activeAbilities.containsKey(id)) {
-            if (MinecraftForge.EVENT_BUS.post(new HUAbilityEvent.Disabled(this.player, this.activeAbilities.get(id)))) return;
+            if (MinecraftForge.EVENT_BUS.post(new AbilityEvent.Disabled(this.player, this.activeAbilities.get(id)))) return;
             this.containedAbilities.put(id, this.activeAbilities.get(id));
             this.containedAbilities.get(id).onDeactivated(player);
             this.activeAbilities.remove(id);
@@ -118,7 +118,7 @@ public class HUAbilityCap implements IHUAbilityCap {
     @Override
     public void onKeyInput(KeyMap map) {
         this.activeAbilities.forEach((name, ability) -> {
-            if (ability != null && !MinecraftForge.EVENT_BUS.post(new HUAbilityEvent.KeyInput(this.player, ability, map))) {
+            if (ability != null && !MinecraftForge.EVENT_BUS.post(new AbilityEvent.KeyInput(this.player, ability, map))) {
                 ability.onKeyInput(player, map);
             }
         });

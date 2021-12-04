@@ -8,7 +8,7 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderPlayerEvent;
-import xyz.heroesunited.heroesunited.client.events.HUSetRotationAnglesEvent;
+import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 
 public interface IAlwaysRenderer {
 
@@ -18,7 +18,7 @@ public interface IAlwaysRenderer {
     }
 
     @OnlyIn(Dist.CLIENT)
-    default void setAlwaysRotationAngles(HUSetRotationAnglesEvent event) {
+    default void setAlwaysRotationAngles(SetupAnimEvent event) {
 
     }
 

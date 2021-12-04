@@ -79,7 +79,7 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
             matrix.popPose();
             return;
         }
-        if (EquipmentAccessoriesSlot.getWristAccessories().contains(accessorySlot)) {
+        if (EquipmentAccessoriesSlot.wristAccessories().contains(accessorySlot)) {
             HumanoidArm side = slot == EquipmentAccessoriesSlot.LEFT_WRIST.getSlot() ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
             ItemTransforms.TransformType transformType = side == HumanoidArm.LEFT ? ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND : ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
             if (stack.getItem() == HUItems.FINN_ARM || stack.getItem() == HUItems.MADNESSCLAW) {

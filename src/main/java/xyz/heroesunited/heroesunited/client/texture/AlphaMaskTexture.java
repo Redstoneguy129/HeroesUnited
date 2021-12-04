@@ -78,4 +78,14 @@ public class AlphaMaskTexture extends SimpleTexture {
         TextureUtil.prepareImage(this.getId(), image.getWidth(), image.getHeight());
         image.upload(0, 0, 0, false);
     }
+
+    public static ResourceLocation getTexture(ResourceLocation base, ResourceLocation outputTex, ResourceLocation mask) {
+        ResourceLocation output = new ResourceLocation(outputTex.getNamespace(), String.format("%s_%d", outputTex.getPath(), mask.hashCode()));
+
+        if (!(Minecraft.getInstance().getTextureManager().getTexture(output) instanceof AlphaMaskTexture)) {
+            Minecraft.getInstance().getTextureManager().register(output, new AlphaMaskTexture(base, mask, outputTex));
+        }
+
+        return output;
+    }
 }

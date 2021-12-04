@@ -4,7 +4,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkEvent;
-import xyz.heroesunited.heroesunited.common.space.CelestialBody;
+import xyz.heroesunited.heroesunited.common.space.CelestialBodies;
 
 import java.util.function.Supplier;
 
@@ -29,9 +29,7 @@ public class ClientSyncCelestialBody {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            CelestialBody.CELESTIAL_BODIES.getValue(celestialBodyKey).readNBT(nbt);
-        });
+        ctx.get().enqueueWork(() -> CelestialBodies.REGISTRY.get().getValue(celestialBodyKey).readNBT(nbt));
         ctx.get().setPacketHandled(true);
     }
 }

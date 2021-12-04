@@ -36,12 +36,13 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
+    public boolean renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
         if (getEnabled()) {
             GeoAbilityRenderer<GeckoAbility> abilityRenderer = new GeoAbilityRenderer<>(this);
             abilityRenderer.setCurrentAbility(player, renderer.getModel());
             abilityRenderer.renderFirstPersonArm(renderer, matrix, bufferIn, packedLightIn, side);
         }
+        return super.renderFirstPersonArm(renderer, matrix, bufferIn, packedLightIn, player, side);
     }
 
     public void registerControllers(AnimationData data) {

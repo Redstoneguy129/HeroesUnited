@@ -9,10 +9,10 @@ import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
+import xyz.heroesunited.heroesunited.common.objects.entities.HorasEntity;
 
 @OnlyIn(Dist.CLIENT)
-public class HorasModel extends HumanoidModel<Horas> {
+public class HorasModel extends HumanoidModel<HorasEntity> {
     public HorasModel(ModelPart root) {
         super(root, RenderType::entityTranslucent);
     }
@@ -422,7 +422,7 @@ public class HorasModel extends HumanoidModel<Horas> {
     }
 
     @Override
-    public void setupAnim(Horas entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void setupAnim(HorasEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
     }
 
     @Override

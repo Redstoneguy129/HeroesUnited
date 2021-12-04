@@ -3,6 +3,7 @@ package xyz.heroesunited.heroesunited;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -22,7 +23,6 @@ import net.minecraftforge.client.gui.OverlayRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.AddPackFindersEvent;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -34,15 +34,15 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.RegistryBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib3.GeckoLib;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.IAnimatableModel;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import xyz.heroesunited.heroesunited.client.AbilityOverlay;
-import xyz.heroesunited.heroesunited.client.HUClientEventHandler;
+import xyz.heroesunited.heroesunited.client.ClientEventHandler;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
 import xyz.heroesunited.heroesunited.client.SpaceDimensionRenderInfo;
 import xyz.heroesunited.heroesunited.client.gui.AccessoriesScreen;
@@ -69,13 +69,11 @@ import xyz.heroesunited.heroesunited.common.objects.HUSounds;
 import xyz.heroesunited.heroesunited.common.objects.blocks.HUBlocks;
 import xyz.heroesunited.heroesunited.common.objects.container.HUContainers;
 import xyz.heroesunited.heroesunited.common.objects.entities.HUEntities;
-import xyz.heroesunited.heroesunited.common.objects.entities.Horas;
+import xyz.heroesunited.heroesunited.common.objects.entities.HorasEntity;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.space.CelestialBodies;
-import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
-import xyz.heroesunited.heroesunited.mixin.client.AccessorDimensionRenderInfo;
 import xyz.heroesunited.heroesunited.util.HUModelLayers;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
 
@@ -96,7 +94,7 @@ public class HeroesUnited {
         GeckoLib.initialize();
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             bus.addListener(this::clientSetup);
-            MinecraftForge.EVENT_BUS.register(new HUClientEventHandler());
+            MinecraftForge.EVENT_BUS.register(new ClientEventHandler());
         });
 
         HUPacks.init();
@@ -110,13 +108,14 @@ public class HeroesUnited {
         HUContainers.CONTAINERS.register(bus);
         AbilityType.ABILITY_TYPES.register(bus);
         Condition.CONDITIONS.register(bus);
+        CelestialBodies.CELESTIAL_BODIES.register(bus);
         //HUStructures.STRUCTURES.register(bus);
 
         MinecraftForge.EVENT_BUS.register(new HUEventHandler());
         MinecraftForge.EVENT_BUS.register(new HUPlayerEvent());
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, HUConfig.CLIENT_SPEC);
 
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> AccessorDimensionRenderInfo.getEffects().put(new ResourceLocation(MODID,"space"), new SpaceDimensionRenderInfo()));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> DimensionSpecialEffects.EFFECTS.put(new ResourceLocation(MODID,"space"), new SpaceDimensionRenderInfo()));
     }
 
     static {
@@ -210,11 +209,6 @@ public class HeroesUnited {
     }
 
     @SubscribeEvent
-    public void onRegisterNewRegistries(RegistryEvent.NewRegistry e) {
-        CelestialBody.CELESTIAL_BODIES = new RegistryBuilder<CelestialBody>().setName(new ResourceLocation(HeroesUnited.MODID, "celestial_bodies")).setType(CelestialBody.class).setIDRange(0, Integer.MAX_VALUE).create();
-    }
-
-    @SubscribeEvent
     public void addPackFinders(final AddPackFindersEvent event) {
         if (event.getPackType() == PackType.SERVER_DATA) {
             event.addRepositorySource(new HUPacks.HUPackFinder());
@@ -241,7 +235,7 @@ public class HeroesUnited {
 
     @SubscribeEvent
     public void entityAttribute(final EntityAttributeCreationEvent event) {
-        event.put(HUEntities.HORAS, Horas.createMobAttributes().build());
+        event.put(HUEntities.HORAS, HorasEntity.createMobAttributes().build());
     }
 
     @SubscribeEvent
@@ -259,7 +253,7 @@ public class HeroesUnited {
     }
 
     public static final CreativeModeTab ACCESSORIES = new CreativeModeTab(CreativeModeTab.TABS.length, "accessories") {
-
+        @NotNull
         @Override
         public ItemStack makeIcon() {
             return HUItems.BOBO_ACCESSORY.getDefaultInstance();

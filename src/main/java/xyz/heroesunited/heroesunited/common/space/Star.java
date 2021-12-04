@@ -5,18 +5,16 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public class Star extends CelestialBody {
-
-
-    private final AABB hitbox;
+    private final AABB boundingBox;
 
     public Star(Vec3 coordinates, float scale) {
         super(coordinates);
-        hitbox = new AABB(coordinates.x - scale / 2, coordinates.y - scale / 2, coordinates.z - scale / 2, coordinates.x + scale / 2, coordinates.y + scale / 2, coordinates.z + scale / 2);
+        this.boundingBox = new AABB(coordinates.x - scale / 2, coordinates.y - scale / 2, coordinates.z - scale / 2, coordinates.x + scale / 2, coordinates.y + scale / 2, coordinates.z + scale / 2);
     }
 
     @Override
-    public AABB getHitbox() {
-        return hitbox;
+    public AABB getBoundingBox() {
+        return boundingBox;
     }
 
     @Override

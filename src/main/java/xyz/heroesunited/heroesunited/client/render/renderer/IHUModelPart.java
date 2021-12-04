@@ -1,10 +1,12 @@
 package xyz.heroesunited.heroesunited.client.render.renderer;
 
-import com.mojang.math.Vector3f;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
 
 public interface IHUModelPart {
 
-    void setSize(Vector3f size);
+    void resetSize();
 
-    Vector3f getSize();
+    void setSize(CubeDeformation size);
+
+    CubeDeformation size();
 }
