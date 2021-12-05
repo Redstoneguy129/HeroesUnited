@@ -3,6 +3,7 @@ package xyz.heroesunited.heroesunited.common.abilities;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
@@ -41,8 +42,8 @@ public class HidePartsAbility extends JSONAbility {
     }
 
     @Override
-    public boolean renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
-        super.renderFirstPersonArm(renderer, matrix, bufferIn, packedLightIn, player, side);
+    public boolean renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
+        super.renderFirstPersonArm(modelSet, renderer, matrix, bufferIn, packedLightIn, player, side);
         if (getJsonObject().has("visibility_parts") && getEnabled()) {
             for (Map.Entry<String, JsonElement> entry : GsonHelper.getAsJsonObject(getJsonObject(), "visibility_parts").entrySet()) {
                 if (entry.getKey().equals("all")) {
@@ -50,6 +51,6 @@ public class HidePartsAbility extends JSONAbility {
                 }
             }
         }
-        return super.renderFirstPersonArm(renderer, matrix, bufferIn, packedLightIn, player, side);
+        return super.renderFirstPersonArm(modelSet, renderer, matrix, bufferIn, packedLightIn, player, side);
     }
 }

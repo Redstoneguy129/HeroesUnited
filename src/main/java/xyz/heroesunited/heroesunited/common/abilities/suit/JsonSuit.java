@@ -157,8 +157,8 @@ public class JsonSuit extends Suit {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void setRotationAngles(SetupAnimEvent event, EquipmentSlot slot) {
-        super.setRotationAngles(event, slot);
+    public void setupAnim(SetupAnimEvent event, EquipmentSlot slot) {
+        super.setupAnim(event, slot);
         if (jsonObject.has("visibility_parts")) {
             JsonObject overrides = GsonHelper.getAsJsonObject(jsonObject, "visibility_parts");
 

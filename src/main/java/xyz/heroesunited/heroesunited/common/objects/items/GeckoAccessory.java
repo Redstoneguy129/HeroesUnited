@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
@@ -24,7 +25,7 @@ import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.core.processor.IBone;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.util.GeoUtils;
-import xyz.heroesunited.heroesunited.client.render.renderer.GeckoAccessoryRenderer;
+import xyz.heroesunited.heroesunited.client.renderer.GeckoAccessoryRenderer;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 
 import java.util.function.Consumer;
@@ -68,7 +69,7 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void render(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {
+    public void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {
         if (stack.getItem() == HUItems.HOKAGE_CAPE) {
             matrix.pushPose();
             matrix.translate(0.0D, 24 / 16F, 0.0D);

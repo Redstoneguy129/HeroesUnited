@@ -3,6 +3,7 @@ package xyz.heroesunited.heroesunited.mixin.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.LoadingOverlay;
+import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -19,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import xyz.heroesunited.heroesunited.client.events.RenderLayerEvent;
 import xyz.heroesunited.heroesunited.client.events.RenderPlayerHandEvent;
-import xyz.heroesunited.heroesunited.client.render.model.SuitModel;
+import xyz.heroesunited.heroesunited.client.model.SuitModel;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
@@ -50,6 +51,7 @@ public abstract class PlayerRendererMixin {
         PlayerRenderer playerRenderer = ((PlayerRenderer) (Object) this);
         HumanoidArm side = rendererArmIn == playerRenderer.getModel().rightArm ? HumanoidArm.RIGHT : HumanoidArm.LEFT;
         boolean renderArm = true;
+        EntityModelSet modelSet = Minecraft.getInstance().getEntityModels();
         MinecraftForge.EVENT_BUS.post(new RenderPlayerHandEvent.Post(player, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, side));
 
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
@@ -60,7 +62,7 @@ public abstract class PlayerRendererMixin {
             }
         });
         for (Ability ability : AbilityHelper.getAbilities(player)) {
-            if (!ability.renderFirstPersonArm(playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side)) {
+            if (!ability.renderFirstPersonArm(modelSet, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side)) {
                 renderArm = false;
                 break;
             }
@@ -79,14 +81,14 @@ public abstract class PlayerRendererMixin {
                 ItemStack stack = player.getItemBySlot(equipmentSlot);
                 if (stack.getItem() instanceof SuitItem suitItem) {
                     if (suitItem.getSlot().equals(equipmentSlot)) {
-                        suitItem.renderFirstPersonArm(playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side, stack);
+                        suitItem.renderFirstPersonArm(modelSet, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side, stack);
                     }
                 }
             }
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                 for (int slot = 0; slot < cap.getInventory().getContainerSize(); ++slot) {
                     ItemStack stack = cap.getInventory().getItem(slot);
-                    if (stack != null && stack.getItem() instanceof IAccessory accessory && !MinecraftForge.EVENT_BUS.post(new RenderLayerEvent.Accessories(playerRenderer, player, matrixStackIn, bufferIn, combinedLightIn, 0, 0, 0, 0, 0, 0))) {
+                    if (stack != null && stack.getItem() instanceof IAccessory accessory && !MinecraftForge.EVENT_BUS.post(new RenderLayerEvent.Accessories(Minecraft.getInstance().getEntityModels(), playerRenderer, player, matrixStackIn, bufferIn, combinedLightIn, 0, 0, 0, 0, 0, 0))) {
                         boolean shouldRender = true;
                         for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
                             SuitItem item = Suit.getSuitItem(equipmentSlot, player);
@@ -102,9 +104,9 @@ public abstract class PlayerRendererMixin {
                             }
                             if (accessory.renderDefaultModel()) {
                                 SuitModel<AbstractClientPlayer> suitModel = new SuitModel<>(player, accessory.getScale(stack));
-                                suitModel.renderArm(side, matrixStackIn, bufferIn.getBuffer(RenderType.entityTranslucent(accessory.getTexture(stack, player, EquipmentAccessoriesSlot.getFromSlotIndex(slot)))), combinedLightIn, playerRenderer.getModel());
+                                suitModel.renderArm(modelSet, side, matrixStackIn, bufferIn.getBuffer(RenderType.entityTranslucent(accessory.getTexture(stack, player, EquipmentAccessoriesSlot.getFromSlotIndex(slot)))), combinedLightIn, playerRenderer.getModel());
                             } else {
-                                accessory.renderFirstPersonArm(playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side, stack, slot);
+                                accessory.renderFirstPersonArm(modelSet, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side, stack, slot);
                             }
                         }
                     }

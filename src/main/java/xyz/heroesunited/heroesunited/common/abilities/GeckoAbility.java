@@ -2,9 +2,11 @@ package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
@@ -14,8 +16,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
-import xyz.heroesunited.heroesunited.client.render.renderer.GeoAbilityRenderer;
-import xyz.heroesunited.heroesunited.client.render.renderer.IGeoAbility;
+import xyz.heroesunited.heroesunited.client.renderer.GeoAbilityRenderer;
+import xyz.heroesunited.heroesunited.client.renderer.IGeoAbility;
 
 public class GeckoAbility extends JSONAbility implements IGeoAbility {
     protected final AnimationFactory factory = new AnimationFactory(this);
@@ -26,7 +28,7 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void render(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         if (getEnabled()) {
             GeoAbilityRenderer<GeckoAbility> abilityRenderer = new GeoAbilityRenderer<>(this);
             abilityRenderer.setCurrentAbility(player, renderer.getModel());
@@ -36,13 +38,13 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public boolean renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
+    public boolean renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
         if (getEnabled()) {
             GeoAbilityRenderer<GeckoAbility> abilityRenderer = new GeoAbilityRenderer<>(this);
             abilityRenderer.setCurrentAbility(player, renderer.getModel());
             abilityRenderer.renderFirstPersonArm(renderer, matrix, bufferIn, packedLightIn, side);
         }
-        return super.renderFirstPersonArm(renderer, matrix, bufferIn, packedLightIn, player, side);
+        return super.renderFirstPersonArm(modelSet, renderer, matrix, bufferIn, packedLightIn, player, side);
     }
 
     public void registerControllers(AnimationData data) {

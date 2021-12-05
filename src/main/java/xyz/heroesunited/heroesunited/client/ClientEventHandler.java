@@ -15,7 +15,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.*;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
@@ -44,9 +43,8 @@ import software.bernie.geckolib3.geo.render.built.GeoBone;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.*;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
-import xyz.heroesunited.heroesunited.client.render.HULayerRenderer;
-import xyz.heroesunited.heroesunited.client.render.renderer.IHUModelPart;
-import xyz.heroesunited.heroesunited.client.render.renderer.space.CelestialBodyRenderer;
+import xyz.heroesunited.heroesunited.client.renderer.IHUModelPart;
+import xyz.heroesunited.heroesunited.client.renderer.space.CelestialBodyRenderer;
 import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
@@ -74,7 +72,6 @@ public class ClientEventHandler {
     public static final KeyMapping ABILITIES_SCREEN = new KeyMapping(HeroesUnited.MODID + ".key.abilities_screen", GLFW.GLFW_KEY_H, "key.categories." + HeroesUnited.MODID);
     public static final KeyMapping ACCESSORIES_SCREEN = new KeyMapping(HeroesUnited.MODID + ".key.accessories_screen", GLFW.GLFW_KEY_J, "key.categories." + HeroesUnited.MODID);
     public static final List<AbilityKeyBinding> ABILITY_KEYS = new ArrayList<>();
-    private final ArrayList<LivingEntityRenderer> entitiesWithLayer = new ArrayList<>();
     public static final KeyMap KEY_MAP = new KeyMap();
 
     public ClientEventHandler() {
@@ -208,9 +205,6 @@ public class ClientEventHandler {
             }
             event.getPoseStack().scale(0.01F, 0.01F, 0.01F);
         }
-        if (entitiesWithLayer.contains(event.getRenderer())) return;
-        event.getRenderer().addLayer(new HULayerRenderer(event.getRenderer()));
-        entitiesWithLayer.add(event.getRenderer());
     }
 
     @SubscribeEvent
@@ -219,7 +213,6 @@ public class ClientEventHandler {
             event.getPoseStack().popPose();
         }
     }
-
 
     @SubscribeEvent
     public void renderShadowSize(ChangeShadowSizeEvent event) {
@@ -357,7 +350,7 @@ public class ClientEventHandler {
         for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
             SuitItem suitItem = Suit.getSuitItem(equipmentSlot, player);
             if (suitItem != null) {
-                suitItem.getSuit().setRotationAngles(event, equipmentSlot);
+                suitItem.getSuit().setupAnim(event, equipmentSlot);
             }
         }
 
@@ -437,14 +430,14 @@ public class ClientEventHandler {
     @SubscribeEvent
     public void renderPlayerHandPost(RenderPlayerHandEvent.Post event) {
         for (IAlwaysRenderer ability : AbilityHelper.getListOfType(AbilityHelper.getAbilityMap(event.getPlayer()).values(), IAlwaysRenderer.class)) {
-            ability.renderAlwaysFirstPersonArm(event.getRenderer(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), event.getPlayer(), event.getSide());
+            ability.renderAlwaysFirstPersonArm(Minecraft.getInstance().getEntityModels(), event.getRenderer(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), event.getPlayer(), event.getSide());
         }
     }
 
     @SubscribeEvent
     public void renderPlayerLayers(RenderLayerEvent.Player event) {
         for (IAlwaysRenderer ability : AbilityHelper.getListOfType(AbilityHelper.getAbilityMap(event.getPlayer()).values(), IAlwaysRenderer.class)) {
-            ability.renderAlways(event.getRenderer(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), event.getPlayer(), event.getLimbSwing(), event.getLimbSwingAmount(), event.getPartialTicks(), event.getAgeInTicks(), event.getNetHeadYaw(), event.getHeadPitch());
+            ability.renderAlways(event.getContext(), event.getRenderer(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), event.getPlayer(), event.getLimbSwing(), event.getLimbSwingAmount(), event.getPartialTicks(), event.getAgeInTicks(), event.getNetHeadYaw(), event.getHeadPitch());
         }
     }
 
@@ -499,7 +492,7 @@ public class ClientEventHandler {
             if (stack.getItem() instanceof SuitItem suitItem) {
                 if (suitItem.getSlot().equals(equipmentSlot)) {
                     if (suitItem.renderWithoutArm()) {
-                        suitItem.renderFirstPersonArm(null, event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), player, player.getMainArm(), stack);
+                        suitItem.renderFirstPersonArm(Minecraft.getInstance().getEntityModels(), null, event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), player, player.getMainArm(), stack);
                     }
                 }
             }

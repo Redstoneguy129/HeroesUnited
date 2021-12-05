@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
-import xyz.heroesunited.heroesunited.client.render.renderer.IPlayerModel;
+import xyz.heroesunited.heroesunited.client.renderer.IPlayerModel;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
 

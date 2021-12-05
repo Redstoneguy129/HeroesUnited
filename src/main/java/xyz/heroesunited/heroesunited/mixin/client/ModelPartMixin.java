@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xyz.heroesunited.heroesunited.client.render.renderer.IHUModelPart;
+import xyz.heroesunited.heroesunited.client.renderer.IHUModelPart;
 
 @Mixin(ModelPart.class)
 public class ModelPartMixin implements IHUModelPart {

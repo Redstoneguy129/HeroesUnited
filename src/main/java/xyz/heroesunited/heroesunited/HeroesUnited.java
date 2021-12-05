@@ -46,15 +46,15 @@ import xyz.heroesunited.heroesunited.client.ClientEventHandler;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
 import xyz.heroesunited.heroesunited.client.SpaceDimensionRenderInfo;
 import xyz.heroesunited.heroesunited.client.gui.AccessoriesScreen;
-import xyz.heroesunited.heroesunited.client.render.model.CapeModel;
-import xyz.heroesunited.heroesunited.client.render.model.HorasModel;
-import xyz.heroesunited.heroesunited.client.render.model.ParachuteModel;
-import xyz.heroesunited.heroesunited.client.render.model.SuitModel;
-import xyz.heroesunited.heroesunited.client.render.model.space.*;
-import xyz.heroesunited.heroesunited.client.render.renderer.*;
-import xyz.heroesunited.heroesunited.client.render.renderer.space.*;
+import xyz.heroesunited.heroesunited.client.model.CapeModel;
+import xyz.heroesunited.heroesunited.client.model.HorasModel;
+import xyz.heroesunited.heroesunited.client.model.ParachuteModel;
+import xyz.heroesunited.heroesunited.client.model.SuitModel;
+import xyz.heroesunited.heroesunited.client.model.space.*;
+import xyz.heroesunited.heroesunited.client.renderer.*;
+import xyz.heroesunited.heroesunited.client.renderer.space.*;
+import xyz.heroesunited.heroesunited.common.EventHandler;
 import xyz.heroesunited.heroesunited.common.HUConfig;
-import xyz.heroesunited.heroesunited.common.HUEventHandler;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.Condition;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
@@ -111,7 +111,7 @@ public class HeroesUnited {
         CelestialBodies.CELESTIAL_BODIES.register(bus);
         //HUStructures.STRUCTURES.register(bus);
 
-        MinecraftForge.EVENT_BUS.register(new HUEventHandler());
+        MinecraftForge.EVENT_BUS.register(new EventHandler());
         MinecraftForge.EVENT_BUS.register(new HUPlayerEvent());
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, HUConfig.CLIENT_SPEC);
 

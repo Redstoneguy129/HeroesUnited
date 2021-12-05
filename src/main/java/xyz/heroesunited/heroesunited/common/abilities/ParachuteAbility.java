@@ -1,10 +1,10 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
@@ -14,7 +14,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
-import xyz.heroesunited.heroesunited.client.render.model.ParachuteModel;
+import xyz.heroesunited.heroesunited.client.model.ParachuteModel;
 import xyz.heroesunited.heroesunited.util.HUModelLayers;
 
 import java.util.Map;
@@ -52,9 +52,9 @@ public class ParachuteAbility extends JSONAbility {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void render(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         if (usingParachute(player))
-            new ParachuteModel(Minecraft.getInstance().getEntityModels().bakeLayer(HUModelLayers.PARACHUTE)).renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(HeroesUnited.MODID, "textures/suits/parachute.png"))), packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+            new ParachuteModel(context.bakeLayer(HUModelLayers.PARACHUTE)).renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(HeroesUnited.MODID, "textures/suits/parachute.png"))), packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
     }
 
     @OnlyIn(Dist.CLIENT)

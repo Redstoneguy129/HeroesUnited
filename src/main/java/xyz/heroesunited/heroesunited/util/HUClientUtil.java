@@ -38,7 +38,7 @@ import software.bernie.geckolib3.geo.render.built.GeoQuad;
 import software.bernie.geckolib3.geo.render.built.GeoVertex;
 import software.bernie.geckolib3.util.RenderUtils;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.client.render.model.CapeModel;
+import xyz.heroesunited.heroesunited.client.model.CapeModel;
 import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 

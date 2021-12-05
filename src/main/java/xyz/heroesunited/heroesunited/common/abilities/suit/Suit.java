@@ -3,9 +3,11 @@ package xyz.heroesunited.heroesunited.common.abilities.suit;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -26,7 +28,7 @@ import net.minecraftforge.registries.GameData;
 import net.minecraftforge.registries.IForgeRegistry;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
-import xyz.heroesunited.heroesunited.client.render.model.SuitModel;
+import xyz.heroesunited.heroesunited.client.model.SuitModel;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
@@ -103,11 +105,11 @@ public abstract class Suit {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void setRotationAngles(SetupAnimEvent event, EquipmentSlot slot) {
+    public void setupAnim(SetupAnimEvent event, EquipmentSlot slot) {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderLayer(LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> entityRenderer, LivingEntity entity, ItemStack stack, EquipmentSlot slot, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void renderLayer(EntityRendererProvider.Context context, LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> entityRenderer, LivingEntity entity, ItemStack stack, EquipmentSlot slot, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         HUPackLayers.Layer layer = HUPackLayers.getInstance().getLayer(this.getRegistryName());
         if (layer != null) {
             if (layer.getTexture("cape") != null && slot.equals(EquipmentSlot.CHEST)) {
@@ -163,9 +165,9 @@ public abstract class Suit {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side, ItemStack stack, SuitItem suitItem) {
+    public void renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side, ItemStack stack, SuitItem suitItem) {
         SuitModel<AbstractClientPlayer> suitModel = new SuitModel<>(player, getScale(EquipmentSlot.CHEST));
-        suitModel.renderArm(side, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(suitItem.getArmorTexture(stack, player, suitItem.getSlot(), null)))), packedLightIn, renderer.getModel());
+        suitModel.renderArm(modelSet, side, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(suitItem.getArmorTexture(stack, player, suitItem.getSlot(), null)))), packedLightIn, renderer.getModel());
     }
 
     public final void setRegistryName(ResourceLocation name) {

@@ -68,14 +68,14 @@ public class Condition extends ForgeRegistryEntry<Condition> {
             if (c.jsonObject().has("filter")) {
                 if (list.contains(c.ability().name)) {
                     for (String id : list) {
-                        if (!c.ability().name.equals(id) && !AbilityHelper.isActivated(id, c.player())) {
+                        if (!c.ability().name.equals(id) && AbilityHelper.isActivated(id, c.player())) {
                             return false;
                         }
                     }
                 }
             } else {
                 for (String id : list) {
-                    if (!c.ability().name.equals(id) && !AbilityHelper.isActivated(id, c.player())) {
+                    if (!c.ability().name.equals(id) && AbilityHelper.isActivated(id, c.player())) {
                         return false;
                     }
                 }
@@ -120,7 +120,7 @@ public class Condition extends ForgeRegistryEntry<Condition> {
                 if (list.contains(c.ability().name)) {
                     for (String id : list) {
                         Ability a = AbilityHelper.getActiveAbilityMap(c.player()).get(id);
-                        if (a != null && !c.ability().name.equals(a.name) && !a.getEnabled()) {
+                        if (a != null && !c.ability().name.equals(a.name) && a.getEnabled()) {
                             return false;
                         }
                     }
@@ -128,7 +128,7 @@ public class Condition extends ForgeRegistryEntry<Condition> {
             } else {
                 for (String id : list) {
                     Ability a = AbilityHelper.getActiveAbilityMap(c.player()).get(id);
-                    if (a != null && !c.ability().name.equals(a.name) && !a.getEnabled()) {
+                    if (a != null && !c.ability().name.equals(a.name) && a.getEnabled()) {
                         return false;
                     }
                 }

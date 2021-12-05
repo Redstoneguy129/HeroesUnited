@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -118,7 +119,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side, ItemStack stack) {
+    public void renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side, ItemStack stack) {
         if (getSlot() != EquipmentSlot.CHEST) return;
         try {
             GeoArmorRenderer geo = getArmorRenderer();
@@ -172,7 +173,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
             matrix.translate(0.0D, -1.5F, 0.0D);
             matrix.popPose();
         } catch (GeckoLibException | IllegalArgumentException e) {
-            getSuit().renderFirstPersonArm(renderer, matrix, bufferIn, packedLightIn, player, side, stack, this);
+            getSuit().renderFirstPersonArm(modelSet, renderer, matrix, bufferIn, packedLightIn, player, side, stack, this);
         }
     }
 

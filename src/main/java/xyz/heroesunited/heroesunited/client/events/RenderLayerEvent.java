@@ -4,8 +4,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -88,8 +90,15 @@ public abstract class RenderLayerEvent<T extends LivingEntity, M extends EntityM
     @Cancelable
     public static class Accessories extends RenderLayerEvent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
-        public Accessories(PlayerRenderer renderer, AbstractClientPlayer player, PoseStack matrixStack, MultiBufferSource bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+        private final EntityModelSet modelSet;
+
+        public Accessories(EntityModelSet modelSet, PlayerRenderer renderer, AbstractClientPlayer player, PoseStack matrixStack, MultiBufferSource bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
             super(renderer, player, matrixStack, bufferIn, packedLightIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+            this.modelSet = modelSet;
+        }
+
+        public EntityModelSet getModelSet() {
+            return modelSet;
         }
 
         @Override
@@ -104,8 +113,15 @@ public abstract class RenderLayerEvent<T extends LivingEntity, M extends EntityM
 
     public static class Player extends RenderLayerEvent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
-        public Player(PlayerRenderer renderer, AbstractClientPlayer player, PoseStack matrixStack, MultiBufferSource bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+        private final EntityRendererProvider.Context context;
+
+        public Player(EntityRendererProvider.Context context, PlayerRenderer renderer, AbstractClientPlayer player, PoseStack matrixStack, MultiBufferSource bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
             super(renderer, player, matrixStack, bufferIn, packedLightIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+            this.context = context;
+        }
+
+        public EntityRendererProvider.Context getContext() {
+            return context;
         }
 
         @Override
