@@ -21,6 +21,7 @@ import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
+import xyz.heroesunited.heroesunited.common.capabilities.ability.IHUAbilityCap;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
@@ -133,8 +134,11 @@ public class HUCoreCommand {
 
     private static int disableAbility(CommandSourceStack commandSource, Collection<ServerPlayer> players) {
         for (ServerPlayer player : players) {
-            HUAbilityCap.getCap(player).clearAbilities();
-            HUAbilityCap.getCap(player).syncToAll();
+            IHUAbilityCap cap = HUAbilityCap.getCap(player);
+            if (cap != null) {
+                cap.clearAbilities();
+                cap.syncToAll();
+            }
         }
         commandSource.sendSuccess(new TranslatableComponent("commands.heroesunited.ability.disabled"), true);
 

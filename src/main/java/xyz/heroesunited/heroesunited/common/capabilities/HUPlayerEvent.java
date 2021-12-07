@@ -36,14 +36,17 @@ public class HUPlayerEvent {
 
     @SubscribeEvent
     public void clonePlayer(PlayerEvent.Clone event) {
-        HUPlayer.getCap(event.getPlayer()).copy(HUPlayer.getCap(event.getOriginal()));
-        HUAbilityCap.getCap(event.getPlayer()).copy(HUAbilityCap.getCap(event.getOriginal()));
+        if (event.isWasDeath()) {
+            event.getOriginal().reviveCaps();
+            HUPlayer.getCap(event.getPlayer()).copy(HUPlayer.getCap(event.getOriginal()));
+            HUAbilityCap.getCap(event.getPlayer()).copy(HUAbilityCap.getCap(event.getOriginal()));
+            event.getOriginal().invalidateCaps();
+        }
     }
 
     @SubscribeEvent
     public void onPlayerDeath(LivingDropsEvent event) {
-        if (event.getEntityLiving() instanceof Player && !event.getEntityLiving().level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
-            Player player = (Player) event.getEntityLiving();
+        if (event.getEntityLiving() instanceof Player player && !event.getEntityLiving().level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
                 NonNullList<ItemStack> list = a.getInventory().getItems();
                 for (int i = 0; i < list.size(); ++i) {

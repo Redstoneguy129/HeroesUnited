@@ -44,9 +44,7 @@ public interface IHUAbilityCap extends INBTSerializable<CompoundTag> {
     }
 
     default void clearAbilities() {
-        for (Ability a : new ArrayList<>(getAbilities().values())) {
-            removeAbility(a.name);
-        }
+        this.clearAbilities((a) -> true);
     }
 
     IHUAbilityCap copy(IHUAbilityCap IHUAbilityCap);
