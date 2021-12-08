@@ -2,38 +2,20 @@ package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.model.geom.EntityModelSet;
-import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.MovementInputUpdateEvent;
-import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.registries.ForgeRegistries;
-import xyz.heroesunited.heroesunited.client.events.RendererChangeEvent;
-import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.events.EntitySprintingEvent;
-import xyz.heroesunited.heroesunited.common.events.RegisterPlayerControllerEvent;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbility;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityCreators;
@@ -44,6 +26,7 @@ import xyz.heroesunited.heroesunited.util.hudata.HUDataManager;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public abstract class Ability implements INBTSerializable<CompoundTag> {
 
@@ -53,9 +36,20 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
     protected JsonObject jsonObject;
     protected final HUDataManager dataManager = new HUDataManager();
     protected final JsonConditionManager conditionManager = new JsonConditionManager(this);
+    private IAbilityClientProperties clientProperties;
 
     public Ability(AbilityType type) {
         this.type = type;
+        if (FMLEnvironment.dist == Dist.CLIENT && !FMLLoader.getLaunchHandler().isData()) {
+            initializeClient(properties -> this.clientProperties = properties);
+        }
+    }
+
+    public IAbilityClientProperties getClientProperties() {
+        return clientProperties != null ? this.clientProperties : IAbilityClientProperties.DUMMY;
+    }
+
+    public void initializeClient(Consumer<IAbilityClientProperties> consumer) {
     }
 
     public HUDataManager getDataManager() {
@@ -106,62 +100,6 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
             return GsonHelper.getAsInt(GsonHelper.getAsJsonObject(this.getJsonObject(), "key"), "id");
         }
         return 0;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void inputUpdate(MovementInputUpdateEvent event) {
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void registerPlayerControllers(RegisterPlayerControllerEvent event) {
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void setupAnim(SetupAnimEvent event) {
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void renderPlayerPre(RenderPlayerEvent.Pre event) {
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void renderPlayerPost(RenderPlayerEvent.Post event) {
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public boolean renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
-        return true;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void rendererChange(RendererChangeEvent event) {
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void drawIcon(PoseStack stack, int x, int y) {
-        Minecraft.getInstance().getItemRenderer().blitOffset -= 100f;
-        if (getJsonObject() != null && getJsonObject().has("icon")) {
-            JsonObject icon = getJsonObject().getAsJsonObject("icon");
-            String type = GsonHelper.getAsString(icon, "type");
-            if (type.equals("texture")) {
-                ResourceLocation texture = new ResourceLocation(GsonHelper.getAsString(icon, "texture"));
-                int width = GsonHelper.getAsInt(icon, "width", 16);
-                int height = GsonHelper.getAsInt(icon, "height", 16);
-                int textureWidth = GsonHelper.getAsInt(icon, "texture_width", 256);
-                int textureHeight = GsonHelper.getAsInt(icon, "texture_height", 256);
-                RenderSystem.setShaderTexture(0, texture);
-                GuiComponent.blit(stack, x, y, GsonHelper.getAsInt(icon, "u", 0), GsonHelper.getAsInt(icon, "v", 0), width, height, textureWidth, textureHeight);
-            } else if (type.equals("item")) {
-                Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(GsonHelper.getAsString(icon, "item")))), x, y);
-            }
-        } else {
-            Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(new ItemStack(Items.APPLE), x, y);
-        }
-        Minecraft.getInstance().getItemRenderer().blitOffset += 100f;
     }
 
     @Override

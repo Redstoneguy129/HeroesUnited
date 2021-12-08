@@ -10,14 +10,13 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 import java.awt.*;
+import java.util.function.Consumer;
 
 public class EnergyLaserAbility extends JSONAbility {
 
@@ -33,33 +32,35 @@ public class EnergyLaserAbility extends JSONAbility {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
-    public void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        super.render(context, renderer, matrix, bufferIn, packedLightIn, player, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
-        if (getEnabled()) {
-            Color color = HUJsonUtils.getColor(getJsonObject());
-            double distance = player.position().add(0, player.getEyeHeight(), 0).distanceTo(player.getLookAngle().scale(GsonHelper.getAsFloat(getJsonObject(), "distance", 20)));
-            AABB box = new AABB(0, 0, 0, 0, distance, 0);
-            matrix.pushPose();
-            renderer.getModel().translateToHand(isLeftArm(player) ? HumanoidArm.LEFT : HumanoidArm.RIGHT, matrix);
-            matrix.translate(isLeftArm(player) ? 0.0625D : -0.0625D, 0, 0);
-            HUClientUtil.renderFilledBox(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.0625D / 2), 1F, 1F, 1F, 1F, packedLightIn);
-            HUClientUtil.renderFilledBox(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.0625D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, packedLightIn);
-            matrix.popPose();
-        }
-    }
+    public void initializeClient(Consumer<IAbilityClientProperties> consumer) {
+        super.initializeClient(consumer);
+        consumer.accept(new IAbilityClientProperties() {
+            @Override
+            public void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+                if (getEnabled()) {
+                    Color color = HUJsonUtils.getColor(getJsonObject());
+                    double distance = player.position().add(0, player.getEyeHeight(), 0).distanceTo(player.getLookAngle().scale(GsonHelper.getAsFloat(getJsonObject(), "distance", 20)));
+                    AABB box = new AABB(0, 0, 0, 0, distance, 0);
+                    matrix.pushPose();
+                    renderer.getModel().translateToHand(isLeftArm(player) ? HumanoidArm.LEFT : HumanoidArm.RIGHT, matrix);
+                    matrix.translate(isLeftArm(player) ? 0.0625D : -0.0625D, 0, 0);
+                    HUClientUtil.renderFilledBox(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.0625D / 2), 1F, 1F, 1F, 1F, packedLightIn);
+                    HUClientUtil.renderFilledBox(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.0625D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, packedLightIn);
+                    matrix.popPose();
+                }
+            }
 
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public void setupAnim(SetupAnimEvent event) {
-        super.setupAnim(event);
-        if (getEnabled()) {
-            ModelPart modelArm = isLeftArm(event.getPlayer()) ? event.getPlayerModel().leftArm : event.getPlayerModel().rightArm;
-            modelArm.xRot = (float) Math.toRadians(event.getPlayer().getXRot() - 90);
-            modelArm.yRot = event.getPlayerModel().head.yRot;
-            modelArm.zRot = 0;
-        }
+            @Override
+            public void setupAnim(SetupAnimEvent event) {
+                if (getEnabled()) {
+                    ModelPart modelArm = isLeftArm(event.getPlayer()) ? event.getPlayerModel().leftArm : event.getPlayerModel().rightArm;
+                    modelArm.xRot = (float) Math.toRadians(event.getPlayer().getXRot() - 90);
+                    modelArm.yRot = event.getPlayerModel().head.yRot;
+                    modelArm.zRot = 0;
+                }
+            }
+        });
     }
 
     public boolean isLeftArm(Player player) {

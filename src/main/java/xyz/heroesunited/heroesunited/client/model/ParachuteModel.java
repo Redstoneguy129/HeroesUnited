@@ -26,10 +26,10 @@ public class ParachuteModel extends Model {
                 .texOffs(0, 0).addBox(-15.4266F, -42.0659F, -13.0405F, 31.0F, 1.0F, 35.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
         parachute.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(0, 91).mirror().addBox(-11.0F, -1.0F, -0.725F, 12.0F, 1.0F, 35.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offsetAndRotation(23.3572F, -34.2292F, -12.3155F, 0.0F, 0.0F, 0.6981F));
         parachute.addOrReplaceChild("cube_r2", CubeListBuilder.create().texOffs(0, 91).addBox(-1.0F, -1.0F, -0.725F, 12.0F, 1.0F, 35.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-23.3572F, -34.2292F, -12.3155F, 0.0F, 0.0F, -0.6981F));
-        parachute.addOrReplaceChild("cube_r3", CubeListBuilder.create().texOffs(0, 0).addBox(0.25F, -44.0F, 0.0F, 0.0F, 44.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(3.0F, 1.2F, 4.65F, -0.7418F, 0.9599F, -0.1047F));
-        parachute.addOrReplaceChild("cube_r4", CubeListBuilder.create().texOffs(0, 0).mirror().addBox(0.0F, -44.0F, 0.0F, 0.0F, 44.0F, 0.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offsetAndRotation(-3.0F, 1.2F, 4.65F, -0.7418F, -0.9599F, 0.1047F));
-        parachute.addOrReplaceChild("cube_r5", CubeListBuilder.create().texOffs(0, 0).addBox(0.25F, -42.0F, -0.25F, 0.0F, 42.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(2.95F, -0.475F, 2.35F, 0.6545F, -0.9599F, 0.0F));
-        parachute.addOrReplaceChild("cube_r6", CubeListBuilder.create().texOffs(0, 0).mirror().addBox(0.0F, -42.0F, -0.25F, 0.0F, 42.0F, 0.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offsetAndRotation(-2.95F, -0.475F, 2.35F, 0.6545F, 0.9599F, 0.0F));
+        parachute.addOrReplaceChild("cube_r3", CubeListBuilder.create().texOffs(0, 0).addBox(0.25F, -44.0F, 0.0F, 0.0F, 44.0F, 0.0F, new CubeDeformation(0.1F)), PartPose.offsetAndRotation(3.0F, 1.2F, 4.65F, -0.7418F, 0.9599F, -0.1047F));
+        parachute.addOrReplaceChild("cube_r4", CubeListBuilder.create().texOffs(0, 0).mirror().addBox(0.0F, -44.0F, 0.0F, 0.0F, 44.0F, 0.0F, new CubeDeformation(0.1F)).mirror(false), PartPose.offsetAndRotation(-3.0F, 1.2F, 4.65F, -0.7418F, -0.9599F, 0.1047F));
+        parachute.addOrReplaceChild("cube_r5", CubeListBuilder.create().texOffs(0, 0).addBox(0.25F, -42.0F, -0.25F, 0.0F, 42.0F, 0.0F, new CubeDeformation(0.1F)), PartPose.offsetAndRotation(2.95F, -0.475F, 2.35F, 0.6545F, -0.9599F, 0.0F));
+        parachute.addOrReplaceChild("cube_r6", CubeListBuilder.create().texOffs(0, 0).mirror().addBox(0.0F, -42.0F, -0.25F, 0.0F, 42.0F, 0.0F, new CubeDeformation(0.1F)).mirror(false), PartPose.offsetAndRotation(-2.95F, -0.475F, 2.35F, 0.6545F, 0.9599F, 0.0F));
         return LayerDefinition.create(mesh, 140, 128);
     }
 

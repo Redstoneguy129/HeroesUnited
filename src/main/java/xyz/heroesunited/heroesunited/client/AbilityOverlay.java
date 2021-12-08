@@ -48,7 +48,7 @@ public class AbilityOverlay implements IIngameOverlay {
 
                     mStack.pushPose();
                     mStack.translate(0, 0, 500D);
-                    ability.drawIcon(mStack, 3, abilityY);
+                    ability.getClientProperties().drawIcon(mStack, ability.getJsonObject(), 3, abilityY);
                     mStack.popPose();
                     RenderSystem.setShaderTexture(0, widgets);
 

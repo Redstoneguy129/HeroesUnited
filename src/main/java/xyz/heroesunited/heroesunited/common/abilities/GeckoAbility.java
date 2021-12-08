@@ -19,6 +19,8 @@ import software.bernie.geckolib3.core.manager.AnimationFactory;
 import xyz.heroesunited.heroesunited.client.renderer.GeoAbilityRenderer;
 import xyz.heroesunited.heroesunited.client.renderer.IGeoAbility;
 
+import java.util.function.Consumer;
+
 public class GeckoAbility extends JSONAbility implements IGeoAbility {
     protected final AnimationFactory factory = new AnimationFactory(this);
 
@@ -26,25 +28,29 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
         super(type);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
-    public void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        if (getEnabled()) {
-            GeoAbilityRenderer<GeckoAbility> abilityRenderer = new GeoAbilityRenderer<>(this);
-            abilityRenderer.setCurrentAbility(player, renderer.getModel());
-            abilityRenderer.renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entityTranslucent(abilityRenderer.getTextureLocation(this))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
-        }
-    }
+    public void initializeClient(Consumer<IAbilityClientProperties> consumer) {
+        super.initializeClient(consumer);
+        consumer.accept(new IAbilityClientProperties() {
+            private final GeoAbilityRenderer<GeckoAbility> abilityRenderer = new GeoAbilityRenderer<>(GeckoAbility.this);
 
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public boolean renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
-        if (getEnabled()) {
-            GeoAbilityRenderer<GeckoAbility> abilityRenderer = new GeoAbilityRenderer<>(this);
-            abilityRenderer.setCurrentAbility(player, renderer.getModel());
-            abilityRenderer.renderFirstPersonArm(renderer, matrix, bufferIn, packedLightIn, side);
-        }
-        return super.renderFirstPersonArm(modelSet, renderer, matrix, bufferIn, packedLightIn, player, side);
+            @Override
+            public void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+                if (getEnabled()) {
+                    abilityRenderer.setCurrentAbility(player, renderer.getModel());
+                    abilityRenderer.renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entityTranslucent(abilityRenderer.getTextureLocation(GeckoAbility.this))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+                }
+            }
+
+            @Override
+            public boolean renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
+                if (getEnabled()) {
+                    abilityRenderer.setCurrentAbility(player, renderer.getModel());
+                    abilityRenderer.renderFirstPersonArm(renderer, matrix, bufferIn, packedLightIn, side);
+                }
+                return true;
+            }
+        });
     }
 
     public void registerControllers(AnimationData data) {

@@ -165,27 +165,6 @@ public class Condition extends ForgeRegistryEntry<Condition> {
     }
 
 
-    public static class ConditionVariables {
-        private final Player player;
-        private final JsonObject jsonObject;
-        private final Ability ability;
-
-        private ConditionVariables(Player player, JsonObject jsonObject, Ability ability) {
-            this.player = player;
-            this.jsonObject = jsonObject;
-            this.ability = ability;
-        }
-
-        public Player player() {
-            return player;
-        }
-
-        public JsonObject jsonObject() {
-            return jsonObject;
-        }
-
-        public Ability ability() {
-            return ability;
-        }
+    public record ConditionVariables(Player player, JsonObject jsonObject, Ability ability) {
     }
 }

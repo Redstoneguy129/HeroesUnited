@@ -11,12 +11,14 @@ import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
+import xyz.heroesunited.heroesunited.common.abilities.IAbilityClientProperties;
 import xyz.heroesunited.heroesunited.common.abilities.JSONAbility;
 
 import javax.script.ScriptException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class JSAbilityManager extends JSReloadListener {
 
@@ -99,12 +101,17 @@ public class JSAbilityManager extends JSReloadListener {
         }
 
         @Override
-        public void setupAnim(SetupAnimEvent event) {
-            super.setupAnim(event);
-            try {
-                engine.invokeFunction("setupAnim", event, this);
-            } catch (ScriptException | NoSuchMethodException ignored) {
-            }
+        public void initializeClient(Consumer<IAbilityClientProperties> consumer) {
+            super.initializeClient(consumer);
+            consumer.accept(new IAbilityClientProperties() {
+                @Override
+                public void setupAnim(SetupAnimEvent event) {
+                    try {
+                        engine.invokeFunction("setupAnim", event, this);
+                    } catch (ScriptException | NoSuchMethodException ignored) {
+                    }
+                }
+            });
         }
     }
 }

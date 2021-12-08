@@ -139,7 +139,7 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public void huRender(RendererChangeEvent event) {
-        AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.rendererChange(event));
+        AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.getClientProperties().rendererChange(event));
     }
 
     @SubscribeEvent
@@ -284,7 +284,7 @@ public class ClientEventHandler {
     @SubscribeEvent
     public void renderPlayerPre(RenderPlayerEvent.Pre event) {
         Player player = event.getPlayer();
-        AbilityHelper.getAbilities(player).forEach(ability -> ability.renderPlayerPre(event));
+        AbilityHelper.getAbilities(player).forEach(ability -> ability.getClientProperties().renderPlayerPre(event));
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             IFlyingAbility ability = IFlyingAbility.getFlyingAbility(player);
             if (ability != null && ability.isFlying(player) && ability.renderFlying(player)) {
@@ -306,13 +306,13 @@ public class ClientEventHandler {
             event.getPoseStack().mulPose(new Quaternion(90F + event.getPlayer().getXRot(), 0, 0, true));
             event.getPoseStack().mulPose(new Quaternion(0, event.getPlayer().getYRot(), 0, true));
         }
-        AbilityHelper.getListOfType(AbilityHelper.getAbilityMap(event.getPlayer()).values(), IAlwaysRenderer.class).forEach(ability -> ability.renderPlayerPreAlways(event));
+        AbilityHelper.getAbilityMap(event.getPlayer()).values().forEach(ability -> ability.getClientProperties().renderPlayerPreAlways(event));
     }
 
     @SubscribeEvent
     public void renderPlayerPost(RenderPlayerEvent.Post event) {
-        AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.renderPlayerPost(event));
-        AbilityHelper.getListOfType(AbilityHelper.getAbilityMap(event.getPlayer()).values(), IAlwaysRenderer.class).forEach(ability -> ability.renderPlayerPostAlways(event));
+        AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.getClientProperties().renderPlayerPost(event));
+        AbilityHelper.getAbilityMap(event.getPlayer()).values().forEach(ability -> ability.getClientProperties().renderPlayerPostAlways(event));
         IFlyingAbility ability = IFlyingAbility.getFlyingAbility(event.getPlayer());
         event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             if (ability != null && ability.isFlying(event.getPlayer()) && ability.renderFlying(event.getPlayer())) {
@@ -339,14 +339,14 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public void registerControllers(RegisterPlayerControllerEvent event) {
-        AbilityHelper.getAbilityMap(event.getPlayer()).values().forEach(ability -> ability.registerPlayerControllers(event));
+        AbilityHelper.getAbilityMap(event.getPlayer()).values().forEach(ability -> ability.getClientProperties().registerPlayerControllers(event));
     }
 
     @SuppressWarnings("unchecked")
     @SubscribeEvent
     public void setupAnim(SetupAnimEvent event) {
         Player player = event.getPlayer();
-        AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.setupAnim(event));
+        AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.getClientProperties().setupAnim(event));
         for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
             SuitItem suitItem = Suit.getSuitItem(equipmentSlot, player);
             if (suitItem != null) {
@@ -354,7 +354,7 @@ public class ClientEventHandler {
             }
         }
 
-        AbilityHelper.getListOfType(AbilityHelper.getAbilityMap(event.getPlayer()).values(), IAlwaysRenderer.class).forEach(ability -> ability.setAlwaysRotationAngles(event));
+        AbilityHelper.getAbilityMap(event.getPlayer()).values().forEach(ability -> ability.getClientProperties().setAlwaysRotationAngles(event));
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             for (AnimationController<?> controller : cap.getFactory().getOrCreateAnimationData(player.getUUID().hashCode()).getAnimationControllers().values()) {
                 if (controller.getCurrentAnimation() != null && controller.getAnimationState() == AnimationState.Running) {
@@ -424,21 +424,17 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public void onInputUpdate(MovementInputUpdateEvent event) {
-        AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.inputUpdate(event));
+        AbilityHelper.getAbilityMap(event.getPlayer()).values().forEach(ability -> ability.getClientProperties().inputUpdate(event));
     }
 
     @SubscribeEvent
     public void renderPlayerHandPost(RenderPlayerHandEvent.Post event) {
-        for (IAlwaysRenderer ability : AbilityHelper.getListOfType(AbilityHelper.getAbilityMap(event.getPlayer()).values(), IAlwaysRenderer.class)) {
-            ability.renderAlwaysFirstPersonArm(Minecraft.getInstance().getEntityModels(), event.getRenderer(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), event.getPlayer(), event.getSide());
-        }
+        AbilityHelper.getAbilityMap(event.getPlayer()).values().forEach(ability -> ability.getClientProperties().renderAlwaysFirstPersonArm(Minecraft.getInstance().getEntityModels(), event.getRenderer(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), event.getPlayer(), event.getSide()));
     }
 
     @SubscribeEvent
     public void renderPlayerLayers(RenderLayerEvent.Player event) {
-        for (IAlwaysRenderer ability : AbilityHelper.getListOfType(AbilityHelper.getAbilityMap(event.getPlayer()).values(), IAlwaysRenderer.class)) {
-            ability.renderAlways(event.getContext(), event.getRenderer(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), event.getPlayer(), event.getLimbSwing(), event.getLimbSwingAmount(), event.getPartialTicks(), event.getAgeInTicks(), event.getNetHeadYaw(), event.getHeadPitch());
-        }
+        AbilityHelper.getAbilityMap(event.getPlayer()).values().forEach(ability -> ability.getClientProperties().renderAlways(event.getContext(), event.getRenderer(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), event.getPlayer(), event.getLimbSwing(), event.getLimbSwingAmount(), event.getPartialTicks(), event.getAgeInTicks(), event.getNetHeadYaw(), event.getHeadPitch()));
     }
 
     @SubscribeEvent

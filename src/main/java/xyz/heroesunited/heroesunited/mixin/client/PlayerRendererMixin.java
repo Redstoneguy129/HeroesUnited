@@ -62,7 +62,7 @@ public abstract class PlayerRendererMixin {
             }
         });
         for (Ability ability : AbilityHelper.getAbilities(player)) {
-            if (!ability.renderFirstPersonArm(modelSet, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side)) {
+            if (!ability.getClientProperties().renderFirstPersonArm(modelSet, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side)) {
                 renderArm = false;
                 break;
             }

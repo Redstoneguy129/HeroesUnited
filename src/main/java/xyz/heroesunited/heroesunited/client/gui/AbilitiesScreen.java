@@ -232,7 +232,7 @@ public class AbilitiesScreen extends Screen {
             builder.vertex(x, y, 0).uv(0, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
 
             tesselator.end();
-            this.ability.drawIcon(stack, x + 2, y + 2);
+            this.ability.getClientProperties().drawIcon(stack, ability.getJsonObject(), x + 2, y + 2);
             RenderSystem.disableBlend();
             String name = this.ability.getTitle().getString().length() > 20 ? this.ability.getTitle().getString().substring(0, 20) : this.ability.getTitle().getString();
             mc.font.draw(stack, name, x + 21, y + 7, 0);

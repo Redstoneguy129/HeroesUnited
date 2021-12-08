@@ -39,7 +39,7 @@ public class HULayerRenderer<T extends LivingEntity, M extends HumanoidModel<T>>
     @Override
     public void render(PoseStack matrixStack, MultiBufferSource buffer, int packedLight, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         if (renderer instanceof PlayerRenderer playerRenderer && entity instanceof AbstractClientPlayer player) {
-            AbilityHelper.getAbilities(player).forEach(ability -> ability.render(this.context, playerRenderer, matrixStack, buffer, packedLight, player, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch));
+            AbilityHelper.getAbilities(player).forEach(ability -> ability.getClientProperties().render(this.context, playerRenderer, matrixStack, buffer, packedLight, player, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch));
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                 for (int slot = 0; slot < cap.getInventory().getContainerSize(); ++slot) {
                     ItemStack stack = cap.getInventory().getItem(slot);
