@@ -9,4 +9,6 @@ public interface IHUModelPart {
     void setSize(CubeDeformation size);
 
     CubeDeformation size();
+
+    void copyFrom(OldPartRenderer renderer);
 }
