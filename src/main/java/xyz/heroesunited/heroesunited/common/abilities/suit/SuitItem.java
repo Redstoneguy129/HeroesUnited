@@ -112,7 +112,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
                             return (A) model;
                         }
                     }
-                    return IItemRenderProperties.super.getArmorModel(entityLiving, itemStack, armorSlot, _default);
+                    return null;
                 }
             }
         });

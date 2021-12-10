@@ -234,20 +234,14 @@ public class HUClientUtil {
     }
 
     public static ModelPart getModelRendererById(PlayerModel model, String name) {
-        switch (name) {
-            case "bipedHead":
-                return model.head;
-            case "bipedBody":
-                return model.body;
-            case "bipedRightArm":
-                return model.rightArm;
-            case "bipedLeftArm":
-                return model.leftArm;
-            case "bipedRightLeg":
-                return model.rightLeg;
-            default:
-                return model.leftLeg;
-        }
+        return switch (name) {
+            case "bipedHead" -> model.head;
+            case "bipedBody" -> model.body;
+            case "bipedRightArm" -> model.rightArm;
+            case "bipedLeftArm" -> model.leftArm;
+            case "bipedRightLeg" -> model.rightLeg;
+            default -> model.leftLeg;
+        };
     }
 
     public static void resetModelRenderer(ModelPart renderer) {
@@ -348,11 +342,11 @@ public class HUClientUtil {
                 .createCompositeState(true));
 
         public static RenderType getLight(ResourceLocation texture) {
-            RenderType.CompositeState render = RenderType.CompositeState.builder().setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
-                    .setTransparencyState(LIGHTNING_TRANSPARENCY)
-                    .setWriteMaskState(COLOR_DEPTH_WRITE)
-                    .setLightmapState(LIGHTMAP).createCompositeState(false);
-            return create(HeroesUnited.MODID + ":light", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true, render);
+            return create(HeroesUnited.MODID + ":light", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true, RenderType.CompositeState.builder().setShaderState(RENDERTYPE_ENERGY_SWIRL_SHADER)
+                    .setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
+                    .setTransparencyState(ADDITIVE_TRANSPARENCY)
+                    .setLightmapState(LIGHTMAP).setOverlayState(OVERLAY)
+                    .createCompositeState(false));
         }
 
         public static RenderType getEntityCutout(ResourceLocation locationIn, Runnable start, Runnable end) {

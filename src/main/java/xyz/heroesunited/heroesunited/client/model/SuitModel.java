@@ -19,7 +19,6 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import xyz.heroesunited.heroesunited.client.renderer.IHUModelPart;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 
-/**@TODO SIZE OF MODEL */
 public class SuitModel<T extends LivingEntity> extends HumanoidModel<T> {
 
     public final ModelPart leftSleeve = this.leftArm.getChild("left_sleeve");
@@ -41,19 +40,19 @@ public class SuitModel<T extends LivingEntity> extends HumanoidModel<T> {
         MeshDefinition mesh = HumanoidModel.createMesh(size, 0.0F);
         PartDefinition parts = mesh.getRoot();
         if (slim) {
-            PartDefinition leftArm = parts.addOrReplaceChild("left_arm", CubeListBuilder.create().texOffs(32, 48).addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, size), PartPose.offset(5.0F, 2.5F, 0.0F));
-            PartDefinition rightArm = parts.addOrReplaceChild("right_arm", CubeListBuilder.create().texOffs(40, 16).addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, size), PartPose.offset(-5.0F, 2.5F, 0.0F));
-            leftArm.addOrReplaceChild("left_sleeve", CubeListBuilder.create().texOffs(48, 48).addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, size.extend(0.25F)), PartPose.ZERO);
-            rightArm.addOrReplaceChild("right_sleeve", CubeListBuilder.create().texOffs(40, 32).addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, size.extend(0.25F)), PartPose.ZERO);
+            parts.addOrReplaceChild("left_arm", CubeListBuilder.create().texOffs(32, 48).addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, size), PartPose.offset(5.0F, 2.5F, 0.0F));
+            parts.addOrReplaceChild("right_arm", CubeListBuilder.create().texOffs(40, 16).addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, size), PartPose.offset(-5.0F, 2.5F, 0.0F));
+            parts.getChild("left_arm").addOrReplaceChild("left_sleeve", CubeListBuilder.create().texOffs(48, 48).addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, size.extend(0.25F)), PartPose.ZERO);
+            parts.getChild("right_arm").addOrReplaceChild("right_sleeve", CubeListBuilder.create().texOffs(40, 32).addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, size.extend(0.25F)), PartPose.ZERO);
         } else {
-            PartDefinition leftArm = parts.addOrReplaceChild("left_arm", CubeListBuilder.create().texOffs(32, 48).addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, size), PartPose.offset(5.0F, 2.0F, 0.0F));
-            leftArm.addOrReplaceChild("left_sleeve", CubeListBuilder.create().texOffs(48, 48).addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, size.extend(0.25F)), PartPose.ZERO);
+            parts.addOrReplaceChild("left_arm", CubeListBuilder.create().texOffs(32, 48).addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, size), PartPose.offset(5.0F, 2.0F, 0.0F));
+            parts.getChild("left_arm").addOrReplaceChild("left_sleeve", CubeListBuilder.create().texOffs(48, 48).addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, size.extend(0.25F)), PartPose.ZERO);
             parts.getChild("right_arm").addOrReplaceChild("right_sleeve", CubeListBuilder.create().texOffs(40, 32).addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, size.extend(0.25F)), PartPose.ZERO);
         }
 
-        PartDefinition leftLeg = parts.addOrReplaceChild("left_leg", CubeListBuilder.create().texOffs(16, 48).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, size), PartPose.offset(1.9F, 12.0F, 0.0F));
-        leftLeg.addOrReplaceChild("left_pants", CubeListBuilder.create().texOffs(0, 48).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, size.extend(0.25F)), PartPose.offset(1.9F, 12.0F, 0.0F));
-        parts.getChild("right_leg").addOrReplaceChild("right_pants", CubeListBuilder.create().texOffs(0, 32).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, size.extend(0.25F)), PartPose.offset(-1.9F, 12.0F, 0.0F));
+        parts.addOrReplaceChild("left_leg", CubeListBuilder.create().texOffs(16, 48).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, size), PartPose.offset(1.9F, 12.0F, 0.0F));
+        parts.getChild("left_leg").addOrReplaceChild("left_pants", CubeListBuilder.create().texOffs(0, 48).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, size.extend(0.25F)), PartPose.ZERO);
+        parts.getChild("right_leg").addOrReplaceChild("right_pants", CubeListBuilder.create().texOffs(0, 32).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, size.extend(0.25F)), PartPose.ZERO);
         parts.getChild("body").addOrReplaceChild("jacket", CubeListBuilder.create().texOffs(16, 32).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, size.extend(0.25F)), PartPose.ZERO);
         return mesh;
     }
@@ -101,8 +100,7 @@ public class SuitModel<T extends LivingEntity> extends HumanoidModel<T> {
 
     public void setupAnim(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         super.setupAnim(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-        if (entityIn instanceof ArmorStand) {
-            ArmorStand armorStand = (ArmorStand)entityIn;
+        if (entityIn instanceof ArmorStand armorStand) {
             this.head.xRot = 0.017453292F * armorStand.getHeadPose().getX();
             this.head.yRot = 0.017453292F * armorStand.getHeadPose().getY();
             this.head.zRot = 0.017453292F * armorStand.getHeadPose().getZ();

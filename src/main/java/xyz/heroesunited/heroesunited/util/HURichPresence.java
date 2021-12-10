@@ -4,7 +4,6 @@ import com.jagrosh.discordipc.IPCClient;
 import com.jagrosh.discordipc.IPCListener;
 import com.jagrosh.discordipc.entities.DiscordBuild;
 import com.jagrosh.discordipc.entities.RichPresence;
-import com.jagrosh.discordipc.exceptions.NoDiscordClientException;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -51,7 +50,7 @@ public class HURichPresence {
         });
         try {
             client.connect(DiscordBuild.ANY);
-        } catch (NoDiscordClientException e) {
+        } catch (Throwable e) {
             HeroesUnited.LOGGER.info("No discord founded.");
         }
     }

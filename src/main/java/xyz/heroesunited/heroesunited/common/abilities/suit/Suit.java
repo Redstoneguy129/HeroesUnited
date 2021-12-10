@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -22,7 +21,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.RenderProperties;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.GameData;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -32,7 +30,6 @@ import xyz.heroesunited.heroesunited.client.model.SuitModel;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
-import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 import java.util.ArrayList;
@@ -110,15 +107,6 @@ public abstract class Suit {
 
     @OnlyIn(Dist.CLIENT)
     public void renderLayer(EntityRendererProvider.Context context, LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> entityRenderer, LivingEntity entity, ItemStack stack, EquipmentSlot slot, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        HUPackLayers.Layer layer = HUPackLayers.getInstance().getLayer(this.getRegistryName());
-        if (layer != null) {
-            if (layer.getTexture("cape") != null && slot.equals(EquipmentSlot.CHEST)) {
-                HUClientUtil.renderCape(entityRenderer, entity, matrix, bufferIn, packedLightIn, partialTicks, layer.getTexture("cape"));
-            }
-            if (layer.getTexture("lights") != null) {
-                RenderProperties.get(Suit.getSuitItem(slot, entity)).getArmorModel(entity, stack, slot, entityRenderer.getModel()).renderToBuffer(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.getLight(layer.getTexture("lights"))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
-            }
-        }
     }
 
     public <B extends SuitItem> void registerControllers(AnimationData data, B suitItem) {
