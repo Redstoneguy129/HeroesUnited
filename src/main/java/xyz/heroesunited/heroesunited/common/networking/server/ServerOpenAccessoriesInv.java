@@ -3,10 +3,11 @@ package xyz.heroesunited.heroesunited.common.networking.server;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.SimpleMenuProvider;
+import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.NetworkHooks;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
+import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientOpenAccessoriesScreen;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesContainer;
 
 import java.util.function.Supplier;
@@ -14,22 +15,33 @@ import java.util.function.Supplier;
 public class ServerOpenAccessoriesInv {
     public static final TranslatableComponent TRANSLATION = new TranslatableComponent("gui.heroesunited.accessories");
 
-    public ServerOpenAccessoriesInv() {
+    private final int entityId;
+
+    public ServerOpenAccessoriesInv(int entityId) {
+        this.entityId = entityId;
     }
 
     public ServerOpenAccessoriesInv(ByteBuf buf) {
+        this.entityId = buf.readInt();
     }
 
     public void toBytes(ByteBuf buf) {
+        buf.writeInt(this.entityId);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player != null) {
-                player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                    NetworkHooks.openGui(player, new SimpleMenuProvider((id, playerInventory, entity) ->
-                            new AccessoriesContainer(id, playerInventory, cap.getInventory()), TRANSLATION));
+                player.getLevel().getEntity(this.entityId).getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+                    if (player.containerMenu != player.inventoryMenu) {
+                        player.closeContainer();
+                    }
+
+                    player.nextContainerCounter();
+                    HUNetworking.INSTANCE.sendTo(new ClientOpenAccessoriesScreen(player.containerCounter, cap.getInventory().getContainerSize(), this.entityId), player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                    player.containerMenu = new AccessoriesContainer(player.containerCounter, player.getInventory(), cap.getInventory());
+                    player.initMenu(player.containerMenu);
                     cap.sync();
                 });
             }

@@ -3,6 +3,7 @@ package xyz.heroesunited.heroesunited.common.objects.container;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
@@ -10,11 +11,11 @@ import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 
 public class AccessoriesInventory implements Container {
 
-    private final NonNullList<ItemStack> items;
-    private final Player player;
+    protected final NonNullList<ItemStack> items;
+    protected final LivingEntity livingEntity;
 
-    public AccessoriesInventory(Player player) {
-        this.player = player;
+    public AccessoriesInventory(LivingEntity livingEntity) {
+        this.livingEntity = livingEntity;
         this.items = NonNullList.withSize(10, ItemStack.EMPTY);
     }
 
@@ -78,7 +79,7 @@ public class AccessoriesInventory implements Container {
 
     @Override
     public void setChanged() {
-        player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(IHUPlayer::syncToAll);
+        livingEntity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(IHUPlayer::syncToAll);
     }
 
     @Override

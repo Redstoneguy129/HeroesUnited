@@ -7,6 +7,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -57,7 +58,8 @@ public class AccessoriesScreen extends AbstractContainerScreen<AccessoriesContai
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, INVENTORY_GUI_TEXTURE);
         this.blit(matrixStack, left, top, 0, 0, this.getXSize(), this.getYSize());
-        InventoryScreen.renderEntityInInventory(left + 51, top + 75, 30, (float) (left + 51) - this.oldMouseX, (float) (top + 75 - 50) - this.oldMouseY, this.minecraft.player);
+        LivingEntity entity = this.menu.getLivingEntity();
+        InventoryScreen.renderEntityInInventory(left + 51, top + 75, 30, (float) (left + 51) - this.oldMouseX, (float) (top + 75 - 50) - this.oldMouseY, entity);
 
         List<Slot> slots = this.menu.slots;
         for (int i = 0; i < slots.size(); i++) {

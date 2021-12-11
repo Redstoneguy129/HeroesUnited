@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -27,6 +28,8 @@ public class AccessoriesContainer extends AbstractContainerMenu {
     private static final ResourceLocation[] ARMOR_SLOT_TEXTURES = new ResourceLocation[]{InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS, InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS, InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE, InventoryMenu.EMPTY_ARMOR_SLOT_HELMET};
     private static final EquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 
+    private final LivingEntity livingEntity;
+
     public AccessoriesContainer(int id, Inventory playerInventory) {
         this(id, playerInventory, HUPlayer.getCap(playerInventory.player).getInventory());
     }
@@ -34,6 +37,7 @@ public class AccessoriesContainer extends AbstractContainerMenu {
     public AccessoriesContainer(int id, Inventory playerInventory, AccessoriesInventory inventory) {
         super(HUContainers.ACCESSORIES, id);
         Player player = playerInventory.player;
+        this.livingEntity = inventory.livingEntity;
 
         for (int i = 0; i < 10; ++i) {
             if (i == EquipmentAccessoriesSlot.BACKPACK.getSlot()) {
@@ -59,7 +63,7 @@ public class AccessoriesContainer extends AbstractContainerMenu {
 
                 @Override
                 public boolean mayPlace(ItemStack stack) {
-                    return stack.canEquip(type, player);
+                    return stack.canEquip(type, player) && livingEntity instanceof Player;
                 }
 
                 @Override
@@ -90,16 +94,24 @@ public class AccessoriesContainer extends AbstractContainerMenu {
             public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
                 return Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD);
             }
+
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return livingEntity instanceof Player;
+            }
         });
     }
 
+    public LivingEntity getLivingEntity() {
+        return livingEntity;
+    }
 
     @Nonnull
     @Override
     public ItemStack quickMoveStack(@Nullable Player player, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
-        if (slot != null && slot.hasItem()) {
+        if (slot.hasItem()) {
             ItemStack itemstack1 = slot.getItem();
             itemstack = itemstack1.copy();
             EquipmentAccessoriesSlot accessorySlot = IAccessory.getEquipmentSlotForItem(itemstack);

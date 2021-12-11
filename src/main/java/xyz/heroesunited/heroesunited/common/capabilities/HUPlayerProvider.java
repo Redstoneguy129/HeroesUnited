@@ -2,7 +2,7 @@ package xyz.heroesunited.heroesunited.common.capabilities;
 
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
@@ -16,8 +16,8 @@ public class HUPlayerProvider implements ICapabilitySerializable<CompoundTag> {
     public static final Capability<IHUPlayer> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
     private final LazyOptional<IHUPlayer> instance;
 
-    public HUPlayerProvider(Player player) {
-        instance = LazyOptional.of(() -> new HUPlayer(player));
+    public HUPlayerProvider(LivingEntity entity) {
+        instance = LazyOptional.of(() -> new HUPlayer(entity));
     }
 
     @Override

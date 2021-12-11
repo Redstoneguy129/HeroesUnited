@@ -11,6 +11,7 @@
     "client.LightTextureMixin",
     "client.LivingRendererMixin",
     "client.MinecraftMixin",
+    "client.MultiPlayerGameModeMixin",
     "client.PlayerInfoMixin",
     "client.PlayerModelMixin",
     "client.PlayerRendererMixin",

@@ -25,7 +25,7 @@ public class PlayerGeoModel extends AnimatedTickingGeoModel<IHUPlayer> {
 
     @Override
     public ResourceLocation getTextureLocation(IHUPlayer o) {
-        return ((LocalPlayer) ((HUPlayer) o).player).getSkinTextureLocation();
+        return ((LocalPlayer) ((HUPlayer) o).livingEntity).getSkinTextureLocation();
     }
 
     @Override

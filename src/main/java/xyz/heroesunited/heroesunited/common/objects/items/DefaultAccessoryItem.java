@@ -5,7 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringUtil;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -88,7 +88,7 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
     }
 
     @Override
-    public ResourceLocation getTexture(ItemStack stack, Player player, EquipmentAccessoriesSlot slot) {
+    public ResourceLocation getTexture(ItemStack stack, LivingEntity player, EquipmentAccessoriesSlot slot) {
         String slim = HUPlayerUtil.haveSmallArms(player) ? "_slim" : "";
         String name = slot.name().toLowerCase();
         if (slot.equals(EquipmentAccessoriesSlot.LEFT_WRIST) || slot.equals(EquipmentAccessoriesSlot.RIGHT_WRIST)) {

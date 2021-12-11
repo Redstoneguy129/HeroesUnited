@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -31,7 +32,7 @@ import java.util.Map;
 
 public class HUPlayer implements IHUPlayer {
     public final AccessoriesInventory inventory;
-    protected final Player player;
+    protected final LivingEntity livingEntity;
     protected final HUPlayerFactory factory = new HUPlayerFactory(this);
     protected Map<ResourceLocation, Level> superpowerLevels;
     private int theme;
@@ -40,10 +41,10 @@ public class HUPlayer implements IHUPlayer {
     protected ResourceLocation animationFile;
     private final PlayerGeoModel modelProvider = new PlayerGeoModel();
 
-    public HUPlayer(Player player) {
-        this.player = player;
+    public HUPlayer(LivingEntity livingEntity) {
+        this.livingEntity = livingEntity;
         this.superpowerLevels = Maps.newHashMap();
-        this.inventory = new AccessoriesInventory(player);
+        this.inventory = new AccessoriesInventory(livingEntity);
     }
 
     @Nullable
@@ -54,7 +55,7 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public void updateFlyAmount() {
         this.flightAmountO = this.flightAmount;
-        if (player.isSprinting()) {
+        if (livingEntity.isSprinting()) {
             this.flightAmount = Math.min(1.0F, this.flightAmount + 0.07F);
         } else {
             this.flightAmount = Math.max(0.0F, this.flightAmount - 0.07F);
@@ -78,8 +79,8 @@ public class HUPlayer implements IHUPlayer {
             getController(controllerName).markNeedsReload();
             getController(controllerName).setAnimation(new AnimationBuilder().addAnimation(name, loop));
         });
-        if (!player.level.isClientSide) {
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSetAnimation(player.getId(), name, controllerName, this.modelProvider.getAnimationFileLocation(this), loop));
+        if (!livingEntity.level.isClientSide) {
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity), new ClientSetAnimation(livingEntity.getId(), name, controllerName, this.modelProvider.getAnimationFileLocation(this), loop));
         }
         syncToAll();
     }
@@ -126,10 +127,14 @@ public class HUPlayer implements IHUPlayer {
         return this;
     }
 
+    public void openMenu(ServerPlayer player) {
+
+    }
+
     @Override
     public IHUPlayer sync() {
-        if (player instanceof ServerPlayer) {
-            HUNetworking.INSTANCE.sendTo(new ClientSyncHUPlayer(player.getId(), this.serializeNBT()), ((ServerPlayer) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+        if (livingEntity instanceof ServerPlayer) {
+            HUNetworking.INSTANCE.sendTo(new ClientSyncHUPlayer(livingEntity.getId(), this.serializeNBT()), ((ServerPlayer) livingEntity).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
         }
         return this;
     }
@@ -137,9 +142,9 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public IHUPlayer syncToAll() {
         this.sync();
-        for (Player player : this.player.level.players()) {
+        for (Player player : this.livingEntity.level.players()) {
             if (player instanceof ServerPlayer) {
-                HUNetworking.INSTANCE.sendTo(new ClientSyncHUPlayer(this.player.getId(), this.serializeNBT()), ((ServerPlayer) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                HUNetworking.INSTANCE.sendTo(new ClientSyncHUPlayer(this.livingEntity.getId(), this.serializeNBT()), ((ServerPlayer) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
             }
         }
         return this;
@@ -158,7 +163,9 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public void registerControllers(AnimationData data) {
         data.addAnimationController(new AnimationController<>(this, "controller", 1, this::predicate));
-        MinecraftForge.EVENT_BUS.post(new RegisterPlayerControllerEvent(this, player, data));
+        if (livingEntity instanceof Player) {
+            MinecraftForge.EVENT_BUS.post(new RegisterPlayerControllerEvent(this, (Player) livingEntity, data));
+        }
     }
 
     private <P extends IHUPlayer> PlayState predicate(AnimationEvent<P> event) {
@@ -175,7 +182,7 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public AnimationController getController(String controllerName) {
-        return getFactory().getOrCreateAnimationData(player.getUUID().hashCode()).getAnimationControllers().get(controllerName);
+        return getFactory().getOrCreateAnimationData(livingEntity.getUUID().hashCode()).getAnimationControllers().get(controllerName);
     }
 
     @Override
@@ -221,6 +228,6 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public int tickTimer() {
-        return this.player.tickCount;
+        return this.livingEntity.tickCount;
     }
 }

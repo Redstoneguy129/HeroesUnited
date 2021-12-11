@@ -7,7 +7,6 @@ import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CreativeModeTab;
@@ -210,9 +209,7 @@ public class HeroesUnited {
 
     @SubscribeEvent
     public void addPackFinders(final AddPackFindersEvent event) {
-        if (event.getPackType() == PackType.SERVER_DATA) {
-            event.addRepositorySource(new HUPacks.HUPackFinder());
-        }
+        event.addRepositorySource(new HUPacks.HUPackFinder());
     }
 
     @SubscribeEvent

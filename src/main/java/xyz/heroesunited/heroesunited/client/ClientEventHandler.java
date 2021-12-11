@@ -132,7 +132,7 @@ public class ClientEventHandler {
             }
         }
         if (ACCESSORIES_SCREEN.consumeClick()) {
-            HUNetworking.INSTANCE.sendToServer(new ServerOpenAccessoriesInv());
+            HUNetworking.INSTANCE.sendToServer(new ServerOpenAccessoriesInv(mc.player.getId()));
         }
 
         for (AbilityKeyBinding key : ABILITY_KEYS) {
@@ -244,8 +244,8 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent
-    public void onRenderHULayer(RenderLayerEvent.Accessories event) {
-        for (HideLayerAbility ability : AbilityHelper.getListOfType(AbilityHelper.getAbilities(event.getPlayer()), HideLayerAbility.class)) {
+    public void onRenderHULayer(RenderLayerEvent.Accessories<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> event) {
+        for (HideLayerAbility ability : AbilityHelper.getListOfType(AbilityHelper.getAbilities(event.getLivingEntity()), HideLayerAbility.class)) {
             if (ability.layerNameIs("accessories")) {
                 event.setCanceled(true);
             }

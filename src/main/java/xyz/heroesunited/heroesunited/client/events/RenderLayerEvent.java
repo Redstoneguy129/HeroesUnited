@@ -1,7 +1,6 @@
 package xyz.heroesunited.heroesunited.client.events;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -17,10 +16,8 @@ import net.minecraftforge.eventbus.api.Event;
 
 /**
  * Just event.
- *
- * @TO-DO remake this, or make clear
  */
-public abstract class RenderLayerEvent<T extends LivingEntity, M extends EntityModel<T>> extends Event {
+public abstract class RenderLayerEvent<T extends LivingEntity, M extends HumanoidModel<T>> extends Event {
 
     protected final T livingEntity;
     protected final LivingEntityRenderer<T, M> renderer;
@@ -88,26 +85,17 @@ public abstract class RenderLayerEvent<T extends LivingEntity, M extends EntityM
     }
 
     @Cancelable
-    public static class Accessories extends RenderLayerEvent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
+    public static class Accessories<T extends LivingEntity, M extends HumanoidModel<T>> extends RenderLayerEvent<T, M> {
 
         private final EntityModelSet modelSet;
 
-        public Accessories(EntityModelSet modelSet, PlayerRenderer renderer, AbstractClientPlayer player, PoseStack matrixStack, MultiBufferSource bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-            super(renderer, player, matrixStack, bufferIn, packedLightIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+        public Accessories(EntityModelSet modelSet, LivingEntityRenderer<T, M> renderer, T entity, PoseStack matrixStack, MultiBufferSource bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+            super(renderer, entity, matrixStack, bufferIn, packedLightIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
             this.modelSet = modelSet;
         }
 
         public EntityModelSet getModelSet() {
             return modelSet;
-        }
-
-        @Override
-        public PlayerRenderer getRenderer() {
-            return (PlayerRenderer) renderer;
-        }
-
-        public AbstractClientPlayer getPlayer() {
-            return livingEntity;
         }
     }
 
