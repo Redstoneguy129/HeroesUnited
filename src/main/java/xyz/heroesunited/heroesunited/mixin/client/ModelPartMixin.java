@@ -23,17 +23,19 @@ public abstract class ModelPartMixin implements IHUModelPart {
     @Mutable @Shadow @Final private Map<String, ModelPart> children;
     @Mutable @Shadow @Final private List<ModelPart.Cube> cubes;
 
-    private CubeDeformation size = new CubeDeformation(1);
+    private CubeDeformation size = CubeDeformation.NONE;
 
-    @Inject(method = "translateAndRotate(Lcom/mojang/blaze3d/vertex/PoseStack;)V", at = @At("HEAD"))
+    @Inject(method = "translateAndRotate(Lcom/mojang/blaze3d/vertex/PoseStack;)V", at = @At("TAIL"))
     public void render(PoseStack poseStack, CallbackInfo ci) {
-        poseStack.scale(1 + size.growX * 0.0625F, 1 + size.growY * 0.0625F, 1 + size.growZ * 0.0625F);
-        resetSize();
+        poseStack.translate(size.growX * -0.001F, size.growY * -0.001F, size.growZ * -0.001F);
+        poseStack.scale(1.0F + size.growX / 16.0F, 1.0F + size.growY / 16.0F, 1.0F + size.growZ / 16.0F);
+        this.resetSize();
     }
 
     @Inject(method = "copyFrom(Lnet/minecraft/client/model/geom/ModelPart;)V", at = @At("TAIL"))
     public void copyFrom(ModelPart part, CallbackInfo ci) {
-        this.size = ((IHUModelPart) (Object) part).size();
+        CubeDeformation size = ((IHUModelPart) (Object) part).size();
+        this.size.extend(size.growX, size.growY, size.growZ);
     }
 
     @Override

@@ -384,7 +384,7 @@ public class ClientEventHandler {
                                 if (bone.name.endsWith("Leg")) {
                                     renderer.y = renderer.y - bone.getScaleY() * 2;
                                 }
-                                ((IHUModelPart) (Object) renderer).setSize(new CubeDeformation(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ()));
+                                ((IHUModelPart) (Object) renderer).setSize(new CubeDeformation(bone.getScaleX() - 1.0F, bone.getScaleY() - 1.0F, bone.getScaleZ() - 1.0F));
                             }
                         }
                     }
