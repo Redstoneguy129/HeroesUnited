@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -15,6 +16,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.IForgeRegistry;
 import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
+import xyz.heroesunited.heroesunited.client.renderer.IHUModelPart;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.JsonConditionManager;
@@ -166,12 +168,28 @@ public class JsonSuit extends Suit {
                 PlayerPart part = PlayerPart.byName(entry.getKey());
                 if (part != null) {
                     if (entry.getValue() instanceof JsonObject json) {
-                        if (slot.equals(EquipmentSlot.byName(GsonHelper.getAsString(json, "slot")))) {
-                            part.setVisibility(event.getPlayerModel(), GsonHelper.getAsBoolean(json, "show"));
+                        if (slot.equals(EquipmentSlot.byName(GsonHelper.getAsString(json, "slot"))) && !GsonHelper.getAsBoolean(json, "show")) {
+                            if (PlayerPart.bodyParts().contains(part)) {
+                                part.getParent().setVisibility(event.getPlayerModel(), false);
+                            } else {
+                                if (part == PlayerPart.HEAD_WEAR) {
+                                    ((IHUModelPart) (Object) part.modelPart(event.getPlayerModel())).setSize(new CubeDeformation(-0.499F));
+                                } else {
+                                    ((IHUModelPart) (Object) part.modelPart(event.getPlayerModel())).setSize(new CubeDeformation(-0.249F));
+                                }
+                            }
                         }
                     } else {
-                        if (hasArmorOn(event.getPlayer())) {
-                            part.setVisibility(event.getPlayerModel(), GsonHelper.getAsBoolean(overrides, entry.getKey()));
+                        if (hasArmorOn(event.getPlayer()) && !GsonHelper.getAsBoolean(overrides, entry.getKey())) {
+                            if (PlayerPart.bodyParts().contains(part)) {
+                                part.getParent().setVisibility(event.getPlayerModel(), false);
+                            } else {
+                                if (part == PlayerPart.HEAD_WEAR) {
+                                    ((IHUModelPart) (Object) part.modelPart(event.getPlayerModel())).setSize(new CubeDeformation(-0.499F));
+                                } else {
+                                    ((IHUModelPart) (Object) part.modelPart(event.getPlayerModel())).setSize(new CubeDeformation(-0.249F));
+                                }
+                            }
                         }
                     }
                 }

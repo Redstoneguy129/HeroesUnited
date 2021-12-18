@@ -6,6 +6,7 @@ import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -27,11 +28,13 @@ import xyz.heroesunited.heroesunited.client.HULayerRenderer;
 import xyz.heroesunited.heroesunited.client.events.HideLayerEvent;
 import xyz.heroesunited.heroesunited.client.events.RendererChangeEvent;
 import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
+import xyz.heroesunited.heroesunited.client.renderer.IHUModelPart;
 import xyz.heroesunited.heroesunited.client.renderer.IPlayerModel;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.PlayerGeoModel;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
+import xyz.heroesunited.heroesunited.util.PlayerPart;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -65,6 +68,12 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
         boolean flag = !isBodyVisible(entity) && !player.isInvisibleTo(Minecraft.getInstance().player);
         RenderType type = getRenderType(entity, isBodyVisible(entity), flag, Minecraft.getInstance().shouldEntityAppearGlowing(player));
         if (type != null) {
+            for (PlayerPart value : PlayerPart.values()) {
+                IHUModelPart modelPart = ((IHUModelPart) (Object) value.modelPart(playerModel));
+                if (modelPart.size() != CubeDeformation.NONE) {
+                    modelPart.resetSize();
+                }
+            }
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                 cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap));
                 PlayerGeoModel.ModelData modelData = new PlayerGeoModel.ModelData(renderer, iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch());

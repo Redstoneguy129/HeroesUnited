@@ -23,6 +23,7 @@ public class CubeMixin implements IHUModelPart {
     @Shadow @Final public float maxY;
     @Shadow @Final public float maxZ;
     public int u, v;
+    public float expandX, expandY, expandZ;
     public float texWidth, texHeight;
     public float dimensionX, dimensionY, dimensionZ;
     public boolean mirror;
@@ -32,6 +33,9 @@ public class CubeMixin implements IHUModelPart {
     public void mixinInit(int p_104343_, int p_104344_, float p_104345_, float p_104346_, float p_104347_, float p_104348_, float p_104349_, float p_104350_, float p_104351_, float p_104352_, float p_104353_, boolean p_104354_, float p_104355_, float p_104356_, CallbackInfo ci) {
         this.u = p_104343_;
         this.v = p_104344_;
+        this.expandX = p_104351_;
+        this.expandY = p_104352_;
+        this.expandZ = p_104353_;
         this.dimensionX = p_104348_;
         this.dimensionY = p_104349_;
         this.dimensionZ = p_104350_;
@@ -44,13 +48,18 @@ public class CubeMixin implements IHUModelPart {
     public void setSize(CubeDeformation size) {
         if (this.size == size) return;
         this.size = size;
-        float originX = this.minX - size.growX;
-        float originY = this.minY - size.growY;
-        float originZ = this.minZ - size.growZ;
+
+        float growX = size.growX + expandX;
+        float growY = size.growY + expandY;
+        float growZ = size.growZ + expandZ;
+
+        float originX = this.minX - growX;
+        float originY = this.minY - growY;
+        float originZ = this.minZ - growZ;
         this.polygons = new ModelPart.Polygon[6];
-        float f = this.maxX + size.growX;
-        float f1 = this.maxY + size.growY;
-        float f2 = this.maxZ + size.growZ;
+        float f = this.maxX + growX;
+        float f1 = this.maxY + growY;
+        float f2 = this.maxZ + growZ;
         if (this.mirror) {
             float f3 = f;
             f = originX;

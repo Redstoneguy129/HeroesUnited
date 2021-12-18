@@ -22,10 +22,18 @@ public abstract class ModelPartMixin implements IHUModelPart {
     private CubeDeformation size = CubeDeformation.NONE;
 
     @Override
-    public void setSize(CubeDeformation size) {
-        this.size = size;
+    public void resetSize() {
+        this.size = CubeDeformation.NONE;
         for (ModelPart.Cube cube : this.cubes) {
-            ((IHUModelPart) cube).setSize(size);
+            ((IHUModelPart) cube).setSize(this.size);
+        }
+    }
+
+    @Override
+    public void setSize(CubeDeformation size) {
+        this.size = this.size.extend(size.growX, size.growY, size.growZ);
+        for (ModelPart.Cube cube : this.cubes) {
+            ((IHUModelPart) cube).setSize(this.size);
         }
     }
 

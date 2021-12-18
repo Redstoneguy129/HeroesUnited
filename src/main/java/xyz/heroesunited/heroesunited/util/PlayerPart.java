@@ -4,14 +4,26 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 
+import java.util.List;
+
 public enum PlayerPart {
 
-    HEAD, HEAD_WEAR,
-    CHEST, CHEST_WEAR,
-    RIGHT_ARM, RIGHT_ARM_WEAR,
-    LEFT_ARM, LEFT_ARM_WEAR,
-    RIGHT_LEG, RIGHT_LEG_WEAR,
-    LEFT_LEG, LEFT_LEG_WEAR;
+    HEAD, HEAD_WEAR(HEAD),
+    CHEST, CHEST_WEAR(CHEST),
+    RIGHT_ARM, RIGHT_ARM_WEAR(RIGHT_ARM),
+    LEFT_ARM, LEFT_ARM_WEAR(LEFT_ARM),
+    RIGHT_LEG, RIGHT_LEG_WEAR(RIGHT_LEG),
+    LEFT_LEG, LEFT_LEG_WEAR(LEFT_LEG);
+    
+    public final PlayerPart parent;
+
+    PlayerPart() {
+        this.parent = null;
+    }
+    
+    PlayerPart(PlayerPart parent) {
+        this.parent = parent;
+    }
 
     public void setVisibility(PlayerModel<?> model, boolean visible) {
         ModelPart modelRenderer = modelPart(model);
@@ -53,12 +65,21 @@ public enum PlayerPart {
         return null;
     }
 
-    public static Iterable<PlayerPart> bodyParts() {
+    public PlayerPart getParent() {
+        for (PlayerPart value : values()) {
+            if (value.parent == this) {
+                return value.parent;
+            }
+        }
+        return null;
+    }
+
+    public static List<PlayerPart> bodyParts() {
         return ImmutableList.of(HEAD, CHEST, RIGHT_ARM, LEFT_ARM, RIGHT_LEG, LEFT_LEG);
     }
 
-    public static Iterable<PlayerPart> wearParts() {
-        return ImmutableList.of(HEAD, CHEST, RIGHT_ARM, LEFT_ARM, RIGHT_LEG, LEFT_LEG);
+    public static List<PlayerPart> wearParts() {
+        return ImmutableList.of(HEAD_WEAR, CHEST_WEAR, RIGHT_ARM_WEAR, LEFT_ARM_WEAR, RIGHT_LEG_WEAR, LEFT_LEG_WEAR);
     }
 
 }
