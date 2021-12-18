@@ -41,8 +41,10 @@ import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
 import software.bernie.geckolib3.util.GeoUtils;
+import xyz.heroesunited.heroesunited.client.model.GeckoSuitModel;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
+import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -123,7 +125,12 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
         if (getSlot() != EquipmentSlot.CHEST) return;
         try {
             GeoArmorRenderer geo = getArmorRenderer();
-            GeoModel model = geo.getGeoModelProvider().getModel(geo.getGeoModelProvider().getModelLocation(this));
+            GeoModel model;
+            if (HUPlayerUtil.haveSmallArms(player) && geo.getGeoModelProvider() instanceof GeckoSuitModel) {
+                model = geo.getGeoModelProvider().getModel(((GeckoSuitModel) geo.getGeoModelProvider()).getSlimModelLocation(this));
+            } else {
+                model = geo.getGeoModelProvider().getModel(geo.getGeoModelProvider().getModelLocation(this));
+            }
 
             geo.setCurrentItem(player, stack, getSlot());
             geo.applySlot(getSlot());

@@ -8,6 +8,15 @@ import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 
 public class GeckoSuitModel<T extends SuitItem> extends AnimatedGeoModel<T> {
+
+    public ResourceLocation getSlimModelLocation(T item) {
+        return getLayer(item, "slim_model", getModelLocation(item));
+    }
+
+    public ResourceLocation getSlimTextureLocation(T item) {
+        return getLayer(item, "slim_texture", getTextureLocation(item));
+    }
+
     @Override
     public ResourceLocation getModelLocation(T item) {
         return getLayer(item, "model", new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "geo/" + item.getSuit().getRegistryName().getPath() + ".geo.json"));

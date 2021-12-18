@@ -14,13 +14,17 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
 public interface IGeoAbility extends IAnimatable {
 
     @OnlyIn(Dist.CLIENT)
-    ResourceLocation getTexture();
-
-    @OnlyIn(Dist.CLIENT)
     ResourceLocation getModelPath();
 
     @OnlyIn(Dist.CLIENT)
-    ResourceLocation getAnimationFile();
+    default ResourceLocation getTexture() {
+        return null;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    default ResourceLocation getAnimationFile() {
+        return null;
+    }
 
     default <A extends IGeoAbility> AnimatedGeoModel getGeoModel() {
         return new AnimatedGeoModel<A>() {
@@ -41,12 +45,7 @@ public interface IGeoAbility extends IAnimatable {
         };
     }
 
-    @OnlyIn(Dist.CLIENT)
-    default boolean renderAsDefault() {
-        return true;
-    }
-
-    default void renderGeoAbilityRenderer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, GeoModel model, AnimationEvent event, AbstractClientPlayer player, GeoAbilityRenderer renderer) {
-
+    default boolean renderGeoAbilityRenderer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, boolean firstPerson, GeoModel model, AnimationEvent event, AbstractClientPlayer player, GeoAbilityRenderer renderer) {
+        return false;
     }
 }

@@ -56,14 +56,14 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends Humanoi
     @Override
     public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
 
-        GeoModel model = modelProvider.getModel(modelProvider.getModelLocation(currentAbility));
-        AnimationEvent abilityEvent = new AnimationEvent(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.player));
-        modelProvider.setLivingAnimations(currentAbility, this.getUniqueID(this.currentAbility), abilityEvent);
+        GeoModel model = this.modelProvider.getModel(getModelLocation(this.currentAbility));
+        AnimationEvent<T> abilityEvent = new AnimationEvent<>(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.player));
+        if (this.modelProvider.getAnimationFileLocation(this.currentAbility) != null) {
+            this.modelProvider.setLivingAnimations(currentAbility, this.getUniqueID(this.currentAbility), abilityEvent);
+        }
 
         if (alpha == 0F) return;
-        if (!currentAbility.renderAsDefault()) {
-            currentAbility.renderGeoAbilityRenderer(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha, model, abilityEvent, this.player, this);
-        } else {
+        if (!currentAbility.renderGeoAbilityRenderer(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha, false, model, abilityEvent, this.player, this)) {
             matrixStackIn.translate(0.0D, 1.5D, 0.0D);
             matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
             this.fitToBiped();
@@ -146,35 +146,40 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends Humanoi
     }
 
     public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, VertexConsumer builder, int packedLightIn, int packedOverlayIn, HumanoidArm side, float red, float green, float blue, float alpha) {
-        GeoModel model = modelProvider.getModel(modelProvider.getModelLocation(currentAbility));
-        AnimationEvent abilityEvent = new AnimationEvent(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.player));
-        modelProvider.setLivingAnimations(currentAbility, this.getUniqueID(this.currentAbility), abilityEvent);
+        GeoModel model = modelProvider.getModel(getModelLocation(this.currentAbility));
+        AnimationEvent<T> abilityEvent = new AnimationEvent<>(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.player));
+        if (this.modelProvider.getAnimationFileLocation(this.currentAbility) != null) {
+            this.modelProvider.setLivingAnimations(currentAbility, this.getUniqueID(this.currentAbility), abilityEvent);
+        }
         if (alpha == 0F) return;
         if (model.topLevelBones.isEmpty())
             return;
         Optional<GeoBone> bone = model.getBone(side == HumanoidArm.LEFT ? this.leftArmBone : this.rightArmBone);
-        if (!bone.isPresent() || bone.get().childBones.isEmpty() && bone.get().childCubes.isEmpty())
+        if (bone.isEmpty() || bone.get().childBones.isEmpty() && bone.get().childCubes.isEmpty())
             return;
 
         this.attackTime = 0.0F;
         this.crouching = false;
         this.swimAmount = 0.0F;
         matrix.pushPose();
-        matrix.translate(0.0D, 1.5F, 0.0D);
-        matrix.scale(-1.0F, -1.0F, 1.0F);
-        ModelPart modelRenderer = side == HumanoidArm.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
-        GeoUtils.copyRotations(modelRenderer, bone.get());
-        bone.get().setPositionX(side == HumanoidArm.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
-        bone.get().setPositionY(2 - modelRenderer.y);
-        bone.get().setPositionZ(modelRenderer.z);
-        bone.get().setHidden(false);
 
-        matrix.pushPose();
-        RenderSystem.setShaderTexture(0, this.getTextureLocation(this.currentAbility));
-        this.renderRecursively(bone.get(), matrix, builder, packedLightIn, packedOverlayIn, red, green, blue, alpha);
-        matrix.popPose();
-        matrix.scale(-1.0F, -1.0F, 1.0F);
-        matrix.translate(0.0D, -1.5F, 0.0D);
+        if (!currentAbility.renderGeoAbilityRenderer(matrix, builder, packedLightIn, packedOverlayIn, red, green, blue, alpha, true, model, abilityEvent, this.player, this)) {
+            matrix.translate(0.0D, 1.5F, 0.0D);
+            matrix.scale(-1.0F, -1.0F, 1.0F);
+            ModelPart modelRenderer = side == HumanoidArm.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
+            GeoUtils.copyRotations(modelRenderer, bone.get());
+            bone.get().setPositionX(side == HumanoidArm.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
+            bone.get().setPositionY(2 - modelRenderer.y);
+            bone.get().setPositionZ(modelRenderer.z);
+            bone.get().setHidden(false);
+
+            matrix.pushPose();
+            RenderSystem.setShaderTexture(0, this.getTextureLocation(this.currentAbility));
+            this.renderRecursively(bone.get(), matrix, builder, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+            matrix.popPose();
+            matrix.scale(-1.0F, -1.0F, 1.0F);
+            matrix.translate(0.0D, -1.5F, 0.0D);
+        }
         matrix.popPose();
     }
 
@@ -188,14 +193,13 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends Humanoi
         return this.modelProvider.getTextureLocation(instance);
     }
 
-    public void setCurrentAbility(AbstractClientPlayer player, HumanoidModel from) {
-        this.player = player;
-        from.copyPropertiesTo(this);
+    public ResourceLocation getModelLocation(T instance) {
+        return this.modelProvider.getModelLocation(this.currentAbility);
     }
 
-    public void setCurrentAbility(AbstractClientPlayer player, T ability, HumanoidModel from) {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public void setCurrentAbility(AbstractClientPlayer player, HumanoidModel from) {
         this.player = player;
-        this.currentAbility = ability;
         from.copyPropertiesTo(this);
     }
 
