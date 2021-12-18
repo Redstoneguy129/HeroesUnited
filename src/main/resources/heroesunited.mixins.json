@@ -5,17 +5,20 @@
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.8",
   "client": [
+    "client.CubeMixin",
     "client.EntityRenderDispatcherMixin",
     "client.EntityRendererMixin",
     "client.HumanoidArmorLayerMixin",
     "client.LightTextureMixin",
     "client.LivingRendererMixin",
     "client.MinecraftMixin",
+    "client.ModelPartMixin",
     "client.MultiPlayerGameModeMixin",
     "client.PlayerInfoMixin",
     "client.PlayerModelMixin",
     "client.PlayerRendererMixin",
-    "client.PrimaryLevelDataMixin"
+    "client.PrimaryLevelDataMixin",
+    "client.SingleQuadParticleMixin"
   ],
   "mixins": [
     "DimensionTypeMixin",
@@ -25,8 +28,6 @@
     "block.CactusBlockMixin",
     "block.CrossCollisionBlockMixin",
     "block.WallBlockMixin",
-    "client.ModelPartMixin",
-    "client.SingleQuadParticleMixin",
     "entity.EntityMixin",
     "entity.LivingEntityAccessor",
     "entity.LivingEntityMixin"

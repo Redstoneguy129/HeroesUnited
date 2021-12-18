@@ -4,11 +4,14 @@ import net.minecraft.client.model.geom.builders.CubeDeformation;
 
 public interface IHUModelPart {
 
-    void resetSize();
-
     void setSize(CubeDeformation size);
 
     CubeDeformation size();
 
-    void copyFrom(OldPartRenderer renderer);
+    default void copyFrom(OldPartRenderer renderer) {
+    }
+
+    default void resetSize() {
+        this.setSize(CubeDeformation.NONE);
+    }
 }

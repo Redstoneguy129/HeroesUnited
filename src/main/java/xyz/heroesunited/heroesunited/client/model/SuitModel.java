@@ -57,47 +57,6 @@ public class SuitModel<T extends LivingEntity> extends HumanoidModel<T> {
         return mesh;
     }
 
-
-/*
-    public SuitModel(float scale, boolean slim) {
-        super(RenderType::entityTranslucent, scale, 0.0F, 64, 64);
-        if (slim) {
-            this.leftArm = new ModelPart(this, 32, 48);
-            this.leftArm.addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, scale);
-            this.leftArm.setPos(5.0F, 2.5F, 0.0F);
-            this.rightArm = new ModelPart(this, 40, 16);
-            this.rightArm.addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, scale);
-            this.rightArm.setPos(-5.0F, 2.5F, 0.0F);
-            this.leftSleeve = new ModelPart(this, 48, 48);
-            this.leftSleeve.addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, scale + 0.25F);
-            this.rightSleeve = new ModelPart(this, 40, 32);
-            this.rightSleeve.addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, scale + 0.25F);
-        } else {
-            this.leftArm = new ModelPart(this, 32, 48);
-            this.leftArm.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale);
-            this.leftArm.setPos(5.0F, 2.0F, 0.0F);
-            this.leftSleeve = new ModelPart(this, 48, 48);
-            this.leftSleeve.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale + 0.25F);
-            this.rightSleeve = new ModelPart(this, 40, 32);
-            this.rightSleeve.addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale + 0.25F);
-        }
-
-        this.leftLeg = new ModelPart(this, 16, 48);
-        this.leftLeg.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale);
-        this.leftLeg.setPos(1.9F, 12.0F, 0.0F);
-        this.leftPants = new ModelPart(this, 0, 48);
-        this.leftPants.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale + 0.25F);
-        this.rightPants = new ModelPart(this, 0, 32);
-        this.rightPants.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, scale + 0.25F);
-        this.jacket = new ModelPart(this, 16, 32);
-        this.jacket.addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, scale + 0.25F);
-        this.body.addChild(jacket);
-        this.rightArm.addChild(rightSleeve);
-        this.leftArm.addChild(leftSleeve);
-        this.leftLeg.addChild(leftPants);
-        this.rightLeg.addChild(rightPants);
-    }*/
-
     public void setupAnim(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         super.setupAnim(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
         if (entityIn instanceof ArmorStand armorStand) {
@@ -125,15 +84,6 @@ public class SuitModel<T extends LivingEntity> extends HumanoidModel<T> {
             this.hat.copyFrom(this.head);
         }
 
-    }
-
-    public void copyPropertiesTo(SuitModel<T> model) {
-        super.copyPropertiesTo(model);
-        model.leftPants.copyFrom(this.leftLeg);
-        model.rightPants.copyFrom(this.rightLeg);
-        model.leftSleeve.copyFrom(this.leftArm);
-        model.rightSleeve.copyFrom(this.rightArm);
-        model.jacket.copyFrom(this.body);
     }
 
     public void copyPropertiesFrom(HumanoidModel<T> model) {

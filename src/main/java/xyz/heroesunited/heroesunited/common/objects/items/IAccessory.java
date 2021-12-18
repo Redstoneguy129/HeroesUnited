@@ -55,7 +55,7 @@ public interface IAccessory {
 
     @OnlyIn(Dist.CLIENT)
     default float getScale(ItemStack stack) {
-        return 0.08F;
+        return 0.0F;
     }
 
     static EquipmentAccessoriesSlot getEquipmentSlotForItem(ItemStack stack) {
