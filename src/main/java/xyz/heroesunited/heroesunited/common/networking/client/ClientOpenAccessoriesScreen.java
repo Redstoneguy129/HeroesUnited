@@ -6,6 +6,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.client.gui.AccessoriesScreen;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
@@ -46,7 +49,13 @@ public class ClientOpenAccessoriesScreen {
                 entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                     AccessoriesContainer menu = new AccessoriesContainer(this.containerId, localplayer.getInventory(), cap.getInventory());
                     localplayer.containerMenu = menu;
-                    mc.setScreen(new AccessoriesScreen(menu, localplayer.getInventory(), new TranslatableComponent("gui.heroesunited.accessories")));
+                    DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> new Runnable() {
+                        @OnlyIn(Dist.CLIENT)
+                        @Override
+                        public void run() {
+                            mc.setScreen(new AccessoriesScreen(menu, localplayer.getInventory(), new TranslatableComponent("gui.heroesunited.accessories")));
+                        }
+                    });
                 });
             }
         });
