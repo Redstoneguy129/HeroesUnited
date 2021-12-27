@@ -1,7 +1,6 @@
 package xyz.heroesunited.heroesunited.mixin.client;
 
 import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Final;
@@ -19,16 +18,16 @@ import xyz.heroesunited.heroesunited.util.PlayerPart;
  */
 @Mixin(PlayerModel.class)
 public abstract class MixinPlayerModel implements IPlayerModel {
+    private LivingEntity livingEntity;
     private float limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch;
 
     @Shadow @Final private boolean slim;
-
-    @Shadow protected abstract Iterable<ModelRenderer> bodyParts();
 
     @Inject(method = "setupAnim", at = @At(value = "HEAD"))
     private void setRotationAngles(LivingEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
         if (!(entityIn instanceof PlayerEntity)) return;
         PlayerModel model = (PlayerModel) (Object) this;
+        this.livingEntity = livingEntity;
         this.limbSwing = limbSwing;
         this.limbSwingAmount = limbSwingAmount;
         this.ageInTicks = ageInTicks;
@@ -45,6 +44,11 @@ public abstract class MixinPlayerModel implements IPlayerModel {
         model.leftPants.copyFrom(model.leftLeg);
         model.rightLeg.setPos(-1.9F, 12F, 0F);
         model.rightPants.copyFrom(model.rightLeg);
+    }
+
+    @Override
+    public LivingEntity entity() {
+        return livingEntity;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.mixin.client;
 
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
@@ -11,9 +12,10 @@ import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraftforge.common.MinecraftForge;
+import org.objectweb.asm.Opcodes;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,6 +34,7 @@ import xyz.heroesunited.heroesunited.util.HUClientUtil;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.List;
 
 import static net.minecraft.client.renderer.entity.LivingRenderer.getOverlayCoords;
 
@@ -41,6 +44,8 @@ public abstract class MixinLivingRenderer<T extends LivingEntity, M extends Enti
     @Shadow protected abstract boolean isBodyVisible(T p_225622_1_);
     @Shadow protected abstract float getWhiteOverlayProgress(T p_225625_1_, float p_225625_2_);
     @Shadow protected M model;
+
+    @Shadow @Final protected List<LayerRenderer<T, M>> layers;
 
     @SuppressWarnings("unchecked")
     @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/LivingRenderer;getRenderType(Lnet/minecraft/entity/LivingEntity;ZZZ)Lnet/minecraft/client/renderer/RenderType;"))
@@ -72,12 +77,13 @@ public abstract class MixinLivingRenderer<T extends LivingEntity, M extends Enti
         }
     }
 
-    @Redirect(method = "render(Lnet/minecraft/entity/LivingEntity;FFLcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/LayerRenderer;render(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;ILnet/minecraft/entity/Entity;FFFFFF)V"))
-    public void addLayer(LayerRenderer layerRenderer, MatrixStack pMatrixStack, IRenderTypeBuffer pBuffer, int pPackedLight, Entity pLivingEntity, float pLimbSwing, float pLimbSwingAmount, float pPartialTicks, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
-        HUHideLayerEvent event = new HUHideLayerEvent(pLivingEntity);
+    @Redirect(method = "render(Lnet/minecraft/entity/LivingEntity;FFLcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;I)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/entity/LivingRenderer;layers:Ljava/util/List;", opcode = Opcodes.GETFIELD))
+    private List<LayerRenderer<T, M>> injected(LivingRenderer livingRenderer) {
+        List<LayerRenderer<T, M>> layers = Lists.newArrayList();
+        layers.addAll(this.layers);
+        HUHideLayerEvent event = new HUHideLayerEvent(((IPlayerModel) livingRenderer.getModel()).entity());
         MinecraftForge.EVENT_BUS.post(event);
-        if (!event.getBlockedLayers().contains(layerRenderer.getClass())) {
-            layerRenderer.render(pMatrixStack, pBuffer, pPackedLight, pLivingEntity, pLimbSwing, pLimbSwingAmount, pPartialTicks, pAgeInTicks, pNetHeadYaw, pHeadPitch);
-        }
+        layers.removeIf(layerRenderer -> event.getBlockedLayers().contains(layerRenderer.getClass()));
+        return layers;
     }
 }

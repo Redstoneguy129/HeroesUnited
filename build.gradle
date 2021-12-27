@@ -107,6 +107,7 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
     compileOnly fg.deobf('curse.maven:obfuscate-289380:3148131')
+    //implementation fg.deobf('curse.maven:emotecraft-forge-403422:3403492')
 
     implementation 'com.github.Vatuu:discord-rpc:1.6.2'
     implementation fg.deobf("software.bernie.geckolib:geckolib-forge-1.16.5:$project.geckolib_version")
