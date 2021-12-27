@@ -27,7 +27,7 @@ public abstract class MixinPlayerModel implements IPlayerModel {
     private void setRotationAngles(LivingEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
         if (!(entityIn instanceof PlayerEntity)) return;
         PlayerModel model = (PlayerModel) (Object) this;
-        this.livingEntity = livingEntity;
+        this.livingEntity = entityIn;
         this.limbSwing = limbSwing;
         this.limbSwingAmount = limbSwingAmount;
         this.ageInTicks = ageInTicks;

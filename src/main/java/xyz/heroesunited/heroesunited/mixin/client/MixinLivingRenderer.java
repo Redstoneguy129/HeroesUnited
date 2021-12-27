@@ -79,11 +79,14 @@ public abstract class MixinLivingRenderer<T extends LivingEntity, M extends Enti
 
     @Redirect(method = "render(Lnet/minecraft/entity/LivingEntity;FFLcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;I)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/entity/LivingRenderer;layers:Ljava/util/List;", opcode = Opcodes.GETFIELD))
     private List<LayerRenderer<T, M>> injected(LivingRenderer livingRenderer) {
-        List<LayerRenderer<T, M>> layers = Lists.newArrayList();
-        layers.addAll(this.layers);
-        HUHideLayerEvent event = new HUHideLayerEvent(((IPlayerModel) livingRenderer.getModel()).entity());
-        MinecraftForge.EVENT_BUS.post(event);
-        layers.removeIf(layerRenderer -> event.getBlockedLayers().contains(layerRenderer.getClass()));
-        return layers;
+        if (livingRenderer.getModel() instanceof IPlayerModel) {
+            List<LayerRenderer<T, M>> layers = Lists.newArrayList();
+            layers.addAll(this.layers);
+            HUHideLayerEvent event = new HUHideLayerEvent(((IPlayerModel) livingRenderer.getModel()).entity());
+            MinecraftForge.EVENT_BUS.post(event);
+            layers.removeIf(layerRenderer -> event.getBlockedLayers().contains(layerRenderer.getClass()));
+            return layers;
+        }
+        return this.layers;
     }
 }
