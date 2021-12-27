@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.mixin.client;
 
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.LoadingOverlay;
@@ -14,9 +15,10 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.common.MinecraftForge;
+import org.objectweb.asm.Opcodes;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,6 +40,7 @@ import xyz.heroesunited.heroesunited.util.PlayerPart;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.List;
 
 import static net.minecraft.client.renderer.entity.LivingEntityRenderer.getOverlayCoords;
 
@@ -49,6 +52,8 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
     @Shadow protected M model;
 
     @Shadow public abstract boolean addLayer(RenderLayer<T, M> p_115327_);
+
+    @Shadow @Final protected List<RenderLayer<T, M>> layers;
 
     @Inject(method = "<init>(Lnet/minecraft/client/renderer/entity/EntityRendererProvider$Context;Lnet/minecraft/client/model/EntityModel;F)V", at = @At("TAIL"))
     public void mixinInit(EntityRendererProvider.Context context, M model, float shadowSize, CallbackInfo ci) {
@@ -92,13 +97,13 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
         }
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    @Redirect(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/RenderLayer;render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/Entity;FFFFFF)V"))
-    public void hideLayer(RenderLayer layerRenderer, PoseStack p_225628_1_, MultiBufferSource p_225628_2_, int p_225628_3_, Entity p_225628_4_, float p_225628_5_, float p_225628_6_, float p_225628_7_, float p_225628_8_, float p_225628_9_, float p_225628_10_) {
-        HideLayerEvent event = new HideLayerEvent(p_225628_4_);
+    @Redirect(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;layers:Ljava/util/List;", opcode = Opcodes.GETFIELD))
+    private List<RenderLayer<T, M>> injected(LivingEntityRenderer livingRenderer) {
+        List<RenderLayer<T, M>> layers = Lists.newArrayList();
+        layers.addAll(this.layers);
+        HideLayerEvent event = new HideLayerEvent(((IPlayerModel) livingRenderer.getModel()).livingEntity());
         MinecraftForge.EVENT_BUS.post(event);
-        if (!event.getBlockedLayers().contains(layerRenderer.getClass())) {
-            layerRenderer.render(p_225628_1_, p_225628_2_, p_225628_3_, p_225628_4_, p_225628_5_, p_225628_6_, p_225628_7_, p_225628_8_, p_225628_9_, p_225628_10_);
-        }
+        layers.removeIf(layerRenderer -> event.getBlockedLayers().contains(layerRenderer.getClass()));
+        return layers;
     }
 }

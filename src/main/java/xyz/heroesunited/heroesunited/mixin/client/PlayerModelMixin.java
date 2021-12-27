@@ -20,6 +20,7 @@ import xyz.heroesunited.heroesunited.util.PlayerPart;
 @Mixin(PlayerModel.class)
 public abstract class PlayerModelMixin implements IPlayerModel {
     private float limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch;
+    private LivingEntity livingEntity;
 
     @Shadow @Final private boolean slim;
 
@@ -27,6 +28,7 @@ public abstract class PlayerModelMixin implements IPlayerModel {
     private void setRotationAngles(LivingEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
         if (!(entityIn instanceof Player)) return;
         PlayerModel model = (PlayerModel) (Object) this;
+        this.livingEntity = entityIn;
         this.limbSwing = limbSwing;
         this.limbSwingAmount = limbSwingAmount;
         this.ageInTicks = ageInTicks;
@@ -43,6 +45,11 @@ public abstract class PlayerModelMixin implements IPlayerModel {
         model.leftPants.copyFrom(model.leftLeg);
         model.rightLeg.setPos(-1.9F, 12F, 0F);
         model.rightPants.copyFrom(model.rightLeg);
+    }
+
+    @Override
+    public LivingEntity livingEntity() {
+        return this.livingEntity;
     }
 
     @Override
