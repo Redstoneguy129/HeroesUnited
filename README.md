@@ -93,11 +93,16 @@ This includes (but not limited to):
 ## Developers
 To use the api in your mod:
 ```
+minecraft.runs.all {
+    property 'mixin.env.remapRefMap', 'true'
+    property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+}
+
 repositories {
-    maven { url 'https://repo.repsy.io/mvn/heroesunited/default' }
+    maven { url 'https://maven.explodingcreeper.me/' }
 }
 
 dependencies {
-    compile 'xyz.heroesunited:hu-core:2.5-alpha-2'
+    implementation "xyz.heroesunited:hu-core:*latest version*"
 }
 ```
