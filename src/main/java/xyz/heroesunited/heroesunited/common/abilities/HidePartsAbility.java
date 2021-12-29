@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
@@ -46,9 +47,19 @@ public class HidePartsAbility extends JSONAbility {
             @Override
             public boolean renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
                 if (getJsonObject().has("visibility_parts") && getEnabled()) {
-                    for (Map.Entry<String, JsonElement> entry : GsonHelper.getAsJsonObject(getJsonObject(), "visibility_parts").entrySet()) {
-                        if (entry.getKey().equals("all")) {
-                            return false;
+                    JsonObject overrides = GsonHelper.getAsJsonObject(getJsonObject(), "visibility_parts");
+                    for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
+                        PlayerPart part = PlayerPart.byName(entry.getKey());
+                        if (part != null) {
+                            ModelPart modelPart = side == HumanoidArm.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
+                            if (modelPart == part.modelPart(renderer.getModel())) {
+                                if (entry.getValue() instanceof JsonObject && GsonHelper.getAsBoolean((JsonObject) entry.getValue(), "show")) {
+                                    return false;
+                                }
+                                if (GsonHelper.getAsBoolean(overrides, entry.getKey())) {
+                                    return false;
+                                }
+                            }
                         }
                     }
                 }

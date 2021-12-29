@@ -8,10 +8,6 @@ import xyz.heroesunited.heroesunited.util.hudata.HUDataManager;
 
 import javax.annotation.Nullable;
 
-/**
- * Fired when player pressed keybinding
- */
-
 public abstract class AbilityEvent extends PlayerEvent {
 
     protected final Ability ability;
