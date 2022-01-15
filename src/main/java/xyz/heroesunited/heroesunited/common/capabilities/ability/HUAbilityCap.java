@@ -1,8 +1,6 @@
 package xyz.heroesunited.heroesunited.common.capabilities.ability;
 
-import com.google.common.collect.Maps;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -27,26 +25,26 @@ import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityC
 import xyz.heroesunited.heroesunited.util.KeyMap;
 
 import javax.annotation.Nullable;
-import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class HUAbilityCap implements IHUAbilityCap {
 
     public static final Capability<IHUAbilityCap> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
 
     private final Player player;
-    protected Map<String, Ability> activeAbilities, containedAbilities;
+    protected ConcurrentHashMap<String, Ability> activeAbilities, containedAbilities;
 
     public HUAbilityCap(Player player) {
         this.player = player;
-        this.activeAbilities = Maps.newHashMap();
-        this.containedAbilities = Maps.newHashMap();
+        this.activeAbilities = new ConcurrentHashMap<>();
+        this.containedAbilities = new ConcurrentHashMap<>();
     }
 
     @Nullable
     public static IHUAbilityCap getCap(Entity entity) {
         Optional<IHUAbilityCap> cap = entity.getCapability(HUAbilityCap.CAPABILITY).resolve();
-        if (cap.equals(Optional.empty()) || !cap.isPresent()) {
+        if (cap.equals(Optional.empty()) || cap.isEmpty()) {
             return null;
         }
         return cap.get();
@@ -77,7 +75,7 @@ public class HUAbilityCap implements IHUAbilityCap {
     }
 
     @Override
-    public Map<String, Ability> getActiveAbilities() {
+    public ConcurrentHashMap<String, Ability> getActiveAbilities() {
         return activeAbilities;
     }
 
@@ -93,7 +91,7 @@ public class HUAbilityCap implements IHUAbilityCap {
     }
 
     @Override
-    public Map<String, Ability> getAbilities() {
+    public ConcurrentHashMap<String, Ability> getAbilities() {
         return containedAbilities;
     }
 
@@ -176,22 +174,10 @@ public class HUAbilityCap implements IHUAbilityCap {
         this.containedAbilities.clear();
 
         for (String id : activeAbilities.getAllKeys()) {
-            CompoundTag tag = activeAbilities.getCompound(id);
-            AbilityType abilityType = AbilityType.ABILITIES.get().getValue(new ResourceLocation(tag.getString("AbilityType")));
-            if (abilityType != null) {
-                Ability ability = abilityType.create(this.player, id);
-                ability.deserializeNBT(tag);
-                this.activeAbilities.put(id, ability);
-            }
+            this.activeAbilities.put(id, AbilityType.fromNBT(this.player, id, activeAbilities.getCompound(id)));
         }
         for (String id : abilities.getAllKeys()) {
-            CompoundTag tag = abilities.getCompound(id);
-            AbilityType abilityType = AbilityType.ABILITIES.get().getValue(new ResourceLocation(tag.getString("AbilityType")));
-            if (abilityType != null) {
-                Ability ability = abilityType.create(this.player, id);
-                ability.deserializeNBT(tag);
-                containedAbilities.put(id, ability);
-            }
+            this.containedAbilities.put(id, AbilityType.fromNBT(this.player, id, abilities.getCompound(id)));
         }
     }
 }

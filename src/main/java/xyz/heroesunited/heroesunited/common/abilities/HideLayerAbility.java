@@ -1,12 +1,14 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.player.Player;
 
 public class HideLayerAbility extends JSONAbility {
 
-    public HideLayerAbility(AbilityType type) {
-        super(type);
+    public HideLayerAbility(AbilityType type, Player player, JsonObject jsonObject) {
+        super(type, player, jsonObject);
     }
 
     public boolean layerNameIs(String name) {

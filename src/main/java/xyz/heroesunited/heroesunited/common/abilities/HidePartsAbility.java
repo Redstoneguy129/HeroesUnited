@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.player.Player;
 import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
 
@@ -18,8 +19,8 @@ import java.util.function.Consumer;
 
 public class HidePartsAbility extends JSONAbility {
 
-    public HidePartsAbility(AbilityType type) {
-        super(type);
+    public HidePartsAbility(AbilityType type, Player player, JsonObject jsonObject) {
+        super(type, player, jsonObject);
     }
 
     @Override

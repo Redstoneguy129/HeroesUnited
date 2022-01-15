@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
+import com.google.gson.JsonObject;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
@@ -12,8 +13,8 @@ import java.util.UUID;
 
 public class CommandAbility extends JSONAbility implements CommandSource {
 
-    public CommandAbility(AbilityType type) {
-        super(type);
+    public CommandAbility(AbilityType type, Player player, JsonObject jsonObject) {
+        super(type, player, jsonObject);
     }
 
     @Override

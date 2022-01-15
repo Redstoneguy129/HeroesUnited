@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -21,8 +22,8 @@ import java.util.function.Consumer;
 
 public class ParachuteAbility extends JSONAbility {
 
-    public ParachuteAbility(AbilityType type) {
-        super(type);
+    public ParachuteAbility(AbilityType type, Player player, JsonObject jsonObject) {
+        super(type, player, jsonObject);
     }
 
     @Override

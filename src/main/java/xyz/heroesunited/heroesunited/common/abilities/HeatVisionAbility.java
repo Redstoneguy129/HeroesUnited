@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -17,8 +18,8 @@ import java.util.function.Consumer;
 
 public class HeatVisionAbility extends JSONAbility {
 
-    public HeatVisionAbility(AbilityType type) {
-        super(type);
+    public HeatVisionAbility(AbilityType type, Player player, JsonObject jsonObject) {
+        super(type, player, jsonObject);
     }
 
     @Override
@@ -53,6 +54,8 @@ public class HeatVisionAbility extends JSONAbility {
                 float alpha = (getDataManager().<Integer>getValue("prev_timer") + (getDataManager().<Integer>getValue("timer") - getDataManager().<Integer>getValue("prev_timer")) * partialTicks) / GsonHelper.getAsInt(getJsonObject(), "maxTimer", 10);
                 double distance = player.position().add(0, player.getEyeHeight(), 0).distanceTo(player.getLookAngle().scale(GsonHelper.getAsFloat(getJsonObject(), "distance", 20)));
                 Color color = HUJsonUtils.getColor(getJsonObject());
+
+                if (alpha == 0) return;
                 if (getDataManager().<String>getValue("type").equals("cyclop")) {
                     AABB box = new AABB(-0.15F, -0.22F, 0, 0.15F, -0.22F, -distance).inflate(0.0625D);
                     matrix.pushPose();

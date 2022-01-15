@@ -2,12 +2,10 @@ package xyz.heroesunited.heroesunited.common.networking.client;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
@@ -20,11 +18,11 @@ import java.util.function.Supplier;
 public class ClientSyncAbilities {
 
     public int entityId;
-    public Map<String, Ability> abilities;
+    public Map<String, CompoundTag> abilities = Maps.newHashMap();
 
     public ClientSyncAbilities(int entityId, Map<String, Ability> abilities) {
         this.entityId = entityId;
-        this.abilities = abilities;
+        abilities.forEach((s, a) -> this.abilities.put(s, a.serializeNBT()));
     }
 
     public ClientSyncAbilities(FriendlyByteBuf buf) {
@@ -33,10 +31,7 @@ public class ClientSyncAbilities {
         this.abilities = Maps.newHashMap();
         for (int i = 0; i < amount; i++) {
             String id = buf.readUtf(32767);
-            CompoundTag nbt = buf.readNbt();
-            Ability ability = AbilityType.ABILITIES.get().getValue(new ResourceLocation(nbt.getString("AbilityType"))).create(null, id);
-            ability.deserializeNBT(nbt);
-            this.abilities.put(id, ability);
+            this.abilities.put(id, buf.readNbt());
         }
     }
 
@@ -44,9 +39,9 @@ public class ClientSyncAbilities {
         buf.writeInt(this.entityId);
         buf.writeInt(this.abilities.size());
 
-        this.abilities.forEach((id, a) -> {
+        this.abilities.forEach((id, nbt) -> {
             buf.writeUtf(id);
-            buf.writeNbt(a.serializeNBT());
+            buf.writeNbt(nbt);
         });
     }
 
@@ -55,15 +50,10 @@ public class ClientSyncAbilities {
             Minecraft mc = Minecraft.getInstance();
             Entity entity = mc.level.getEntity(this.entityId);
 
-            if (entity instanceof AbstractClientPlayer) {
+            if (entity instanceof AbstractClientPlayer player) {
                 entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent((a) -> {
                     ImmutableList.copyOf(a.getAbilities().keySet()).forEach(a::removeAbility);
-                    this.abilities.forEach((key, value) -> {
-                        if (value.serializeNBT().contains("JsonObject")) {
-                            value.setJsonObject(entity, new JsonParser().parse(value.serializeNBT().getString("JsonObject")).getAsJsonObject());
-                        }
-                        a.addAbility(key, value);
-                    });
+                    this.abilities.forEach((key, nbt) -> a.addAbility(key, AbilityType.fromNBT(player, key, nbt)));
                 });
             }
         });

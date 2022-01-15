@@ -74,7 +74,7 @@ public class AbilitiesScreen extends Screen {
 
     public static List<Ability> getCurrentDisplayedAbilities(Player player, int limit) {
         List<Ability> abilities, list = new ArrayList<>();
-        abilities = AbilityHelper.getAbilityMap(player).values().stream().filter(a -> a != null && !a.isHidden(player)).collect(Collectors.toList());
+        abilities = AbilityHelper.getAbilityMap(player).values().stream().filter(a -> a != null && a.isVisible(player)).collect(Collectors.toList());
 
         if (abilities.isEmpty()) {
             return list;

@@ -1,5 +1,9 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
+import com.google.gson.JsonObject;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Lazy;
@@ -9,8 +13,9 @@ import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryBuilder;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.events.AbilityEvent;
+import xyz.heroesunited.heroesunited.util.hudata.HUData;
 
-import java.util.function.Supplier;
+import java.util.Map;
 
 public class AbilityType extends ForgeRegistryEntry<AbilityType> {
 
@@ -22,21 +27,32 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
     public AbilityType(AbilitySupplier supplier) {
         this.supplier = supplier;
     }
-
-    public AbilityType(Supplier<Ability> supplier) {
-        this(type -> supplier.get());
-    }
-
-    public AbilityType(Supplier<Ability> supplier, String modid, String name) {
-        this(type -> supplier.get());
+    
+    public AbilityType(AbilitySupplier supplier, String modid, String name) {
+        this(supplier);
         this.setRegistryName(modid, name);
     }
 
-    public Ability create(Player player, String id) {
-        Ability a = this.supplier.create(this);
+    public static Ability fromNBT(Player player, String id, CompoundTag tag) {
+        AbilityType type = AbilityType.ABILITIES.get().getValue(new ResourceLocation(tag.getString("AbilityType")));
+        if (type != null) {
+            Ability ability = type.create(player, id, GsonHelper.parse(tag.getString("JsonObject")));
+            ability.deserializeNBT(tag);
+            return ability;
+        }
+        return null;
+    }
+
+    public Ability create(Player player, String id, JsonObject jsonObject) {
+        Ability a = this.supplier.create(this, player, jsonObject);
         a.name = id;
         a.registerData();
         MinecraftForge.EVENT_BUS.post(new AbilityEvent.RegisterData(player, a));
+        for (Map.Entry<String, HUData<?>> entry : a.dataManager.getHUDataMap().entrySet()) {
+            if (entry.getValue().isJson()) {
+                a.dataManager.set(entry.getKey(), entry.getValue().getFromJson(jsonObject, entry.getKey(), entry.getValue().getDefaultValue()));
+            }
+        }
         return a;
     }
 
@@ -67,6 +83,6 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
 
     @FunctionalInterface
     public interface AbilitySupplier {
-        Ability create(AbilityType type);
+        Ability create(AbilityType type, Player player, JsonObject jsonObject);
     }
 }

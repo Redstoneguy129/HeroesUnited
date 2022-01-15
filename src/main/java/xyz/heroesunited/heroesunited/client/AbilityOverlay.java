@@ -52,8 +52,8 @@ public class AbilityOverlay implements IIngameOverlay {
                     mStack.popPose();
                     RenderSystem.setShaderTexture(0, widgets);
 
-                    if (ability.getMaxCooldown(mc.player) != 0) {
-                        int progress = (int) ((ability.getDataManager().<Integer>getValue("prev_cooldown") + (ability.getDataManager().<Integer>getValue("cooldown") - ability.getDataManager().<Integer>getValue("prev_cooldown")) * partialTicks) / ability.getMaxCooldown(mc.player) * 16);
+                    if (ability.getMaxCooldown() != 0) {
+                        int progress = (int) ((ability.getDataManager().<Integer>getValue("prev_cooldown") + (ability.getDataManager().<Integer>getValue("cooldown") - ability.getDataManager().<Integer>getValue("prev_cooldown")) * partialTicks) / ability.getMaxCooldown() * 16);
                         if (progress > 0) {
                             GuiComponent.blit(mStack, 3, abilityY, 46, 0, progress, 16, 64, 128);
                         }
@@ -119,7 +119,7 @@ public class AbilityOverlay implements IIngameOverlay {
     public static List<Ability> getCurrentDisplayedAbilities(Player player) {
         List<Ability> abilities, list = new ArrayList<>();
         abilities = AbilityHelper.getAbilityMap(player).values().stream()
-                .filter(a -> a != null && !a.isHidden(player)
+                .filter(a -> a != null && a.isVisible(player)
                         && a.getConditionManager().isEnabled(player, "canActivate") && a.getConditionManager().isEnabled(player, "canBeEnabled"))
                 .sorted(Comparator.comparingInt(Ability::getKey)).collect(Collectors.toList());
 

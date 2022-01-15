@@ -1,17 +1,18 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
+import com.google.gson.JsonObject;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 
 public class SizeChangeAbility extends JSONAbility {
 
-    public SizeChangeAbility(AbilityType type) {
-        super(type);
+    public SizeChangeAbility(AbilityType type, Player player, JsonObject jsonObject) {
+        super(type, player, jsonObject);
     }
 
-    @Override
-    public void registerData() {
+        @Override
+        public void registerData() {
         super.registerData();
         this.dataManager.register("size", 1.0F);
         this.dataManager.register("prev_size", 1.0F);

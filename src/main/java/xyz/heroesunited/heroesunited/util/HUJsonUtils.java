@@ -108,15 +108,9 @@ public class HUJsonUtils {
 
     public static void translatePivotOfModel(ModelPart modelRenderer, String xyz, float value, boolean player) {
         switch (xyz) {
-            case "x":
-                modelRenderer.x = (player ? modelRenderer.x : 0) + value;
-                break;
-            case "y":
-                modelRenderer.y = (player ? modelRenderer.y : 0) + value;
-                break;
-            case "z":
-                modelRenderer.z = (player ? modelRenderer.z : 0) + value;
-                break;
+            case "x" -> modelRenderer.x = (player ? modelRenderer.x : 0) + value;
+            case "y" -> modelRenderer.y = (player ? modelRenderer.y : 0) + value;
+            case "z" -> modelRenderer.z = (player ? modelRenderer.z : 0) + value;
         }
     }
 }

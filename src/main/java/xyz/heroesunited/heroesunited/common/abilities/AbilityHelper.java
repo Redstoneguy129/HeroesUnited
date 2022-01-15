@@ -99,8 +99,7 @@ public class AbilityHelper {
     public static List<AbilityCreator> parsePowers(JsonObject jsonAbilities, JsonObject json, ResourceLocation resourceLocation) {
         List<AbilityCreator> abilityList = new ArrayList<>();
         jsonAbilities.entrySet().forEach((e) -> {
-            if (e.getValue() instanceof JsonObject) {
-                JsonObject o = (JsonObject) e.getValue();
+            if (e.getValue() instanceof JsonObject o) {
                 AbilityType ability = AbilityType.ABILITIES.get().getValue(new ResourceLocation(GsonHelper.getAsString(o, "ability")));
                 if (ability != null) {
                     abilityList.add(new AbilityCreator(e.getKey(), ability, o, json));

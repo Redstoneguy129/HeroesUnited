@@ -77,7 +77,7 @@ public class JsonSuit extends Suit {
     @Override
     public Map<String, Ability> getAbilities(Player player) {
         Map<String, Ability> map = Maps.newHashMap();
-        AbilityHelper.parseAbilityCreators(jsonObject, getRegistryName()).forEach(a -> map.put(a.getKey(), a.create(player)));
+        AbilityHelper.parseAbilityCreators(jsonObject, getRegistryName()).forEach(a -> map.put(a.key(), a.create(player)));
         return map;
     }
 

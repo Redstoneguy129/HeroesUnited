@@ -3,7 +3,6 @@ package xyz.heroesunited.heroesunited.common.abilities;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -149,7 +148,7 @@ public class JsonConditionManager implements INBTSerializable<CompoundTag> {
         for (int i = 0; i < list.size(); i++) {
             CompoundTag conditionTag = list.getCompound(i);
             if (conditionTag.contains("JsonObject")) {
-                JsonObject jsonObject = new JsonParser().parse(conditionTag.getString("JsonObject")).getAsJsonObject();
+                JsonObject jsonObject = GsonHelper.parse(conditionTag.getString("JsonObject"));
                 if (getFromJson(jsonObject) != null) {
                     this.addCondition(jsonObject, conditionTag.getBoolean("Active"));
                 }

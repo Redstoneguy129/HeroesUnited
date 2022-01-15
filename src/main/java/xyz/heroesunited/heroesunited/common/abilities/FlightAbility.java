@@ -1,13 +1,14 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
+import com.google.gson.JsonObject;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 
 public class FlightAbility extends JSONAbility implements IFlyingAbility {
 
-    public FlightAbility(AbilityType type) {
-        super(type);
+    public FlightAbility(AbilityType type, Player player, JsonObject jsonObject) {
+        super(type, player, jsonObject);
     }
 
     @Override

@@ -3,7 +3,6 @@ package xyz.heroesunited.heroesunited.common.abilities;
 import com.google.gson.JsonObject;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.Map;
@@ -12,9 +11,13 @@ public abstract class JSONAbility extends Ability {
 
     protected ActionType actionType;
 
-    public JSONAbility(AbilityType type) {
-        super(type);
-        this.actionType = ActionType.CONSTANT;
+    public JSONAbility(AbilityType type, Player player, JsonObject jsonObject) {
+        super(type, player, jsonObject);
+        if (jsonObject.has("key")) {
+            this.actionType = ActionType.getById(GsonHelper.getAsString(GsonHelper.getAsJsonObject(jsonObject, "key"), "pressType", "toggle"));
+        } else {
+            this.actionType = ActionType.CONSTANT;
+        }
     }
 
     @Override
@@ -79,18 +82,10 @@ public abstract class JSONAbility extends Ability {
             this.dataManager.set("enabled", enabled);
             action(player);
             player.refreshDimensions();
-            if (!enabled && getMaxCooldown(player) != 0) {
-                this.dataManager.set("cooldown", getMaxCooldown(player));
+            if (!enabled && getMaxCooldown() != 0) {
+                this.dataManager.set("cooldown", getMaxCooldown());
             }
         }
-    }
-
-    @Override
-    public Ability setJsonObject(Entity entity, JsonObject jsonObject) {
-        if (jsonObject != null && jsonObject.has("key")) {
-            this.actionType = ActionType.getById(GsonHelper.getAsString(GsonHelper.getAsJsonObject(jsonObject, "key"), "pressType", "toggle"));
-        }
-        return super.setJsonObject(entity, jsonObject);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
+import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -8,8 +9,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 public class PotionEffectAbility extends JSONAbility {
 
-    public PotionEffectAbility(AbilityType type) {
-        super(type);
+    public PotionEffectAbility(AbilityType type, Player player, JsonObject jsonObject) {
+        super(type, player, jsonObject);
     }
 
     @Override

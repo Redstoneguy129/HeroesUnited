@@ -3,32 +3,12 @@ package xyz.heroesunited.heroesunited.common.abilities;
 import com.google.gson.JsonObject;
 import net.minecraft.world.entity.player.Player;
 
-public class AbilityCreator {
-
-    protected final String key;
-    protected final AbilityType abilityType;
-    protected final JsonObject abilityJson, jsonObject;
-
-    public AbilityCreator(String key, AbilityType abilityType, JsonObject abilityJson, JsonObject jsonObject) {
-        this.key = key;
-        this.abilityType = abilityType;
-        this.abilityJson = abilityJson;
-        this.jsonObject = jsonObject;
-    }
-
-    public String getKey() {
-        return key;
-    }
+public record AbilityCreator(String key, AbilityType abilityType, JsonObject abilityJson, JsonObject jsonObject) {
 
     public Ability create(Player player) {
-        Ability ability = this.abilityType.create(player, this.key);
-
+        Ability ability = this.abilityType.create(player, this.key, this.abilityJson);
         if (this.jsonObject != null) {
             ability.getConditionManager().registerConditions("conditions_for_abilities", this.jsonObject);
-        }
-
-        if (this.abilityJson != null) {
-            ability.setJsonObject(player, this.abilityJson);
         }
         return ability;
     }

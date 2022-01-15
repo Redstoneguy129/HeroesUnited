@@ -3,6 +3,7 @@ package xyz.heroesunited.heroesunited.common.abilities;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.player.Player;
 import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
@@ -12,8 +13,8 @@ import java.util.function.Consumer;
 
 public class RotatePartsAbility extends JSONAbility {
 
-    public RotatePartsAbility(AbilityType type) {
-        super(type);
+    public RotatePartsAbility(AbilityType type, Player player, JsonObject jsonObject) {
+        super(type, player, jsonObject);
     }
 
     @Override

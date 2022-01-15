@@ -11,8 +11,8 @@ import java.util.UUID;
 
 public class AttributeModifierAbility extends JSONAbility {
 
-    public AttributeModifierAbility(AbilityType type) {
-        super(type);
+    public AttributeModifierAbility(AbilityType type, Player player, JsonObject jsonObject) {
+        super(type, player, jsonObject);
     }
 
     @Override

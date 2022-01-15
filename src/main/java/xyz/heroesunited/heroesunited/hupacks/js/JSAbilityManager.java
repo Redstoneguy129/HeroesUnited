@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.hupacks.js;
 
+import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -33,7 +34,7 @@ public class JSAbilityManager extends JSReloadListener {
     public void apply(Map<ResourceLocation, NashornScriptEngine> map, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
         for (Map.Entry<ResourceLocation, NashornScriptEngine> entry : map.entrySet()) {
             try {
-                types.add(new AbilityType(type -> new JSAbility(type, entry.getValue())).setRegistryName(entry.getKey()));
+                types.add(new AbilityType((type, player, json) -> new JSAbility(type, player, json, entry.getValue())).setRegistryName(entry.getKey()));
             } catch (Throwable throwable) {
                 HeroesUnited.LOGGER.error("Couldn't read hupack ability {}", entry.getKey(), throwable);
             }
@@ -50,8 +51,8 @@ public class JSAbilityManager extends JSReloadListener {
 
         private final NashornScriptEngine engine;
 
-        public JSAbility(AbilityType type, NashornScriptEngine engine) {
-            super(type);
+        public JSAbility(AbilityType type, Player player, JsonObject jsonObject, NashornScriptEngine engine) {
+            super(type, player, jsonObject);
             this.engine = engine;
         }
 

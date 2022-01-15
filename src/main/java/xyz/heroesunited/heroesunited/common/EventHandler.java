@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.common;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.core.Registry;
 import net.minecraft.data.worldgen.features.OreFeatures;
@@ -64,6 +63,7 @@ import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.hupacks.js.item.IJSItem;
 import xyz.heroesunited.heroesunited.mixin.entity.LivingEntityAccessor;
+import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 import xyz.heroesunited.heroesunited.util.HUTickrate;
 
@@ -288,9 +288,8 @@ public class EventHandler {
         }
         if (event.getEntityLiving() instanceof Player) {
             for (DamageImmunityAbility a : AbilityHelper.getListOfType(AbilityHelper.getAbilities(event.getEntityLiving()), DamageImmunityAbility.class)) {
-                JsonArray jsonArray = GsonHelper.getAsJsonArray(a.getJsonObject(), "damage_sources");
-                for (int i = 0; i < jsonArray.size(); i++) {
-                    if (jsonArray.get(i).getAsString().equals(event.getSource().getMsgId()) && a.getEnabled()) {
+                for (String s : HUJsonUtils.getStringsFromArray(GsonHelper.getAsJsonArray(a.getJsonObject(), "damage_sources"))) {
+                    if (s.equals(event.getSource().getMsgId()) && a.getEnabled()) {
                         event.setCanceled(true);
                     }
                 }

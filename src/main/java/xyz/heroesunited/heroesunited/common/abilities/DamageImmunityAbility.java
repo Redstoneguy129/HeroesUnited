@@ -1,13 +1,15 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.player.Player;
 
 public class DamageImmunityAbility extends JSONAbility {
 
-    public DamageImmunityAbility(AbilityType type) {
-        super(type);
+    public DamageImmunityAbility(AbilityType type, Player player, JsonObject jsonObject) {
+        super(type, player, jsonObject);
     }
 
     public boolean haveImmuneTo(DamageSource source) {

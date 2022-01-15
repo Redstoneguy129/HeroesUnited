@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -20,8 +21,8 @@ import java.util.function.Consumer;
 
 public class EnergyLaserAbility extends JSONAbility {
 
-    public EnergyLaserAbility(AbilityType type) {
-        super(type);
+    public EnergyLaserAbility(AbilityType type, Player player, JsonObject jsonObject) {
+        super(type, player, jsonObject);
     }
 
     @Override

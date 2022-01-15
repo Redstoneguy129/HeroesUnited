@@ -23,7 +23,6 @@ public class HUNetworking {
         INSTANCE.registerMessage(NextID(), ClientSyncAbilityCap.class, ClientSyncAbilityCap::toBytes, ClientSyncAbilityCap::new, ClientSyncAbilityCap::handle);
         INSTANCE.registerMessage(NextID(), ClientSetAnimation.class, ClientSetAnimation::toBytes, ClientSetAnimation::new, ClientSetAnimation::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncHUData.class, ClientSyncHUData::toBytes, ClientSyncHUData::new, ClientSyncHUData::handle);
-        INSTANCE.registerMessage(NextID(), ClientSyncAbilityCreators.class, ClientSyncAbilityCreators::toBytes, ClientSyncAbilityCreators::new, ClientSyncAbilityCreators::handle);
         INSTANCE.registerMessage(NextID(), ClientDisableAbility.class, ClientDisableAbility::toBytes, ClientDisableAbility::new, ClientDisableAbility::handle);
         INSTANCE.registerMessage(NextID(), ClientEnableAbility.class, ClientEnableAbility::toBytes, ClientEnableAbility::new, ClientEnableAbility::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncAbilities.class, ClientSyncAbilities::toBytes, ClientSyncAbilities::new, ClientSyncAbilities::handle);
