@@ -282,7 +282,7 @@ public class ClientEventHandler {
     public void setDiscordPresence(EntityJoinWorldEvent event) {
         if (!(event.getEntity() instanceof Player) || Minecraft.getInstance().player == null || Minecraft.getInstance().player.getUUID() != event.getEntity().getUUID())
             return;
-        HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United", null, HURichPresence.MiniLogos.NONE, null);
+        HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United");
     }
 
     @SubscribeEvent
@@ -479,6 +479,7 @@ public class ClientEventHandler {
                 }
                 if (a instanceof HeatVisionAbility) {
                     float alpha = (a.getDataManager().<Integer>getValue("prev_timer") + (a.getDataManager().<Integer>getValue("timer") - a.getDataManager().<Integer>getValue("prev_timer")) * event.getPartialTicks()) / GsonHelper.getAsInt(a.getJsonObject(), "maxTimer", 10);
+                    if (alpha == 0) return;
                     if (a.getDataManager().<String>getValue("type").equals("cyclop")) {
                         AABB box1 = new AABB(-0.15F, -0.11F, 0, 0.15F, -0.11F, -distance).inflate(0.0625D);
                         HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box1.deflate(0.0625D / 2), 1F, 1F, 1F, alpha, event.getPackedLight());

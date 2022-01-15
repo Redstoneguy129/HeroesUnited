@@ -65,17 +65,25 @@ public class HURichPresence {
         }
     }
 
+    public void setDiscordRichPresence(String title) {
+        this.setDiscordRichPresence(title, null, MiniLogos.NONE, null);
+    }
+
     public void setDiscordRichPresence(String title, String description, MiniLogos logo, String caption) {
         if (!HURichPresence.isHiddenRPC()) {
-            RichPresence.Builder builder = new RichPresence.Builder();
-            builder.setState(getQuote(description))
-                    .setDetails(title)
-                    .setStartTimestamp(OffsetDateTime.now())
-                    .setLargeImage("heroes_united", "Heroes United " + SharedConstants.getCurrentVersion().getName());
-            if (logo.getLogo() != null) {
-                builder.setSmallImage(logo.getLogo(), caption);
+            try {
+                RichPresence.Builder builder = new RichPresence.Builder();
+                builder.setState(getQuote(description))
+                        .setDetails(title)
+                        .setStartTimestamp(OffsetDateTime.now())
+                        .setLargeImage("heroes_united", "Heroes United " + SharedConstants.getCurrentVersion().getName());
+                if (logo.getLogo() != null) {
+                    builder.setSmallImage(logo.getLogo(), caption);
+                }
+                client.sendRichPresence(builder.build());
+            } catch (Throwable e) {
+                HeroesUnited.LOGGER.info("No discord founded.");
             }
-            client.sendRichPresence(builder.build());
         }
     }
 

@@ -202,7 +202,7 @@ public class HeroesUnited {
         new HorasInfo.DimensionInfo("Nether", "Default      Dimension", new ResourceLocation("the_nether"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/the_nether.png"));
         new HorasInfo.DimensionInfo("End", "Default      Dimension", new ResourceLocation("the_end"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/the_end.png"));
 
-        HURichPresence.getPresence().setDiscordRichPresence("In the Menus", null, HURichPresence.MiniLogos.NONE, null);
+        HURichPresence.getPresence().setDiscordRichPresence("In the Menus");
 
         LOGGER.info(MODID + ": client is ready!");
     }
