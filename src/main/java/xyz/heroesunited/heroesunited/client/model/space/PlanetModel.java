@@ -36,7 +36,7 @@ public class PlanetModel extends Model {
     }
 
     @Override
-    public void renderToBuffer(PoseStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
+    public void renderToBuffer(PoseStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         planet.render(matrixStack, buffer, packedLight, packedOverlay);
     }
 }

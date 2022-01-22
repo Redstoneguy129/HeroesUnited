@@ -56,8 +56,8 @@ public class ProjectileAbility extends JSONAbility {
         Vec3 vec3d = (new Vec3(f, f1, f2)).normalize().add(e.level.getRandom().nextGaussian() * (double) 0.0075F * (double) inaccuracy, e.level.getRandom().nextGaussian() * (double) 0.0075F * (double) inaccuracy, e.level.getRandom().nextGaussian() * (double) 0.0075F * (double) inaccuracy).scale(velocity);
 
         e.setDeltaMovement(vec3d);
-        e.setYRot((float)(Mth.atan2(vec3d.x, vec3d.z) * (double)(180F / (float)Math.PI)));
-        e.setXRot((float)(Mth.atan2(vec3d.y, vec3d.horizontalDistance()) * (double)(180F / (float)Math.PI)));
+        e.setYRot((float) (Mth.atan2(vec3d.x, vec3d.z) * (double) (180F / (float) Math.PI)));
+        e.setXRot((float) (Mth.atan2(vec3d.y, vec3d.horizontalDistance()) * (double) (180F / (float) Math.PI)));
         e.yRotO = e.getYRot();
         e.xRotO = e.getXRot();
 

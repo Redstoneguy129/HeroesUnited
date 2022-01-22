@@ -4,7 +4,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 
-public class VenusModel extends PlanetModel{
+public class VenusModel extends PlanetModel {
 
     public VenusModel(ModelPart planet) {
         super(planet);

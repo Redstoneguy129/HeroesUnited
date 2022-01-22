@@ -12,7 +12,8 @@ import xyz.heroesunited.heroesunited.util.hudata.HUDataManager;
 
 public class HUDataCap implements IHUDataCap, INBTSerializable<CompoundTag> {
 
-    public static final Capability<IHUDataCap> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
+    public static final Capability<IHUDataCap> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {
+    });
     private final HUDataManager dataManager;
 
     public HUDataCap(Entity entity) {

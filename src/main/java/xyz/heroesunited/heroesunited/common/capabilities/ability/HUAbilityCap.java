@@ -30,7 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class HUAbilityCap implements IHUAbilityCap {
 
-    public static final Capability<IHUAbilityCap> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
+    public static final Capability<IHUAbilityCap> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {
+    });
 
     private final Player player;
     protected ConcurrentHashMap<String, Ability> activeAbilities, containedAbilities;
@@ -65,7 +66,8 @@ public class HUAbilityCap implements IHUAbilityCap {
     @Override
     public void disable(String id) {
         if (this.activeAbilities.containsKey(id)) {
-            if (MinecraftForge.EVENT_BUS.post(new AbilityEvent.Disabled(this.player, this.activeAbilities.get(id)))) return;
+            if (MinecraftForge.EVENT_BUS.post(new AbilityEvent.Disabled(this.player, this.activeAbilities.get(id))))
+                return;
             this.containedAbilities.put(id, this.activeAbilities.get(id));
             this.containedAbilities.get(id).onDeactivated(player);
             this.activeAbilities.remove(id);

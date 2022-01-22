@@ -27,7 +27,7 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
     public AbilityType(AbilitySupplier supplier) {
         this.supplier = supplier;
     }
-    
+
     public AbilityType(AbilitySupplier supplier, String modid, String name) {
         this(supplier);
         this.setRegistryName(modid, name);

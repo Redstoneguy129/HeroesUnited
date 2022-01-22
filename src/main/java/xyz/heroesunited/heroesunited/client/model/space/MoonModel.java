@@ -11,8 +11,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.renderer.RenderType;
 
-public class MoonModel extends SatelliteModel{
-
+public class MoonModel extends SatelliteModel {
 
     private final ModelPart moon;
     private float counter = 0;
@@ -24,7 +23,7 @@ public class MoonModel extends SatelliteModel{
 
     public static LayerDefinition createLayerDefinition() {
         MeshDefinition mesh = new MeshDefinition();
-        mesh.getRoot().addOrReplaceChild("planet", CubeListBuilder.create().texOffs(0, 32).addBox(0,0,0, 16.0F, 16.0F, 16.0F, new CubeDeformation(-6.0F)), PartPose.ZERO);
+        mesh.getRoot().addOrReplaceChild("planet", CubeListBuilder.create().texOffs(0, 32).addBox(0, 0, 0, 16.0F, 16.0F, 16.0F, new CubeDeformation(-6.0F)), PartPose.ZERO);
         return LayerDefinition.create(mesh, 128, 128);
     }
 
@@ -41,7 +40,7 @@ public class MoonModel extends SatelliteModel{
     }
 
     @Override
-    public void renderToBuffer(PoseStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
+    public void renderToBuffer(PoseStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         moon.render(matrixStack, buffer, packedLight, packedOverlay);
     }
 }

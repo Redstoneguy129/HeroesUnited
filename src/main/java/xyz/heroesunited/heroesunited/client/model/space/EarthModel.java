@@ -11,9 +11,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
-public class EarthModel extends PlanetModel{
+public class EarthModel extends PlanetModel {
 
-    public static final Material EARTH_TEXTURE_MATERIAL = new Material(InventoryMenu.BLOCK_ATLAS, new ResourceLocation(HeroesUnited.MODID,"planets/earth"));
+    public static final Material EARTH_TEXTURE_MATERIAL = new Material(InventoryMenu.BLOCK_ATLAS, new ResourceLocation(HeroesUnited.MODID, "planets/earth"));
     private float counter = 0;
 
     public EarthModel(ModelPart earth) {
@@ -29,7 +29,7 @@ public class EarthModel extends PlanetModel{
 
     @Override
     public void prepareModel(float partialTicks) {
-        if(!Minecraft.getInstance().isPaused()){
+        if (!Minecraft.getInstance().isPaused()) {
             if (counter < 360) {
                 counter += 0.05;
             } else {

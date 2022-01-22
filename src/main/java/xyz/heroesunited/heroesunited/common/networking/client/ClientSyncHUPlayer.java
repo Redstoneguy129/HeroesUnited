@@ -35,7 +35,7 @@ public class ClientSyncHUPlayer {
         ctx.get().enqueueWork(() -> {
             Minecraft mc = Minecraft.getInstance();
             Entity entity = mc.level.getEntity(this.entityId);
-            if (entity instanceof LivingEntity  ) {
+            if (entity instanceof LivingEntity) {
                 entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(data -> data.deserializeNBT(this.data));
                 if (mc.screen instanceof AbilitiesScreen) {
                     mc.screen.init(mc, mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());

@@ -6,7 +6,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import xyz.heroesunited.heroesunited.client.model.space.PlanetModel;
 
-public abstract class PlanetRenderer extends CelestialBodyRenderer{
+public abstract class PlanetRenderer extends CelestialBodyRenderer {
 
     protected final PlanetModel planetModel;
 
@@ -21,6 +21,6 @@ public abstract class PlanetRenderer extends CelestialBodyRenderer{
     @Override
     public void render(PoseStack matrixStack, MultiBufferSource buffers, int packedLight, float partialTicks) {
         planetModel.prepareModel(partialTicks);
-        planetModel.renderToBuffer(matrixStack,buffers.getBuffer(getRenderType()),packedLight, OverlayTexture.NO_OVERLAY, 1f,1f, 1f, 1f);
+        planetModel.renderToBuffer(matrixStack, buffers.getBuffer(getRenderType()), packedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
     }
 }

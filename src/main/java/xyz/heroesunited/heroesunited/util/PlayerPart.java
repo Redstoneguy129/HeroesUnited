@@ -14,13 +14,13 @@ public enum PlayerPart {
     LEFT_ARM, LEFT_ARM_WEAR(LEFT_ARM),
     RIGHT_LEG, RIGHT_LEG_WEAR(RIGHT_LEG),
     LEFT_LEG, LEFT_LEG_WEAR(LEFT_LEG);
-    
+
     public final PlayerPart parent;
 
     PlayerPart() {
         this.parent = null;
     }
-    
+
     PlayerPart(PlayerPart parent) {
         this.parent = parent;
     }

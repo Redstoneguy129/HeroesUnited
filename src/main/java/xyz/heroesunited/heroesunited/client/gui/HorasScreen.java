@@ -646,11 +646,11 @@ public class HorasScreen extends Screen {
             LivingEntityRenderer render = (LivingEntityRenderer) renderer;
             HeadedModel model = (HeadedModel) render.getModel();
             model.getHead().visible = true;
-            float f = (float) Math.atan((double) (-242 / 40.0F));
-            float f1 = (float) Math.atan((double) (-103 / 40.0F));
+            float f = (float) Math.atan(-242 / 40.0F);
+            float f1 = (float) Math.atan(-103 / 40.0F);
             PoseStack posestack = RenderSystem.getModelViewStack();
             posestack.pushPose();
-            posestack.translate((double) posX, (double) posY, 1050.0D);
+            posestack.translate(posX, posY, 1050.0D);
             posestack.scale(1.0F, 1.0F, -1.0F);
             RenderSystem.applyModelViewMatrix();
             PoseStack posestack1 = new PoseStack();

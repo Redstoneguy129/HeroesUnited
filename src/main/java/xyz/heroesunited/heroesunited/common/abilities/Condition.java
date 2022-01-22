@@ -148,7 +148,7 @@ public class Condition extends ForgeRegistryEntry<Condition> {
     }));
 
     public static final Condition IS_IN_FLUID = register("is_in_fluid", new Condition((c) -> {
-        for(Tag<Fluid> tag : FluidTags.getAllTags().getAllTags().values()) {
+        for (Tag<Fluid> tag : FluidTags.getAllTags().getAllTags().values()) {
             if (tag instanceof Tag.Named && ((Tag.Named<Fluid>) tag).getName().getPath().equals(GsonHelper.getAsString(c.jsonObject(), "fluid"))) {
                 return c.player().isEyeInFluid(tag);
             }

@@ -14,7 +14,7 @@ public class HUPlayerFactory extends AnimationFactory {
         super(animatable);
         this.animatable = animatable;
     }
-    
+
     public AnimationData getOrCreateAnimationData(Integer uniqueID) {
         if (!animationDataMap.containsKey(uniqueID)) {
             HUAnimationData data = new HUAnimationData();
@@ -25,7 +25,7 @@ public class HUPlayerFactory extends AnimationFactory {
         }
         return animationDataMap.get(uniqueID);
     }
-    
+
     private static class HUAnimationData extends AnimationData {
 
         @Override

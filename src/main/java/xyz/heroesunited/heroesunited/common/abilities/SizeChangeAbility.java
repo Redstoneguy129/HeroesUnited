@@ -11,8 +11,8 @@ public class SizeChangeAbility extends JSONAbility {
         super(type, player, jsonObject);
     }
 
-        @Override
-        public void registerData() {
+    @Override
+    public void registerData() {
         super.registerData();
         this.dataManager.register("size", 1.0F);
         this.dataManager.register("prev_size", 1.0F);

@@ -13,7 +13,8 @@ import javax.annotation.Nonnull;
 
 public class HUPlayerProvider implements ICapabilitySerializable<CompoundTag> {
 
-    public static final Capability<IHUPlayer> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
+    public static final Capability<IHUPlayer> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {
+    });
     private final LazyOptional<IHUPlayer> instance;
 
     public HUPlayerProvider(LivingEntity entity) {

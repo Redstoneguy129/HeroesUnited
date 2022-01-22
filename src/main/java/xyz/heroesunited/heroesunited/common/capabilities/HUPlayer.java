@@ -36,7 +36,7 @@ public class HUPlayer implements IHUPlayer {
     protected final HUPlayerFactory factory = new HUPlayerFactory(this);
     protected Map<ResourceLocation, Level> superpowerLevels;
     private int theme;
-    private float flightAmount, flightAmountO,  slowMo = 20F;
+    private float flightAmount, flightAmountO, slowMo = 20F;
     private boolean intangible;
     protected ResourceLocation animationFile;
     private final PlayerGeoModel modelProvider = new PlayerGeoModel();

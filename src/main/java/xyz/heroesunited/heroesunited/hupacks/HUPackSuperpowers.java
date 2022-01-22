@@ -80,7 +80,7 @@ public class HUPackSuperpowers extends SimpleJsonResourceReloadListener {
         ResourceManager manager = HUPacks.getInstance().getResourceManager();
         Map<ResourceLocation, JsonObject> list = Maps.newHashMap();
         if (manager == null) return list;
-        for(ResourceLocation path : manager.listResources("husuperpowers", (p_223379_0_) -> p_223379_0_.endsWith(".json"))) {
+        for (ResourceLocation path : manager.listResources("husuperpowers", (p_223379_0_) -> p_223379_0_.endsWith(".json"))) {
             ResourceLocation location = new ResourceLocation(path.getNamespace(), path.getPath().substring("husuperpowers".length() + 1, path.getPath().length() - ".json".length()));
 
             try {

@@ -82,8 +82,8 @@ import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOO
 @Mod(HeroesUnited.MODID)
 public class HeroesUnited {
 
-    public static final ResourceKey<Level> SPACE = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(HeroesUnited.MODID,"space"));
-    public static final ResourceKey<Level> MARS = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(HeroesUnited.MODID,"mars"));
+    public static final ResourceKey<Level> SPACE = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(HeroesUnited.MODID, "space"));
+    public static final ResourceKey<Level> MARS = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(HeroesUnited.MODID, "mars"));
     public static final String MODID = "heroesunited";
     public static final Logger LOGGER = LogManager.getLogger();
 
@@ -114,7 +114,7 @@ public class HeroesUnited {
         MinecraftForge.EVENT_BUS.register(new HUPlayerEvent());
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, HUConfig.CLIENT_SPEC);
 
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> DimensionSpecialEffects.EFFECTS.put(new ResourceLocation(MODID,"space"), new SpaceDimensionRenderInfo()));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> DimensionSpecialEffects.EFFECTS.put(new ResourceLocation(MODID, "space"), new SpaceDimensionRenderInfo()));
     }
 
     static {

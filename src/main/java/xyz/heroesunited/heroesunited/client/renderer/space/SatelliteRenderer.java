@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import xyz.heroesunited.heroesunited.client.model.space.SatelliteModel;
 
-public abstract class SatelliteRenderer extends CelestialBodyRenderer{
+public abstract class SatelliteRenderer extends CelestialBodyRenderer {
 
     protected final SatelliteModel satelliteModel;
 
@@ -16,6 +16,6 @@ public abstract class SatelliteRenderer extends CelestialBodyRenderer{
     @Override
     public void render(PoseStack matrixStack, MultiBufferSource buffers, int packedLight, float partialTicks) {
         satelliteModel.prepareModel(partialTicks);
-        satelliteModel.renderToBuffer(matrixStack,buffers.getBuffer(getRenderType()),packedLight, OverlayTexture.NO_OVERLAY, 1f,1f, 1f, 1f);
+        satelliteModel.renderToBuffer(matrixStack, buffers.getBuffer(getRenderType()), packedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
     }
 }

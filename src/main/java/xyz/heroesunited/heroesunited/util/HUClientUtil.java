@@ -57,7 +57,7 @@ public class HUClientUtil {
 
     public static ModelPart getSuitModelPart(boolean smallArms) {
         EntityModelSet modelSet = Minecraft.getInstance().getEntityModels();
-        if (smallArms){
+        if (smallArms) {
             return modelSet.bakeLayer(HUModelLayers.SUIT_SLIM);
         } else {
             return modelSet.bakeLayer(HUModelLayers.SUIT);

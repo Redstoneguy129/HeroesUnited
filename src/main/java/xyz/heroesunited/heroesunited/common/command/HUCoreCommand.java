@@ -26,7 +26,6 @@ import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 public class HUCoreCommand {
@@ -68,12 +67,9 @@ public class HUCoreCommand {
     }
 
     private static int setSuperpower(CommandSourceStack commandSource, Collection<ServerPlayer> players, Superpower superpower) {
-        Iterator iterator = players.iterator();
         int i = 0;
-        while (iterator.hasNext()) {
-            Player pl = (Player) iterator.next();
+        for (ServerPlayer pl : players) {
             HUPackSuperpowers.setSuperpower(pl, superpower);
-            HUAbilityCap.getCap(pl).syncToAll();
             if (pl.getCapability(HUPlayerProvider.CAPABILITY).isPresent())
                 i++;
         }
@@ -85,10 +81,8 @@ public class HUCoreCommand {
     }
 
     private static int setSuperpowerLevel(CommandSourceStack commandSource, Collection<ServerPlayer> players, int level) {
-        Iterator iterator = players.iterator();
         int i = 0;
-        while (iterator.hasNext()) {
-            Player pl = (Player) iterator.next();
+        for (ServerPlayer pl : players) {
             pl.getCapability(HUPlayerProvider.CAPABILITY).ifPresent((k) -> {
                 if (HUPackSuperpowers.getSuperpower(pl) != null) {
                     k.getSuperpowerLevels().get(HUPackSuperpowers.getSuperpower(pl)).setLevel(level);
@@ -106,12 +100,9 @@ public class HUCoreCommand {
     }
 
     private static int removeSuperpower(CommandSourceStack commandSource, Collection<ServerPlayer> players) {
-        Iterator iterator = players.iterator();
         int i = 0;
-        while (iterator.hasNext()) {
-            Player pl = (Player) iterator.next();
+        for (Player pl : players) {
             HUPackSuperpowers.removeSuperpower(pl);
-            HUAbilityCap.getCap(pl).syncToAll();
             if (pl.getCapability(HUPlayerProvider.CAPABILITY).isPresent())
                 i++;
         }
@@ -156,9 +147,7 @@ public class HUCoreCommand {
     }
 
     private static int setSuit(CommandSourceStack commandSource, Collection<ServerPlayer> players, Suit suit) {
-        Iterator iterator = players.iterator();
-        while (iterator.hasNext()) {
-            ServerPlayer pl = (ServerPlayer) iterator.next();
+        for (ServerPlayer pl : players) {
             HUPlayerUtil.setSuitForPlayer(pl, suit);
         }
         TranslatableComponent display = new TranslatableComponent(Util.makeDescriptionId("suits", suit.getRegistryName()));
