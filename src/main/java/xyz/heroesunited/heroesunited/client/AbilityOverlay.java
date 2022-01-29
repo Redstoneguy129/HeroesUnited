@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.client.gui.ForgeIngameGui;
@@ -120,7 +121,8 @@ public class AbilityOverlay implements IIngameOverlay {
         List<Ability> abilities, list = new ArrayList<>();
         abilities = AbilityHelper.getAbilityMap(player).values().stream()
                 .filter(a -> a != null && a.isVisible(player)
-                        && a.getConditionManager().isEnabled(player, "canActivate") && a.getConditionManager().isEnabled(player, "canBeEnabled"))
+                        && (GsonHelper.getAsBoolean(a.getJsonObject(), "show_deactivated", false)
+                        || a.getConditionManager().isEnabled(player, "canActivate") && a.getConditionManager().isEnabled(player, "canBeEnabled")))
                 .sorted(Comparator.comparingInt(Ability::getKey)).collect(Collectors.toList());
 
         if (abilities.isEmpty()) {

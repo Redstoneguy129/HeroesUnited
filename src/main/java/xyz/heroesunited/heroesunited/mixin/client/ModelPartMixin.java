@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.mixin.client;
 
-import com.google.common.collect.Maps;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import org.spongepowered.asm.mixin.Final;
@@ -39,20 +38,5 @@ public abstract class ModelPartMixin implements IHUModelPart {
     @Override
     public CubeDeformation size() {
         return size;
-    }
-
-    @Override
-    public void copyFrom(OldPartRenderer renderer) {
-        ModelPart modelPart = (ModelPart) (Object) this;
-        Map<String, ModelPart> children = Maps.newHashMap();
-        List<OldPartRenderer> modelRenderers = renderer.children;
-        for (int i = 0; i < modelRenderers.size(); i++) {
-            String name = "dummy" + i;
-            children.put(name, modelRenderers.get(i).bake(name));
-        }
-        modelPart.setRotation(renderer.xRot, renderer.yRot, renderer.zRot);
-        modelPart.setPos(renderer.x, renderer.y, renderer.z);
-        this.cubes = renderer.cubes;
-        this.children = children;
     }
 }

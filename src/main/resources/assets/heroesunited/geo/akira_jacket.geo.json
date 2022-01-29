@@ -1,0 +1,66 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.Geckostand",
+				"texture_width": 176,
+				"texture_height": 176,
+				"visible_bounds_width": 3,
+				"visible_bounds_height": 3.5,
+				"visible_bounds_offset": [0, 1.25, 0]
+			},
+			"bones": [
+				{
+					"name": "armorBody",
+					"pivot": [0, 24, 0],
+					"cubes": [
+						{"origin": [-4, 12, -2], "size": [8, 12, 4], "inflate": 0.2, "uv": [0, 16]},
+						{"origin": [-4, 12, -2], "size": [8, 12, 4], "inflate": 0.4, "uv": [152, 0]}
+					]
+				},
+				{
+					"name": "bone",
+					"parent": "armorBody",
+					"pivot": [0, 24, 0],
+					"cubes": [
+						{"origin": [-4.8, 12.4, -5.3], "size": [6, 6.5, 5.7], "inflate": -2.7, "uv": [113, 109]},
+						{"origin": [-5, 12.4, -5.1], "size": [6, 6.5, 5.5], "inflate": -2.6, "uv": [116, 120]},
+						{"origin": [-4.8, 15, -5.3], "size": [6, 6.5, 5.7], "inflate": -2.7, "uv": [113, 109]},
+						{"origin": [-5, 15, -5.1], "size": [6, 6.5, 5.5], "inflate": -2.6, "uv": [116, 120]},
+						{"origin": [-2.5, 15, -5.1], "size": [7, 6.5, 5.5], "inflate": -2.6, "uv": [92, 92]},
+						{"origin": [-2.5, 12.4, -5.1], "size": [7, 6.5, 5.5], "inflate": -2.6, "uv": [92, 92]},
+						{"origin": [-4.8, 17.9, -5.1], "size": [6, 6.5, 5.7], "inflate": -2.7, "uv": [113, 109]},
+						{"origin": [-5, 17.9, -4.9], "size": [6, 6.5, 5.5], "inflate": -2.6, "uv": [116, 120]},
+						{"origin": [-2.5, 17.9, -4.9], "size": [7, 6.5, 5.5], "inflate": -2.6, "uv": [92, 92]}
+					]
+				},
+				{
+					"name": "emblem",
+					"parent": "armorBody",
+					"pivot": [0, 23, 0],
+					"cubes": [
+						{"origin": [-13, 6.3, -9.3], "size": [26, 27, 21.3], "inflate": -9.7, "uv": [0, 86]},
+						{"origin": [-23, -3.7, -17.9], "size": [46, 46.9, 40.3], "inflate": -20, "uv": [0, 0]}
+					]
+				},
+				{
+					"name": "armorRightArm",
+					"pivot": [-5, 22, 0],
+					"cubes": [
+						{"origin": [-8, 12, -2], "size": [4, 12, 4], "inflate": 0.1, "uv": [116, 131]},
+						{"origin": [-8, 12, -2], "size": [4, 12, 4], "inflate": 0.199, "uv": [24, 0]}
+					]
+				},
+				{
+					"name": "armorLeftArm",
+					"pivot": [5, 22, 0],
+					"cubes": [
+						{"origin": [4, 12, -2], "size": [4, 12, 4], "inflate": 0.1, "uv": [0, 86]},
+						{"origin": [4, 12, -2], "size": [4, 12, 4], "inflate": 0.199, "uv": [24, 16]}
+					]
+				}
+			]
+		}
+	]
+}

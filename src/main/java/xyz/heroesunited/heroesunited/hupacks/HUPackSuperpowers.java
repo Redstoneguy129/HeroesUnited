@@ -19,6 +19,7 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.Superpower;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
+import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.Level;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.IHUAbilityCap;
@@ -105,8 +106,9 @@ public class HUPackSuperpowers extends SimpleJsonResourceReloadListener {
 
     public static void setSuperpower(Player player, Superpower superpower) {
         try {
-            if (!HUPlayer.getCap(player).getSuperpowerLevels().containsKey(superpower.getRegistryName())) {
-                HUPlayer.getCap(player).getSuperpowerLevels().put(superpower.getRegistryName(), new Level());
+            IHUPlayer huPlayer = HUPlayer.getCap(player);
+            if (huPlayer != null && !huPlayer.getSuperpowerLevels().containsKey(superpower.getRegistryName())) {
+                huPlayer.getSuperpowerLevels().put(superpower.getRegistryName(), new Level());
             }
             player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
                 cap.clearAbilities(ability -> ability.getAdditionalData().contains("Superpower"));
@@ -126,31 +128,15 @@ public class HUPackSuperpowers extends SimpleJsonResourceReloadListener {
     }
 
     public static boolean hasSuperpower(Player player, ResourceLocation location) {
-        IHUAbilityCap abilityCap = HUAbilityCap.getCap(player);
-        if (abilityCap != null) {
-            for (Ability ability : abilityCap.getAbilities().values()) {
-                if (ability.getAdditionalData() != null && ability.getAdditionalData().getString("Superpower").equals(location.toString())) {
-                    return true;
-                }
-            }
+        ResourceLocation superpower = getSuperpower(player);
+        if (superpower != null) {
+            return superpower.equals(location);
         }
         return false;
-    }
-
-    public static boolean hasSuperpower(Player player, Superpower superpower) {
-        return hasSuperpower(player, superpower.getRegistryName());
     }
 
     public static boolean hasSuperpowers(Player player) {
-        IHUAbilityCap abilityCap = HUAbilityCap.getCap(player);
-        if (abilityCap != null) {
-            for (Ability ability : abilityCap.getAbilities().values()) {
-                if (ability.getAdditionalData().contains("Superpower")) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return getSuperpower(player) != null;
     }
 
     public static ResourceLocation getSuperpower(Player player) {

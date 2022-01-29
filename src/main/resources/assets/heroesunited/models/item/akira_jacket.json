@@ -1,0 +1,15 @@
+{
+  "parent": "forge:item/default",
+  "loader": "forge:separate-perspective",
+  "textures": {
+    "particle": "heroesunited:accessories/akira_jacket/item"
+  },
+  "base": {
+    "parent": "heroesunited:item/akira_jacket3d"
+  },
+  "perspectives": {
+    "gui": {
+      "parent": "heroesunited:item/akira_jacket2d"
+    }
+  }
+}

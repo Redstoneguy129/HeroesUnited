@@ -127,10 +127,6 @@ public class HUPlayer implements IHUPlayer {
         return this;
     }
 
-    public void openMenu(ServerPlayer player) {
-
-    }
-
     @Override
     public IHUPlayer sync() {
         if (livingEntity instanceof ServerPlayer) {

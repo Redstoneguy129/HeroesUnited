@@ -20,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.IItemRenderProperties;
+import net.minecraftforge.client.RenderProperties;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
@@ -71,13 +72,41 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
     @OnlyIn(Dist.CLIENT)
     @Override
     public void render(EntityRendererProvider.Context context, LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, LivingEntity livingEntity, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {
+        if (stack.getItem() == HUItems.AKIRA_JACKET) {
+            GeckoAccessoryRenderer accessoryRenderer = (GeckoAccessoryRenderer) RenderProperties.get(this).getItemStackRenderer();
+            GeoModel model = accessoryRenderer.getGeoModelProvider().getModel(getModelFile());
+            //i really need rewrite accessory render code
+            IBone body = accessoryRenderer.getGeoModelProvider().getBone("armorBody");
+            GeoUtils.copyRotations(renderer.getModel().body, body);
+            body.setPositionX(renderer.getModel().body.x);
+            body.setPositionY(-renderer.getModel().body.y);
+            body.setPositionZ(renderer.getModel().body.z);
+
+            IBone rightArm = accessoryRenderer.getGeoModelProvider().getBone("armorRightArm");
+            GeoUtils.copyRotations(renderer.getModel().rightArm, rightArm);
+            rightArm.setPositionX(renderer.getModel().rightArm.x + 5);
+            rightArm.setPositionY(2 - renderer.getModel().rightArm.y);
+            rightArm.setPositionZ(renderer.getModel().rightArm.z);
+
+            IBone leftArm = accessoryRenderer.getGeoModelProvider().getBone("armorLeftArm");
+            GeoUtils.copyRotations(renderer.getModel().leftArm, leftArm);
+            leftArm.setPositionX(renderer.getModel().leftArm.x - 5);
+            leftArm.setPositionY(2 - renderer.getModel().leftArm.y);
+            leftArm.setPositionZ(renderer.getModel().leftArm.z);
+
+            matrix.pushPose();
+            matrix.translate(0.0D, 24 / 16F, 0.0D);
+            matrix.scale(-1.0F, -1.0F, 1.0F);
+            accessoryRenderer.render(model, this, partialTicks, RenderType.entityTranslucent(this.getTextureFile()), matrix, bufferIn, bufferIn.getBuffer(RenderType.entityTranslucent(this.getTextureFile())), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+            matrix.popPose();
+            return;
+        }
+
         if (stack.getItem() == HUItems.HOKAGE_CAPE) {
             matrix.pushPose();
             matrix.translate(0.0D, 24 / 16F, 0.0D);
             matrix.scale(-1.0F, -1.0F, 1.0F);
-            renderHokageCape(renderer, matrix, bufferIn, packedLightIn, livingEntity, stack, partialTicks);
-            matrix.scale(-1.0F, -1.0F, 1.0F);
-            matrix.translate(0.0D, -24 / 16F, 0.0D);
+            renderHokageCape(renderer, matrix, bufferIn, packedLightIn, livingEntity, partialTicks);
             matrix.popPose();
             return;
         }
@@ -139,7 +168,7 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderHokageCape(LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, LivingEntity livingEntity, ItemStack stack, float partialTicks) {
+    public void renderHokageCape(LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, LivingEntity livingEntity, float partialTicks) {
         GeckoAccessoryRenderer accessoryRenderer = new GeckoAccessoryRenderer();
         GeoModel model = accessoryRenderer.getGeoModelProvider().getModel(getModelFile());
 
@@ -203,7 +232,7 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
             left.setRotationZ(rot * (float) Math.toRadians(-8.8));
         }
 
-        accessoryRenderer.render(model, this, 0, RenderType.entityTranslucent(this.getTextureFile()), matrix, bufferIn, bufferIn.getBuffer(RenderType.entityTranslucent(this.getTextureFile())), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+        accessoryRenderer.render(model, this, partialTicks, RenderType.entityTranslucent(this.getTextureFile()), matrix, bufferIn, bufferIn.getBuffer(RenderType.entityTranslucent(this.getTextureFile())), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
     }
 
     @OnlyIn(Dist.CLIENT)

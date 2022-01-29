@@ -2,14 +2,14 @@ package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.gson.JsonObject;
 import net.minecraft.world.entity.player.Player;
+import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 
 public record AbilityCreator(String key, AbilityType abilityType, JsonObject abilityJson, JsonObject jsonObject) {
 
     public Ability create(Player player) {
-        Ability ability = this.abilityType.create(player, this.key, this.abilityJson);
-        if (this.jsonObject != null) {
-            ability.getConditionManager().registerConditions("conditions_for_abilities", this.jsonObject);
+        if (this.jsonObject.has("common")) {
+            return this.abilityType.create(player, this.key, HUJsonUtils.mergeJsonObject(this.abilityJson, this.jsonObject.getAsJsonObject("common")));
         }
-        return ability;
+        return this.abilityType.create(player, this.key, this.abilityJson);
     }
 }

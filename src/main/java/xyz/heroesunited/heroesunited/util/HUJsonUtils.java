@@ -20,9 +20,34 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 public class HUJsonUtils {
+
+    public static JsonObject mergeJsonObject(JsonObject init, JsonObject merge) {
+        JsonObject jsonObject = init.deepCopy();
+        for (Map.Entry<String, JsonElement> e : merge.entrySet()) {
+            if (e.getValue() instanceof JsonObject json) {
+                if (jsonObject.has(e.getKey())) {
+                    for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
+                        jsonObject.get(e.getKey()).getAsJsonObject().add(entry.getKey(), entry.getValue());
+                    }
+                } else {
+                    jsonObject.add(e.getKey(), e.getValue());
+                }
+            } else if (e.getValue() instanceof JsonArray json) {
+                if (jsonObject.has(e.getKey())) {
+                    jsonObject.get(e.getKey()).getAsJsonArray().addAll(json);
+                } else {
+                    jsonObject.add(e.getKey(), e.getValue());
+                }
+            } else {
+                jsonObject.add(e.getKey(), e.getValue());
+            }
+        }
+        return jsonObject;
+    }
 
     public static List<String> getStringsFromArray(JsonArray jsonArray) {
         List<String> list = new ArrayList<>();

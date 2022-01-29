@@ -162,7 +162,7 @@ public class HorasScreen extends Screen {
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 6, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new TextComponent(alien1.getName()), x + 6 + (75 / 2), y + 14, 16777215);
-            this.drawEntity(x + 6 + (75 / 2), y + 114, 40, alienInfoHUEntityHashMap.get(alien1));
+            this.drawEntity(x + 6 + (75 / 2), y + 114, alienInfoHUEntityHashMap.get(alien1));
             List<Character> alien1CharacterList = new ArrayList<>();
             for (char i : alien1.getDescription().toCharArray()) {
                 alien1CharacterList.add(i);
@@ -193,7 +193,7 @@ public class HorasScreen extends Screen {
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 84, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new TextComponent(alien2.getName()), x + 84 + (75 / 2), y + 14, 16777215);
-            this.drawEntity(x + 84 + (75 / 2), y + 114, 40, alienInfoHUEntityHashMap.get(alien2));
+            this.drawEntity(x + 84 + (75 / 2), y + 114, alienInfoHUEntityHashMap.get(alien2));
             List<Character> alien2CharacterList = new ArrayList<>();
             for (char i : alien2.getDescription().toCharArray()) {
                 alien2CharacterList.add(i);
@@ -221,7 +221,7 @@ public class HorasScreen extends Screen {
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 163, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new TextComponent(alien3.getName()), x + 163 + (75 / 2), y + 14, 16777215);
-            this.drawEntity(x + 163 + (75 / 2), y + 114, 40, alienInfoHUEntityHashMap.get(alien3));
+            this.drawEntity(x + 163 + (75 / 2), y + 114, alienInfoHUEntityHashMap.get(alien3));
             List<Character> alien3CharacterList = new ArrayList<>();
             for (char i : alien3.getDescription().toCharArray()) {
                 alien3CharacterList.add(i);
@@ -258,7 +258,7 @@ public class HorasScreen extends Screen {
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 6, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new TextComponent(evo1.getName()), x + 6 + (75 / 2), y + 14, 16777215);
-            this.drawEntity(x + 6 + (75 / 2), y + 114, 40, evoInfoHUEntityHashMap.get(evo1));
+            this.drawEntity(x + 6 + (75 / 2), y + 114, evoInfoHUEntityHashMap.get(evo1));
             List<Character> evo1CharacterList = new ArrayList<>();
             for (char i : evo1.getDescription().toCharArray()) {
                 evo1CharacterList.add(i);
@@ -289,7 +289,7 @@ public class HorasScreen extends Screen {
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 84, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new TextComponent(evo2.getName()), x + 84 + (75 / 2), y + 14, 16777215);
-            this.drawEntity(x + 84 + (75 / 2), y + 114, 40, evoInfoHUEntityHashMap.get(evo2));
+            this.drawEntity(x + 84 + (75 / 2), y + 114, evoInfoHUEntityHashMap.get(evo2));
             List<Character> evo2CharacterList = new ArrayList<>();
             for (char i : evo2.getDescription().toCharArray()) {
                 evo2CharacterList.add(i);
@@ -317,7 +317,7 @@ public class HorasScreen extends Screen {
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 163, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new TextComponent(evo3.getName()), x + 163 + (75 / 2), y + 14, 16777215);
-            this.drawEntity(x + 163 + (75 / 2), y + 114, 40, evoInfoHUEntityHashMap.get(evo3));
+            this.drawEntity(x + 163 + (75 / 2), y + 114, evoInfoHUEntityHashMap.get(evo3));
             List<Character> evo3CharacterList = new ArrayList<>();
             for (char i : evo3.getDescription().toCharArray()) {
                 evo3CharacterList.add(i);
@@ -354,7 +354,7 @@ public class HorasScreen extends Screen {
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 6, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new TextComponent(ghost1.getName()), x + 6 + (75 / 2), y + 14, 16777215);
-            this.drawEntity(x + 6 + (75 / 2), y + 114, 40, ghostInfoHUEntityHashMap.get(ghost1));
+            this.drawEntity(x + 6 + (75 / 2), y + 114, ghostInfoHUEntityHashMap.get(ghost1));
             List<Character> ghost1CharacterList = new ArrayList<>();
             for (char i : ghost1.getDescription().toCharArray()) {
                 ghost1CharacterList.add(i);
@@ -385,7 +385,7 @@ public class HorasScreen extends Screen {
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 84, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new TextComponent(ghost2.getName()), x + 84 + (75 / 2), y + 14, 16777215);
-            this.drawEntity(x + 84 + (75 / 2), y + 114, 40, ghostInfoHUEntityHashMap.get(ghost2));
+            this.drawEntity(x + 84 + (75 / 2), y + 114, ghostInfoHUEntityHashMap.get(ghost2));
             List<Character> ghost2CharacterList = new ArrayList<>();
             for (char i : ghost2.getDescription().toCharArray()) {
                 ghost2CharacterList.add(i);
@@ -413,7 +413,7 @@ public class HorasScreen extends Screen {
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 163, y + 7, 256, 256, 75, 138);
             drawCenteredString(matrixStack, this.font, new TextComponent(ghost3.getName()), x + 163 + (75 / 2), y + 14, 16777215);
-            this.drawEntity(x + 163 + (75 / 2), y + 114, 40, ghostInfoHUEntityHashMap.get(ghost3));
+            this.drawEntity(x + 163 + (75 / 2), y + 114, ghostInfoHUEntityHashMap.get(ghost3));
             List<Character> ghost3CharacterList = new ArrayList<>();
             for (char i : ghost3.getDescription().toCharArray()) {
                 ghost3CharacterList.add(i);
@@ -639,11 +639,9 @@ public class HorasScreen extends Screen {
         }
     }
 
-
-    private void drawEntity(int posX, int posY, int scale, LivingEntity entity) {
+    private void drawEntity(int posX, int posY, LivingEntity entity) {
         EntityRenderer<? super Entity> renderer = this.getMinecraft().getEntityRenderDispatcher().getRenderer(entity);
-        if (renderer instanceof LivingEntityRenderer && ((LivingEntityRenderer) renderer).getModel() instanceof HeadedModel) {
-            LivingEntityRenderer render = (LivingEntityRenderer) renderer;
+        if (renderer instanceof LivingEntityRenderer render && ((LivingEntityRenderer) renderer).getModel() instanceof HeadedModel) {
             HeadedModel model = (HeadedModel) render.getModel();
             model.getHead().visible = true;
             float f = (float) Math.atan(-242 / 40.0F);
@@ -655,7 +653,7 @@ public class HorasScreen extends Screen {
             RenderSystem.applyModelViewMatrix();
             PoseStack posestack1 = new PoseStack();
             posestack1.translate(0.0D, 0.0D, 1000.0D);
-            posestack1.scale((float) scale, (float) scale, (float) scale);
+            posestack1.scale((float) 40, (float) 40, (float) 40);
             Quaternion quaternion = Vector3f.ZP.rotationDegrees(180.0F);
             Quaternion quaternion1 = Vector3f.XP.rotationDegrees(f1 * 20.0F);
             quaternion.mul(quaternion1);

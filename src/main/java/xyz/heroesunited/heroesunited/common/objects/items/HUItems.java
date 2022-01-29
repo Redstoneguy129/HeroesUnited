@@ -42,10 +42,15 @@ public class HUItems {
     public static final GeckoAccessory CAPTAIN_REX = register("captain_rex", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "Zekeram12"));
     public static final GeckoAccessory PERRY_TAIL = register("perry_tail", new GeckoAccessory(EquipmentAccessoriesSlot.TSHIRT, "Mr Ali S"));
     public static final GeckoAccessory MADNESSCOMBAT = register("madnesscombat", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "Mattetull"));
+    public static final GeckoAccessory AKIRA_JACKET = register("akira_jacket", new GeckoAccessory(EquipmentAccessoriesSlot.JACKET, "ThatOneGuy"));
     public static final GeckoAccessory MADNESSCLAW = register("madnessclaw", new GeckoAccessory(EquipmentAccessoriesSlot.RIGHT_WRIST, "Mattetull"));
     public static final GeckoAccessory CAP_SHIELD_ACCESSORY = register("cap_shield", new GeckoAccessory(EquipmentAccessoriesSlot.TSHIRT, "El Dunchess"));
     public static final GeckoAccessory GREEN_GOGGLES = register("green_goggles", new GeckoAccessory(EquipmentAccessoriesSlot.HELMET, "artman"));
     public static final GeckoAccessory HOKAGE_CAPE = register("hokage_cape", new GeckoAccessory(EquipmentAccessoriesSlot.JACKET, "Master Ern"));
+
+    public static final JasonAccessory JASON_JACKET = register("jason_jacket", new JasonAccessory(EquipmentAccessoriesSlot.JACKET));
+    public static final JasonAccessory JASON_SHIRT = register("jason_shirt", new JasonAccessory(EquipmentAccessoriesSlot.TSHIRT));
+    public static final JasonAccessory JASON_PANTS = register("jason_pants", new JasonAccessory(EquipmentAccessoriesSlot.PANTS));
 
     private static <T extends Item> T register(String name, T item) {
         ITEMS.register(name, () -> item);

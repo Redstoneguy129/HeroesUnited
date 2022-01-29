@@ -8,9 +8,6 @@ public interface IHUModelPart {
 
     CubeDeformation size();
 
-    default void copyFrom(OldPartRenderer renderer) {
-    }
-
     default void resetSize() {
         this.setSize(CubeDeformation.NONE);
     }
