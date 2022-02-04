@@ -35,6 +35,7 @@ import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.settings.KeyConflictContext;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.network.PacketDistributor;
@@ -69,6 +70,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientEventHandler {
@@ -83,8 +85,14 @@ public class ClientEventHandler {
             ClientRegistry.registerKeyBinding(ABILITIES_SCREEN);
             ClientRegistry.registerKeyBinding(ACCESSORIES_SCREEN);
 
-            for (int i = 1; i <= 5; i++) {
-                int key = i == 1 ? GLFW.GLFW_KEY_Z : i == 2 ? GLFW.GLFW_KEY_R : i == 3 ? GLFW.GLFW_KEY_G : i == 4 ? GLFW.GLFW_KEY_V : GLFW.GLFW_KEY_B;
+            for (int i = 1; i < 6; i++) {
+                int key = switch (i) {
+                    case 1 -> GLFW.GLFW_KEY_Z;
+                    case 2 -> GLFW.GLFW_KEY_R;
+                    case 3 -> GLFW.GLFW_KEY_G;
+                    case 4 -> GLFW.GLFW_KEY_V;
+                    default -> GLFW.GLFW_KEY_B;
+                };
                 AbilityKeyBinding keyBinding = new AbilityKeyBinding(HeroesUnited.MODID + ".key.ability_" + i, key, i);
                 ClientRegistry.registerKeyBinding(keyBinding);
                 ABILITY_KEYS.add(keyBinding);
@@ -134,11 +142,6 @@ public class ClientEventHandler {
         if (ACCESSORIES_SCREEN.consumeClick()) {
             HUNetworking.INSTANCE.sendToServer(new ServerOpenAccessoriesInv(mc.player.getId()));
         }
-
-        for (AbilityKeyBinding key : ABILITY_KEYS) {
-            sendToggleKey(key, key.index);
-        }
-        sendToggleKey(mc.options.keyJump, 7);
     }
 
     @SubscribeEvent
@@ -177,17 +180,25 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent
-    public void onKeyInput(InputEvent.MouseInputEvent e) {
+    public void clientTick2(TickEvent.ClientTickEvent event) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.screen != null) return;
-        sendToggleKey(mc.options.keyAttack, 8);
-        sendToggleKey(mc.options.keyUse, 9);
-        sendToggleKey(mc.options.keyPickItem, 10);
-    }
+        if (event.phase == TickEvent.Phase.END || mc.screen != null || mc.player == null) return;
 
-    public static void sendToggleKey(KeyMapping keyBind, int index) {
-        if (KEY_MAP.get(index) != keyBind.isDown()) {
-            KEY_MAP.put(index, keyBind.isDown());
+        KeyMap map = new KeyMap();
+        map.putAll(KEY_MAP);
+        for (Map.Entry<Integer, Boolean> e : KEY_MAP.entrySet()) {
+            KeyMapping keyBind = KEY_MAP.getKeyMapping(e.getKey());
+            if (e.getValue()) {
+                if (!keyBind.isDown()) {
+                    KEY_MAP.put(e.getKey(), false);
+                }
+            } else {
+                while (keyBind.consumeClick()) {
+                    KEY_MAP.put(e.getKey(), true);
+                }
+            }
+        }
+        if (!KEY_MAP.equals(map)) {
             HUNetworking.INSTANCE.sendToServer(new ServerKeyInput(KEY_MAP));
             Minecraft.getInstance().player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> cap.onKeyInput(KEY_MAP));
         }

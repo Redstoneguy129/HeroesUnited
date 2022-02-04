@@ -1,7 +1,7 @@
 buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net' }
-        //maven { url = 'https://maven.parchmentmc.org' }
+        maven { url = 'https://maven.parchmentmc.org' }
         maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
         gradlePluginPortal()
         mavenCentral()
@@ -10,14 +10,14 @@ buildscript {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         classpath "gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0"
         classpath 'org.spongepowered:mixingradle:0.7.+'
-        //classpath 'org.parchmentmc:librarian:1.+'
+        classpath 'org.parchmentmc:librarian:1.+'
     }
 }
 
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'net.minecraftforge.gradle'
-//apply plugin: 'org.parchmentmc.librarian.forgegradle'
+apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'idea'
 
@@ -28,8 +28,8 @@ archivesBaseName = "heroesunited"
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
-    //mappings channel: 'parchment', version: '2021.10.17-1.16.5'
-    mappings channel: 'official', version: "${minecraft_version}"
+    mappings channel: 'parchment', version: "2021.12.19-${minecraft_version}"
+    //mappings channel: 'official', version: "${minecraft_version}"
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     runs {
         client {
@@ -74,9 +74,10 @@ minecraft {
 }
 
 configurations {
-    library
     shade
-    implementation.extendsFrom library
+    implementation.extendsFrom shade
+
+    library
     shade.extendsFrom library
 }
 
@@ -88,48 +89,42 @@ minecraft.runs.all {
     }
 }
 
-shadowJar {
-    configurations = [project.configurations.shade]
-    exclude 'com/sun/jna/**'
-    exclude 'software/bernie/example/**'
-    exclude 'assets/geckolib3/**'
-    relocate 'software.bernie.geckolib', 'software.bernie.HU.geckolib'
-
-    classifier ''
-}
-
 repositories {
     maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
     maven { url 'https://jitpack.io' }
-    maven { url "https://www.cursemaven.com" }
-    jcenter()
-
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:$project.minecraft_version-$project.forge_version"
-    //annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
+    annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
-    implementation fg.deobf("software.bernie.geckolib:geckolib-1.18-forge:$project.geckolib_version")
     shade fg.deobf("software.bernie.geckolib:geckolib-1.18-forge:$project.geckolib_version")
 
-    library('com.jagrosh:DiscordIPC:0.4') {
+    library('com.github.jagrosh:DiscordIPC:ff8c5b73ee') {
         exclude group: 'org.slf4j'
     }
+}
 
-    shade ('com.jagrosh:DiscordIPC:0.4') {
-        exclude group: 'org.slf4j'
-    }
+shadowJar {
+    configurations = [project.configurations.shade]
+    exclude '**/*.java'
+    exclude 'com/sun/jna/**'
+    exclude 'software/bernie/example/**'
+    exclude 'assets/geckolib3/**'
+    relocate 'software.bernie.geckolib', 'software.bernie.HU.geckolib'
+    relocate 'com.jagrosh', 'com.jagrosh.HU'
+
+    classifier ''
 }
 
 task deobfJar(type: Jar) {
     from sourceSets.main.output
-    classifier = 'deobf'
+    classifier 'deobf'
 }
 
 task sourcesJar(type: Jar) {
-    classifier = 'sources'
     from sourceSets.main.allJava
+    classifier 'sources'
 }
 
 artifacts {

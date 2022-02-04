@@ -12,6 +12,7 @@ import net.minecraftforge.fml.ModList;
 import software.bernie.geckolib3.compat.PatchouliCompat;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.processor.IBone;
+import software.bernie.geckolib3.core.util.Color;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
@@ -20,7 +21,6 @@ import xyz.heroesunited.heroesunited.client.model.GeckoSuitModel;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
-import java.awt.*;
 import java.util.Arrays;
 
 public class GeckoSuitRenderer<T extends SuitItem> extends GeoArmorRenderer<T> {

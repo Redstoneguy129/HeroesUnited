@@ -61,17 +61,16 @@ public abstract class JSONAbility extends Ability {
     @Override
     public void onKeyInput(Player player, Map<Integer, Boolean> map) {
         super.onKeyInput(player, map);
-        if (getKey() != 0 && actionType != ActionType.CONSTANT) {
-            if (map.get(getKey())) {
-                if (actionType == ActionType.TOGGLE) {
-                    setEnabled(player, !this.dataManager.<Boolean>getValue("enabled"));
-                }
-                if (actionType == ActionType.ACTION) {
-                    setEnabled(player, true);
-                }
+        if (this.getKey() == 0) return;
+        if (map.get(this.getKey())) {
+            if (this.actionType == ActionType.TOGGLE) {
+                this.setEnabled(player, !this.dataManager.<Boolean>getValue("enabled"));
+            } else {
+                this.setEnabled(player, true);
             }
-            if (actionType == ActionType.HELD) {
-                setEnabled(player, map.get(getKey()));
+        } else {
+            if (this.actionType == ActionType.HELD) {
+                this.setEnabled(player, false);
             }
         }
     }
@@ -80,7 +79,7 @@ public abstract class JSONAbility extends Ability {
         boolean b = !enabled || this.conditionManager.isEnabled(player, "canBeEnabled");
         if (this.dataManager.<Boolean>getValue("enabled") != enabled && b && this.dataManager.<Integer>getValue("cooldown") == 0) {
             this.dataManager.set("enabled", enabled);
-            action(player);
+            this.action(player);
             player.refreshDimensions();
             if (!enabled && getMaxCooldown() != 0) {
                 this.dataManager.set("cooldown", getMaxCooldown());

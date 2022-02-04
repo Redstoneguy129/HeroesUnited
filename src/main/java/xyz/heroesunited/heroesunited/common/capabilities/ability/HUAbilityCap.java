@@ -66,10 +66,13 @@ public class HUAbilityCap implements IHUAbilityCap {
     @Override
     public void disable(String id) {
         if (this.activeAbilities.containsKey(id)) {
-            if (MinecraftForge.EVENT_BUS.post(new AbilityEvent.Disabled(this.player, this.activeAbilities.get(id))))
+            Ability ability = this.activeAbilities.get(id);
+            if (MinecraftForge.EVENT_BUS.post(new AbilityEvent.Disabled(this.player, ability)))
                 return;
-            this.containedAbilities.put(id, this.activeAbilities.get(id));
-            this.containedAbilities.get(id).onDeactivated(player);
+            ability.onDeactivated(player);
+            if (this.containedAbilities.containsKey(id)) {
+                this.containedAbilities.put(id, ability);
+            }
             this.activeAbilities.remove(id);
             if (!player.level.isClientSide)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientDisableAbility(player.getId(), id));
@@ -86,7 +89,6 @@ public class HUAbilityCap implements IHUAbilityCap {
         if (!containedAbilities.containsKey(id)) {
             containedAbilities.put(id, ability);
             ability.name = id;
-            syncToAll();
             if (!player.level.isClientSide)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getId(), this.getAbilities()));
         }
@@ -107,9 +109,8 @@ public class HUAbilityCap implements IHUAbilityCap {
     @Override
     public void removeAbility(String id) {
         if (this.containedAbilities.containsKey(id)) {
-            this.disable(id);
             this.containedAbilities.remove(id);
-            this.syncToAll();
+            this.disable(id);
             if (!player.level.isClientSide)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getId(), this.getAbilities()));
         }
@@ -161,7 +162,10 @@ public class HUAbilityCap implements IHUAbilityCap {
     public CompoundTag serializeNBT() {
         CompoundTag nbt = new CompoundTag();
         CompoundTag activeAbilities = new CompoundTag(), abilities = new CompoundTag();
-        this.activeAbilities.forEach((id, ability) -> activeAbilities.put(id, ability.serializeNBT()));
+        this.activeAbilities.forEach((id, ability) -> {
+            this.containedAbilities.put(id, ability);
+            activeAbilities.put(id, ability.serializeNBT());
+        });
         this.containedAbilities.forEach((id, ability) -> abilities.put(id, ability.serializeNBT()));
 
         nbt.put("ActiveAbilities", activeAbilities);
@@ -176,10 +180,16 @@ public class HUAbilityCap implements IHUAbilityCap {
         this.containedAbilities.clear();
 
         for (String id : activeAbilities.getAllKeys()) {
-            this.activeAbilities.put(id, AbilityType.fromNBT(this.player, id, activeAbilities.getCompound(id)));
+            Ability ability = AbilityType.fromNBT(this.player, id, activeAbilities.getCompound(id));
+            if (ability != null) {
+                this.activeAbilities.put(id, ability);
+                this.containedAbilities.put(id, ability);
+            }
         }
         for (String id : abilities.getAllKeys()) {
-            this.containedAbilities.put(id, AbilityType.fromNBT(this.player, id, abilities.getCompound(id)));
+            if (!this.containedAbilities.containsKey(id)) {
+                this.containedAbilities.put(id, AbilityType.fromNBT(this.player, id, abilities.getCompound(id)));
+            }
         }
     }
 }
