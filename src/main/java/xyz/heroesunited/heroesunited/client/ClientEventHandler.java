@@ -193,7 +193,7 @@ public class ClientEventHandler {
                     KEY_MAP.put(e.getKey(), false);
                 }
             } else {
-                while (keyBind.consumeClick()) {
+                if (keyBind.isDown()) {
                     KEY_MAP.put(e.getKey(), true);
                 }
             }
