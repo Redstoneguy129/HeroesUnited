@@ -3,10 +3,10 @@ package xyz.heroesunited.heroesunited.common.networking.client;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.NetworkEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
@@ -50,7 +50,7 @@ public class ClientSyncAbilities {
             Minecraft mc = Minecraft.getInstance();
             Entity entity = mc.level.getEntity(this.entityId);
 
-            if (entity instanceof AbstractClientPlayer player) {
+            if (entity instanceof Player player) {
                 entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent((a) -> {
                     ImmutableList.copyOf(a.getAbilities().keySet()).forEach(a::removeAbility);
                     this.abilities.forEach((key, nbt) -> a.addAbility(key, AbilityType.fromNBT(player, key, nbt)));
