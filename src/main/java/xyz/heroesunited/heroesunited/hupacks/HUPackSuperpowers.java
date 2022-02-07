@@ -14,6 +14,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
@@ -24,17 +25,15 @@ import xyz.heroesunited.heroesunited.common.capabilities.Level;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.IHUAbilityCap;
 import xyz.heroesunited.heroesunited.common.events.RegisterSuperpowerEvent;
+import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncSuperpowers;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class HUPackSuperpowers extends SimpleJsonResourceReloadListener {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private static HUPackSuperpowers INSTANCE;
-    private final Map<ResourceLocation, Superpower> registeredSuperpowers = Maps.newHashMap();
+    public Map<ResourceLocation, Superpower> registeredSuperpowers = Maps.newHashMap();
 
     public HUPackSuperpowers() {
         super(GSON, "husuperpowers");
@@ -57,6 +56,7 @@ public class HUPackSuperpowers extends SimpleJsonResourceReloadListener {
         if (server != null) {
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                 if (player != null && player.isAlive()) {
+                    HUNetworking.INSTANCE.sendTo(new ClientSyncSuperpowers(this.registeredSuperpowers), player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                     ResourceLocation resourceLocation = HUPackSuperpowers.getSuperpower(player);
                     if (resourceLocation != null && registeredSuperpowers.containsKey(resourceLocation)) {
                         HUPackSuperpowers.setSuperpower(player, registeredSuperpowers.get(resourceLocation));
@@ -77,31 +77,20 @@ public class HUPackSuperpowers extends SimpleJsonResourceReloadListener {
         return superpowers;
     }
 
-    public static Map<ResourceLocation, JsonObject> getSuperpowersJSONS() {
-        ResourceManager manager = HUPacks.getInstance().getResourceManager();
-        Map<ResourceLocation, JsonObject> list = Maps.newHashMap();
-        if (manager == null) return list;
-        for (ResourceLocation path : manager.listResources("husuperpowers", (p_223379_0_) -> p_223379_0_.endsWith(".json"))) {
-            ResourceLocation location = new ResourceLocation(path.getNamespace(), path.getPath().substring("husuperpowers".length() + 1, path.getPath().length() - ".json".length()));
-
-            try {
-                JsonElement jsonelement = GsonHelper.fromJson(HUPacks.GSON, new BufferedReader(new InputStreamReader(manager.getResource(path).getInputStream(), StandardCharsets.UTF_8)), JsonElement.class);
-                if (jsonelement instanceof JsonObject) {
-                    list.put(location, jsonelement.getAsJsonObject());
-                }
-            } catch (IOException ignored) {
-            }
-        }
-
-        return list;
-    }
-
     public static HUPackSuperpowers getInstance() {
-        return INSTANCE;
+        return INSTANCE == null ? new HUPackSuperpowers() : INSTANCE;
     }
 
     public static Superpower getSuperpower(ResourceLocation location) {
         return getInstance().registeredSuperpowers.get(location);
+    }
+
+    public static Superpower getSuperpowerFrom(Player player) {
+        ResourceLocation location = getSuperpower(player);
+        if (location != null) {
+            return getInstance().registeredSuperpowers.get(location);
+        }
+        return null;
     }
 
     public static void setSuperpower(Player player, Superpower superpower) {

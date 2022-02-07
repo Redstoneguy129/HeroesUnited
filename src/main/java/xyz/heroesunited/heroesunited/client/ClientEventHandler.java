@@ -134,7 +134,7 @@ public class ClientEventHandler {
         }
 
         if (ABILITIES_SCREEN.consumeClick()) {
-            if (!HUPackSuperpowers.hasSuperpowers(mc.player) || !GsonHelper.getAsBoolean(HUPackSuperpowers.getSuperpowersJSONS().get(HUPackSuperpowers.getSuperpower(mc.player)), "block_screen", false)) {
+            if (!HUPackSuperpowers.hasSuperpowers(mc.player) || !GsonHelper.getAsBoolean(HUPackSuperpowers.getSuperpowerFrom(mc.player).jsonObject, "block_screen", false)) {
                 mc.player.level.playSound(mc.player, mc.player.getX(), mc.player.getY(), mc.player.getZ(), SoundEvents.STONE_BUTTON_CLICK_ON, SoundSource.NEUTRAL, 1, 0);
                 mc.setScreen(new AbilitiesScreen());
             }

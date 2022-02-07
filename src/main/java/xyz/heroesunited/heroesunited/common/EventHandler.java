@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.common;
 
+import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import net.minecraft.core.Registry;
 import net.minecraft.data.worldgen.features.OreFeatures;
@@ -38,6 +39,7 @@ import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.network.NetworkDirection;
@@ -53,6 +55,7 @@ import xyz.heroesunited.heroesunited.common.events.BlockCollisionEvent;
 import xyz.heroesunited.heroesunited.common.events.EntitySprintingEvent;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncCelestialBody;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncSuperpowers;
 import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
 import xyz.heroesunited.heroesunited.common.objects.blocks.HUBlocks;
 import xyz.heroesunited.heroesunited.common.space.CelestialBodies;
@@ -391,6 +394,20 @@ public class EventHandler {
         AttributeInstance attributeInstance = event.getEntityLiving().getAttribute(JUMP_BOOST);
         if (event.getEntityLiving() instanceof Player player && attributeInstance != null) {
             player.setDeltaMovement(player.getDeltaMovement().x, player.getDeltaMovement().y + 0.1F * attributeInstance.getValue(), player.getDeltaMovement().z);
+        }
+    }
+
+    @SubscribeEvent
+    public void loggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getPlayer() instanceof ServerPlayer player) {
+            HUNetworking.INSTANCE.sendTo(new ClientSyncSuperpowers(HUPackSuperpowers.getInstance().registeredSuperpowers), player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+        }
+    }
+
+    @SubscribeEvent
+    public void loggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (event.getPlayer() instanceof ServerPlayer player) {
+            HUNetworking.INSTANCE.sendTo(new ClientSyncSuperpowers(Maps.newHashMap()), player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
         }
     }
 

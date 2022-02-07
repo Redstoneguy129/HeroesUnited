@@ -53,7 +53,7 @@ public class Condition extends ForgeRegistryEntry<Condition> {
         boolean invert = GsonHelper.getAsBoolean(jsonObject, "invert", false);
         this.earlyFunction.accept(variables);
         if (jsonObject.has("creative") && player.isCreative()) {
-            return !invert;
+            return true;
         }
         return invert != function.test(variables);
     }
