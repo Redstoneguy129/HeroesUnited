@@ -36,7 +36,7 @@ public class ProjectileAbility extends JSONAbility {
                 entity.moveTo(player.getX(), (player.getY() + player.getEyeHeight()) - 0.25D, player.getZ(), entity.getYRot(), entity.getXRot());
                 float velocity = GsonHelper.getAsFloat(getJsonObject(), "velocity", 1.5F);
                 float inaccuracy = GsonHelper.getAsFloat(getJsonObject(), "inaccuracy", 0F);
-                shoot(entity, player, velocity, inaccuracy);
+                this.shoot(entity, player, velocity, inaccuracy);
 
                 if (entity instanceof Projectile) {
                     ((Projectile) entity).setOwner(player);

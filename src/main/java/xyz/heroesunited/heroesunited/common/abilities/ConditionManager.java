@@ -13,17 +13,17 @@ import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-public class JsonConditionManager implements INBTSerializable<CompoundTag> {
+public class ConditionManager implements INBTSerializable<CompoundTag> {
 
     protected ConcurrentHashMap<String, Boolean> methodConditions = new ConcurrentHashMap<>();
     protected ConcurrentHashMap<JsonObject, Boolean> conditions = new ConcurrentHashMap<>();
     private final Ability ability;
 
-    public JsonConditionManager() {
+    public ConditionManager() {
         this(null);
     }
 
-    public JsonConditionManager(Ability ability) {
+    public ConditionManager(Ability ability) {
         this.ability = ability;
     }
 

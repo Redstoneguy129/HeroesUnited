@@ -7,6 +7,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
 import java.util.UUID;
@@ -19,13 +20,13 @@ public class CommandAbility extends JSONAbility implements CommandSource {
 
     @Override
     public void action(Player player) {
-        if (player.level.getServer() != null && getEnabled()) {
-            player.level.getServer().getCommands().performCommand(new CommandSourceStack(this, player.position(), player.getRotationVector(), player.level instanceof ServerLevel ? (ServerLevel) player.level : null, 4, player.getName().getString(), player.getDisplayName(), player.level.getServer(), player), GsonHelper.getAsString(getJsonObject(), "command", "/say Hello World"));
+        if (player.level instanceof ServerLevel level && getEnabled()) {
+            level.getServer().getCommands().performCommand(new CommandSourceStack(this, player.position(), player.getRotationVector(), level, 4, player.getName().getString(), player.getDisplayName(), level.getServer(), player), GsonHelper.getAsString(getJsonObject(), "command", "/say Hello World"));
         }
     }
 
     @Override
-    public void sendMessage(Component component, UUID uuid) {
+    public void sendMessage(Component component, @NotNull UUID uuid) {
         HeroesUnited.LOGGER.error(name + " error: " + component.getString());
     }
 

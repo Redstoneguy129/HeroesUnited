@@ -231,7 +231,7 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public void renderShadowSize(ChangeShadowSizeEvent event) {
-        for (SizeChangeAbility a : AbilityHelper.getListOfType(AbilityHelper.getAbilities(event.getEntity()), SizeChangeAbility.class)) {
+        for (SizeChangeAbility a : AbilityHelper.getListOfType(SizeChangeAbility.class, AbilityHelper.getAbilities(event.getEntity()))) {
             if (a.changeSizeInRender()) {
                 event.setNewSize(event.getDefaultSize() * a.getSize());
             }
@@ -240,7 +240,7 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public void renderPlayer(RenderPlayerEvent event) {
-        for (SizeChangeAbility a : AbilityHelper.getListOfType(AbilityHelper.getAbilities(event.getEntity()), SizeChangeAbility.class)) {
+        for (SizeChangeAbility a : AbilityHelper.getListOfType(SizeChangeAbility.class, AbilityHelper.getAbilities(event.getEntity()))) {
             if (a.changeSizeInRender()) {
                 if (event instanceof RenderPlayerEvent.Pre) {
                     event.getPoseStack().pushPose();
@@ -256,7 +256,7 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public void onRenderHULayer(RenderLayerEvent.Accessories<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> event) {
-        for (HideLayerAbility ability : AbilityHelper.getListOfType(AbilityHelper.getAbilities(event.getLivingEntity()), HideLayerAbility.class)) {
+        for (HideLayerAbility ability : AbilityHelper.getListOfType(HideLayerAbility.class, AbilityHelper.getAbilities(event.getLivingEntity()))) {
             if (ability.layerNameIs("accessories")) {
                 event.setCanceled(true);
             }
@@ -266,7 +266,7 @@ public class ClientEventHandler {
     @SubscribeEvent
     public void hideLayers(HideLayerEvent event) {
         if (event.getEntity() instanceof Player) {
-            for (HideLayerAbility a : AbilityHelper.getListOfType(AbilityHelper.getAbilities(event.getEntity()), HideLayerAbility.class)) {
+            for (HideLayerAbility a : AbilityHelper.getListOfType(HideLayerAbility.class, AbilityHelper.getAbilities(event.getEntity()))) {
                 if (a.layerNameIs("armor")) {
                     event.blockLayers(HumanoidArmorLayer.class, ElytraLayer.class);
                 }

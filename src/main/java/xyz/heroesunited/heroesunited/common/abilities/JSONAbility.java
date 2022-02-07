@@ -7,7 +7,7 @@ import net.minecraft.world.entity.player.Player;
 
 import java.util.Map;
 
-public abstract class JSONAbility extends Ability {
+public class JSONAbility extends Ability {
 
     protected ActionType actionType;
 
@@ -30,14 +30,14 @@ public abstract class JSONAbility extends Ability {
     public void onUpdate(Player player) {
         super.onUpdate(player);
         if (actionType != ActionType.ACTION) {
-            action(player);
+            this.action(player);
         } else {
             if (this.dataManager.<Boolean>getValue("enabled")) {
-                setEnabled(player, false);
+                this.setEnabled(player, false);
             }
         }
         if (actionType == ActionType.CONSTANT && !this.dataManager.<Boolean>getValue("enabled")) {
-            setEnabled(player, true);
+            this.setEnabled(player, true);
         }
 
         for (Map.Entry<String, Boolean> entry : this.conditionManager.getMethodConditions().entrySet()) {
@@ -50,8 +50,8 @@ public abstract class JSONAbility extends Ability {
     @Override
     public void onDeactivated(Player player) {
         super.onDeactivated(player);
-        setEnabled(player, false);
-        action(player);
+        this.setEnabled(player, false);
+        this.action(player);
     }
 
     public void action(Player player) {

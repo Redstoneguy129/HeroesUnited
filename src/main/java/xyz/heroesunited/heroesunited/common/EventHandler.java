@@ -97,7 +97,7 @@ public class EventHandler {
                     }
                 }
             });
-            for (SizeChangeAbility a : AbilityHelper.getListOfType(AbilityHelper.getAbilities(player), SizeChangeAbility.class)) {
+            for (SizeChangeAbility a : AbilityHelper.getListOfType(SizeChangeAbility.class, AbilityHelper.getAbilities(player))) {
                 if (a.getSize() != 1.0F) {
                     event.setNewSize(event.getNewSize().scale(a.getSize()));
                     event.setNewEyeHeight(event.getNewEyeHeight() * a.getSize());
@@ -265,8 +265,8 @@ public class EventHandler {
                             if (pl.zza > 0F) {
                                 Vec3 vec = pl.getLookAngle();
                                 double speed = pl.isSprinting() ? 2.5f : 1f;
-                                for (FlightAbility ability : AbilityHelper.getListOfType(AbilityHelper.getAbilities(pl), FlightAbility.class)) {
-                                    if (ability.getJsonObject() != null && ability.getJsonObject().has("speed")) {
+                                for (FlightAbility ability : AbilityHelper.getListOfType(FlightAbility.class, AbilityHelper.getAbilities(pl))) {
+                                    if (ability.getJsonObject().has("speed")) {
                                         speed = pl.isSprinting() ? GsonHelper.getAsFloat(ability.getJsonObject(), "maxSpeed", 2.5F) : GsonHelper.getAsFloat(ability.getJsonObject(), "speed");
                                     }
                                 }
@@ -287,10 +287,12 @@ public class EventHandler {
             event.setCanceled(true);
         }
         if (event.getEntityLiving() instanceof Player) {
-            for (DamageImmunityAbility a : AbilityHelper.getListOfType(AbilityHelper.getAbilities(event.getEntityLiving()), DamageImmunityAbility.class)) {
-                for (String s : HUJsonUtils.getStringsFromArray(GsonHelper.getAsJsonArray(a.getJsonObject(), "damage_sources"))) {
-                    if (s.equals(event.getSource().getMsgId()) && a.getEnabled()) {
-                        event.setCanceled(true);
+            for (Ability a : AbilityHelper.getAbilities(event.getEntityLiving())) {
+                if (a.type.equals(AbilityType.DAMAGE_IMMUNITY)) {
+                    for (String s : HUJsonUtils.getStringsFromArray(GsonHelper.getAsJsonArray(a.getJsonObject(), "damage_sources"))) {
+                        if (s.equals(event.getSource().getMsgId()) && a.getEnabled()) {
+                            event.setCanceled(true);
+                        }
                     }
                 }
             }
@@ -334,7 +336,7 @@ public class EventHandler {
                         if (!(event.getTo().getItem() instanceof SuitItem) || ((SuitItem) event.getTo().getItem()).getSuit() != suitItem.getSuit()) {
                             cap.clearAbilities((a) -> {
                                 if (suitItem.getAbilities(player).containsKey(a.name) && a.getAdditionalData().equals(suitItem.getAbilities(player).get(a.name).getAdditionalData()) && a.getAdditionalData().contains("Suit")) {
-                                    if (a.getJsonObject() != null && a.getJsonObject().has("slot")) {
+                                    if (a.getJsonObject().has("slot")) {
                                         return suitItem.getSlot().getName().toLowerCase().equals(GsonHelper.getAsString(a.getJsonObject(), "slot"));
                                     } else return true;
                                 }
@@ -348,7 +350,7 @@ public class EventHandler {
                         if (!suitItem.getAbilities(player).isEmpty()) {
                             for (Map.Entry<String, Ability> entry : suitItem.getAbilities(player).entrySet()) {
                                 Ability a = entry.getValue();
-                                boolean canAdd = a.getJsonObject() != null && a.getJsonObject().has("slot") && suitItem.getSlot().getName().toLowerCase().equals(GsonHelper.getAsString(a.getJsonObject(), "slot"));
+                                boolean canAdd = a.getJsonObject().has("slot") && suitItem.getSlot().getName().toLowerCase().equals(GsonHelper.getAsString(a.getJsonObject(), "slot"));
                                 if (canAdd || Suit.getSuit(player) != null) {
                                     cap.addAbility(entry.getKey(), a);
                                 }

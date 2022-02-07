@@ -33,15 +33,16 @@ public class HeatVisionAbility extends JSONAbility {
     @Override
     public void action(Player player) {
         super.action(player);
-        this.dataManager.set("prev_timer", this.dataManager.getValue("timer"));
-        if (getEnabled() && this.dataManager.<Integer>getValue("timer") < GsonHelper.getAsInt(getJsonObject(), "maxTimer", 10)) {
-            this.dataManager.set("timer", this.dataManager.<Integer>getValue("timer") + 1);
+        var timer = this.dataManager.<Integer>getValue("timer");
+        this.dataManager.set("prev_timer", timer);
+        if (getEnabled() && timer < GsonHelper.getAsInt(getJsonObject(), "maxTimer", 10)) {
+            this.dataManager.set("timer", timer + 1);
         }
-        if (this.dataManager.<Integer>getValue("timer") >= GsonHelper.getAsInt(getJsonObject(), "maxTimer", 10)) {
+        if (timer >= GsonHelper.getAsInt(getJsonObject(), "maxTimer", 10)) {
             HUPlayerUtil.makeLaserLooking(player, GsonHelper.getAsFloat(getJsonObject(), "distance", 20), GsonHelper.getAsFloat(getJsonObject(), "strength", 1));
         }
-        if (!getEnabled() && this.dataManager.<Integer>getValue("timer") != 0) {
-            this.dataManager.set("timer", this.dataManager.<Integer>getValue("timer") - 1);
+        if (!getEnabled() && timer != 0) {
+            this.dataManager.set("timer", timer - 1);
         }
     }
 

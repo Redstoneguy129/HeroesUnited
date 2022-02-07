@@ -18,6 +18,7 @@ import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbility;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 import xyz.heroesunited.heroesunited.util.hudata.HUDataManager;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
@@ -30,11 +31,11 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
     protected CompoundTag additionalData = new CompoundTag();
     protected final JsonObject jsonObject;
     protected final HUDataManager dataManager = new HUDataManager();
-    protected final JsonConditionManager conditionManager = new JsonConditionManager(this);
+    protected final ConditionManager conditionManager = new ConditionManager(this);
     protected final Player player;
     private IAbilityClientProperties clientProperties;
 
-    public Ability(AbilityType type, Player player, JsonObject jsonObject) {
+    public Ability(AbilityType type, Player player, @Nonnull JsonObject jsonObject) {
         this.type = type;
         this.player = player;
         this.jsonObject = jsonObject;
@@ -45,7 +46,7 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
     }
 
     public IAbilityClientProperties getClientProperties() {
-        return clientProperties != null ? this.clientProperties : IAbilityClientProperties.DUMMY;
+        return this.clientProperties != null ? this.clientProperties : IAbilityClientProperties.DUMMY;
     }
 
     public void initializeClient(Consumer<IAbilityClientProperties> consumer) {
@@ -67,7 +68,7 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
 
     @Nullable
     public List<Component> getHoveredDescription() {
-        return getJsonObject() != null && getJsonObject().has("description") ? HUJsonUtils.parseDescriptionLines(jsonObject.get("description")) : null;
+        return getJsonObject().has("description") ? HUJsonUtils.parseDescriptionLines(jsonObject.get("description")) : null;
     }
 
     public void onActivated(Player player) {
@@ -95,7 +96,7 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
     }
 
     public int getKey() {
-        if (getJsonObject() != null && getJsonObject().has("key")) {
+        if (getJsonObject().has("key")) {
             return GsonHelper.getAsInt(GsonHelper.getAsJsonObject(this.getJsonObject(), "key"), "id");
         }
         return 0;
@@ -120,19 +121,15 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
     }
 
     public Component getTitle() {
-        if (getJsonObject() != null && getJsonObject().has("title")) {
+        if (getJsonObject().has("title")) {
             return Component.Serializer.fromJson(GsonHelper.getAsJsonObject(getJsonObject(), "title"));
         } else {
             return new TranslatableComponent(name);
         }
     }
 
-    public JsonConditionManager getConditionManager() {
+    public ConditionManager getConditionManager() {
         return conditionManager;
-    }
-
-    public Player getOwner() {
-        return player;
     }
 
     public CompoundTag getAdditionalData() {
@@ -148,20 +145,15 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
     }
 
     public boolean isVisible(Player player) {
-        return getJsonObject() == null || !GsonHelper.getAsBoolean(getJsonObject(), "hidden", false) || !this.conditionManager.isEnabled(player, "isHidden");
+        return !GsonHelper.getAsBoolean(getJsonObject(), "hidden", false) || !this.conditionManager.isEnabled(player, "isHidden");
     }
 
     public boolean alwaysActive(Player player) {
-        return getJsonObject() != null && GsonHelper.getAsBoolean(getJsonObject(), "active", false) && this.conditionManager.isEnabled(player, "alwaysActive");
+        return GsonHelper.getAsBoolean(getJsonObject(), "active", false) && this.conditionManager.isEnabled(player, "alwaysActive");
     }
 
     public JsonObject getJsonObject() {
         return jsonObject;
-    }
-
-    public Ability setAdditionalData(CompoundTag nbt) {
-        this.additionalData = nbt;
-        return this;
     }
 
     public void sync(Player player) {

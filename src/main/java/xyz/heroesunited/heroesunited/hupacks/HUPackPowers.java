@@ -31,7 +31,7 @@ public class HUPackPowers extends SimpleJsonResourceReloadListener {
         for (Map.Entry<ResourceLocation, JsonElement> entry : map.entrySet()) {
             ResourceLocation location = entry.getKey();
             try {
-                this.registeredPowers.put(location, AbilityHelper.parsePowers((JsonObject) entry.getValue(), null, location));
+                this.registeredPowers.put(location, AbilityHelper.parsePowers((JsonObject) entry.getValue(), location));
             } catch (Exception e) {
                 HeroesUnited.LOGGER.error("Parsing error loading power {}", location, e);
             }

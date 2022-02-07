@@ -23,7 +23,7 @@ public class AbilityHelper {
         return getActiveAbilityMap(entity).containsKey(name);
     }
 
-    public static <T extends Ability> T getAnotherAbilityFromMap(Collection<Ability> abilities, T ability) {
+    public static <T extends Ability> T getSameAbilityFrom(Collection<Ability> abilities, T ability) {
         for (Ability newAbility : abilities) {
             if (newAbility.type.equals(ability.type) && newAbility.name.equals(ability.name)) {
                 return (T) newAbility;
@@ -32,7 +32,7 @@ public class AbilityHelper {
         return ability;
     }
 
-    public static <T> List<T> getListOfType(Collection<?> list, Class<T> type) {
+    public static <T> List<T> getListOfType(Class<T> type, Collection<?> list) {
         return list.stream().filter(x -> type.isAssignableFrom(x.getClass())).map(type::cast).collect(Collectors.toList());
     }
 
@@ -50,10 +50,6 @@ public class AbilityHelper {
         Map<String, Ability> map = Maps.newHashMap();
         entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent((f) -> map.putAll(f.getAbilities()));
         return map;
-    }
-
-    public static void setAttribute(LivingEntity entity, Attribute attribute, UUID uuid, double amount, AttributeModifier.Operation operation) {
-        setAttribute(entity, "hudefault", attribute, uuid, amount, operation);
     }
 
     //For remove modifier set amount to 0
@@ -82,7 +78,7 @@ public class AbilityHelper {
     public static List<AbilityCreator> parseAbilityCreators(JsonObject jsonObject, ResourceLocation resourceLocation) {
         List<AbilityCreator> abilityList = new ArrayList<>();
         if (jsonObject.has("abilities")) {
-            abilityList.addAll(parsePowers(GsonHelper.getAsJsonObject(jsonObject, "abilities"), jsonObject, resourceLocation));
+            abilityList.addAll(parsePowers(GsonHelper.getAsJsonObject(jsonObject, "abilities"), resourceLocation));
         }
         if (jsonObject.has("powers")) {
             JsonArray jsonArray = GsonHelper.getAsJsonArray(jsonObject, "powers");
@@ -93,18 +89,24 @@ public class AbilityHelper {
         if (jsonObject.has("power")) {
             abilityList.addAll(HUPackPowers.getPower(new ResourceLocation(GsonHelper.getAsString(jsonObject, "power"))));
         }
+
+        if (jsonObject.has("common")) {
+            for (AbilityCreator creator : abilityList) {
+                creator.mergeCommonStuff(jsonObject.getAsJsonObject("common"));
+            }
+        }
         return abilityList;
     }
 
-    public static List<AbilityCreator> parsePowers(JsonObject jsonAbilities, JsonObject json, ResourceLocation resourceLocation) {
+    public static List<AbilityCreator> parsePowers(JsonObject abilities, ResourceLocation resourceLocation) {
         List<AbilityCreator> abilityList = new ArrayList<>();
-        jsonAbilities.entrySet().forEach((e) -> {
-            if (e.getValue() instanceof JsonObject o) {
-                AbilityType ability = AbilityType.ABILITIES.get().getValue(new ResourceLocation(GsonHelper.getAsString(o, "ability")));
+        abilities.entrySet().forEach((e) -> {
+            if (e.getValue() instanceof JsonObject jsonObject) {
+                AbilityType ability = AbilityType.ABILITIES.get().getValue(new ResourceLocation(GsonHelper.getAsString(jsonObject, "ability")));
                 if (ability != null) {
-                    abilityList.add(new AbilityCreator(e.getKey(), ability, o, json));
+                    abilityList.add(new AbilityCreator(e.getKey(), ability, jsonObject));
                 } else {
-                    HeroesUnited.LOGGER.error("Couldn't read ability {} in {}", GsonHelper.getAsString(o, "ability"), resourceLocation);
+                    HeroesUnited.LOGGER.error("Couldn't read ability with id {} in {}", GsonHelper.getAsString(jsonObject, "ability"), resourceLocation);
                 }
             }
         });

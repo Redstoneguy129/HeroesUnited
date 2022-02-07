@@ -24,8 +24,7 @@ import xyz.heroesunited.heroesunited.common.events.RegisterPlayerControllerEvent
 
 public interface IAbilityClientProperties {
 
-    IAbilityClientProperties DUMMY = new IAbilityClientProperties() {
-    };
+    IAbilityClientProperties DUMMY = new IAbilityClientProperties() {};
 
     default void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
     }

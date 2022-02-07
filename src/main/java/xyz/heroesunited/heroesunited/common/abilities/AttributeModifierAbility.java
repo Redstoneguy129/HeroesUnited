@@ -3,11 +3,12 @@ package xyz.heroesunited.heroesunited.common.abilities;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.UUID;
+
+import static net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.fromValue;
 
 public class AttributeModifierAbility extends JSONAbility {
 
@@ -17,16 +18,15 @@ public class AttributeModifierAbility extends JSONAbility {
 
     @Override
     public void action(Player player) {
-        if (this.getJsonObject() != null) {
-            JsonObject attribute = GsonHelper.getAsJsonObject(this.getJsonObject(), "attribute");
-            AbilityHelper.setAttribute(player, this.name,
-                    ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(GsonHelper.getAsString(attribute, "name"))),
-                    UUID.fromString(GsonHelper.getAsString(attribute, "uuid", "16c0c8f6-565e-4175-94f5-029986f3cc2c")),
-                    getAmount(player, attribute), AttributeModifier.Operation.fromValue(GsonHelper.getAsInt(attribute, "operation", 0)));
-        }
+        var attributeJson = this.getJsonObject().getAsJsonObject("attribute");
+        var attribute = ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(attributeJson.get("name").getAsString()));
+        var uuid = UUID.fromString(GsonHelper.getAsString(attributeJson, "uuid", UUID.randomUUID().toString()));
+        var operation = fromValue(GsonHelper.getAsInt(attributeJson, "operation", 0));
+
+        AbilityHelper.setAttribute(player, this.name, attribute, uuid, getAmount(attributeJson), operation);
     }
 
-    public double getAmount(Player player, JsonObject attribute) {
+    public double getAmount(JsonObject attribute) {
         return getEnabled() ? GsonHelper.getAsFloat(attribute, "amount", 1f) : 0D;
     }
 }

@@ -44,7 +44,7 @@ public class AbilityOverlay implements IIngameOverlay {
                 GuiComponent.blit(mStack, 0, y, 0, 0, 22, 102, 64, 128);
 
                 for (int i = 0; i < abilities.size(); i++) {
-                    Ability ability = AbilityHelper.getAnotherAbilityFromMap(AbilityHelper.getAbilities(mc.player), abilities.get(i));
+                    Ability ability = AbilityHelper.getSameAbilityFrom(AbilityHelper.getAbilities(mc.player), abilities.get(i));
                     int abilityY = y + 3 + i * 20;
 
                     mStack.pushPose();

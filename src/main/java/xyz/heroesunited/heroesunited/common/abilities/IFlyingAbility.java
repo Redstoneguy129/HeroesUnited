@@ -34,6 +34,6 @@ public interface IFlyingAbility {
     }
 
     static IFlyingAbility getFlyingAbility(Player player) {
-        return AbilityHelper.getListOfType(AbilityHelper.getAbilities(player), IFlyingAbility.class).stream().findFirst().orElse(null);
+        return AbilityHelper.getListOfType(IFlyingAbility.class, AbilityHelper.getAbilities(player)).stream().findFirst().orElse(null);
     }
 }

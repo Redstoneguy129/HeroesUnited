@@ -28,8 +28,7 @@ public class RotatePartsAbility extends JSONAbility {
 
                     for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
                         PlayerPart part = PlayerPart.byName(entry.getKey());
-                        if (part != null && entry.getValue() instanceof JsonObject) {
-                            JsonObject jsonObject = (JsonObject) entry.getValue();
+                        if (part != null && entry.getValue() instanceof JsonObject jsonObject) {
                             if (jsonObject.has("value")) {
                                 HUJsonUtils.translatePivotOfModel(part.modelPart(event.getPlayerModel()), GsonHelper.getAsString(jsonObject, "xyz"), GsonHelper.getAsFloat(jsonObject, "value"), GsonHelper.getAsBoolean(jsonObject, "player", false));
                             } else {

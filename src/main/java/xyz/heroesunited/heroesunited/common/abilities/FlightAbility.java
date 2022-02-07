@@ -13,31 +13,31 @@ public class FlightAbility extends JSONAbility implements IFlyingAbility {
 
     @Override
     public boolean isFlying(Player player) {
-        return getEnabled();
+        return this.getEnabled();
     }
 
     @Override
     public boolean renderFlying(Player player) {
-        return getJsonObject() != null && GsonHelper.getAsBoolean(this.getJsonObject(), "render", true);
+        return GsonHelper.getAsBoolean(this.getJsonObject(), "render", true);
     }
 
     @Override
     public boolean rotateArms(Player player) {
-        return getJsonObject() != null && GsonHelper.getAsBoolean(this.getJsonObject(), "rotateArms", false);
+        return GsonHelper.getAsBoolean(this.getJsonObject(), "rotateArms", false);
     }
 
     @Override
     public boolean setDefaultRotationAngles(SetupAnimEvent event) {
-        return getJsonObject() == null || GsonHelper.getAsBoolean(this.getJsonObject(), "setDefaultRotationAngles", true);
+        return GsonHelper.getAsBoolean(this.getJsonObject(), "setDefaultRotationAngles", true);
     }
 
     @Override
     public float getDegreesForSprint(Player player) {
-        return getJsonObject() != null ? GsonHelper.getAsFloat(this.getJsonObject(), "degrees_for_sprint", IFlyingAbility.super.getDegreesForSprint(player)) : IFlyingAbility.super.getDegreesForSprint(player);
+        return GsonHelper.getAsFloat(this.getJsonObject(), "degrees_for_sprint", IFlyingAbility.super.getDegreesForSprint(player));
     }
 
     @Override
     public float getDegreesForWalk(Player player) {
-        return getJsonObject() != null ? GsonHelper.getAsFloat(this.getJsonObject(), "degrees_for_walk", IFlyingAbility.super.getDegreesForWalk(player)) : IFlyingAbility.super.getDegreesForWalk(player);
+        return GsonHelper.getAsFloat(this.getJsonObject(), "degrees_for_walk", IFlyingAbility.super.getDegreesForWalk(player));
     }
 }

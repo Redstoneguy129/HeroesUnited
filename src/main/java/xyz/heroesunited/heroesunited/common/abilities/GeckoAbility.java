@@ -39,16 +39,16 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
             @Override
             public void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
                 if (getEnabled()) {
-                    abilityRenderer.setCurrentAbility(player, renderer.getModel());
-                    abilityRenderer.renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entityTranslucent(abilityRenderer.getTextureLocation(GeckoAbility.this))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+                    this.abilityRenderer.setCurrentAbility(player, renderer.getModel());
+                    this.abilityRenderer.renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entityTranslucent(abilityRenderer.getTextureLocation(GeckoAbility.this))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
                 }
             }
 
             @Override
             public boolean renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
                 if (getEnabled()) {
-                    abilityRenderer.setCurrentAbility(player, renderer.getModel());
-                    abilityRenderer.renderFirstPersonArm(renderer, matrix, bufferIn, packedLightIn, side);
+                    this.abilityRenderer.setCurrentAbility(player, renderer.getModel());
+                    this.abilityRenderer.renderFirstPersonArm(renderer, matrix, bufferIn, packedLightIn, side);
                 }
                 return true;
             }
@@ -65,31 +65,35 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
     @OnlyIn(Dist.CLIENT)
     @Override
     public ResourceLocation getTexture() {
-        if (this.getJsonObject() != null && this.getJsonObject().has("texture")) {
+        if (this.getJsonObject().has("texture")) {
             if (GsonHelper.getAsString(this.getJsonObject(), "texture").equals("player")) {
                 return Minecraft.getInstance().player.getSkinTextureLocation();
             } else {
                 return new ResourceLocation(GsonHelper.getAsString(this.getJsonObject(), "texture"));
             }
         } else
-            return new ResourceLocation(getSuitOrSuperpowerName().getNamespace(), "textures/ability/" + getSuitOrSuperpowerName().getPath() + "_" + this.name + ".png");
+            return new ResourceLocation(getPowerLocation().getNamespace(), "textures/ability/" + getPowerLocation().getPath() + "_" + this.name + ".png");
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
     public ResourceLocation getModelPath() {
-        ResourceLocation res = new ResourceLocation(getSuitOrSuperpowerName().getNamespace(), "geo/" + getSuitOrSuperpowerName().getPath() + "_" + this.name + ".geo.json");
-        return this.getJsonObject() != null ? new ResourceLocation(GsonHelper.getAsString(this.getJsonObject(), "model", res.toString())) : res;
+        if (this.getJsonObject().has("model")) {
+            return new ResourceLocation(this.getJsonObject().get("model").getAsString());
+        }
+        return new ResourceLocation(getPowerLocation().getNamespace(), String.format("geo/%s_%s.geo.json", getPowerLocation().getPath(), this.name));
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
     public ResourceLocation getAnimationFile() {
-        return new ResourceLocation(getSuitOrSuperpowerName().getNamespace(), "animations/" + getSuitOrSuperpowerName().getPath() + "_" + this.name + ".animation.json");
+        return new ResourceLocation(getPowerLocation().getNamespace(), "animations/" + getPowerLocation().getPath() + "_" + this.name + ".animation.json");
     }
 
-    private ResourceLocation getSuitOrSuperpowerName() {
-        String str = getAdditionalData().contains("Suit") ? getAdditionalData().getString("Suit") : getAdditionalData().getString("Superpower");
-        return new ResourceLocation(str);
+    protected ResourceLocation getPowerLocation() {
+        if (this.getAdditionalData().contains("Suit")) {
+            return new ResourceLocation(this.getAdditionalData().getString("Suit"));
+        }
+        return new ResourceLocation(this.getAdditionalData().getString("Superpower"));
     }
 }

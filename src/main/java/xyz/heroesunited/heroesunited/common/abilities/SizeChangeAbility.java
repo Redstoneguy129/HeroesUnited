@@ -21,7 +21,7 @@ public class SizeChangeAbility extends JSONAbility {
     @Override
     public void action(Player player) {
         this.dataManager.set("prev_size", getSize());
-        this.setSize(player, getEnabled() ? getRightSize(player) : 1F);
+        this.setSize(player, getEnabled() ? getRightSize() : 1F);
     }
 
     public void setSize(Player player, float value) {
@@ -31,8 +31,8 @@ public class SizeChangeAbility extends JSONAbility {
         }
     }
 
-    public float getRightSize(Player player) {
-        if (getJsonObject() != null && getJsonObject().has("size")) {
+    public float getRightSize() {
+        if (getJsonObject().has("size")) {
             return GsonHelper.getAsFloat(getJsonObject(), "size");
         }
         return 0.25f;
@@ -47,7 +47,7 @@ public class SizeChangeAbility extends JSONAbility {
     }
 
     public boolean changeSizeInRender() {
-        if (getJsonObject() != null && getJsonObject().has("sizeInRenderer")) {
+        if (getJsonObject().has("sizeInRenderer")) {
             return GsonHelper.getAsBoolean(getJsonObject(), "sizeInRenderer");
         }
         return true;

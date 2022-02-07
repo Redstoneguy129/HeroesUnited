@@ -19,7 +19,7 @@ import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 import xyz.heroesunited.heroesunited.client.renderer.IHUModelPart;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
-import xyz.heroesunited.heroesunited.common.abilities.JsonConditionManager;
+import xyz.heroesunited.heroesunited.common.abilities.ConditionManager;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
@@ -30,7 +30,7 @@ import java.util.Map;
 
 public class JsonSuit extends Suit {
 
-    protected JsonConditionManager conditionManager = new JsonConditionManager();
+    protected ConditionManager conditionManager = new ConditionManager();
     protected final JsonObject jsonObject;
 
     public JsonSuit(Map.Entry<ResourceLocation, JsonObject> map) {
@@ -38,7 +38,7 @@ public class JsonSuit extends Suit {
         this.jsonObject = map.getValue();
     }
 
-    public JsonConditionManager getConditionManager() {
+    public ConditionManager getConditionManager() {
         return conditionManager;
     }
 
@@ -77,7 +77,7 @@ public class JsonSuit extends Suit {
     @Override
     public Map<String, Ability> getAbilities(Player player) {
         Map<String, Ability> map = Maps.newHashMap();
-        AbilityHelper.parseAbilityCreators(jsonObject, getRegistryName()).forEach(a -> map.put(a.key(), a.create(player)));
+        AbilityHelper.parseAbilityCreators(this.jsonObject, getRegistryName()).forEach(a -> map.put(a.key, a.create(player)));
         return map;
     }
 

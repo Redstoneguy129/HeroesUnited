@@ -17,8 +17,14 @@ public class PotionEffectAbility extends JSONAbility {
     public void action(Player player) {
         super.action(player);
         if (getEnabled()) {
-            player.addEffect(new MobEffectInstance(ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(GsonHelper.getAsString(getJsonObject(), "effect"))),
-                    GsonHelper.getAsInt(getJsonObject(), "duration", 20), GsonHelper.getAsInt(getJsonObject(), "amplifier", 0), false, GsonHelper.getAsBoolean(getJsonObject(), "visible", false), GsonHelper.getAsBoolean(getJsonObject(), "show_icon", true)));
+            var effect = ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(GsonHelper.getAsString(getJsonObject(), "effect")));
+            if (effect != null) {
+                player.addEffect(new MobEffectInstance(effect,
+                        GsonHelper.getAsInt(getJsonObject(), "duration", 20),
+                        GsonHelper.getAsInt(getJsonObject(), "amplifier", 0), false,
+                        GsonHelper.getAsBoolean(getJsonObject(), "visible", false),
+                        GsonHelper.getAsBoolean(getJsonObject(), "show_icon", true)));
+            }
         }
     }
 }
