@@ -160,8 +160,9 @@ public class Condition extends ForgeRegistryEntry<Condition> {
     public static final Condition OR = register("or", new Condition((c) -> {
         JsonArray array = c.jsonObject().getAsJsonArray("values");
         for (JsonElement jsonElement : array) {
-            Condition condition = ConditionManager.getFromJson(jsonElement.getAsJsonObject());
-            if (condition != null && condition.apply(c.player(), c.jsonObject(), c.ability())) {
+            JsonObject jsonObject = jsonElement.getAsJsonObject();
+            Condition condition = ConditionManager.getFromJson(jsonObject);
+            if (condition != null && condition.apply(c.player(), jsonObject, c.ability())) {
                 return true;
             }
         }
@@ -171,8 +172,9 @@ public class Condition extends ForgeRegistryEntry<Condition> {
     public static final Condition AND = register("and", new Condition((c) -> {
         JsonArray array = c.jsonObject().getAsJsonArray("values");
         for (JsonElement jsonElement : array) {
-            Condition condition = ConditionManager.getFromJson(jsonElement.getAsJsonObject());
-            if (condition != null && !condition.apply(c.player(), c.jsonObject(), c.ability())) {
+            JsonObject jsonObject = jsonElement.getAsJsonObject();
+            Condition condition = ConditionManager.getFromJson(jsonObject);
+            if (condition != null && !condition.apply(c.player(), jsonObject, c.ability())) {
                 return false;
             }
         }
