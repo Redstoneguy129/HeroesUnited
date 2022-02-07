@@ -156,6 +156,10 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
         return jsonObject;
     }
 
+    public Player getPlayer() {
+        return player;
+    }
+
     public void sync(Player player) {
         if (player instanceof ServerPlayer) {
             HUNetworking.INSTANCE.sendTo(new ClientSyncAbility(player.getId(), this.name, this.serializeNBT()), ((ServerPlayer) player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
