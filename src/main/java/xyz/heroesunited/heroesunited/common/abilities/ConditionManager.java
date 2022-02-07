@@ -58,7 +58,7 @@ public class ConditionManager implements INBTSerializable<CompoundTag> {
         ConcurrentHashMap<String, Boolean> methodConditions = new ConcurrentHashMap<>();
 
         for (JsonObject jsonObject : this.conditions.keySet()) {
-            boolean b = GsonHelper.getAsBoolean(jsonObject, "invert", false) != getFromJson(jsonObject).apply(player, jsonObject, ability);
+            boolean b = getFromJson(jsonObject).apply(player, jsonObject, ability);
             if (b != this.conditions.get(jsonObject)) {
                 this.conditions.put(jsonObject, b);
                 this.sync(player);
@@ -92,16 +92,6 @@ public class ConditionManager implements INBTSerializable<CompoundTag> {
 
     public ConcurrentHashMap<String, Boolean> getMethodConditions() {
         return methodConditions;
-    }
-
-    public boolean isEnabled(Player player) {
-        this.update(player);
-        for (boolean condition : methodConditions.values()) {
-            if (!condition) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public boolean isEnabled(Player player, String method) {

@@ -50,11 +50,12 @@ public class Condition extends ForgeRegistryEntry<Condition> {
 
     public boolean apply(Player player, JsonObject jsonObject, Ability ability) {
         ConditionVariables variables = new ConditionVariables(player, jsonObject, ability);
+        boolean invert = GsonHelper.getAsBoolean(jsonObject, "invert", false);
         this.earlyFunction.accept(variables);
         if (jsonObject.has("creative") && player.isCreative()) {
-            return !GsonHelper.getAsBoolean(jsonObject, "invert", false);
+            return !invert;
         }
-        return function.test(variables);
+        return invert != function.test(variables);
     }
 
     public static final Condition HAS_SUPERPOWER = register("has_superpower", new Condition((c) -> {
@@ -181,6 +182,7 @@ public class Condition extends ForgeRegistryEntry<Condition> {
         return true;
     }));
 
+    public static final Condition ABILITY_NAME = register("ability_name", new Condition((c) -> c.ability().name.equals(c.jsonObject().get("ability").getAsString())));
     public static final Condition IS_SPRINTING = register("is_sprinting", new Condition((c) -> c.player().isSprinting()));
     public static final Condition IS_SNEAKING = register("is_sneaking", new Condition((c) -> c.player().isCrouching()));
 
