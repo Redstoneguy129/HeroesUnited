@@ -1,6 +1,7 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.netty.util.internal.StringUtil;
 import net.minecraft.resources.ResourceLocation;
@@ -154,6 +155,28 @@ public class Condition extends ForgeRegistryEntry<Condition> {
             }
         }
         return false;
+    }));
+
+    public static final Condition OR = register("or", new Condition((c) -> {
+        JsonArray array = c.jsonObject().getAsJsonArray("values");
+        for (JsonElement jsonElement : array) {
+            Condition condition = ConditionManager.getFromJson(jsonElement.getAsJsonObject());
+            if (condition != null && condition.apply(c.player(), c.jsonObject(), c.ability())) {
+                return true;
+            }
+        }
+        return false;
+    }));
+
+    public static final Condition AND = register("and", new Condition((c) -> {
+        JsonArray array = c.jsonObject().getAsJsonArray("values");
+        for (JsonElement jsonElement : array) {
+            Condition condition = ConditionManager.getFromJson(jsonElement.getAsJsonObject());
+            if (condition != null && !condition.apply(c.player(), c.jsonObject(), c.ability())) {
+                return false;
+            }
+        }
+        return true;
     }));
 
     public static final Condition IS_SPRINTING = register("is_sprinting", new Condition((c) -> c.player().isSprinting()));
