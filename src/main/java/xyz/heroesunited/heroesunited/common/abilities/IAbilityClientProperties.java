@@ -26,7 +26,7 @@ public interface IAbilityClientProperties {
 
     IAbilityClientProperties DUMMY = new IAbilityClientProperties() {};
 
-    default void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    default void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
     }
 
     default void inputUpdate(MovementInputUpdateEvent event) {
@@ -44,7 +44,7 @@ public interface IAbilityClientProperties {
     default void renderPlayerPost(RenderPlayerEvent.Post event) {
     }
 
-    default boolean renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
+    default boolean renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
         return true;
     }
 
@@ -73,7 +73,7 @@ public interface IAbilityClientProperties {
         Minecraft.getInstance().getItemRenderer().blitOffset += 100f;
     }
 
-    default void renderAlways(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    default void renderAlways(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
 
     }
 
@@ -88,7 +88,7 @@ public interface IAbilityClientProperties {
     default void renderPlayerPostAlways(RenderPlayerEvent.Post event) {
     }
 
-    default void renderAlwaysFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
+    default void renderAlwaysFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
 
     }
 }

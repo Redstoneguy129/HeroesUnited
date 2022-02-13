@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -54,9 +55,9 @@ public abstract class HumanoidArmorLayerMixin<T extends LivingEntity, M extends 
     }
 
     @SuppressWarnings("rawtypes")
-    @Redirect(method = "renderArmorPiece(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/EquipmentSlot;ILnet/minecraft/client/model/HumanoidModel;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/HumanoidArmorLayer;renderModel(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IZLnet/minecraft/client/model/HumanoidModel;FFFLnet/minecraft/resources/ResourceLocation;)V"))
-    public void renderArmor(HumanoidArmorLayer bipedArmorLayer, PoseStack matrix, MultiBufferSource buffer, int packedlightIn, boolean withGlint, A model, float red, float green, float blue, ResourceLocation armorResource) {
+    @Redirect(method = "renderArmorPiece(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/EquipmentSlot;ILnet/minecraft/client/model/HumanoidModel;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/HumanoidArmorLayer;renderModel(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IZLnet/minecraft/client/model/Model;FFFLnet/minecraft/resources/ResourceLocation;)V"))
+    public void renderArmor(HumanoidArmorLayer humanoidArmorLayer, PoseStack poseStack, MultiBufferSource buffer, int packedlightIn, boolean withGlint, Model model, float red, float green, float blue, ResourceLocation armorResource) {
         VertexConsumer ivertexbuilder = ItemRenderer.getArmorFoilBuffer(buffer, RenderType.entityTranslucent(armorResource), false, withGlint);
-        model.renderToBuffer(matrix, ivertexbuilder, packedlightIn, OverlayTexture.NO_OVERLAY, red, green, blue, 1.0F);
+        model.renderToBuffer(poseStack, ivertexbuilder, packedlightIn, OverlayTexture.NO_OVERLAY, red, green, blue, 1.0F);
     }
 }

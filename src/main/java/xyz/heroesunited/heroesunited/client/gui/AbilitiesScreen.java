@@ -161,7 +161,7 @@ public class AbilitiesScreen extends Screen {
         this.font.draw(matrixStack, s, (float) i1, (float) j1, -65536);
     }
 
-    public void renderAbilityDescription(PoseStack matrix, int mx, int my, AbilityButton button) {
+    public void renderAbilityDescription(PoseStack poseStack, int mx, int my, AbilityButton button) {
         if (!(mx >= button.x && mx <= button.x + button.getWidth() && my >= button.y && my <= button.y + button.getHeight()))
             return;
         if (button.ability.getHoveredDescription() == null) return;
@@ -187,10 +187,10 @@ public class AbilitiesScreen extends Screen {
 
         for (int i = 0; i < button.abilityDescription.size(); i++) {
             String line = button.abilityDescription.get(i);
-            this.font.drawShadow(matrix, line, bgX + 10, bgY + 10 + i * 13, 0xFFFFFF);
+            this.font.drawShadow(poseStack, line, bgX + 10, bgY + 10 + i * 13, 0xFFFFFF);
         }
         boolean activate = button.ability.canActivate(this.minecraft.player);
-        this.font.drawShadow(matrix, activate ? "Ability can be activated" : "Ability cannot be activated", bgX + 10, bgY + 10 + (button.abilityDescription.size() + 1) * 13, activate ? 0x00FF00 : 0xFF0000);
+        this.font.drawShadow(poseStack, activate ? "Ability can be activated" : "Ability cannot be activated", bgX + 10, bgY + 10 + (button.abilityDescription.size() + 1) * 13, activate ? 0x00FF00 : 0xFF0000);
     }
 
     public static class AbilityButton extends Button {

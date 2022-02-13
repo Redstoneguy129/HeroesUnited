@@ -101,18 +101,14 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
         super.initializeClient(consumer);
         consumer.accept(new IItemRenderProperties() {
             @Override
-            public <A extends HumanoidModel<?>> A getArmorModel(LivingEntity entityLiving, ItemStack itemStack, EquipmentSlot armorSlot, A _default) {
+            public HumanoidModel<?> getArmorModel(LivingEntity entityLiving, ItemStack itemStack, EquipmentSlot armorSlot, HumanoidModel<?> _default) {
                 try {
-                    return (A) getArmorRenderer()
+                    return getArmorRenderer()
                             .setCurrentItem(entityLiving, itemStack, armorSlot)
                             .applyEntityStats(_default).applySlot(armorSlot);
                 } catch (GeckoLibException | IllegalArgumentException e) {
-                    if (itemStack != ItemStack.EMPTY) {
-                        if (itemStack.getItem() instanceof SuitItem) {
-                            HumanoidModel model = getSuit().getArmorModel(entityLiving, itemStack, armorSlot, _default);
-                            model.copyPropertiesTo(_default);
-                            return (A) model;
-                        }
+                    if (itemStack != ItemStack.EMPTY && itemStack.getItem() instanceof SuitItem) {
+                        return getSuit().getArmorModel(entityLiving, itemStack, armorSlot, _default);
                     }
                     return null;
                 }
@@ -121,7 +117,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side, ItemStack stack) {
+    public void renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side, ItemStack stack) {
         if (getSlot() != EquipmentSlot.CHEST) return;
         try {
             GeoArmorRenderer geo = getArmorRenderer();
@@ -146,9 +142,9 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
             geo.attackTime = 0.0F;
             geo.crouching = false;
             geo.swimAmount = 0.0F;
-            matrix.pushPose();
-            matrix.translate(0.0D, 1.5F, 0.0D);
-            matrix.scale(-1.0F, -1.0F, 1.0F);
+            poseStack.pushPose();
+            poseStack.translate(0.0D, 1.5F, 0.0D);
+            poseStack.scale(-1.0F, -1.0F, 1.0F);
 
             ModelPart modelRenderer = side == HumanoidArm.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
             GeoUtils.copyRotations(modelRenderer, bone);
@@ -165,22 +161,22 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
                 }
             }
 
-            matrix.pushPose();
+            poseStack.pushPose();
             RenderSystem.setShaderTexture(0, geo.getTextureLocation(this));
             VertexConsumer builder = bufferIn.getBuffer(RenderType.entityTranslucent(geo.getTextureLocation(this)));
-            Color renderColor = geo.getRenderColor(this, 0, matrix, null, builder, packedLightIn);
+            Color renderColor = geo.getRenderColor(this, 0, poseStack, null, builder, packedLightIn);
 
-            geo.render(model, stack.getItem(), Minecraft.getInstance().getFrameTime(), RenderType.entityTranslucent(geo.getTextureLocation(this)), matrix, bufferIn, builder, packedLightIn,
+            geo.render(model, stack.getItem(), Minecraft.getInstance().getFrameTime(), RenderType.entityTranslucent(geo.getTextureLocation(this)), poseStack, bufferIn, builder, packedLightIn,
                     OverlayTexture.NO_OVERLAY, (float) renderColor.getRed() / 255f, (float) renderColor.getGreen() / 255f,
                     (float) renderColor.getBlue() / 255f, (float) renderColor.getAlpha() / 255);
 
 
-            matrix.popPose();
-            matrix.scale(-1.0F, -1.0F, 1.0F);
-            matrix.translate(0.0D, -1.5F, 0.0D);
-            matrix.popPose();
+            poseStack.popPose();
+            poseStack.scale(-1.0F, -1.0F, 1.0F);
+            poseStack.translate(0.0D, -1.5F, 0.0D);
+            poseStack.popPose();
         } catch (GeckoLibException | IllegalArgumentException e) {
-            getSuit().renderFirstPersonArm(modelSet, renderer, matrix, bufferIn, packedLightIn, player, side, stack, this);
+            getSuit().renderFirstPersonArm(modelSet, renderer, poseStack, bufferIn, packedLightIn, player, side, stack, this);
         }
     }
 

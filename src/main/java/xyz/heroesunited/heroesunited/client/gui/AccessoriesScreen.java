@@ -28,11 +28,11 @@ public class AccessoriesScreen extends AbstractContainerScreen<AccessoriesContai
     }
 
     @Override
-    public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
-        SnowWidget.drawSnowOnScreen(matrix, this.width, this.height);
-        this.renderBackground(matrix);
-        super.render(matrix, mouseX, mouseY, partialTicks);
-        this.renderTooltip(matrix, mouseX, mouseY);
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+        SnowWidget.drawSnowOnScreen(poseStack, this.width, this.height);
+        this.renderBackground(poseStack);
+        super.render(poseStack, mouseX, mouseY, partialTicks);
+        this.renderTooltip(poseStack, mouseX, mouseY);
         this.oldMouseX = (float) mouseX;
         this.oldMouseY = (float) mouseY;
     }

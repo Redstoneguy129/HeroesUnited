@@ -46,7 +46,7 @@ public class HidePartsAbility extends JSONAbility {
             }
 
             @Override
-            public boolean renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
+            public boolean renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
                 if (getJsonObject().has("visibility_parts") && getEnabled()) {
                     JsonObject overrides = GsonHelper.getAsJsonObject(getJsonObject(), "visibility_parts");
                     for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {

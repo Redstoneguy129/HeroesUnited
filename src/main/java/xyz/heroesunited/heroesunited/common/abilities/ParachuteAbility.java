@@ -58,9 +58,9 @@ public class ParachuteAbility extends JSONAbility {
             private final ParachuteModel model = new ParachuteModel(Minecraft.getInstance().getEntityModels().bakeLayer(HUModelLayers.PARACHUTE));
 
             @Override
-            public void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+            public void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
                 if (usingParachute(player))
-                    this.model.renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(HeroesUnited.MODID, "textures/suits/parachute.png"))), packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+                    this.model.renderToBuffer(poseStack, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(HeroesUnited.MODID, "textures/suits/parachute.png"))), packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
             }
 
             @Override

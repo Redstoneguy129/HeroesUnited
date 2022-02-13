@@ -71,7 +71,7 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void render(EntityRendererProvider.Context context, LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, LivingEntity livingEntity, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {
+    public void render(EntityRendererProvider.Context context, LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, LivingEntity livingEntity, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {
         if (stack.getItem() == HUItems.AKIRA_JACKET) {
             GeckoAccessoryRenderer accessoryRenderer = (GeckoAccessoryRenderer) RenderProperties.get(this).getItemStackRenderer();
             GeoModel model = accessoryRenderer.getGeoModelProvider().getModel(getModelFile());
@@ -94,20 +94,20 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
             leftArm.setPositionY(2 - renderer.getModel().leftArm.y);
             leftArm.setPositionZ(renderer.getModel().leftArm.z);
 
-            matrix.pushPose();
-            matrix.translate(0.0D, 24 / 16F, 0.0D);
-            matrix.scale(-1.0F, -1.0F, 1.0F);
-            accessoryRenderer.render(model, this, partialTicks, RenderType.entityTranslucent(this.getTextureFile()), matrix, bufferIn, bufferIn.getBuffer(RenderType.entityTranslucent(this.getTextureFile())), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
-            matrix.popPose();
+            poseStack.pushPose();
+            poseStack.translate(0.0D, 24 / 16F, 0.0D);
+            poseStack.scale(-1.0F, -1.0F, 1.0F);
+            accessoryRenderer.render(model, this, partialTicks, RenderType.entityTranslucent(this.getTextureFile()), poseStack, bufferIn, bufferIn.getBuffer(RenderType.entityTranslucent(this.getTextureFile())), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+            poseStack.popPose();
             return;
         }
 
         if (stack.getItem() == HUItems.HOKAGE_CAPE) {
-            matrix.pushPose();
-            matrix.translate(0.0D, 24 / 16F, 0.0D);
-            matrix.scale(-1.0F, -1.0F, 1.0F);
-            renderHokageCape(renderer, matrix, bufferIn, packedLightIn, livingEntity, partialTicks);
-            matrix.popPose();
+            poseStack.pushPose();
+            poseStack.translate(0.0D, 24 / 16F, 0.0D);
+            poseStack.scale(-1.0F, -1.0F, 1.0F);
+            renderHokageCape(renderer, poseStack, bufferIn, packedLightIn, livingEntity, partialTicks);
+            poseStack.popPose();
             return;
         }
         if (EquipmentAccessoriesSlot.wristAccessories().contains(accessorySlot)) {
@@ -117,58 +117,58 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
                 transformType = ItemTransforms.TransformType.HEAD;
             }
 
-            matrix.pushPose();
-            renderer.getModel().translateToHand(side, matrix);
-            matrix.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
-            matrix.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-            matrix.translate((side == HumanoidArm.LEFT ? -1 : 1) / 16.0F, 0.125D, -0.625D);
-            Minecraft.getInstance().getItemInHandRenderer().renderItem(livingEntity, stack, transformType, side == HumanoidArm.LEFT, matrix, bufferIn, packedLightIn);
-            matrix.popPose();
+            poseStack.pushPose();
+            renderer.getModel().translateToHand(side, poseStack);
+            poseStack.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
+            poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+            poseStack.translate((side == HumanoidArm.LEFT ? -1 : 1) / 16.0F, 0.125D, -0.625D);
+            Minecraft.getInstance().getItemInHandRenderer().renderItem(livingEntity, stack, transformType, side == HumanoidArm.LEFT, poseStack, bufferIn, packedLightIn);
+            poseStack.popPose();
         }
         if (this.accessorySlot.equals(EquipmentAccessoriesSlot.GLOVES)) {
             for (HumanoidArm side : HumanoidArm.values()) {
                 ItemTransforms.TransformType transformType = side == HumanoidArm.LEFT ? ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND : ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
-                matrix.pushPose();
-                renderer.getModel().translateToHand(side, matrix);
+                poseStack.pushPose();
+                renderer.getModel().translateToHand(side, poseStack);
                 if (stack.getItem() == HUItems.SMALLGILLY) {
-                    matrix.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-                    matrix.scale(0.625F, -0.625F, -0.625F);
-                    matrix.translate(side == HumanoidArm.LEFT ? -0.6 : -0.4, -0.35D, -0.625D);
+                    poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+                    poseStack.scale(0.625F, -0.625F, -0.625F);
+                    poseStack.translate(side == HumanoidArm.LEFT ? -0.6 : -0.4, -0.35D, -0.625D);
                     ResourceLocation modelFile = new ResourceLocation(this.getRegistryName().getNamespace(), String.format("geo/%s.geo.json", this.getRegistryName().getPath() + (side == HumanoidArm.LEFT ? "" : "_v2")));
-                    new GeckoAccessoryRenderer(modelFile).render(this, matrix, bufferIn, packedLightIn, stack);
+                    new GeckoAccessoryRenderer(modelFile).render(this, poseStack, bufferIn, packedLightIn, stack);
                 } else {
-                    matrix.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
-                    matrix.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-                    matrix.translate((side == HumanoidArm.LEFT ? -1 : 1) / 16.0F, 0.125D, -0.625D);
-                    Minecraft.getInstance().getItemInHandRenderer().renderItem(livingEntity, stack, transformType, side == HumanoidArm.LEFT, matrix, bufferIn, packedLightIn);
+                    poseStack.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
+                    poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+                    poseStack.translate((side == HumanoidArm.LEFT ? -1 : 1) / 16.0F, 0.125D, -0.625D);
+                    Minecraft.getInstance().getItemInHandRenderer().renderItem(livingEntity, stack, transformType, side == HumanoidArm.LEFT, poseStack, bufferIn, packedLightIn);
                 }
-                matrix.popPose();
+                poseStack.popPose();
             }
         }
 
         if (this.accessorySlot.equals(EquipmentAccessoriesSlot.TSHIRT) || this.accessorySlot.equals(EquipmentAccessoriesSlot.JACKET) || this.accessorySlot.equals(EquipmentAccessoriesSlot.BELT)) {
-            matrix.pushPose();
-            renderer.getModel().body.translateAndRotate(matrix);
-            matrix.translate(0.0D, -0.25D, 0.0D);
-            matrix.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-            matrix.scale(0.625F, -0.625F, -0.625F);
-            Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemTransforms.TransformType.HEAD, packedLightIn, OverlayTexture.NO_OVERLAY, matrix, bufferIn, 0);
-            matrix.popPose();
+            poseStack.pushPose();
+            renderer.getModel().body.translateAndRotate(poseStack);
+            poseStack.translate(0.0D, -0.25D, 0.0D);
+            poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+            poseStack.scale(0.625F, -0.625F, -0.625F);
+            Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemTransforms.TransformType.HEAD, packedLightIn, OverlayTexture.NO_OVERLAY, poseStack, bufferIn, 0);
+            poseStack.popPose();
         }
 
         if (this.accessorySlot.equals(EquipmentAccessoriesSlot.HELMET)) {
-            matrix.pushPose();
-            renderer.getModel().head.translateAndRotate(matrix);
-            matrix.translate(0.0D, -0.25D, 0.0D);
-            matrix.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-            matrix.scale(0.625F, -0.625F, -0.625F);
-            Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemTransforms.TransformType.HEAD, packedLightIn, OverlayTexture.NO_OVERLAY, matrix, bufferIn, 0);
-            matrix.popPose();
+            poseStack.pushPose();
+            renderer.getModel().head.translateAndRotate(poseStack);
+            poseStack.translate(0.0D, -0.25D, 0.0D);
+            poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+            poseStack.scale(0.625F, -0.625F, -0.625F);
+            Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemTransforms.TransformType.HEAD, packedLightIn, OverlayTexture.NO_OVERLAY, poseStack, bufferIn, 0);
+            poseStack.popPose();
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderHokageCape(LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, LivingEntity livingEntity, float partialTicks) {
+    public void renderHokageCape(LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, LivingEntity livingEntity, float partialTicks) {
         GeckoAccessoryRenderer accessoryRenderer = new GeckoAccessoryRenderer();
         GeoModel model = accessoryRenderer.getGeoModelProvider().getModel(getModelFile());
 
@@ -232,7 +232,7 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
             left.setRotationZ(rot * (float) Math.toRadians(-8.8));
         }
 
-        accessoryRenderer.render(model, this, partialTicks, RenderType.entityTranslucent(this.getTextureFile()), matrix, bufferIn, bufferIn.getBuffer(RenderType.entityTranslucent(this.getTextureFile())), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+        accessoryRenderer.render(model, this, partialTicks, RenderType.entityTranslucent(this.getTextureFile()), poseStack, bufferIn, bufferIn.getBuffer(RenderType.entityTranslucent(this.getTextureFile())), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
     }
 
     @OnlyIn(Dist.CLIENT)

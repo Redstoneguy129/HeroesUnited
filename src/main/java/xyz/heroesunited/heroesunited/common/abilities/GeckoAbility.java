@@ -37,18 +37,18 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
             private final GeoAbilityRenderer<GeckoAbility> abilityRenderer = new GeoAbilityRenderer<>(GeckoAbility.this);
 
             @Override
-            public void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+            public void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
                 if (getEnabled()) {
                     this.abilityRenderer.setCurrentAbility(player, renderer.getModel());
-                    this.abilityRenderer.renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entityTranslucent(abilityRenderer.getTextureLocation(GeckoAbility.this))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+                    this.abilityRenderer.renderToBuffer(poseStack, bufferIn.getBuffer(RenderType.entityTranslucent(abilityRenderer.getTextureLocation(GeckoAbility.this))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
                 }
             }
 
             @Override
-            public boolean renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
+            public boolean renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
                 if (getEnabled()) {
                     this.abilityRenderer.setCurrentAbility(player, renderer.getModel());
-                    this.abilityRenderer.renderFirstPersonArm(renderer, matrix, bufferIn, packedLightIn, side);
+                    this.abilityRenderer.renderFirstPersonArm(renderer, poseStack, bufferIn, packedLightIn, side);
                 }
                 return true;
             }

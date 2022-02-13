@@ -22,6 +22,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
@@ -81,11 +82,13 @@ public class HorasScreen extends Screen {
         x = (this.width - xSize) / 2;
         y = (this.height - ySize) / 2;
         currentTab = TabEnum.MENU;
-        HorasInfo.getAliens().forEach(alienInfo -> alienInfoHUEntityHashMap.put(alienInfo, alienInfo.getEntityType().create(this.getMinecraft().level)));
+        Level level = this.getMinecraft().level;
+        if (level == null) return;
+        HorasInfo.getAliens().forEach(alienInfo -> alienInfoHUEntityHashMap.put(alienInfo, alienInfo.getEntityType().create(level)));
         alienMaxPages = alienInfoHUEntityHashMap.size() / 3;
-        HorasInfo.getEvos().forEach(evoInfo -> evoInfoHUEntityHashMap.put(evoInfo, evoInfo.getEntityType().create(this.getMinecraft().level)));
+        HorasInfo.getEvos().forEach(evoInfo -> evoInfoHUEntityHashMap.put(evoInfo, evoInfo.getEntityType().create(level)));
         evoMaxPages = evoInfoHUEntityHashMap.size() / 3;
-        HorasInfo.getGhosts().forEach(ghostInfo -> ghostInfoHUEntityHashMap.put(ghostInfo, ghostInfo.getEntityType().create(this.getMinecraft().level)));
+        HorasInfo.getGhosts().forEach(ghostInfo -> ghostInfoHUEntityHashMap.put(ghostInfo, ghostInfo.getEntityType().create(level)));
         ghostMaxPages = ghostInfoHUEntityHashMap.size() / 3;
         HorasInfo.getPlanets().forEach(planetInfo -> planetInfoHUEntityHashMap.put(planetInfo, planetInfo.getPlanetImage()));
         planetMaxPages = planetInfoHUEntityHashMap.size() / 3;
@@ -639,6 +642,7 @@ public class HorasScreen extends Screen {
         }
     }
 
+    @SuppressWarnings({"rawtypes", "deprecation"})
     private void drawEntity(int posX, int posY, LivingEntity entity) {
         EntityRenderer<? super Entity> renderer = this.getMinecraft().getEntityRenderDispatcher().getRenderer(entity);
         if (renderer instanceof LivingEntityRenderer render && ((LivingEntityRenderer) renderer).getModel() instanceof HeadedModel) {

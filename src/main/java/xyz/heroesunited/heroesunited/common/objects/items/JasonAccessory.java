@@ -76,10 +76,10 @@ public class JasonAccessory extends GeckoAccessory {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void render(EntityRendererProvider.Context context, LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, LivingEntity livingEntity, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {
-        matrix.pushPose();
-        matrix.translate(0.0D, 24 / 16F, 0.0D);
-        matrix.scale(-1.0F, -1.0F, 1.0F);
+    public void render(EntityRendererProvider.Context context, LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, LivingEntity livingEntity, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {
+        poseStack.pushPose();
+        poseStack.translate(0.0D, 24 / 16F, 0.0D);
+        poseStack.scale(-1.0F, -1.0F, 1.0F);
 
         GeckoAccessoryRenderer accessoryRenderer = (GeckoAccessoryRenderer) RenderProperties.get(this).getItemStackRenderer();
         GeoModel model = accessoryRenderer.getGeoModelProvider().getModel(getModelFile());
@@ -118,11 +118,11 @@ public class JasonAccessory extends GeckoAccessory {
         leftLegBone.setPositionY(12 - renderer.getModel().leftLeg.y);
         leftLegBone.setPositionZ(renderer.getModel().leftLeg.z);
 
-        accessoryRenderer.render(model, this, 0, RenderType.entityTranslucent(this.getTextureFile()), matrix, bufferIn, bufferIn.getBuffer(RenderType.entityTranslucent(this.getTextureFile())), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+        accessoryRenderer.render(model, this, 0, RenderType.entityTranslucent(this.getTextureFile()), poseStack, bufferIn, bufferIn.getBuffer(RenderType.entityTranslucent(this.getTextureFile())), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
 
-        matrix.scale(-1.0F, -1.0F, 1.0F);
-        matrix.translate(0.0D, -24 / 16F, 0.0D);
-        matrix.popPose();
+        poseStack.scale(-1.0F, -1.0F, 1.0F);
+        poseStack.translate(0.0D, -24 / 16F, 0.0D);
+        poseStack.popPose();
     }
 
     @Override

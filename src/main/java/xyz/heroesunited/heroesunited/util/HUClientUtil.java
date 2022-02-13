@@ -135,27 +135,27 @@ public class HUClientUtil {
         matrixStack.popPose();
     }
 
-    public static void drawArmWithLightning(PoseStack matrix, MultiBufferSource bufferIn, PlayerRenderer renderer, AbstractClientPlayer player, HumanoidArm side, double y, int packedLightIn, Color color) {
+    public static void drawArmWithLightning(PoseStack poseStack, MultiBufferSource bufferIn, PlayerRenderer renderer, AbstractClientPlayer player, HumanoidArm side, double y, int packedLightIn, Color color) {
         for (int i = 0; i < 3; i++) {
-            matrix.pushPose();
-            renderer.getModel().translateToHand(side, matrix);
-            matrix.scale(0.05F, 0.06F, 0.05F);
-            matrix.translate(i * (side == HumanoidArm.LEFT ? 1 : -1), 10, 0);
-            renderLightning(player.level.random, matrix, bufferIn, packedLightIn, y, i, color);
-            matrix.popPose();
+            poseStack.pushPose();
+            renderer.getModel().translateToHand(side, poseStack);
+            poseStack.scale(0.05F, 0.06F, 0.05F);
+            poseStack.translate(i * (side == HumanoidArm.LEFT ? 1 : -1), 10, 0);
+            renderLightning(player.level.random, poseStack, bufferIn, packedLightIn, y, i, color);
+            poseStack.popPose();
         }
     }
 
-    public static void renderCape(LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> renderer, LivingEntity entity, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, float partialTicks, ResourceLocation texture) {
+    public static void renderCape(LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> renderer, LivingEntity entity, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, float partialTicks, ResourceLocation texture) {
         if (renderer != null) {
             if (entity.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof ElytraItem || entity instanceof LocalPlayer && ((Player) entity).isModelPartShown(PlayerModelPart.CAPE) && ((LocalPlayer) entity).getCloakTextureLocation() != null) {
                 return;
             }
             final CapeModel model = new CapeModel(Minecraft.getInstance().getEntityModels().bakeLayer(HUModelLayers.CAPE));
-            matrix.pushPose();
-            renderer.getModel().body.translateAndRotate(matrix);
-            matrix.translate(0, -0.04F, 0.05F);
-            matrix.scale(0.9F, 0.9F, 0.9F);
+            poseStack.pushPose();
+            renderer.getModel().body.translateAndRotate(poseStack);
+            poseStack.translate(0, -0.04F, 0.05F);
+            poseStack.scale(0.9F, 0.9F, 0.9F);
             if (entity.isFallFlying()) {
                 model.cape.xRot = 0F;
                 model.cape.yRot = 0F;
@@ -194,42 +194,42 @@ public class HUClientUtil {
                     }
                 });
             }
-            model.renderToBuffer(matrix, bufferIn.getBuffer(RenderType.entityTranslucent(texture)), packedLightIn, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
-            matrix.popPose();
+            model.renderToBuffer(poseStack, bufferIn.getBuffer(RenderType.entityTranslucent(texture)), packedLightIn, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
+            poseStack.popPose();
         }
     }
 
     public static void renderFilledBox(PoseStack matrixStack, VertexConsumer builder, AABB box, float red, float green, float blue, float alpha, int combinedLightIn) {
-        Matrix4f matrix = matrixStack.last().pose();
-        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        Matrix4f poseStack = matrixStack.last().pose();
+        builder.vertex(poseStack, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.minX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.maxX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.maxX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
 
-        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.minX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.maxX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.maxX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.minX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
 
-        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.minX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.maxX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.maxX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
 
-        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.minX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.maxX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.maxX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.minX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
 
-        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.maxX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.maxX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.maxX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.maxX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.maxX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
 
-        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.minX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
-        builder.vertex(matrix, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.minX, (float) box.minY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.minX, (float) box.minY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.minX, (float) box.maxY, (float) box.maxZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
+        builder.vertex(poseStack, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
     }
 
     public static ModelPart getModelRendererById(PlayerModel model, String name) {

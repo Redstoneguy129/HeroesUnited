@@ -24,17 +24,17 @@ public class TheOneRingAccessory extends DefaultAccessoryItem {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void render(EntityRendererProvider.Context context, LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, LivingEntity livingEntity, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {
+    public void render(EntityRendererProvider.Context context, LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, LivingEntity livingEntity, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {
         HumanoidArm side = slot == EquipmentAccessoriesSlot.LEFT_WRIST.getSlot() ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
         ItemTransforms.TransformType transformType = side == HumanoidArm.LEFT ? ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND : ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
 
-        matrix.pushPose();
-        renderer.getModel().translateToHand(side, matrix);
-        matrix.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
-        matrix.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-        matrix.translate((side == HumanoidArm.LEFT ? -1 : 1) / 16.0F, 0.125D, -0.625D);
-        Minecraft.getInstance().getItemInHandRenderer().renderItem(livingEntity, stack, transformType, side == HumanoidArm.LEFT, matrix, bufferIn, packedLightIn);
-        matrix.popPose();
+        poseStack.pushPose();
+        renderer.getModel().translateToHand(side, poseStack);
+        poseStack.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
+        poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+        poseStack.translate((side == HumanoidArm.LEFT ? -1 : 1) / 16.0F, 0.125D, -0.625D);
+        Minecraft.getInstance().getItemInHandRenderer().renderItem(livingEntity, stack, transformType, side == HumanoidArm.LEFT, poseStack, bufferIn, packedLightIn);
+        poseStack.popPose();
     }
 
     @OnlyIn(Dist.CLIENT)

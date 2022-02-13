@@ -2,9 +2,7 @@ package xyz.heroesunited.heroesunited.mixin.client;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.client.resources.SkinManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Final;
@@ -12,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.heroesunited.heroesunited.client.events.SkinChangeEvent;
 
@@ -28,24 +26,14 @@ public abstract class PlayerInfoMixin {
     @Shadow @Final private Map<MinecraftProfileTexture.Type, ResourceLocation> textureLocations;
     private String defaultModel;
 
-    @Redirect(method = "registerTextures()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/resources/SkinManager;registerSkins(Lcom/mojang/authlib/GameProfile;Lnet/minecraft/client/resources/SkinManager$SkinTextureCallback;Z)V"))
-    private void registerSkinModel(SkinManager skinManager, GameProfile p_152790_1_, SkinManager.SkinTextureCallback p_152790_2_, boolean p_152790_3_) {
-        Minecraft.getInstance().getSkinManager().registerSkins(this.profile, (p_210250_1_, p_210250_2_, p_210250_3_) -> {
-            this.textureLocations.put(p_210250_1_, p_210250_2_);
-            if (p_210250_1_ == MinecraftProfileTexture.Type.SKIN) {
-                this.skinModel = p_210250_3_.getMetadata("model");
-                if (this.skinModel == null) {
-                    this.skinModel = "default";
-                }
-                this.defaultModel = skinModel;
-            }
-
-        }, true);
+    @Inject(method = "registerTextures()V", at = @At("TAIL"))
+    private void registerSkinModel(CallbackInfo ci) {
+        this.defaultModel = skinModel;
     }
 
     @Inject(method = "getSkinLocation()Lnet/minecraft/resources/ResourceLocation;", at = @At("RETURN"), cancellable = true)
     private void getSkinLocation(CallbackInfoReturnable<ResourceLocation> ci) {
-        SkinChangeEvent event = new SkinChangeEvent(defaultModel, ci.getReturnValue(), profile);
+        SkinChangeEvent event = new SkinChangeEvent(this.defaultModel, ci.getReturnValue(), this.profile);
         event.setSkin(event.getDefaultSkin());
         event.setSkinModel(event.getDefaultModel());
         MinecraftForge.EVENT_BUS.post(event);

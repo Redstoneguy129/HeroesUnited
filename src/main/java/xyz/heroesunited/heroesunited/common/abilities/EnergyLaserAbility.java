@@ -38,17 +38,17 @@ public class EnergyLaserAbility extends JSONAbility {
         super.initializeClient(consumer);
         consumer.accept(new IAbilityClientProperties() {
             @Override
-            public void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+            public void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
                 if (getEnabled()) {
                     Color color = HUJsonUtils.getColor(getJsonObject());
                     double distance = player.position().add(0, player.getEyeHeight(), 0).distanceTo(player.getLookAngle().scale(GsonHelper.getAsFloat(getJsonObject(), "distance", 20)));
                     AABB box = new AABB(0, 0, 0, 0, distance, 0);
-                    matrix.pushPose();
-                    renderer.getModel().translateToHand(isLeftArm(player) ? HumanoidArm.LEFT : HumanoidArm.RIGHT, matrix);
-                    matrix.translate(isLeftArm(player) ? 0.0625D : -0.0625D, 0, 0);
-                    HUClientUtil.renderFilledBox(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.0625D / 2), 1F, 1F, 1F, 1F, packedLightIn);
-                    HUClientUtil.renderFilledBox(matrix, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.0625D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, packedLightIn);
-                    matrix.popPose();
+                    poseStack.pushPose();
+                    renderer.getModel().translateToHand(isLeftArm(player) ? HumanoidArm.LEFT : HumanoidArm.RIGHT, poseStack);
+                    poseStack.translate(isLeftArm(player) ? 0.0625D : -0.0625D, 0, 0);
+                    HUClientUtil.renderFilledBox(poseStack, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.0625D / 2), 1F, 1F, 1F, 1F, packedLightIn);
+                    HUClientUtil.renderFilledBox(poseStack, bufferIn.getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.0625D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, packedLightIn);
+                    poseStack.popPose();
                 }
             }
 

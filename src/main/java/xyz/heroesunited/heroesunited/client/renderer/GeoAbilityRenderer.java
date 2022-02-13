@@ -141,11 +141,11 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends Humanoi
         }
     }
 
-    public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, MultiBufferSource buffer, int packedLightIn, HumanoidArm side) {
-        this.renderFirstPersonArm(renderer, matrix, buffer.getBuffer(RenderType.entityTranslucent(getTextureLocation(currentAbility))), packedLightIn, OverlayTexture.NO_OVERLAY, side, 1f, 1f, 1f, 1f);
+    public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource buffer, int packedLightIn, HumanoidArm side) {
+        this.renderFirstPersonArm(renderer, poseStack, buffer.getBuffer(RenderType.entityTranslucent(getTextureLocation(currentAbility))), packedLightIn, OverlayTexture.NO_OVERLAY, side, 1f, 1f, 1f, 1f);
     }
 
-    public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack matrix, VertexConsumer builder, int packedLightIn, int packedOverlayIn, HumanoidArm side, float red, float green, float blue, float alpha) {
+    public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack poseStack, VertexConsumer builder, int packedLightIn, int packedOverlayIn, HumanoidArm side, float red, float green, float blue, float alpha) {
         GeoModel model = modelProvider.getModel(getModelLocation(this.currentAbility));
         AnimationEvent<T> abilityEvent = new AnimationEvent<>(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.player));
         if (this.modelProvider.getAnimationFileLocation(this.currentAbility) != null) {
@@ -161,11 +161,11 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends Humanoi
         this.attackTime = 0.0F;
         this.crouching = false;
         this.swimAmount = 0.0F;
-        matrix.pushPose();
+        poseStack.pushPose();
 
-        if (!currentAbility.renderGeoAbilityRenderer(matrix, builder, packedLightIn, packedOverlayIn, red, green, blue, alpha, true, model, abilityEvent, this.player, this)) {
-            matrix.translate(0.0D, 1.5F, 0.0D);
-            matrix.scale(-1.0F, -1.0F, 1.0F);
+        if (!currentAbility.renderGeoAbilityRenderer(poseStack, builder, packedLightIn, packedOverlayIn, red, green, blue, alpha, true, model, abilityEvent, this.player, this)) {
+            poseStack.translate(0.0D, 1.5F, 0.0D);
+            poseStack.scale(-1.0F, -1.0F, 1.0F);
             ModelPart modelRenderer = side == HumanoidArm.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
             GeoUtils.copyRotations(modelRenderer, bone.get());
             bone.get().setPositionX(side == HumanoidArm.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
@@ -173,14 +173,14 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends Humanoi
             bone.get().setPositionZ(modelRenderer.z);
             bone.get().setHidden(false);
 
-            matrix.pushPose();
+            poseStack.pushPose();
             RenderSystem.setShaderTexture(0, this.getTextureLocation(this.currentAbility));
-            this.renderRecursively(bone.get(), matrix, builder, packedLightIn, packedOverlayIn, red, green, blue, alpha);
-            matrix.popPose();
-            matrix.scale(-1.0F, -1.0F, 1.0F);
-            matrix.translate(0.0D, -1.5F, 0.0D);
+            this.renderRecursively(bone.get(), poseStack, builder, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+            poseStack.popPose();
+            poseStack.scale(-1.0F, -1.0F, 1.0F);
+            poseStack.translate(0.0D, -1.5F, 0.0D);
         }
-        matrix.popPose();
+        poseStack.popPose();
     }
 
     @Override

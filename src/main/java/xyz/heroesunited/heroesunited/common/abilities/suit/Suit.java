@@ -106,7 +106,7 @@ public abstract class Suit {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderLayer(EntityRendererProvider.Context context, LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> entityRenderer, LivingEntity entity, ItemStack stack, EquipmentSlot slot, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void renderLayer(EntityRendererProvider.Context context, LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> entityRenderer, LivingEntity entity, ItemStack stack, EquipmentSlot slot, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
     }
 
     public <B extends SuitItem> void registerControllers(AnimationData data, B suitItem) {
@@ -153,9 +153,9 @@ public abstract class Suit {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side, ItemStack stack, SuitItem suitItem) {
+    public void renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side, ItemStack stack, SuitItem suitItem) {
         SuitModel<AbstractClientPlayer> suitModel = new SuitModel<>(player, getScale(EquipmentSlot.CHEST));
-        suitModel.renderArm(modelSet, side, matrix, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(suitItem.getArmorTexture(stack, player, suitItem.getSlot(), null)))), packedLightIn, renderer.getModel());
+        suitModel.renderArm(modelSet, side, poseStack, bufferIn.getBuffer(RenderType.entityTranslucent(new ResourceLocation(suitItem.getArmorTexture(stack, player, suitItem.getSlot(), null)))), packedLightIn, renderer.getModel());
     }
 
     public final void setRegistryName(ResourceLocation name) {
