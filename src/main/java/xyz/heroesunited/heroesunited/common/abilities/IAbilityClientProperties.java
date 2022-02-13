@@ -44,7 +44,6 @@ public interface IAbilityClientProperties {
     default void renderPlayerPost(RenderPlayerEvent.Post event) {
     }
 
-
     default boolean renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack matrix, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
         return true;
     }
