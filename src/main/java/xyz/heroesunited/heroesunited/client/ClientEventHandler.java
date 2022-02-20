@@ -180,7 +180,7 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent
-    public void clientTick2(TickEvent.ClientTickEvent event) {
+    public void clientTick(TickEvent.ClientTickEvent event) {
         Minecraft mc = Minecraft.getInstance();
         if (event.phase == TickEvent.Phase.END || mc.screen != null || mc.player == null) return;
 

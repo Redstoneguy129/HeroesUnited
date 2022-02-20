@@ -35,22 +35,4 @@ public class KeyMap extends HashMap<Integer, Boolean> {
         }
         return super.get(key);
     }
-
-    public enum HUKeys {
-        ABILITY_1(1),
-        ABILITY_2(2),
-        ABILITY_3(3),
-        ABILITY_4(4),
-        ABILITY_5(5),
-        PICK_ITEM(6),
-        JUMP(7),
-        ATTACK(8),
-        USE_ITEM(9);
-
-        public final int index;
-
-        HUKeys(int index) {
-            this.index = index;
-        }
-    }
 }

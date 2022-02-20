@@ -3,6 +3,7 @@ package xyz.heroesunited.heroesunited.client.texture;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -29,20 +30,9 @@ public class AlphaMaskTexture extends SimpleTexture {
     @Override
     public void load(ResourceManager manager) throws IOException {
         releaseId();
-        NativeImage image = NativeImage.read(manager.getResource(this.location).getInputStream());
-        File skinsDirectory = Minecraft.getInstance().getSkinManager().skinsDirectory;
-        if (this.location.getPath().startsWith("skins/")) {
-            String s = this.location.getPath().replace("skins/", "");
-            File file = new File(skinsDirectory.getAbsolutePath(), (s.length() > 2 ? s.substring(0, 2) : "xx"));
-            image = NativeImage.read(new FileInputStream(new File(file, s)));
-        }
+        NativeImage image = this.getImage(manager, this.location);
+        NativeImage output = this.getImage(manager, this.output);
         NativeImage mask = NativeImage.read(manager.getResource(this.maskLocation).getInputStream());
-        NativeImage output = NativeImage.read(manager.getResource(this.output).getInputStream());
-        if (this.output.getPath().startsWith("skins/")) {
-            String s = this.output.getPath().replace("skins/", "");
-            File file = new File(skinsDirectory.getAbsolutePath(), (s.length() > 2 ? s.substring(0, 2) : "xx"));
-            output = NativeImage.read(new FileInputStream(new File(file, s)));
-        }
 
         for (int y = 0; y < mask.getHeight(); ++y) {
             for (int x = 0; x < mask.getWidth(); ++x) {
@@ -79,10 +69,19 @@ public class AlphaMaskTexture extends SimpleTexture {
         image.upload(0, 0, 0, false);
     }
 
-    public static ResourceLocation getTexture(ResourceLocation base, ResourceLocation outputTex, ResourceLocation mask) {
-        ResourceLocation output = new ResourceLocation(outputTex.getNamespace(), String.format("%s_%d", outputTex.getPath(), mask.hashCode()));
+    private NativeImage getImage(ResourceManager manager, ResourceLocation location) throws IOException {
+        if (location.getPath().startsWith("skins/")) {
+            String s = location.getPath().replace("skins/", "");
+            File file = new File(Minecraft.getInstance().getSkinManager().skinsDirectory.getAbsolutePath(), (s.length() > 2 ? s.substring(0, 2) : "xx"));
+            return NativeImage.read(new FileInputStream(new File(file, s)));
+        }
+        return NativeImage.read(manager.getResource(location).getInputStream());
+    }
 
-        if (!(Minecraft.getInstance().getTextureManager().getTexture(output) instanceof AlphaMaskTexture)) {
+    public static ResourceLocation getTexture(ResourceLocation base, ResourceLocation outputTex, ResourceLocation mask) {
+        ResourceLocation output = new ResourceLocation(outputTex.getNamespace(), String.format("%s_alpha_mask_%d", outputTex.getPath(), mask.hashCode()));
+
+        if (!(Minecraft.getInstance().getTextureManager().getTexture(output, MissingTextureAtlasSprite.getTexture()) instanceof AlphaMaskTexture)) {
             Minecraft.getInstance().getTextureManager().register(output, new AlphaMaskTexture(base, mask, outputTex));
         }
 

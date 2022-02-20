@@ -130,7 +130,7 @@ public class EventHandler {
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
-            if (!event.player.level.isClientSide)
+            if (!event.player.level.isClientSide && event.player.level.dimension().equals(HeroesUnited.SPACE))
                 for (CelestialBody celestialBody : CelestialBodies.REGISTRY.get().getValues()) {
                     celestialBody.tick();
                     for (Player mpPlayer : event.player.level.players()) {

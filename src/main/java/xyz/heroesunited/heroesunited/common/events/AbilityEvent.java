@@ -68,8 +68,8 @@ public abstract class AbilityEvent extends PlayerEvent {
             this.map = map;
         }
 
-        public boolean isPressed(KeyMap.HUKeys key) {
-            return this.map.get(key.index);
+        public boolean isPressed(int key) {
+            return this.map.get(key);
         }
     }
 }

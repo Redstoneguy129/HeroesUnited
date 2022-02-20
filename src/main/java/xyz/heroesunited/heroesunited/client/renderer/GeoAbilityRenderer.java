@@ -28,8 +28,8 @@ import java.util.Optional;
 
 public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends HumanoidModel implements IGeoRenderer<T> {
 
-    protected T currentAbility;
     protected AbstractClientPlayer player;
+    protected final T currentAbility;
 
     public String headBone = "armorHead";
     public String bodyBone = "armorBody";
@@ -46,11 +46,6 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends Humanoi
         super(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_INNER_ARMOR));
         this.currentAbility = ability;
         this.modelProvider = ability.getGeoModel();
-    }
-
-    public GeoAbilityRenderer(AnimatedGeoModel<T> modelProvider) {
-        super(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_INNER_ARMOR));
-        this.modelProvider = modelProvider;
     }
 
     @Override
