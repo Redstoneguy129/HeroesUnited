@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.mixin.client;
 
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.LoadingOverlay;
@@ -39,6 +38,7 @@ import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -99,10 +99,9 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
 
     @Redirect(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;layers:Ljava/util/List;", opcode = Opcodes.GETFIELD))
     private List<RenderLayer<T, M>> injected(LivingEntityRenderer livingRenderer) {
-        if (livingRenderer.getModel() instanceof IPlayerModel) {
-            List<RenderLayer<T, M>> layers = Lists.newArrayList();
-            layers.addAll(this.layers);
-            HideLayerEvent event = new HideLayerEvent(((IPlayerModel) livingRenderer.getModel()).livingEntity());
+        if (livingRenderer.getModel() instanceof IPlayerModel model) {
+            List<RenderLayer<T, M>> layers = new ArrayList<>(this.layers);
+            HideLayerEvent event = new HideLayerEvent(model.livingEntity(), new ArrayList<>(this.layers));
             MinecraftForge.EVENT_BUS.post(event);
             layers.removeIf(layerRenderer -> event.getBlockedLayers().contains(layerRenderer.getClass()));
             return layers;

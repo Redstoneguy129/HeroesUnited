@@ -11,12 +11,15 @@ import java.util.List;
  * This event is called before layer should rendering.
  * Can be used to hide layers
  */
+@SuppressWarnings("rawtypes")
 public class HideLayerEvent extends EntityEvent {
 
+    private final List<RenderLayer> layers;
     private final List<Class<? extends RenderLayer>> blockedLayers;
 
-    public HideLayerEvent(Entity entity) {
+    public HideLayerEvent(Entity entity, List<RenderLayer> layers) {
         super(entity);
+        this.layers = layers;
         this.blockedLayers = new ArrayList<>();
     }
 
@@ -24,10 +27,15 @@ public class HideLayerEvent extends EntityEvent {
         this.blockedLayers.add(layer);
     }
 
-    public void blockLayers(Class<? extends RenderLayer>... layers) {
+    @SafeVarargs
+    public final void blockLayers(Class<? extends RenderLayer>... layers) {
         for (Class<? extends RenderLayer> layer : layers) {
             blockLayer(layer);
         }
+    }
+
+    public List<RenderLayer> getLayers() {
+        return layers;
     }
 
     public List<Class<? extends RenderLayer>> getBlockedLayers() {

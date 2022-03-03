@@ -273,17 +273,32 @@ public class ClientEventHandler {
                 if (a.layerNameIs("head")) {
                     event.blockLayer(CustomHeadLayer.class);
                 }
+                if (a.layerNameIs("arrow")) {
+                    event.getLayers().forEach(layer -> {
+                        if (layer instanceof StuckInBodyLayer) {
+                            event.blockLayer(layer.getClass());
+                        }
+                    });
+                }
                 if (a.layerNameIs("held_item")) {
-                    event.blockLayer(ItemInHandLayer.class);
+                    event.getLayers().forEach(layer -> {
+                        if (layer instanceof ItemInHandLayer) {
+                            event.blockLayer(layer.getClass());
+                        }
+                    });
                 }
                 if (a.layerNameIs("heroesunited")) {
                     event.blockLayer(HULayerRenderer.class);
                 }
-                if (a.layerNameIs("arrow")) {
-                    event.blockLayer(ArrowLayer.class);
-                }
                 if (a.layerNameIs("player")) {
-                    event.blockLayers(HumanoidArmorLayer.class, ItemInHandLayer.class, Deadmau5EarsLayer.class, CapeLayer.class, CustomHeadLayer.class, ElytraLayer.class, ParrotOnShoulderLayer.class);
+                    event.getLayers().forEach(layer -> {
+                       if (layer.getParentModel() instanceof PlayerModel) {
+                           event.blockLayer(layer.getClass());
+                       }
+                    });
+                }
+                if (a.layerNameIs("all")) {
+                    event.getLayers().forEach(layer -> event.blockLayer(layer.getClass()));
                 }
             }
         }
