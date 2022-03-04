@@ -6,7 +6,6 @@ import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -74,10 +73,7 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
         RenderType type = getRenderType(entity, isBodyVisible(entity), flag, Minecraft.getInstance().shouldEntityAppearGlowing(player));
         if (type != null) {
             for (PlayerPart value : PlayerPart.values()) {
-                IHUModelPart modelPart = ((IHUModelPart) (Object) value.modelPart(playerModel));
-                if (modelPart.size() != CubeDeformation.NONE) {
-                    modelPart.resetSize();
-                }
+                ((IHUModelPart) (Object) value.modelPart(playerModel)).resetSize();
             }
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                 cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap));

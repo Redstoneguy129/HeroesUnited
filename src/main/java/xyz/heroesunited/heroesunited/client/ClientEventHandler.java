@@ -11,7 +11,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -391,6 +390,7 @@ public class ClientEventHandler {
                     for (String s : Arrays.asList("bipedHead", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg")) {
                         GeoBone bone = cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap)).getBone(s).get();
                         ModelPart renderer = HUClientUtil.getModelRendererById(event.getPlayerModel(), s);
+                        IHUModelPart part = ((IHUModelPart) (Object) renderer);
                         for (BoneAnimation boneAnimation : controller.getCurrentAnimation().boneAnimations) {
                             if (boneAnimation.boneName.equals(s)) {
                                 renderer.xRot = -bone.getRotationX();
@@ -410,7 +410,7 @@ public class ClientEventHandler {
                                 if (bone.name.endsWith("Leg")) {
                                     renderer.y = renderer.y - bone.getScaleY() * 2;
                                 }
-                                ((IHUModelPart) (Object) renderer).setSize(new CubeDeformation(bone.getScaleX() - 1.0F, bone.getScaleY() - 1.0F, bone.getScaleZ() - 1.0F));
+                                part.setSize(part.size().extend(bone.getScaleX() - 1.0F, bone.getScaleY() - 1.0F, bone.getScaleZ() - 1.0F));
                             }
                         }
                     }
@@ -422,7 +422,7 @@ public class ClientEventHandler {
                 if (stack != null && stack.getItem() instanceof IAccessory accessory) {
                     if (accessory.getHiddenParts(false) != null) {
                         for (PlayerPart part : accessory.getHiddenParts(false)) {
-                            part.setVisibility(event.getPlayerModel(), false);
+                            part.setVisibility(event.getPlayerModel(), false, accessory.getPlayerWearSize(stack));
                         }
                     }
                 }

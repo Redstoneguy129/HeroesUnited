@@ -9,12 +9,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import xyz.heroesunited.heroesunited.client.renderer.IHUModelPart;
 
 import java.util.List;
-import java.util.Map;
 
 @Mixin(ModelPart.class)
 public abstract class ModelPartMixin implements IHUModelPart {
 
-    @Mutable @Shadow @Final private Map<String, ModelPart> children;
     @Mutable @Shadow @Final private List<ModelPart.Cube> cubes;
 
     private CubeDeformation size = CubeDeformation.NONE;

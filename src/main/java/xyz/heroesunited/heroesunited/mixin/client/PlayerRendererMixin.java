@@ -21,6 +21,7 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import xyz.heroesunited.heroesunited.client.events.RenderLayerEvent;
 import xyz.heroesunited.heroesunited.client.events.RenderPlayerHandEvent;
 import xyz.heroesunited.heroesunited.client.model.SuitModel;
+import xyz.heroesunited.heroesunited.client.renderer.IHUModelPart;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
@@ -52,6 +53,9 @@ public abstract class PlayerRendererMixin {
         HumanoidArm side = rendererArmIn == playerRenderer.getModel().rightArm ? HumanoidArm.RIGHT : HumanoidArm.LEFT;
         boolean renderArm = true;
         EntityModelSet modelSet = Minecraft.getInstance().getEntityModels();
+        ((IHUModelPart) (Object) rendererArmIn).resetSize();
+        ((IHUModelPart) (Object) rendererArmwearIn).resetSize();
+
         MinecraftForge.EVENT_BUS.post(new RenderPlayerHandEvent.Post(player, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, side));
 
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
@@ -99,7 +103,7 @@ public abstract class PlayerRendererMixin {
                         if (shouldRender) {
                             if (accessory.getHiddenParts(true) != null) {
                                 for (PlayerPart part : accessory.getHiddenParts(true)) {
-                                    part.setVisibility(playerRenderer.getModel(), false);
+                                    part.setVisibility(playerRenderer.getModel(), false, accessory.getPlayerWearSize(stack));
                                 }
                             }
                             if (accessory.renderDefaultModel()) {

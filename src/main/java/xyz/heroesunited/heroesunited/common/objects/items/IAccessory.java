@@ -53,7 +53,10 @@ public interface IAccessory {
         return null;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    default float getPlayerWearSize(ItemStack stack) {
+        return 1.0F;
+    }
+
     default float getScale(ItemStack stack) {
         return 0.0F;
     }

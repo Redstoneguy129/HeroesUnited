@@ -3,6 +3,8 @@ package xyz.heroesunited.heroesunited.util;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import xyz.heroesunited.heroesunited.client.renderer.IHUModelPart;
 
 import java.util.List;
 
@@ -26,9 +28,27 @@ public enum PlayerPart {
     }
 
     public void setVisibility(PlayerModel<?> model, boolean visible) {
-        ModelPart modelRenderer = modelPart(model);
+        this.setVisibility(model, visible, 1F);
+    }
+
+    public void setVisibility(PlayerModel<?> model, boolean visible, float size) {
+        ModelPart modelRenderer = this.modelPart(model);
         if (modelRenderer != null) {
-            modelRenderer.visible = visible;
+            if (bodyParts().contains(this)) {
+                modelRenderer.visible = visible;
+            } else {
+                if (size == 0.0F) {
+                    modelRenderer.visible = visible;
+                } else {
+                    if (!visible) {
+                        if (this == PlayerPart.HEAD_WEAR) {
+                            ((IHUModelPart) (Object) modelRenderer).setSize(new CubeDeformation(size * -0.499F));
+                        } else {
+                            ((IHUModelPart) (Object) modelRenderer).setSize(new CubeDeformation(size * -0.249F));
+                        }
+                    }
+                }
+            }
         }
     }
 

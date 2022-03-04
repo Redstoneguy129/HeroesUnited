@@ -9,6 +9,8 @@ public interface IHUModelPart {
     CubeDeformation size();
 
     default void resetSize() {
-        this.setSize(CubeDeformation.NONE);
+        if (this.size() != CubeDeformation.NONE) {
+            this.setSize(CubeDeformation.NONE);
+        }
     }
 }
