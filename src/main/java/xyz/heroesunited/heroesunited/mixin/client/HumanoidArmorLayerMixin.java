@@ -23,6 +23,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.heroesunited.heroesunited.client.events.RenderLayerEvent;
+import xyz.heroesunited.heroesunited.client.renderer.GeckoSuitRenderer;
 
 @Mixin(HumanoidArmorLayer.class)
 public abstract class HumanoidArmorLayerMixin<T extends LivingEntity, M extends HumanoidModel<T>, A extends HumanoidModel<T>> extends RenderLayer<T, M> {
@@ -57,7 +58,11 @@ public abstract class HumanoidArmorLayerMixin<T extends LivingEntity, M extends 
     @SuppressWarnings("rawtypes")
     @Redirect(method = "renderArmorPiece(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/EquipmentSlot;ILnet/minecraft/client/model/HumanoidModel;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/HumanoidArmorLayer;renderModel(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IZLnet/minecraft/client/model/Model;FFFLnet/minecraft/resources/ResourceLocation;)V"))
     public void renderArmor(HumanoidArmorLayer humanoidArmorLayer, PoseStack poseStack, MultiBufferSource buffer, int packedlightIn, boolean withGlint, Model model, float red, float green, float blue, ResourceLocation armorResource) {
-        VertexConsumer ivertexbuilder = ItemRenderer.getArmorFoilBuffer(buffer, RenderType.entityTranslucent(armorResource), false, withGlint);
+        RenderType renderType = RenderType.entityTranslucent(armorResource);
+        if (model instanceof GeckoSuitRenderer renderer) {
+            renderType = renderer.getRenderType(renderer.getCurrentArmorItem(), Minecraft.getInstance().getFrameTime(), poseStack, buffer, null, packedlightIn, armorResource);
+        }
+        VertexConsumer ivertexbuilder = ItemRenderer.getArmorFoilBuffer(buffer, renderType, false, withGlint);
         model.renderToBuffer(poseStack, ivertexbuilder, packedlightIn, OverlayTexture.NO_OVERLAY, red, green, blue, 1.0F);
     }
 }

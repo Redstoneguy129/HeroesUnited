@@ -121,7 +121,11 @@ public class GeckoSuitRenderer<T extends SuitItem> extends GeoArmorRenderer<T> {
 
     @Override
     public RenderType getRenderType(T animatable, float partialTicks, PoseStack stack, MultiBufferSource renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn, ResourceLocation textureLocation) {
-        return RenderType.entityTranslucent(getTextureLocation(animatable));
+        return RenderType.entitySolid(getTextureLocation(animatable));
+    }
+
+    public T getCurrentArmorItem() {
+        return this.currentArmorItem;
     }
 
     @Override

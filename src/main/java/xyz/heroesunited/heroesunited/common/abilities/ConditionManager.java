@@ -11,6 +11,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.util.INBTSerializable;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConditionManager implements INBTSerializable<CompoundTag> {
@@ -57,9 +58,10 @@ public class ConditionManager implements INBTSerializable<CompoundTag> {
     public void update(Player player) {
         ConcurrentHashMap<String, Boolean> methodConditions = new ConcurrentHashMap<>();
 
-        for (JsonObject jsonObject : this.conditions.keySet()) {
+        for (Map.Entry<JsonObject, Boolean> e : this.conditions.entrySet()) {
+            JsonObject jsonObject = e.getKey();
             boolean b = getFromJson(jsonObject).apply(player, jsonObject, ability);
-            if (b != this.conditions.get(jsonObject)) {
+            if (b != e.getValue()) {
                 this.conditions.put(jsonObject, b);
                 this.sync(player);
             }
