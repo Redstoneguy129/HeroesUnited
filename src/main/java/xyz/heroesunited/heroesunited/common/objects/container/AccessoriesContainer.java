@@ -35,7 +35,7 @@ public class AccessoriesContainer extends AbstractContainerMenu {
     }
 
     public AccessoriesContainer(int id, Inventory playerInventory, AccessoriesInventory inventory) {
-        super(HUContainers.ACCESSORIES, id);
+        super(HUContainers.ACCESSORIES.get(), id);
         Player player = playerInventory.player;
         this.livingEntity = inventory.livingEntity;
 

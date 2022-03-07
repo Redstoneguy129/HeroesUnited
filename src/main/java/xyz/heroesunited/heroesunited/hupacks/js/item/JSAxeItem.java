@@ -1,6 +1,5 @@
 package xyz.heroesunited.heroesunited.hupacks.js.item;
 
-import com.google.common.collect.Maps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -10,12 +9,9 @@ import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngine;
-import xyz.heroesunited.heroesunited.common.abilities.Ability;
-import xyz.heroesunited.heroesunited.hupacks.HUPackPowers;
 
 import javax.script.ScriptException;
 import java.util.Map;
-import java.util.Objects;
 
 public class JSAxeItem extends AxeItem implements IJSItem {
 
@@ -52,13 +48,7 @@ public class JSAxeItem extends AxeItem implements IJSItem {
     }
 
     @Override
-    public Map<String, Ability> getAbilities(Player player) {
-        Map<String, Ability> map = Maps.newHashMap();
-        HUPackPowers.getPower(this.power).forEach(a -> {
-            Ability ability = a.create(player);
-            ability.getAdditionalData().putString("Item", Objects.requireNonNull(this.getRegistryName()).toString());
-            map.put(ability.name, ability);
-        });
-        return map;
+    public ResourceLocation getPower() {
+        return power;
     }
 }

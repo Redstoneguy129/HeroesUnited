@@ -21,7 +21,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.GameData;
 import net.minecraftforge.registries.IForgeRegistry;
 import software.bernie.geckolib3.core.manager.AnimationData;
@@ -215,7 +214,6 @@ public abstract class Suit {
 
     public static void registerSuit(Suit suit) {
         Suit.SUITS.put(suit.getRegistryName(), suit);
-        suit.registerItems(ForgeRegistries.ITEMS);
     }
 
     public static SuitItem getSuitItem(EquipmentSlot slot, LivingEntity entity) {

@@ -2,8 +2,8 @@ package xyz.heroesunited.heroesunited.common;
 
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.data.worldgen.features.OreFeatures;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -19,13 +19,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.GenerationStep;
-import net.minecraft.world.level.levelgen.VerticalAnchor;
-import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
-import net.minecraft.world.level.levelgen.placement.BiomeFilter;
-import net.minecraft.world.level.levelgen.placement.CountPlacement;
-import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
-import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.common.BiomeDictionary;
@@ -57,7 +50,6 @@ import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncCelestialBody;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncSuperpowers;
 import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
-import xyz.heroesunited.heroesunited.common.objects.blocks.HUBlocks;
 import xyz.heroesunited.heroesunited.common.space.CelestialBodies;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.common.space.Planet;
@@ -67,20 +59,18 @@ import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.hupacks.js.item.IJSItem;
 import xyz.heroesunited.heroesunited.mixin.entity.LivingEntityAccessor;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
+import xyz.heroesunited.heroesunited.util.HUOres;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 import xyz.heroesunited.heroesunited.util.HUTickrate;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
-
-import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOOST;
 
 public class EventHandler {
 
@@ -391,7 +381,7 @@ public class EventHandler {
 
     @SubscribeEvent
     public void LivingJumpEvent(LivingEvent.LivingJumpEvent event) {
-        AttributeInstance attributeInstance = event.getEntityLiving().getAttribute(JUMP_BOOST);
+        AttributeInstance attributeInstance = event.getEntityLiving().getAttribute(HUAttributes.JUMP_BOOST);
         if (event.getEntityLiving() instanceof Player player && attributeInstance != null) {
             player.setDeltaMovement(player.getDeltaMovement().x, player.getDeltaMovement().y + 0.1F * attributeInstance.getValue(), player.getDeltaMovement().z);
         }
@@ -420,8 +410,7 @@ public class EventHandler {
     @SubscribeEvent
     public void biomeLoading(BiomeLoadingEvent event) {
         if (BiomeDictionary.hasType(ResourceKey.create(Registry.BIOME_REGISTRY, Objects.requireNonNull(event.getName())), BiomeDictionary.Type.OVERWORLD)) {
-            event.getGeneration().addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Feature.ORE.configured(new OreConfiguration(OreFeatures.NATURAL_STONE,
-                    HUBlocks.TITANIUM_ORE.defaultBlockState(), 4, 0.5F)).placed(List.of(CountPlacement.of(2), InSquarePlacement.spread(), HeightRangePlacement.uniform(VerticalAnchor.aboveBottom(-32), VerticalAnchor.aboveBottom(32)), BiomeFilter.biome())));
+            event.getGeneration().addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Holder.direct(HUOres.ORE_TITANIUM_PLACEMENT.value()));
         }
         //event.getGeneration().getStructures().add(() -> HUConfiguredStructures.CONFIGURED_CITY);
     }

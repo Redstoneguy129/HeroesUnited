@@ -32,7 +32,7 @@ public class HorasItem extends HUItem {
         if (rtr.getType() != HitResult.Type.BLOCK && !worldIn.isClientSide) {
             BlockPos pos = rtr.getBlockPos();
             if (worldIn.mayInteract(playerIn, pos) && playerIn.mayUseItemAt(pos, rtr.getDirection(), itemstack)) {
-                if (HUEntities.HORAS.spawn((ServerLevel) worldIn, itemstack, playerIn, pos, MobSpawnType.SPAWN_EGG, false, false) == null) {
+                if (HUEntities.HORAS.get().spawn((ServerLevel) worldIn, itemstack, playerIn, pos, MobSpawnType.SPAWN_EGG, false, false) == null) {
                     return InteractionResultHolder.pass(itemstack);
                 } else {
                     itemstack.shrink(1);
@@ -55,7 +55,7 @@ public class HorasItem extends HUItem {
             BlockPos pos = context.getClickedPos();
             Direction direction = context.getClickedFace();
             BlockPos pos1 = world.getBlockState(pos).getCollisionShape(world, pos).isEmpty() ? pos : pos.offset(direction.getNormal());
-            if (HUEntities.HORAS.spawn((ServerLevel) world, itemstack, context.getPlayer(), pos1, MobSpawnType.SPAWN_EGG, true, !Objects.equals(pos, pos1) && direction == Direction.UP) != null) {
+            if (HUEntities.HORAS.get().spawn((ServerLevel) world, itemstack, context.getPlayer(), pos1, MobSpawnType.SPAWN_EGG, true, !Objects.equals(pos, pos1) && direction == Direction.UP) != null) {
                 itemstack.shrink(1);
             }
             return InteractionResult.CONSUME;

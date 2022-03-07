@@ -14,7 +14,7 @@ import xyz.heroesunited.heroesunited.client.gui.FiveYearsLaterBookGUI;
 public class ComicItem extends HUItem {
 
     public ComicItem() {
-        super(HUItems.HORAS, new Item.Properties().stacksTo(1));
+        super(HUItems.HORAS.get(), new Item.Properties().stacksTo(1));
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -39,11 +39,7 @@ public class HUPackPowers extends SimpleJsonResourceReloadListener {
         HeroesUnited.LOGGER.info("Loaded {} powers", this.registeredPowers.size());
     }
 
-    public static HUPackPowers getInstance() {
-        return INSTANCE;
-    }
-
     public static List<AbilityCreator> getPower(ResourceLocation location) {
-        return getInstance().registeredPowers.get(location);
+        return INSTANCE.registeredPowers.get(location);
     }
 }

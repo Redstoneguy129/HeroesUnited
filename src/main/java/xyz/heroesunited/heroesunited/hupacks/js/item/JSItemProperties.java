@@ -4,16 +4,17 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.Tiers;
+import xyz.heroesunited.heroesunited.HeroesUnited;
 
 public class JSItemProperties extends Item.Properties {
-    public String type = "heroesunited:default";
+    public ResourceLocation type = new ResourceLocation(HeroesUnited.MODID, "default");
     protected Tier tier = Tiers.DIAMOND;
     protected int attackDamage = 1;
     protected float attackSpeed = 0.5f;
     public ResourceLocation power = new ResourceLocation("");
 
     public Item.Properties type(String type) {
-        this.type = type;
+        this.type = new ResourceLocation(type);
         return this;
     }
 

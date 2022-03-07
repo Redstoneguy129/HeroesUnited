@@ -11,7 +11,7 @@ import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.repository.RepositorySource;
-import net.minecraft.server.packs.resources.SimpleReloadableResourceManager;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.util.Unit;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -43,7 +43,7 @@ public class HUPacks {
 
     private static HUPacks instance;
     private static final CompletableFuture<Unit> RELOAD_INITIAL_TASK = CompletableFuture.completedFuture(Unit.INSTANCE);
-    private final SimpleReloadableResourceManager resourceManager = new SimpleReloadableResourceManager(PackType.SERVER_DATA);
+    private final ReloadableResourceManager resourceManager = new ReloadableResourceManager(PackType.SERVER_DATA);
     public final PackRepository hupackFinder = new PackRepository(PackType.SERVER_DATA, new HUPackFinder());
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     public static final File DIRECTORY = new File("hupacks");
@@ -53,8 +53,10 @@ public class HUPacks {
         bus.addListener(EventPriority.LOWEST, this::construct);
 
         this.resourceManager.registerReloadListener(new JSAbilityManager(bus));
-        this.resourceManager.registerReloadListener(new JSItemManager(bus));
         this.resourceManager.registerReloadListener(new HUPackSuit());
+        JSItemManager itemManager = new JSItemManager();
+        bus.register(itemManager);
+        this.resourceManager.registerReloadListener(itemManager);
     }
 
     private void construct(FMLConstructModEvent event) {
@@ -65,7 +67,7 @@ public class HUPacks {
                 this.hupackFinder.reload();
                 this.hupackFinder.setSelected(hupackFinder.getAvailableIds());
 
-                this.resourceManager.reload(Util.backgroundExecutor(), Runnable::run, this.hupackFinder.openAllSelected(), RELOAD_INITIAL_TASK).whenComplete((unit, throwable) -> {
+                this.resourceManager.createReload(Util.backgroundExecutor(), Runnable::run, RELOAD_INITIAL_TASK, this.hupackFinder.openAllSelected()).done().whenComplete((unit, throwable) -> {
                     if (throwable != null) {
                         this.resourceManager.close();
                     }
@@ -105,7 +107,7 @@ public class HUPacks {
         return instance;
     }
 
-    public SimpleReloadableResourceManager getResourceManager() {
+    public ReloadableResourceManager getResourceManager() {
         return resourceManager;
     }
 

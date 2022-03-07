@@ -36,7 +36,7 @@ public class Spaceship extends Entity {
     }
 
     public boolean isRocket() {
-        return getType() == HUEntities.SPACESHIP;
+        return getType() == HUEntities.SPACESHIP.get();
     }
 
     @Nullable

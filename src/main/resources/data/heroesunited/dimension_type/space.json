@@ -4,7 +4,7 @@
   "min_y": 0,
   "noodle_caves_enabled": false,
   "logical_height": 256,
-  "infiniburn": "minecraft:infiniburn_nether",
+  "infiniburn": "#minecraft:infiniburn_nether",
   "ambient_light": 1,
   "piglin_safe": false,
   "bed_works": false,

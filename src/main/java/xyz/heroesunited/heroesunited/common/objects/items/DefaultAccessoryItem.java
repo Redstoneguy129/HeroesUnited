@@ -47,26 +47,27 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
     @Override
     public List<PlayerPart> getHiddenParts(boolean firstPerson) {
         List<PlayerPart> parts = new ArrayList<>();
-        if (this == HUItems.FINN_ARM || this == HUItems.MADNESSCLAW) {
+        if (this == HUItems.FINN_ARM.get() || this == HUItems.MADNESSCLAW.get()) {
             if (!firstPerson) {
                 parts.add(PlayerPart.RIGHT_ARM);
             }
             parts.add(PlayerPart.RIGHT_ARM_WEAR);
         }
-        if (this == HUItems.REDA_JACKET || this == HUItems.REDA_SHIRT || this == HUItems.RED_JACKET || this == HUItems.GREEN_SHIRT) {
+        if (this == HUItems.REDA_JACKET.get() || this == HUItems.REDA_SHIRT .get()
+                || this == HUItems.RED_JACKET.get() || this == HUItems.GREEN_SHIRT.get()) {
             parts.add(PlayerPart.RIGHT_ARM_WEAR);
             parts.add(PlayerPart.LEFT_ARM_WEAR);
             parts.add(PlayerPart.CHEST_WEAR);
         }
-        if (this == HUItems.WALLE_HEAD) {
+        if (this == HUItems.WALLE_HEAD.get()) {
             parts.add(PlayerPart.HEAD);
             parts.add(PlayerPart.HEAD_WEAR);
         }
-        if (this == HUItems.JASON_MASK) {
+        if (this == HUItems.JASON_MASK.get()) {
             parts.add(PlayerPart.HEAD_WEAR);
         }
 
-        if (this == HUItems.HOKAGE_CAPE) {
+        if (this == HUItems.HOKAGE_CAPE.get()) {
             parts.add(PlayerPart.HEAD_WEAR);
             parts.add(PlayerPart.RIGHT_ARM_WEAR);
             parts.add(PlayerPart.LEFT_ARM_WEAR);

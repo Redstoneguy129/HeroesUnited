@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
@@ -22,6 +23,7 @@ import net.minecraftforge.client.gui.OverlayRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.AddPackFindersEvent;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -56,6 +58,7 @@ import xyz.heroesunited.heroesunited.common.EventHandler;
 import xyz.heroesunited.heroesunited.common.HUConfig;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.Condition;
+import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerEvent;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
@@ -74,11 +77,15 @@ import xyz.heroesunited.heroesunited.common.space.CelestialBodies;
 import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.util.HUModelLayers;
+import xyz.heroesunited.heroesunited.util.HUOres;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
 
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.FALL_RESISTANCE;
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOOST;
 
+/**
+ * TODO change mars.json file, because rn dimension looks like a mesa biome 😂
+ */
 @Mod(HeroesUnited.MODID)
 public class HeroesUnited {
 
@@ -167,9 +174,9 @@ public class HeroesUnited {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public void registerRenderers(final EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(HUEntities.HORAS, HorasRenderer::new);
-        event.registerEntityRenderer(HUEntities.ENERGY_BLAST, EnergyBlastRenderer::new);
-        event.registerEntityRenderer(HUEntities.SPACESHIP, SpaceshipRenderer::new);
+        event.registerEntityRenderer(HUEntities.HORAS.get(), HorasRenderer::new);
+        event.registerEntityRenderer(HUEntities.ENERGY_BLAST.get(), EnergyBlastRenderer::new);
+        event.registerEntityRenderer(HUEntities.SPACESHIP.get(), SpaceshipRenderer::new);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -195,7 +202,7 @@ public class HeroesUnited {
     private void clientSetup(final FMLClientSetupEvent event) {
         Runtime.getRuntime().addShutdownHook(new Thread(HURichPresence::close));
         HUPacks.HUPackFinder.createFoldersAndLoadThemes();
-        MenuScreens.register(HUContainers.ACCESSORIES, AccessoriesScreen::new);
+        MenuScreens.register(HUContainers.ACCESSORIES.get(), AccessoriesScreen::new);
         OverlayRegistry.registerOverlayAbove(ForgeIngameGui.HOTBAR_ELEMENT, "AbilityOverlay", new AbilityOverlay());
 
         new HorasInfo.DimensionInfo("Overworld", "Default      Dimension", new ResourceLocation("overworld"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/overworld.png"));
@@ -213,11 +220,19 @@ public class HeroesUnited {
     }
 
     @SubscribeEvent
+    public void newRegistries(final RegistryEvent.Register<Item> event) {
+        for (Suit value : Suit.SUITS.values()) {
+            value.registerItems(event.getRegistry());
+        }
+    }
+
+    @SubscribeEvent
     public void commonSetup(final FMLCommonSetupEvent event) {
         /*event.enqueueWork(() -> {
             HUStructures.setupStructures();
             HUConfiguredStructures.registerConfiguredStructures();
         });*/
+        event.enqueueWork(HUOres::registerConfiguredFeatures);
         HUNetworking.registerMessages();
         LOGGER.info(MODID + ": common is ready!");
     }
@@ -232,7 +247,7 @@ public class HeroesUnited {
 
     @SubscribeEvent
     public void entityAttribute(final EntityAttributeCreationEvent event) {
-        event.put(HUEntities.HORAS, HorasEntity.createMobAttributes().build());
+        event.put(HUEntities.HORAS.get(), HorasEntity.createMobAttributes().build());
     }
 
     @SubscribeEvent
@@ -253,7 +268,7 @@ public class HeroesUnited {
         @NotNull
         @Override
         public ItemStack makeIcon() {
-            return HUItems.BOBO_ACCESSORY.getDefaultInstance();
+            return HUItems.BOBO_ACCESSORY.get().getDefaultInstance();
         }
     };
 }

@@ -6,24 +6,25 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngine;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.hupacks.js.item.*;
 
 import javax.script.Invocable;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 public class JSItemManager extends JSReloadListener {
 
-    private static final Map<ResourceLocation, Function<Map.Entry<JSItemProperties, NashornScriptEngine>, Item>> types = Maps.newHashMap();
-    private final List<Item> items = new ArrayList<>();
+    private static final Map<ResourceLocation, Function<Map.Entry<JSItemProperties, NashornScriptEngine>, Item>> TYPES = Maps.newHashMap();
+    private final Map<ResourceLocation, Map.Entry<JSItemProperties, NashornScriptEngine>> items = Maps.newHashMap();
 
-    public JSItemManager(IEventBus bus) {
+    public JSItemManager() {
         super("huitems", new NashornScriptEngineFactory());
-        bus.addGenericListener(Item.class, this::registerItems);
         registerItemType(new ResourceLocation(HeroesUnited.MODID, "default"), JSItem::new);
         registerItemType(new ResourceLocation(HeroesUnited.MODID, "sword"), JSSwordItem::new);
         registerItemType(new ResourceLocation(HeroesUnited.MODID, "pickaxe"), JSPickaxeItem::new);
@@ -31,7 +32,7 @@ public class JSItemManager extends JSReloadListener {
     }
 
     public static void registerItemType(ResourceLocation resourceLocation, Function<Map.Entry<JSItemProperties, NashornScriptEngine>, Item> function) {
-        types.put(Objects.requireNonNull(resourceLocation), Objects.requireNonNull(function));
+        TYPES.put(Objects.requireNonNull(resourceLocation), Objects.requireNonNull(function));
     }
 
     @Override
@@ -40,16 +41,17 @@ public class JSItemManager extends JSReloadListener {
             try {
                 JSItemProperties properties = new JSItemProperties();
                 ((Invocable) entry.getValue()).invokeFunction("init", properties);
-                items.add(types.get(new ResourceLocation(properties.type)).apply(new AbstractMap.SimpleEntry<>(properties, entry.getValue())).setRegistryName(entry.getKey()));
+                items.put(entry.getKey(), new AbstractMap.SimpleEntry<>(properties, entry.getValue()));
             } catch (Throwable throwable) {
                 HeroesUnited.LOGGER.error("Couldn't read hupack item {}", entry.getKey(), throwable);
             }
         }
     }
 
+    @SubscribeEvent
     public void registerItems(RegistryEvent.Register<Item> event) {
-        for (Item item : items) {
-            event.getRegistry().register(item);
+        for (var e : items.entrySet()) {
+            event.getRegistry().register(TYPES.get(e.getValue().getKey().type).apply(e.getValue()).setRegistryName(e.getKey()));
         }
     }
 }

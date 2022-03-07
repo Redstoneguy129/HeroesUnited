@@ -35,7 +35,7 @@ public class EnergyBlastEntity extends ThrowableProjectile {
     }
 
     public EnergyBlastEntity(Level world, LivingEntity entity, float damage, Color color, int lifetime) {
-        super(HUEntities.ENERGY_BLAST, entity, world);
+        super(HUEntities.ENERGY_BLAST.get(), entity, world);
         this.damage = damage;
         this.color = color;
         this.lifetime = lifetime;

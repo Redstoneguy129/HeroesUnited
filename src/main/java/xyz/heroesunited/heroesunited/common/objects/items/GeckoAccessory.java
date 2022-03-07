@@ -72,7 +72,7 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
     @OnlyIn(Dist.CLIENT)
     @Override
     public void render(EntityRendererProvider.Context context, LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, LivingEntity livingEntity, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {
-        if (stack.getItem() == HUItems.AKIRA_JACKET) {
+        if (stack.getItem() == HUItems.AKIRA_JACKET.get()) {
             GeckoAccessoryRenderer accessoryRenderer = (GeckoAccessoryRenderer) RenderProperties.get(this).getItemStackRenderer();
             GeoModel model = accessoryRenderer.getGeoModelProvider().getModel(getModelFile());
             //i really need rewrite accessory render code
@@ -102,7 +102,7 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
             return;
         }
 
-        if (stack.getItem() == HUItems.HOKAGE_CAPE) {
+        if (stack.getItem() == HUItems.HOKAGE_CAPE.get()) {
             poseStack.pushPose();
             poseStack.translate(0.0D, 24 / 16F, 0.0D);
             poseStack.scale(-1.0F, -1.0F, 1.0F);
@@ -113,7 +113,7 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
         if (EquipmentAccessoriesSlot.wristAccessories().contains(accessorySlot)) {
             HumanoidArm side = slot == EquipmentAccessoriesSlot.LEFT_WRIST.getSlot() ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
             ItemTransforms.TransformType transformType = side == HumanoidArm.LEFT ? ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND : ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
-            if (stack.getItem() == HUItems.FINN_ARM || stack.getItem() == HUItems.MADNESSCLAW) {
+            if (stack.getItem() == HUItems.FINN_ARM.get() || stack.getItem() == HUItems.MADNESSCLAW.get()) {
                 transformType = ItemTransforms.TransformType.HEAD;
             }
 
@@ -130,7 +130,7 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
                 ItemTransforms.TransformType transformType = side == HumanoidArm.LEFT ? ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND : ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
                 poseStack.pushPose();
                 renderer.getModel().translateToHand(side, poseStack);
-                if (stack.getItem() == HUItems.SMALLGILLY) {
+                if (stack.getItem() == HUItems.SMALLGILLY.get()) {
                     poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
                     poseStack.scale(0.625F, -0.625F, -0.625F);
                     poseStack.translate(side == HumanoidArm.LEFT ? -0.6 : -0.4, -0.35D, -0.625D);
