@@ -84,7 +84,7 @@ import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.FALL_RES
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOOST;
 
 /**
- * TODO change mars.json file, because rn dimension looks like a mesa biome 😂
+ * TODO change mars.json file, because rn dimension looks like a mesa biome
  */
 @Mod(HeroesUnited.MODID)
 public class HeroesUnited {

@@ -487,47 +487,46 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public void renderHand(RenderHandEvent event) {
-        if (Minecraft.getInstance().player == null) return;
-        AbstractClientPlayer player = Minecraft.getInstance().player;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || !mc.options.getCameraType().isFirstPerson()) return;
+        AbstractClientPlayer player = mc.player;
         boolean canceled = false;
         for (Ability a : AbilityHelper.getAbilities(player)) {
-            if (Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
-                double distance = Minecraft.getInstance().hitResult.getLocation().distanceTo(player.position().add(0, player.getEyeHeight(), 0));
-                AABB box = new AABB(0.1F, -0.25, 0, 0, -0.25, -distance).inflate(0.03125D);
-                Color color = HUJsonUtils.getColor(a.getJsonObject());
-                if (a instanceof EnergyLaserAbility && a.getEnabled()) {
-                    event.getPoseStack().pushPose();
-                    event.getPoseStack().translate(((EnergyLaserAbility) a).isLeftArm(player) ? -0.3F : 0.3F, 0, 0);
-                    HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, 1, event.getPackedLight());
-                    HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.03125D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, event.getPackedLight());
-                    canceled = true;
-                    event.getPoseStack().popPose();
+            double distance = mc.hitResult.getLocation().distanceTo(player.position().add(0, player.getEyeHeight(), 0));
+            AABB box = new AABB(0.1F, -0.25, 0, 0, -0.25, -distance).inflate(0.03125D);
+            Color color = HUJsonUtils.getColor(a.getJsonObject());
+            if (a instanceof EnergyLaserAbility && a.getEnabled()) {
+                event.getPoseStack().pushPose();
+                event.getPoseStack().translate(((EnergyLaserAbility) a).isLeftArm(player) ? -0.3F : 0.3F, 0, 0);
+                HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, 1, event.getPackedLight());
+                HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.03125D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, event.getPackedLight());
+                canceled = true;
+                event.getPoseStack().popPose();
+            }
+            if (a instanceof HeatVisionAbility) {
+                float alpha = (a.getDataManager().<Integer>getValue("prev_timer") + (a.getDataManager().<Integer>getValue("timer") - a.getDataManager().<Integer>getValue("prev_timer")) * event.getPartialTicks()) / GsonHelper.getAsInt(a.getJsonObject(), "maxTimer", 10);
+                if (alpha == 0) return;
+                if (a.getDataManager().<String>getValue("type").equals("cyclop")) {
+                    AABB box1 = new AABB(-0.15F, -0.1F, 0.5F, 0.15F, -0.1F, -distance).inflate(0.0625D);
+                    HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box1.deflate(0.0625D / 2), 1F, 1F, 1F, alpha, event.getPackedLight());
+                    HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box1, color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, alpha * 0.5F, event.getPackedLight());
+                    if (a.getEnabled()) {
+                        event.setCanceled(true);
+                    }
+                    return;
                 }
-                if (a instanceof HeatVisionAbility) {
-                    float alpha = (a.getDataManager().<Integer>getValue("prev_timer") + (a.getDataManager().<Integer>getValue("timer") - a.getDataManager().<Integer>getValue("prev_timer")) * event.getPartialTicks()) / GsonHelper.getAsInt(a.getJsonObject(), "maxTimer", 10);
-                    if (alpha == 0) return;
-                    if (a.getDataManager().<String>getValue("type").equals("cyclop")) {
-                        AABB box1 = new AABB(-0.15F, -0.11F, 0, 0.15F, -0.11F, -distance).inflate(0.0625D);
-                        HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box1.deflate(0.0625D / 2), 1F, 1F, 1F, alpha, event.getPackedLight());
-                        HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box1, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255F, alpha * 0.5F, event.getPackedLight());
+                if (a.getDataManager().<String>getValue("type").equals("default")) {
+                    for (int i = 0; i < 2; i++) {
+                        event.getPoseStack().pushPose();
+                        event.getPoseStack().translate(i == 0 ? 0.2F : -0.3F, 0.25, 0);
+                        HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, alpha, event.getPackedLight());
+                        HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.03125D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, alpha * 0.5F, event.getPackedLight());
                         if (a.getEnabled()) {
                             event.setCanceled(true);
                         }
-                        return;
+                        event.getPoseStack().popPose();
                     }
-                    if (a.getDataManager().<String>getValue("type").equals("default")) {
-                        for (int i = 0; i < 2; i++) {
-                            event.getPoseStack().pushPose();
-                            event.getPoseStack().translate(i == 0 ? 0.2F : -0.3F, 0.25, 0);
-                            HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, alpha, event.getPackedLight());
-                            HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.03125D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, alpha * 0.5F, event.getPackedLight());
-                            if (a.getEnabled()) {
-                                event.setCanceled(true);
-                            }
-                            event.getPoseStack().popPose();
-                        }
-                        return;
-                    }
+                    return;
                 }
             }
         }
@@ -537,7 +536,7 @@ public class ClientEventHandler {
             if (stack.getItem() instanceof SuitItem suitItem) {
                 if (suitItem.getSlot().equals(equipmentSlot)) {
                     if (suitItem.renderWithoutArm()) {
-                        suitItem.renderFirstPersonArm(Minecraft.getInstance().getEntityModels(), null, event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), player, player.getMainArm(), stack);
+                        suitItem.renderFirstPersonArm(mc.getEntityModels(), null, event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), player, player.getMainArm(), stack);
                     }
                 }
             }

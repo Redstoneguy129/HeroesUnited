@@ -23,6 +23,7 @@ public class AbilityHelper {
         return getActiveAbilityMap(entity).containsKey(name);
     }
 
+    @SuppressWarnings("unchecked")
     public static <T extends Ability> T getSameAbilityFrom(Collection<Ability> abilities, T ability) {
         for (Ability newAbility : abilities) {
             if (newAbility.type.equals(ability.type) && newAbility.name.equals(ability.name)) {

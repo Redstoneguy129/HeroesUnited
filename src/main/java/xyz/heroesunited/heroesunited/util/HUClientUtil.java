@@ -335,9 +335,12 @@ public class HUClientUtil {
 
         public static final RenderType LASER = create(HeroesUnited.MODID + ":laser", DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, VertexFormat.Mode.QUADS, 256, false, true, RenderType.CompositeState.builder()
                 .setShaderState(RENDERTYPE_LIGHTNING_SHADER)
-                .setCullState(RenderStateShard.CULL)
+                .setTextureState(NO_TEXTURE)
+                .setCullState(NO_CULL)
                 .setWriteMaskState(COLOR_DEPTH_WRITE)
-                .setTransparencyState(LIGHTNING_TRANSPARENCY)
+                .setLightmapState(LIGHTMAP)
+                .setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY)
+                .setLayeringState(VIEW_OFFSET_Z_LAYERING)
                 .createCompositeState(true));
 
         public static RenderType getLight(ResourceLocation texture) {
