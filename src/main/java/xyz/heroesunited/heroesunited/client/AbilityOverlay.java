@@ -54,7 +54,7 @@ public class AbilityOverlay implements IIngameOverlay {
                     RenderSystem.setShaderTexture(0, widgets);
 
                     if (ability.getMaxCooldown() != 0) {
-                        int progress = (int) (((ability.getDataManager().<Integer>getValue("prev_cooldown") + (ability.getDataManager().<Integer>getValue("cooldown") - ability.getDataManager().<Integer>getValue("prev_cooldown")) * partialTicks) / ability.getMaxCooldown()) * 16F);
+                        int progress = (int) (ability.getCooldownProgress(partialTicks) * 16F);
                         if (progress > 0) {
                             GuiComponent.blit(mStack, 3, abilityY, 46, 0, progress, 16, 64, 128);
                         }

@@ -5,17 +5,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryBuilder;
 import xyz.heroesunited.heroesunited.HeroesUnited;
-import xyz.heroesunited.heroesunited.common.events.AbilityEvent;
 import xyz.heroesunited.heroesunited.util.hudata.HUData;
-
-import java.util.Map;
 
 public class AbilityType extends ForgeRegistryEntry<AbilityType> {
 
@@ -38,6 +34,9 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
         if (type != null) {
             Ability ability = type.create(player, id, GsonHelper.parse(tag.getString("JsonObject")));
             ability.deserializeNBT(tag);
+            for (HUData<?> data : ability.dataManager.getHUDataMap().values()) {
+                ability.onDataUpdated(data);
+            }
             return ability;
         }
         return null;
@@ -46,13 +45,6 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
     public Ability create(Player player, String id, JsonObject jsonObject) {
         Ability a = this.supplier.create(this, player, jsonObject);
         a.name = id;
-        a.registerData();
-        MinecraftForge.EVENT_BUS.post(new AbilityEvent.RegisterData(player, a));
-        for (Map.Entry<String, HUData<?>> entry : a.dataManager.getHUDataMap().entrySet()) {
-            if (entry.getValue().isJson()) {
-                a.dataManager.set(entry.getKey(), entry.getValue().getFromJson(jsonObject, entry.getKey(), entry.getValue().getDefaultValue()));
-            }
-        }
         return a;
     }
 

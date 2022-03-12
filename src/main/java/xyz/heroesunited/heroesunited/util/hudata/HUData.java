@@ -50,68 +50,68 @@ public class HUData<T> {
         this.dirty = dirty;
     }
 
-    public Object getFromJson(JsonObject json, String id, Object defaultValue) {
-        if (json.has(id)) {
-            if (defaultValue instanceof Boolean) {
-                return GsonHelper.getAsBoolean(json, id);
-            } else if (defaultValue instanceof Integer) {
-                return GsonHelper.getAsInt(json, id);
-            } else if (defaultValue instanceof String) {
-                return GsonHelper.getAsString(json, id);
-            } else if (defaultValue instanceof Float) {
-                return GsonHelper.getAsFloat(json, id);
-            } else if (defaultValue instanceof Double) {
-                return (double) GsonHelper.getAsFloat(json, id);
-            } else if (defaultValue instanceof Long) {
-                return GsonHelper.getAsLong(json, id);
-            } else if (defaultValue instanceof UUID) {
-                return UUID.fromString(GsonHelper.getAsString(json, id));
+    public Object getFromJson(JsonObject json) {
+        if (json.has(this.key)) {
+            if (this.defaultValue instanceof Boolean) {
+                return GsonHelper.getAsBoolean(json, this.key);
+            } else if (this.defaultValue instanceof Integer) {
+                return GsonHelper.getAsInt(json, this.key);
+            } else if (this.defaultValue instanceof String) {
+                return GsonHelper.getAsString(json, this.key);
+            } else if (this.defaultValue instanceof Float) {
+                return GsonHelper.getAsFloat(json, this.key);
+            } else if (this.defaultValue instanceof Double) {
+                return (double) GsonHelper.getAsFloat(json, this.key);
+            } else if (this.defaultValue instanceof Long) {
+                return GsonHelper.getAsLong(json, this.key);
+            } else if (this.defaultValue instanceof UUID) {
+                return UUID.fromString(GsonHelper.getAsString(json, this.key));
             }
         }
-        return defaultValue;
+        return this.defaultValue;
     }
 
-    public CompoundTag serializeNBT(String id, T value) {
-        return this.serializeNBT(new CompoundTag(), id, value);
+    public CompoundTag serializeNBT(T value) {
+        return this.serializeNBT(new CompoundTag(), value);
     }
 
-    public CompoundTag serializeNBT(CompoundTag nbt, String id, T value) {
+    public CompoundTag serializeNBT(CompoundTag nbt, T value) {
         if (value instanceof Boolean) {
-            nbt.putBoolean(id, (Boolean) value);
+            nbt.putBoolean(this.key, (Boolean) value);
         } else if (value instanceof Integer) {
-            nbt.putInt(id, (Integer) value);
+            nbt.putInt(this.key, (Integer) value);
         } else if (value instanceof String) {
-            nbt.putString(id, (String) value);
+            nbt.putString(this.key, (String) value);
         } else if (value instanceof Float) {
-            nbt.putFloat(id, (Float) value);
+            nbt.putFloat(this.key, (Float) value);
         } else if (value instanceof Double) {
-            nbt.putDouble(id, (Double) value);
+            nbt.putDouble(this.key, (Double) value);
         } else if (value instanceof Long) {
-            nbt.putLong(id, (Long) value);
+            nbt.putLong(this.key, (Long) value);
         } else if (value instanceof UUID) {
-            nbt.putUUID(id, (UUID) value);
+            nbt.putUUID(this.key, (UUID) value);
         }
         return nbt;
     }
 
-    public Object deserializeNBT(CompoundTag nbt, String id, T defaultValue) {
-        if (nbt.contains(id)) {
-            if (defaultValue instanceof Boolean) {
-                return nbt.getBoolean(id);
-            } else if (defaultValue instanceof Integer) {
-                return nbt.getInt(id);
-            } else if (defaultValue instanceof String) {
-                return nbt.getString(id);
-            } else if (defaultValue instanceof Float) {
-                return nbt.getFloat(id);
-            } else if (defaultValue instanceof Double) {
-                return nbt.getDouble(id);
-            } else if (defaultValue instanceof Long) {
-                return nbt.getLong(id);
-            } else if (defaultValue instanceof UUID) {
-                return nbt.getUUID(id);
+    public Object deserializeNBT(CompoundTag nbt) {
+        if (nbt.contains(this.key)) {
+            if (this.defaultValue instanceof Boolean) {
+                return nbt.getBoolean(this.key);
+            } else if (this.defaultValue instanceof Integer) {
+                return nbt.getInt(this.key);
+            } else if (this.defaultValue instanceof String) {
+                return nbt.getString(this.key);
+            } else if (this.defaultValue instanceof Float) {
+                return nbt.getFloat(this.key);
+            } else if (this.defaultValue instanceof Double) {
+                return nbt.getDouble(this.key);
+            } else if (this.defaultValue instanceof Long) {
+                return nbt.getLong(this.key);
+            } else if (this.defaultValue instanceof UUID) {
+                return nbt.getUUID(this.key);
             }
         }
-        return defaultValue;
+        return this.defaultValue;
     }
 }

@@ -8,14 +8,17 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.network.NetworkDirection;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
+import xyz.heroesunited.heroesunited.common.events.AbilityEvent;
 import xyz.heroesunited.heroesunited.common.events.EntitySprintingEvent;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbility;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
+import xyz.heroesunited.heroesunited.util.hudata.HUData;
 import xyz.heroesunited.heroesunited.util.hudata.HUDataManager;
 
 import javax.annotation.Nonnull;
@@ -30,7 +33,7 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
     public final AbilityType type;
     protected CompoundTag additionalData = new CompoundTag();
     protected final JsonObject jsonObject;
-    protected final HUDataManager dataManager = new HUDataManager();
+    protected final HUDataManager dataManager = new HUDataManager(this);
     protected final ConditionManager conditionManager = new ConditionManager(this);
     protected final Player player;
     private IAbilityClientProperties clientProperties;
@@ -39,9 +42,16 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
         this.type = type;
         this.player = player;
         this.jsonObject = jsonObject;
+        this.registerData();
+        MinecraftForge.EVENT_BUS.post(new AbilityEvent.RegisterData(player, this));
+        for (Map.Entry<String, HUData<?>> entry : this.dataManager.getHUDataMap().entrySet()) {
+            if (entry.getValue().isJson()) {
+                this.dataManager.set(entry.getKey(), entry.getValue().getFromJson(jsonObject));
+            }
+        }
         this.conditionManager.registerConditions(jsonObject);
         if (FMLEnvironment.dist == Dist.CLIENT) {
-            initializeClient(properties -> this.clientProperties = properties);
+            this.initializeClient(properties -> this.clientProperties = properties);
         }
     }
 
@@ -66,6 +76,9 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
         return this.conditionManager.isEnabled(player, "canActivate");
     }
 
+    public void onDataUpdated(HUData<?> data) {
+    }
+
     @Nullable
     public List<Component> getHoveredDescription() {
         return getJsonObject().has("description") ? HUJsonUtils.parseDescriptionLines(jsonObject.get("description")) : null;
@@ -75,9 +88,9 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
     }
 
     public void onUpdate(Player player) {
-        this.dataManager.set("prev_cooldown", this.dataManager.<Integer>getValue("cooldown"));
-        if (this.dataManager.<Integer>getValue("cooldown") > 0) {
-            this.dataManager.set("cooldown", this.dataManager.<Integer>getValue("cooldown") - 1);
+        this.dataManager.set("prev_cooldown", this.dataManager.getAsInt("cooldown"));
+        if (this.dataManager.getAsInt("cooldown") > 0) {
+            this.dataManager.set("cooldown", this.dataManager.getAsInt("cooldown") - 1);
         }
         this.conditionManager.update(player);
 
@@ -137,7 +150,11 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
     }
 
     public int getMaxCooldown() {
-        return this.dataManager.<Integer>getValue("maxCooldown");
+        return this.dataManager.getAsInt("maxCooldown");
+    }
+
+    public float getCooldownProgress(float partialTicks) {
+        return (this.dataManager.getAsInt("prev_cooldown") + (this.dataManager.getAsInt("cooldown") - this.dataManager.getAsInt("prev_cooldown")) * partialTicks) / this.getMaxCooldown();
     }
 
     public boolean getEnabled() {

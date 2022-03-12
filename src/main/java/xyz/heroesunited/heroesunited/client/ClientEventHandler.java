@@ -24,9 +24,11 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -319,7 +321,11 @@ public class ClientEventHandler {
             if (ability != null && ability.isFlying(player) && ability.renderFlying(player)) {
                 if (!player.isOnGround() && !player.isSwimming()) {
                     if (!(player.getFallFlyingTicks() > 4) && !player.isVisuallySwimming()) {
-                        float defaultRotation = Mth.clamp(Mth.sqrt((float) player.distanceToSqr(player.xo, player.yo, player.zo)), 0.0F, 1.0F) * ability.getDegreesForWalk(player);
+                        double d0 = Mth.lerp(event.getPartialTick(), player.xCloakO, player.xCloak) - Mth.lerp(event.getPartialTick(), player.xo, player.getX());
+                        double d1 = Mth.lerp(event.getPartialTick(), player.yCloakO, player.yCloak) - Mth.lerp(event.getPartialTick(), player.yo, player.getY());
+                        double d2 = Mth.lerp(event.getPartialTick(), player.zCloakO, player.zCloak) - Mth.lerp(event.getPartialTick(), player.zo, player.getZ());
+                        float distance = Mth.sqrt((float) (d0 * d0 + d1 * d1 + d2 * d2));
+                        float defaultRotation = Mth.clamp(distance, 0.0F, 1.0F) * ability.getDegreesForWalk(player);
 
                         event.getPoseStack().pushPose();
                         event.getPoseStack().mulPose(Vector3f.YP.rotationDegrees(-player.getYRot()));
@@ -434,19 +440,32 @@ public class ClientEventHandler {
                     PlayerModel<?> model = event.getPlayerModel();
                     float flightAmount = cap.getFlightAmount(event.getPartialTicks());
                     float armRotations = ability.rotateArms(event.getPlayer()) ? (float) Math.toRadians(180F) : 0F;
+                    float delta = Mth.sin(player.tickCount / 10F) / 100F;
 
                     model.head.xRot = model.rotlerpRad(flightAmount, model.head.xRot, (-(float) Math.PI / 4F));
-                    model.leftArm.xRot = model.rotlerpRad(flightAmount, model.leftArm.xRot, armRotations);
-                    model.rightArm.xRot = model.rotlerpRad(flightAmount, model.rightArm.xRot, armRotations);
+                    if (ability.rotateArms(event.getPlayer())) {
+                        model.leftArm.xRot = armRotations;
+                        model.rightArm.xRot = armRotations;
+
+                        model.leftArm.zRot = model.rotlerpRad(flightAmount, model.leftArm.zRot, 0);
+                        model.rightArm.zRot = model.rotlerpRad(flightAmount, model.rightArm.zRot, 0);
+                    } else {
+                        model.leftArm.xRot = model.rotlerpRad(flightAmount, model.leftArm.xRot, armRotations);
+                        model.rightArm.xRot = model.rotlerpRad(flightAmount, model.rightArm.xRot, armRotations);
+
+                        model.leftArm.zRot = model.rotlerpRad(flightAmount, model.leftArm.zRot, (float) Math.toRadians(-11.25F - delta));
+                        model.rightArm.zRot = model.rotlerpRad(flightAmount, model.rightArm.zRot, (float) Math.toRadians(11.25F + delta));
+
+                    }
 
                     model.leftArm.yRot = model.rotlerpRad(flightAmount, model.leftArm.yRot, 0);
                     model.rightArm.yRot = model.rotlerpRad(flightAmount, model.rightArm.yRot, 0);
 
-                    model.leftArm.zRot = model.rotlerpRad(flightAmount, model.leftArm.zRot, 0);
-                    model.rightArm.zRot = model.rotlerpRad(flightAmount, model.rightArm.zRot, 0);
-
                     model.leftLeg.xRot = model.rotlerpRad(flightAmount, model.leftLeg.xRot, 0);
                     model.rightLeg.xRot = model.rotlerpRad(flightAmount, model.rightLeg.xRot, 0);
+
+                    ModelPart mainLeg = player.getMainArm() == HumanoidArm.LEFT ? model.leftLeg : model.rightLeg;
+                    mainLeg.z = model.rotlerpRad(flightAmount, mainLeg.z, delta-0.25F);
                 }
             }
         });
@@ -491,43 +510,42 @@ public class ClientEventHandler {
         if (mc.player == null || !mc.options.getCameraType().isFirstPerson()) return;
         AbstractClientPlayer player = mc.player;
         boolean canceled = false;
-        for (Ability a : AbilityHelper.getAbilities(player)) {
-            double distance = mc.hitResult.getLocation().distanceTo(player.position().add(0, player.getEyeHeight(), 0));
-            AABB box = new AABB(0.1F, -0.25, 0, 0, -0.25, -distance).inflate(0.03125D);
+        for (BasicLaserAbility a : AbilityHelper.getListOfType(BasicLaserAbility.class, AbilityHelper.getAbilities(player))) {
+            float alpha = a.getAlpha(event.getPartialTicks());
+            if (alpha == 0) return;
             Color color = HUJsonUtils.getColor(a.getJsonObject());
-            if (a instanceof EnergyLaserAbility && a.getEnabled()) {
+            HitResult hitResult = HUPlayerUtil.getPosLookingAt(player, a.getDataManager().getAsFloat("distance"));
+            double distance = player.getEyePosition().distanceTo(hitResult.getLocation());
+            AABB box = new AABB(0.1F, -0.25, 0, 0, -0.25, -distance).inflate(0.03125D);
+            if (a instanceof EnergyLaserAbility) {
                 event.getPoseStack().pushPose();
                 event.getPoseStack().translate(((EnergyLaserAbility) a).isLeftArm(player) ? -0.3F : 0.3F, 0, 0);
-                HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, 1, event.getPackedLight());
-                HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.03125D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, (color.getAlpha() / 255F) * 0.5F, event.getPackedLight());
+                HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, alpha, event.getPackedLight());
+                HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.03125D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, alpha * 0.5F, event.getPackedLight());
                 canceled = true;
                 event.getPoseStack().popPose();
             }
             if (a instanceof HeatVisionAbility) {
-                float alpha = (a.getDataManager().<Integer>getValue("prev_timer") + (a.getDataManager().<Integer>getValue("timer") - a.getDataManager().<Integer>getValue("prev_timer")) * event.getPartialTicks()) / GsonHelper.getAsInt(a.getJsonObject(), "maxTimer", 10);
-                if (alpha == 0) return;
-                if (a.getDataManager().<String>getValue("type").equals("cyclop")) {
-                    AABB box1 = new AABB(-0.15F, -0.1F, 0.5F, 0.15F, -0.1F, -distance).inflate(0.0625D);
-                    HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box1.deflate(0.0625D / 2), 1F, 1F, 1F, alpha, event.getPackedLight());
-                    HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box1, color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, alpha * 0.5F, event.getPackedLight());
-                    if (a.getEnabled()) {
-                        event.setCanceled(true);
-                    }
-                    return;
+                event.getPoseStack().pushPose();
+                if (a.getDataManager().getAsString("type").equals("cyclop")) {
+                    box = new AABB(-0.15F, -0.1F, 0.5F, 0.15F, -0.1F, -distance).inflate(0.03125D);
+                    HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, alpha, event.getPackedLight());
+                    HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.03125D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, alpha * 0.5F, event.getPackedLight());
                 }
-                if (a.getDataManager().<String>getValue("type").equals("default")) {
+                if (a.getDataManager().getAsString("type").equals("default")) {
                     for (int i = 0; i < 2; i++) {
                         event.getPoseStack().pushPose();
                         event.getPoseStack().translate(i == 0 ? 0.2F : -0.3F, 0.25, 0);
                         HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box, 1F, 1F, 1F, alpha, event.getPackedLight());
                         HUClientUtil.renderFilledBox(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.LASER), box.inflate(0.03125D), color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, alpha * 0.5F, event.getPackedLight());
-                        if (a.getEnabled()) {
-                            event.setCanceled(true);
-                        }
                         event.getPoseStack().popPose();
                     }
-                    return;
                 }
+                if (a.getEnabled()) {
+                    event.setCanceled(true);
+                }
+                event.getPoseStack().popPose();
+                return;
             }
         }
 

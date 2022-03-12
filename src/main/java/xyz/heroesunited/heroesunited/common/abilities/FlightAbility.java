@@ -1,9 +1,13 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.gson.JsonObject;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
-import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
+import xyz.heroesunited.heroesunited.util.FlyingSoundInstance;
+import xyz.heroesunited.heroesunited.util.hudata.HUData;
 
 public class FlightAbility extends JSONAbility implements IFlyingAbility {
 
@@ -17,27 +21,17 @@ public class FlightAbility extends JSONAbility implements IFlyingAbility {
     }
 
     @Override
-    public boolean renderFlying(Player player) {
-        return GsonHelper.getAsBoolean(this.getJsonObject(), "render", true);
+    public void onDataUpdated(HUData<?> data) {
+        super.onDataUpdated(data);
+        if (data.getKey().equals("enabled") && ((boolean) data.getValue())) {
+            if (this.player instanceof LocalPlayer localPlayer) {
+                Minecraft.getInstance().getSoundManager().play(new FlyingSoundInstance(this.getSoundEvent(), localPlayer));
+            }
+        }
     }
 
     @Override
-    public boolean rotateArms(Player player) {
-        return GsonHelper.getAsBoolean(this.getJsonObject(), "rotateArms", false);
-    }
-
-    @Override
-    public boolean setDefaultRotationAngles(SetupAnimEvent event) {
-        return GsonHelper.getAsBoolean(this.getJsonObject(), "setDefaultRotationAngles", true);
-    }
-
-    @Override
-    public float getDegreesForSprint(Player player) {
-        return GsonHelper.getAsFloat(this.getJsonObject(), "degrees_for_sprint", IFlyingAbility.super.getDegreesForSprint(player));
-    }
-
-    @Override
-    public float getDegreesForWalk(Player player) {
-        return GsonHelper.getAsFloat(this.getJsonObject(), "degrees_for_walk", IFlyingAbility.super.getDegreesForWalk(player));
+    public SoundEvent getSoundEvent() {
+        return SoundEvents.ELYTRA_FLYING;
     }
 }

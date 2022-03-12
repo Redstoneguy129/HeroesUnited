@@ -29,14 +29,14 @@ public class JSONAbility extends Ability {
     @Override
     public void onUpdate(Player player) {
         super.onUpdate(player);
-        if (actionType != ActionType.ACTION) {
+        if (this.actionType != ActionType.ACTION) {
             this.action(player);
         } else {
-            if (this.dataManager.<Boolean>getValue("enabled")) {
+            if (this.dataManager.getAsBoolean("enabled")) {
                 this.setEnabled(player, false);
             }
         }
-        if (actionType == ActionType.CONSTANT && !this.dataManager.<Boolean>getValue("enabled")) {
+        if (this.actionType == ActionType.CONSTANT && !this.dataManager.getAsBoolean("enabled")) {
             this.setEnabled(player, true);
         }
 
@@ -64,7 +64,7 @@ public class JSONAbility extends Ability {
         if (this.getKey() == 0) return;
         if (map.get(this.getKey())) {
             if (this.actionType == ActionType.TOGGLE) {
-                this.setEnabled(player, !this.dataManager.<Boolean>getValue("enabled"));
+                this.setEnabled(player, !this.dataManager.getAsBoolean("enabled"));
             } else {
                 this.setEnabled(player, true);
             }
@@ -77,26 +77,26 @@ public class JSONAbility extends Ability {
 
     public void setEnabled(Player player, boolean enabled) {
         boolean b = !enabled || this.conditionManager.isEnabled(player, "canBeEnabled");
-        if (this.dataManager.<Boolean>getValue("enabled") != enabled && b && this.dataManager.<Integer>getValue("cooldown") == 0) {
+        if (this.dataManager.getAsBoolean("enabled") != enabled && b && this.dataManager.getAsInt("cooldown") == 0) {
             this.dataManager.set("enabled", enabled);
             this.action(player);
             player.refreshDimensions();
-            if (!enabled && getMaxCooldown() != 0) {
-                this.dataManager.set("cooldown", getMaxCooldown());
+            if (!enabled && this.getMaxCooldown() != 0) {
+                this.dataManager.set("cooldown", this.getMaxCooldown());
             }
         }
     }
 
     @Override
     public boolean getEnabled() {
-        return this.dataManager.<Boolean>getValue("enabled");
+        return this.dataManager.getAsBoolean("enabled");
     }
 
     @Override
     public CompoundTag serializeNBT() {
         CompoundTag nbt = super.serializeNBT();
-        if (actionType != null) {
-            nbt.putString("actionType", actionType.name().toLowerCase());
+        if (this.actionType != null) {
+            nbt.putString("actionType", this.actionType.name().toLowerCase());
         }
         return nbt;
     }
