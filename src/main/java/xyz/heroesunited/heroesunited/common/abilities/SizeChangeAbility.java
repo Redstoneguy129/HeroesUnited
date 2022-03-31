@@ -25,8 +25,11 @@ public class SizeChangeAbility extends JSONAbility {
     }
 
     public void setSize(Player player, float value) {
-        if (getSize() != value) {
-            this.dataManager.set("size", getSize() + (value - getSize()) / GsonHelper.getAsFloat(getJsonObject(), "animationDeceleration", 4.0F));
+        if (this.getSize() != value) {
+            this.dataManager.set("size", this.getSize() + (value - this.getSize()) / GsonHelper.getAsFloat(getJsonObject(), "animationDeceleration", 4.0F));
+            if (Math.floor(this.getSize()) == 1.0F) {
+                this.dataManager.set("size", 1.0F);
+            }
             player.refreshDimensions();
         }
     }

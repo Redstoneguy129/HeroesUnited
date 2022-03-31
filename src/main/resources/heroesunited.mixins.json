@@ -28,7 +28,6 @@
     "block.CactusBlockMixin",
     "block.CrossCollisionBlockMixin",
     "block.WallBlockMixin",
-    "entity.EntityMixin",
     "entity.LivingEntityAccessor",
     "entity.LivingEntityMixin"
   ],

@@ -78,32 +78,20 @@ public class EventHandler {
     public void playerSize(EntityEvent.Size event) {
         if (event.getEntity().isAddedToWorld() && event.getEntity() instanceof Player player) {
             IFlyingAbility flying = IFlyingAbility.getFlyingAbility(player);
-            player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(a -> {
-                if (flying != null && flying.isFlying(player)) {
-                    if (!player.isOnGround() && player.isSprinting()) {
-                        if (event.getOldSize().fixed) {
-                            event.setNewSize(EntityDimensions.fixed(0.6F, 0.6F));
-                        } else {
-                            event.setNewSize(EntityDimensions.scalable(0.6F, 0.6F));
-                        }
-                        event.setNewEyeHeight(0.4F);
-                    }
-                }
-            });
-            for (SizeChangeAbility a : AbilityHelper.getListOfType(SizeChangeAbility.class, AbilityHelper.getAbilities(player))) {
-                if (a.getSize() != 1.0F) {
-                    event.setNewSize(event.getNewSize().scale(a.getSize()));
-                    event.setNewEyeHeight(event.getNewEyeHeight() * a.getSize());
-                }
-            }
             GlidingAbility glidingAbility = GlidingAbility.getInstance(player);
-            if (glidingAbility != null && glidingAbility.canGliding(player)) {
+            if ((flying != null && flying.isFlying(player) && !player.isOnGround() && player.isSprinting()) || glidingAbility != null && glidingAbility.canGliding(player)) {
                 if (event.getOldSize().fixed) {
                     event.setNewSize(EntityDimensions.fixed(0.6F, 0.6F));
                 } else {
                     event.setNewSize(EntityDimensions.scalable(0.6F, 0.6F));
                 }
                 event.setNewEyeHeight(0.4F);
+            }
+            for (SizeChangeAbility a : AbilityHelper.getListOfType(SizeChangeAbility.class, AbilityHelper.getAbilities(player))) {
+                if (a.getSize() != 1.0F) {
+                    event.setNewSize(event.getNewSize().scale(a.getSize()));
+                    event.setNewEyeHeight(event.getNewEyeHeight() * a.getSize());
+                }
             }
         }
         if (event.getEntity().level.dimension().equals(HeroesUnited.SPACE)) {
