@@ -183,7 +183,7 @@ public class ClientEventHandler {
     @SubscribeEvent
     public void clientTick(TickEvent.ClientTickEvent event) {
         Minecraft mc = Minecraft.getInstance();
-        if (event.phase == TickEvent.Phase.END || mc.screen != null || mc.player == null) return;
+        if (event.phase == TickEvent.Phase.END || mc.screen != null || mc.player == null || mc.player.isSpectator()) return;
 
         KeyMap map = new KeyMap();
         map.putAll(KEY_MAP);

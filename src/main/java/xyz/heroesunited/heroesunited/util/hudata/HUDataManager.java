@@ -10,6 +10,7 @@ import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUData;
 
 import java.util.Map;
+import java.util.UUID;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class HUDataManager implements INBTSerializable<CompoundTag> {
@@ -26,11 +27,15 @@ public class HUDataManager implements INBTSerializable<CompoundTag> {
     }
 
     public <T> void register(String id, T defaultValue) {
-        this.dataMap.put(id, new HUData<>(id, defaultValue, false));
+        this.register(id, defaultValue, false);
     }
 
     public <T> void register(String id, T defaultValue, boolean json) {
-        this.dataMap.put(id, new HUData<>(id, defaultValue, json));
+        this.register(id, new HUData<>(id, defaultValue, json));
+    }
+
+    public <T> void register(String id, HUData<T> data) {
+        this.dataMap.put(id, data);
     }
 
     public <T> void set(String id, T value) {
@@ -88,7 +93,7 @@ public class HUDataManager implements INBTSerializable<CompoundTag> {
     }
 
     public int getAsInt(String id) {
-        return (int) this.dataMap.get(id).getValue();
+        return (int) this.getData(id).getValue();
     }
 
     public boolean getAsBoolean(String id) {
@@ -97,6 +102,10 @@ public class HUDataManager implements INBTSerializable<CompoundTag> {
 
     public float getAsFloat(String id) {
         return (float) this.getData(id).getValue();
+    }
+
+    public UUID getAsUUID(String id) {
+        return (UUID) this.getData(id).getValue();
     }
 
     public String getAsString(String id) {

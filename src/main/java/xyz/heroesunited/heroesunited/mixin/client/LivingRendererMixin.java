@@ -23,7 +23,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import software.bernie.geckolib3.core.AnimationState;
+import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import software.bernie.geckolib3.core.keyframe.BoneAnimation;
+import software.bernie.geckolib3.geo.render.built.GeoBone;
+import software.bernie.geckolib3.util.RenderUtils;
 import xyz.heroesunited.heroesunited.client.HULayerRenderer;
 import xyz.heroesunited.heroesunited.client.events.HideLayerEvent;
 import xyz.heroesunited.heroesunited.client.events.RendererChangeEvent;
@@ -82,14 +87,30 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
                 if (!(Minecraft.getInstance().getOverlay() instanceof LoadingOverlay)) {
                     cap.getAnimatedModel().setLivingAnimations(cap, player.getUUID().hashCode(), animationEvent);
                 }
+
+                MinecraftForge.EVENT_BUS.post(new SetupAnimEvent(player, playerModel, iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch()));
+                HUClientUtil.copyAnglesToWear(playerModel);
+
+                if (MinecraftForge.EVENT_BUS.post(new RendererChangeEvent(player, renderer, matrixStack, buffer, buffer.getBuffer(type), light, getOverlayCoords(player, getWhiteOverlayProgress(entity, partialTicks)), iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch()))) {
+                    playerModel.setAllVisible(false);
+                } else {
+                    for (AnimationController<?> controller : cap.getFactory().getOrCreateAnimationData(player.getUUID().hashCode()).getAnimationControllers().values()) {
+                        if (controller.getCurrentAnimation() != null && controller.getAnimationState() == AnimationState.Running) {
+                            GeoBone bone = cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap)).getBone("player").get();
+                            for (BoneAnimation boneAnimation : controller.getCurrentAnimation().boneAnimations) {
+                                if (boneAnimation.boneName.equals("player")) {
+                                    RenderUtils.translate(bone, matrixStack);
+                                    RenderUtils.moveToPivot(bone, matrixStack);
+                                    RenderUtils.rotate(bone, matrixStack);
+                                    RenderUtils.scale(bone, matrixStack);
+                                    RenderUtils.moveBackFromPivot(bone, matrixStack);
+                                }
+                            }
+                        }
+                    }
+                }
             });
 
-            MinecraftForge.EVENT_BUS.post(new SetupAnimEvent(player, playerModel, iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch()));
-            HUClientUtil.copyAnglesToWear(playerModel);
-
-            if (MinecraftForge.EVENT_BUS.post(new RendererChangeEvent(player, renderer, matrixStack, buffer, buffer.getBuffer(type), light, getOverlayCoords(player, getWhiteOverlayProgress(entity, partialTicks)), iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch()))) {
-                playerModel.setAllVisible(false);
-            }
         }
     }
 

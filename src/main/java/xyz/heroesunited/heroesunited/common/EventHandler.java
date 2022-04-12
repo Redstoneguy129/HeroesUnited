@@ -213,41 +213,43 @@ public class EventHandler {
                         }
                     }
                 });
-                player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                    AbilityHelper.getAbilities(player).forEach(type -> type.onUpdate(player));
+                if (!player.isSpectator()) {
+                    player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+                        AbilityHelper.getAbilities(player).forEach(type -> type.onUpdate(player));
 
-                    for (int i = 0; i < cap.getInventory().getItems().size(); ++i) {
-                        if (!cap.getInventory().getItems().get(i).isEmpty()) {
-                            cap.getInventory().getItems().get(i).inventoryTick(player.level, player, i, false);
-                        }
-                    }
-                    for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
-                        SuitItem suitItem = Suit.getSuitItem(equipmentSlot, player);
-                        if (suitItem != null) {
-                            suitItem.getSuit().onUpdate(player, equipmentSlot);
-                        }
-                    }
-                    IFlyingAbility b = IFlyingAbility.getFlyingAbility(player);
-                    if (b != null && b.isFlying(player)) {
-                        player.refreshDimensions();
-                        if (!player.isOnGround()) {
-                            cap.updateFlyAmount();
-                            float j = ((LivingEntityAccessor) player).isJumping() ? 0.2F : player.isShiftKeyDown() ? -0.2F : 0.0F;
-                            if (player.zza > 0F) {
-                                Vec3 vec = player.getLookAngle();
-                                double speed = player.isSprinting() ? 2.5F : 1.0F;
-                                for (Ability ability : AbilityHelper.getAbilities(player)) {
-                                    if (ability instanceof IFlyingAbility && ability.getJsonObject().has("speed")) {
-                                        speed = player.isSprinting() ? GsonHelper.getAsFloat(ability.getJsonObject(), "maxSpeed", 2.5F) : GsonHelper.getAsFloat(ability.getJsonObject(), "speed");
-                                    }
-                                }
-                                player.setDeltaMovement(vec.x * speed, j + vec.y * speed, vec.z * speed);
-                            } else {
-                                player.setDeltaMovement(new Vec3(player.getDeltaMovement().x, j + Math.sin(player.tickCount / 10F) / 100F, player.getDeltaMovement().z));
+                        for (int i = 0; i < cap.getInventory().getItems().size(); ++i) {
+                            if (!cap.getInventory().getItems().get(i).isEmpty()) {
+                                cap.getInventory().getItems().get(i).inventoryTick(player.level, player, i, false);
                             }
                         }
-                    }
-                });
+                        for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
+                            SuitItem suitItem = Suit.getSuitItem(equipmentSlot, player);
+                            if (suitItem != null) {
+                                suitItem.getSuit().onUpdate(player, equipmentSlot);
+                            }
+                        }
+                        IFlyingAbility b = IFlyingAbility.getFlyingAbility(player);
+                        if (b != null && b.isFlying(player)) {
+                            player.refreshDimensions();
+                            if (!player.isOnGround()) {
+                                cap.updateFlyAmount();
+                                float j = ((LivingEntityAccessor) player).isJumping() ? 0.2F : player.isShiftKeyDown() ? -0.2F : 0.0F;
+                                if (player.zza > 0F) {
+                                    Vec3 vec = player.getLookAngle();
+                                    double speed = player.isSprinting() ? 2.5F : 1.0F;
+                                    for (Ability ability : AbilityHelper.getAbilities(player)) {
+                                        if (ability instanceof IFlyingAbility && ability.getJsonObject().has("speed")) {
+                                            speed = player.isSprinting() ? GsonHelper.getAsFloat(ability.getJsonObject(), "maxSpeed", 2.5F) : GsonHelper.getAsFloat(ability.getJsonObject(), "speed");
+                                        }
+                                    }
+                                    player.setDeltaMovement(vec.x * speed, j + vec.y * speed, vec.z * speed);
+                                } else {
+                                    player.setDeltaMovement(new Vec3(player.getDeltaMovement().x, j + Math.sin(player.tickCount / 10F) / 100F, player.getDeltaMovement().z));
+                                }
+                            }
+                        }
+                    });
+                }
             }
         }
     }

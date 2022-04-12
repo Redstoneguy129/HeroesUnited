@@ -121,6 +121,74 @@
 					}
 				}
 			}
+		},
+		"copy_player_rotations": {
+			"loop": true,
+			"bones": {
+				"bipedRightArm": {
+					"rotation": {
+						"vector": ["player.head.x_rot", "player.head.y_rot", "player.head.z_rot"]
+					}
+				}
+			}
+		},
+		"player_rot_in_animation": {
+			"animation_length": 0.54167,
+			"bones": {
+				"bipedRightArm": {
+					"rotation": {
+						"0.0": {
+							"vector": ["player.head.x_rot -100", 0, 90]
+						},
+						"0.5417": {
+							"vector": ["player.head.x_rot + 45", 0, 90]
+						}
+					}
+				}
+			}
+		},
+		"scaling": {
+			"animation_length": 1,
+			"bones": {
+				"player": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.5": {
+							"vector": [360, 0, 0]
+						},
+						"1.0": {
+							"vector": [360, 0, 0],
+							"easing": "easeInElastic"
+						}
+					},
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.5": {
+							"vector": [0, 16, 0]
+						},
+						"1.0": {
+							"vector": [0, 0, 0],
+							"easing": "easeInElastic"
+						}
+					},
+					"scale": {
+						"0.0": {
+							"vector": [1, 1, 1]
+						},
+						"0.5": {
+							"vector": [0.2, 0.2, 0.2]
+						},
+						"1.0": {
+							"vector": [1, 1, 1],
+							"easing": "easeInElastic"
+						}
+					}
+				}
+			}
 		}
 	},
 	"geckolib_format_version": 2
