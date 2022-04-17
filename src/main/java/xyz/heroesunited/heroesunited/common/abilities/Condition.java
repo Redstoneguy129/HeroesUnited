@@ -12,8 +12,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.registries.*;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.ForgeRegistryEntry;
+import net.minecraftforge.registries.IForgeRegistry;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
@@ -25,12 +27,14 @@ import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class Condition extends ForgeRegistryEntry<Condition> {
 
-    public static final DeferredRegister<Condition> CONDITIONS = DeferredRegister.create(Condition.class, HeroesUnited.MODID);
-    public static final Lazy<IForgeRegistry<Condition>> REGISTRY = Lazy.of(CONDITIONS.makeRegistry("conditions", () -> new RegistryBuilder<Condition>().setType(Condition.class).setIDRange(0, 2048)));
+    public static final ResourceLocation REGISTRY_KEY = new ResourceLocation(HeroesUnited.MODID, "conditions");
+    public static final DeferredRegister<Condition> CONDITIONS = DeferredRegister.create(REGISTRY_KEY, HeroesUnited.MODID);
+    public static Supplier<IForgeRegistry<Condition>> REGISTRY = () -> null;
 
     private final Predicate<ConditionVariables> function;
     private Consumer<ConditionVariables> earlyFunction = (c) -> {};

@@ -35,6 +35,8 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.NewRegistryEvent;
+import net.minecraftforge.registries.RegistryBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -74,6 +76,7 @@ import xyz.heroesunited.heroesunited.common.objects.entities.HUEntities;
 import xyz.heroesunited.heroesunited.common.objects.entities.HorasEntity;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.space.CelestialBodies;
+import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.util.HUModelLayers;
@@ -220,7 +223,14 @@ public class HeroesUnited {
     }
 
     @SubscribeEvent
-    public void newRegistries(final RegistryEvent.Register<Item> event) {
+    public void newRegistries(NewRegistryEvent event) {
+        CelestialBodies.REGISTRY = event.create(new RegistryBuilder<CelestialBody>().setName(CelestialBodies.REGISTRY_KEY).setType(CelestialBody.class).setIDRange(0, Integer.MAX_VALUE));
+        AbilityType.ABILITIES = event.create(new RegistryBuilder<AbilityType>().setName(AbilityType.REGISTRY_KEY).setType(AbilityType.class).setIDRange(0, 2048));
+        Condition.REGISTRY = event.create(new RegistryBuilder<Condition>().setName(Condition.REGISTRY_KEY).setType(Condition.class).setIDRange(0, 2048));
+    }
+
+    @SubscribeEvent
+    public void registerSuitItems(final RegistryEvent.Register<Item> event) {
         for (Suit value : Suit.SUITS.values()) {
             value.registerItems(event.getRegistry());
         }

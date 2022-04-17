@@ -1,19 +1,20 @@
 package xyz.heroesunited.heroesunited.common.space;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryBuilder;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
 import java.util.Random;
+import java.util.function.Supplier;
 
 public class CelestialBodies {
 
-    public static final DeferredRegister<CelestialBody> CELESTIAL_BODIES = DeferredRegister.create(CelestialBody.class, HeroesUnited.MODID);
-    public static final Lazy<IForgeRegistry<CelestialBody>> REGISTRY = Lazy.of(CELESTIAL_BODIES.makeRegistry("celestial_bodies", () -> new RegistryBuilder<CelestialBody>().setType(CelestialBody.class).setIDRange(0, Integer.MAX_VALUE)));
+    public static final ResourceLocation REGISTRY_KEY = new ResourceLocation(HeroesUnited.MODID, "celestial_bodies");
+    public static final DeferredRegister<CelestialBody> CELESTIAL_BODIES = DeferredRegister.create(REGISTRY_KEY, HeroesUnited.MODID);
+    public static Supplier<IForgeRegistry<CelestialBody>> REGISTRY = () -> null;
 
     public static final Star SUN = register("sun", new Star(new Vec3(0, 0, 0), 12.5F));
 
