@@ -3,7 +3,6 @@ package xyz.heroesunited.heroesunited.common.abilities;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -21,6 +20,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import xyz.heroesunited.heroesunited.client.events.RendererChangeEvent;
 import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 import xyz.heroesunited.heroesunited.common.events.RegisterPlayerControllerEvent;
+import xyz.heroesunited.heroesunited.util.HUClientUtil;
 
 public interface IAbilityClientProperties {
 
@@ -52,7 +52,6 @@ public interface IAbilityClientProperties {
     }
 
     default void drawIcon(PoseStack stack, JsonObject jsonObject, int x, int y) {
-        Minecraft.getInstance().getItemRenderer().blitOffset -= 100f;
         if (jsonObject != null && jsonObject.has("icon")) {
             JsonObject icon = jsonObject.getAsJsonObject("icon");
             String type = GsonHelper.getAsString(icon, "type");
@@ -65,12 +64,11 @@ public interface IAbilityClientProperties {
                 RenderSystem.setShaderTexture(0, texture);
                 GuiComponent.blit(stack, x, y, GsonHelper.getAsInt(icon, "u", 0), GsonHelper.getAsInt(icon, "v", 0), width, height, textureWidth, textureHeight);
             } else if (type.equals("item")) {
-                Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(GsonHelper.getAsString(icon, "item")))), x, y);
+                HUClientUtil.renderGuiItem(stack, new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(GsonHelper.getAsString(icon, "item")))), x, y, 0);
             }
         } else {
-            Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(new ItemStack(Items.APPLE), x, y);
+            HUClientUtil.renderGuiItem(stack, new ItemStack(Items.APPLE), x, y, 0);
         }
-        Minecraft.getInstance().getItemRenderer().blitOffset += 100f;
     }
 
     default void renderAlways(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {

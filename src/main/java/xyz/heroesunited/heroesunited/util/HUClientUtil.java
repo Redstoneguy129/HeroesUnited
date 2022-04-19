@@ -1,6 +1,9 @@
 package xyz.heroesunited.heroesunited.util;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -16,10 +19,12 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -28,7 +33,9 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ElytraItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -61,6 +68,38 @@ public class HUClientUtil {
             return modelSet.bakeLayer(HUModelLayers.SUIT_SLIM);
         } else {
             return modelSet.bakeLayer(HUModelLayers.SUIT);
+        }
+    }
+
+    public static void renderGuiItem(PoseStack pPoseStack, ItemStack pStack, int pX, int pY, float blitOffset) {
+        if (!pStack.isEmpty()) {
+            BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(pStack, null, null, 0);
+            Minecraft.getInstance().getTextureManager().getTexture(InventoryMenu.BLOCK_ATLAS).setFilter(false, false);
+            RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
+            RenderSystem.enableBlend();
+            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            pPoseStack.pushPose();
+            pPoseStack.translate(pX, pY, 100.0F + blitOffset);
+            pPoseStack.translate(8.0D, 8.0D, 0.0D);
+            pPoseStack.scale(1.0F, -1.0F, 1.0F);
+            pPoseStack.scale(16.0F, 16.0F, 16.0F);
+            MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
+            boolean flag = !model.usesBlockLight();
+            if (flag) {
+                Lighting.setupForFlatItems();
+            }
+
+            pPoseStack.pushPose();
+            Minecraft.getInstance().getItemRenderer().render(pStack, ItemTransforms.TransformType.GUI, false, pPoseStack, buffer, 15728880, OverlayTexture.NO_OVERLAY, model);
+            pPoseStack.popPose();
+            buffer.endBatch();
+            RenderSystem.enableDepthTest();
+            if (flag) {
+                Lighting.setupFor3DItems();
+            }
+
+            pPoseStack.popPose();
         }
     }
 
