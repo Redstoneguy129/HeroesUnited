@@ -50,8 +50,8 @@ import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable {
@@ -70,8 +70,8 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     }
 
     @Override
-    public Map<String, Ability> getAbilities(Player player) {
-        Map<String, Ability> map = Maps.newHashMap();
+    public LinkedHashMap<String, Ability> getAbilities(Player player) {
+        LinkedHashMap<String, Ability> map = Maps.newLinkedHashMap();
         suit.getAbilities(player).forEach((id, a) -> {
             a.getAdditionalData().putString("Suit", suit.getRegistryName().toString());
             if (suit instanceof JsonSuit && a.getJsonObject().has("slot")) {

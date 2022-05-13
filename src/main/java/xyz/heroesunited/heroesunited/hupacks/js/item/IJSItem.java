@@ -10,7 +10,7 @@ import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
 import xyz.heroesunited.heroesunited.hupacks.HUPackPowers;
 
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Objects;
 
 public interface IJSItem extends IAbilityProvider {
@@ -24,8 +24,8 @@ public interface IJSItem extends IAbilityProvider {
     ResourceLocation getPower();
 
     @Override
-    default Map<String, Ability> getAbilities(Player player) {
-        Map<String, Ability> map = Maps.newHashMap();
+    default LinkedHashMap<String, Ability> getAbilities(Player player) {
+        LinkedHashMap<String, Ability> map = Maps.newLinkedHashMap();
         if (!StringUtil.isNullOrEmpty(this.getPower().getPath())) {
             HUPackPowers.getPower(this.getPower()).forEach(a -> {
                 Ability ability = a.create(player);

@@ -36,6 +36,7 @@ import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.settings.KeyConflictContext;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -55,8 +56,10 @@ import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
+import xyz.heroesunited.heroesunited.common.events.AbilityEvent;
 import xyz.heroesunited.heroesunited.common.events.RegisterPlayerControllerEvent;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
+import xyz.heroesunited.heroesunited.common.networking.server.ServerAbilityKeyInput;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerKeyInput;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccessoriesInv;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerToggleAbility;
@@ -105,12 +108,14 @@ public class ClientEventHandler {
     public void mouseScroll(InputEvent.MouseScrollEvent e) {
         if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_ALT) ||
                 InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_RIGHT_ALT)) {
-            if (e.getScrollDelta() > 0) {
-                AbilityOverlay.INDEX--;
-            } else {
-                AbilityOverlay.INDEX++;
+            if (AbilityOverlay.getAbilities(Minecraft.getInstance().player).size() > AbilityOverlay.getCurrentDisplayedAbilities(Minecraft.getInstance().player).size()) {
+                if (e.getScrollDelta() > 0) {
+                    AbilityOverlay.INDEX--;
+                } else {
+                    AbilityOverlay.INDEX++;
+                }
+                e.setCanceled(true);
             }
-            e.setCanceled(true);
         }
     }
 
@@ -125,7 +130,7 @@ public class ClientEventHandler {
                 int key = GLFW.GLFW_KEY_1 + i;
                 if (key == e.getKey() && e.getAction() == GLFW.GLFW_PRESS) {
                     Ability ability = abilities.get(i);
-                    if (!ability.alwaysActive(mc.player)) {
+                    if (!ability.alwaysActive()) {
                         HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerToggleAbility(ability.name));
                         mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                     }
@@ -185,8 +190,8 @@ public class ClientEventHandler {
         Minecraft mc = Minecraft.getInstance();
         if (event.phase == TickEvent.Phase.END || mc.screen != null || mc.player == null || mc.player.isSpectator()) return;
 
-        KeyMap map = new KeyMap();
-        map.putAll(KEY_MAP);
+        KeyMap oldKeyMap = new KeyMap();
+        oldKeyMap.putAll(KEY_MAP);
         for (Map.Entry<Integer, Boolean> e : KEY_MAP.entrySet()) {
             KeyMapping keyBind = KEY_MAP.getKeyMapping(e.getKey());
             if (e.getValue()) {
@@ -199,9 +204,27 @@ public class ClientEventHandler {
                 }
             }
         }
-        if (!KEY_MAP.equals(map)) {
+        if (!KEY_MAP.equals(oldKeyMap)) {
             HUNetworking.INSTANCE.sendToServer(new ServerKeyInput(KEY_MAP));
-            Minecraft.getInstance().player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> cap.onKeyInput(KEY_MAP));
+            mc.player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
+                cap.onKeyInput(KEY_MAP);
+
+                cap.getActiveAbilities().values().forEach((ability) -> {
+                    if (ability != null) {
+                        KeyMap keyMap;
+                        if (ability.getKey() != -1) {
+                            keyMap = KEY_MAP;
+                        } else {
+                            keyMap = new KeyMap();
+                            keyMap.put(-1, KEY_MAP.get(AbilityOverlay.getCurrentDisplayedAbilities(mc.player).indexOf(ability) + 1));
+                        }
+                        if (!MinecraftForge.EVENT_BUS.post(new AbilityEvent.KeyInput(mc.player, ability, KEY_MAP, keyMap))) {
+                            ability.onKeyInput(mc.player, keyMap);
+                            HUNetworking.INSTANCE.sendToServer(new ServerAbilityKeyInput(ability.name, KEY_MAP, keyMap));
+                        }
+                    }
+                });
+            });
         }
     }
 
@@ -512,7 +535,7 @@ public class ClientEventHandler {
         boolean canceled = false;
         for (BasicLaserAbility a : AbilityHelper.getListOfType(BasicLaserAbility.class, AbilityHelper.getAbilities(player))) {
             float alpha = a.getAlpha(event.getPartialTicks());
-            if (alpha == 0) return;
+            if (alpha == 0) continue;
             Color color = HUJsonUtils.getColor(a.getJsonObject());
             HitResult hitResult = HUPlayerUtil.getPosLookingAt(player, a.getDataManager().getAsFloat("distance"));
             double distance = player.getEyePosition().distanceTo(hitResult.getLocation());

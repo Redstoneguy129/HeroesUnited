@@ -7,7 +7,7 @@ import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
 import xyz.heroesunited.heroesunited.util.KeyMap;
 
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.LinkedHashMap;
 import java.util.function.Predicate;
 
 public interface IHUAbilityCap extends INBTSerializable<CompoundTag> {
@@ -25,13 +25,13 @@ public interface IHUAbilityCap extends INBTSerializable<CompoundTag> {
 
     void disable(String id);
 
-    ConcurrentHashMap<String, Ability> getActiveAbilities();
+    LinkedHashMap<String, Ability> getActiveAbilities();
 
     void addAbility(String id, Ability ability);
 
     void removeAbility(String id);
 
-    ConcurrentHashMap<String, Ability> getAbilities();
+    LinkedHashMap<String, Ability> getAbilities();
 
     void addAbilities(IAbilityProvider provider);
 

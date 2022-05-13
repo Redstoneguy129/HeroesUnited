@@ -30,6 +30,7 @@ import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesInvento
 import javax.annotation.Nullable;
 import java.util.Map;
 
+@SuppressWarnings("rawtypes")
 public class HUPlayer implements IHUPlayer {
     public final AccessoriesInventory inventory;
     protected final LivingEntity livingEntity;
@@ -76,8 +77,11 @@ public class HUPlayer implements IHUPlayer {
     public void setAnimation(String name, String controllerName, ResourceLocation animationFile, boolean loop) {
         this.animationFile = animationFile;
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            getController(controllerName).markNeedsReload();
-            getController(controllerName).setAnimation(new AnimationBuilder().addAnimation(name, loop));
+            AnimationController controller = getController(controllerName);
+            if (controller != null) {
+                controller.markNeedsReload();
+                controller.setAnimation(new AnimationBuilder().addAnimation(name, loop));
+            }
         });
         if (!livingEntity.level.isClientSide) {
             HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity), new ClientSetAnimation(livingEntity.getId(), name, controllerName, this.modelProvider.getAnimationFileLocation(this), loop));

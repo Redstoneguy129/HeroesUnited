@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.texture.HttpTexture;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.gui.widget.Slider;
+import net.minecraftforge.client.gui.widget.ForgeSlider;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
 import java.io.File;
@@ -51,7 +51,14 @@ public class FiveYearsLaterBookGUI extends Screen {
             this.addRenderableWidget(new Button(xSize + 25, ySize + (260 / 2) + 50, 150, 20, new TranslatableComponent("Check Out The 5YL Comic!"),
                     b -> minecraft.setScreen(new ConfirmLinkScreen(this::confirmCallback, "https://www.theinktank.co/5yearslater", true))));
         }
-        this.addRenderableWidget(new Slider(xSize + 50, height / 2 + 130, 100, 20, TextComponent.EMPTY, TextComponent.EMPTY, 0, 1275, 0, false, false, null, slider -> this.value = slider.getValue()));
+        ForgeSlider slider = new ForgeSlider(xSize + 50, height / 2 + 130, 100, 20, TextComponent.EMPTY, TextComponent.EMPTY, 0, 1275, 0, false) {
+            @Override
+            protected void applyValue() {
+                super.applyValue();
+                FiveYearsLaterBookGUI.this.value = this.value;
+            }
+        };
+        this.addRenderableWidget(slider);
     }
 
     @Override

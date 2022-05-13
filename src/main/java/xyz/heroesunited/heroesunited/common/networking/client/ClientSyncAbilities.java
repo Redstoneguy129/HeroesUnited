@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 public class ClientSyncAbilities {
 
     public int entityId;
-    public Map<String, CompoundTag> abilities = Maps.newHashMap();
+    public final Map<String, CompoundTag> abilities = Maps.newLinkedHashMap();
 
     public ClientSyncAbilities(int entityId, Map<String, Ability> abilities) {
         this.entityId = entityId;
@@ -28,7 +28,6 @@ public class ClientSyncAbilities {
     public ClientSyncAbilities(FriendlyByteBuf buf) {
         this.entityId = buf.readInt();
         int amount = buf.readInt();
-        this.abilities = Maps.newHashMap();
         for (int i = 0; i < amount; i++) {
             String id = buf.readUtf(32767);
             this.abilities.put(id, buf.readNbt());

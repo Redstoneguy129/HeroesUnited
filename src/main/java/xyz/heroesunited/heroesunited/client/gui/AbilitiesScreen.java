@@ -17,6 +17,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.PacketDistributor;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.client.AbilityOverlay;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
@@ -30,7 +31,6 @@ import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * For adding new themes, use @AbilityHelper.addTheme(modid, location);
@@ -61,7 +61,7 @@ public class AbilitiesScreen extends Screen {
         IHUPlayer cap = HUPlayer.getCap(minecraft.player);
 
         this.addRenderableWidget(new Button(left + 110, top + 5, 80, 20, new TranslatableComponent("Change Theme"), (b) -> {
-            if (cap.getTheme() >= themes.size())
+            if (cap != null && cap.getTheme() >= themes.size())
                 cap.setTheme(0);
             HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerSetTheme(cap.getTheme() + 1, themes.size()));
             minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
@@ -73,8 +73,7 @@ public class AbilitiesScreen extends Screen {
     }
 
     public static List<Ability> getCurrentDisplayedAbilities(Player player, int limit) {
-        List<Ability> abilities, list = new ArrayList<>();
-        abilities = AbilityHelper.getAbilityMap(player).values().stream().filter(a -> a != null && a.isVisible(player)).collect(Collectors.toList());
+        List<Ability> abilities = AbilityOverlay.getAbilities(player), list = new ArrayList<>();
 
         if (abilities.isEmpty()) {
             return list;
@@ -241,7 +240,7 @@ public class AbilitiesScreen extends Screen {
 
         private static void onPressed(Button button) {
             AbilityButton btn = (AbilityButton) button;
-            if (!btn.ability.alwaysActive(btn.parent.minecraft.player)) {
+            if (!btn.ability.alwaysActive()) {
                 HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerToggleAbility(btn.ability.name));
                 btn.parent.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             }

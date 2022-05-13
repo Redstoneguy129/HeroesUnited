@@ -14,11 +14,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.client.gui.ForgeIngameGui;
 import net.minecraftforge.client.gui.IIngameOverlay;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.common.HUConfig;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
+import xyz.heroesunited.heroesunited.common.abilities.Superpower;
+import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,6 +28,8 @@ import java.util.stream.Collectors;
 public class AbilityOverlay implements IIngameOverlay {
 
     private static final Map<String, Integer> NAMES_TIMER = Maps.newConcurrentMap();
+    private static final ResourceLocation WIDGETS = new ResourceLocation(HeroesUnited.MODID, "textures/gui/widgets.png");
+    private static final ResourceLocation ICON_OVERLAY_LOCATION = new ResourceLocation("textures/gui/resource_packs.png");
     protected static int INDEX = 0;
 
     @Override
@@ -33,37 +37,51 @@ public class AbilityOverlay implements IIngameOverlay {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player != null && mc.player.isAlive()) {
             List<Ability> abilities = getCurrentDisplayedAbilities(mc.player);
-            if (abilities.size() > 0) {
-                final ResourceLocation widgets = new ResourceLocation(HeroesUnited.MODID, "textures/gui/widgets.png");
-                int y = height / 3;
+            if (!abilities.isEmpty()) {
 
-                RenderSystem.enableBlend();
-                RenderSystem.defaultBlendFunc();
-
-                RenderSystem.setShaderTexture(0, widgets);
-                GuiComponent.blit(mStack, 0, y, 0, 0, 22, 102, 64, 128);
-
+                int x = HUConfig.CLIENT.rightSideAbilityBar.get() ? width - 27 : 3, y = height / 2 - ((int) (abilities.size() * 24F) / 2);
                 for (int i = 0; i < abilities.size(); i++) {
                     Ability ability = AbilityHelper.getSameAbilityFrom(AbilityHelper.getAbilities(mc.player), abilities.get(i));
-                    int abilityY = y + 3 + i * 20;
+                    int abilityY = y + 3 + i * 24;
+
+                    RenderSystem.enableBlend();
+                    RenderSystem.defaultBlendFunc();
+
+                    if (AbilityOverlay.getAbilities(mc.player).size() > abilities.size() &&
+                            (i == 0 || i == abilities.size() - 1)) {
+                        RenderSystem.setShaderColor(1F, 1F, 1F, 0.5F);
+                        RenderSystem.setShaderTexture(0, ICON_OVERLAY_LOCATION);
+                        if (i == 0) {
+                            GuiComponent.blit(mStack, x - 12, abilityY - 18, 96.0F, 0.0F, 32, 32, 256, 256);
+                        }
+
+                        if (i == abilities.size() - 1) {
+                            GuiComponent.blit(mStack, x - 12, abilityY + 2, 64.0F, 0.0F, 32, 32, 256, 256);
+                        }
+                        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                    }
+                    RenderSystem.setShaderTexture(0, AbilityOverlay.WIDGETS);
+                    GuiComponent.blit(mStack, x, abilityY - 3, 0, 0, 22, 22, 64, 24);
+
+                    mStack.pushPose();
+                    ability.getClientProperties().drawIcon(mStack, ability.getJsonObject(), x + 3, abilityY);
+                    mStack.popPose();
 
                     mStack.pushPose();
                     mStack.translate(0, 0, 500D);
-                    ability.getClientProperties().drawIcon(mStack, ability.getJsonObject(), 3, abilityY);
-                    mStack.popPose();
-                    RenderSystem.setShaderTexture(0, widgets);
-
+                    RenderSystem.setShaderTexture(0, AbilityOverlay.WIDGETS);
                     if (ability.getMaxCooldown() != 0) {
                         int progress = (int) (ability.getCooldownProgress(partialTicks) * 16F);
                         if (progress > 0) {
-                            GuiComponent.blit(mStack, 3, abilityY, 46, 0, progress, 16, 64, 128);
+                            GuiComponent.blit(mStack, x + 3, abilityY, 46, 0, progress, 16, 64, 24);
                         }
                     }
                     if (ability.getEnabled()) {
-                        GuiComponent.blit(mStack, -1, abilityY - 4, 22, 0, 24, 24, 64, 128);
-                        NAMES_TIMER.putIfAbsent(ability.name, 400);
+                        GuiComponent.blit(mStack, x - 1, abilityY - 4, 22, 0, 24, 24, 64, 24);
+                        NAMES_TIMER.putIfAbsent(ability.name, 100);
                     }
-
+                    mStack.popPose();
+                    RenderSystem.disableBlend();
                     if (NAMES_TIMER.containsKey(ability.name)) {
                         int j = NAMES_TIMER.get(ability.name);
                         if (j > 0) {
@@ -77,38 +95,36 @@ public class AbilityOverlay implements IIngameOverlay {
                         float f = (float) j - mc.getFrameTime();
 
                         int j1 = 255;
-                        if (j > 360) {
-                            j1 = (int) ((400F - f) * 255.0F / 40F);
+                        if (j > 80) {
+                            j1 = (int) ((100F - f) * 255.0F / 20F);
                         }
 
-                        if (j <= 100) {
-                            j1 = (int) (f * 255.0F / 100F);
+                        if (j <= 20) {
+                            j1 = (int) (f * 255.0F / 20F);
                         }
 
                         j1 = Mth.clamp(j1, 0, 255);
 
                         if (j1 > 8) {
-                            mc.font.drawShadow(mStack, ability.getTitle(), 26, abilityY + 3, 16777215 | (j1 << 24 & -16777216));
+                            mc.font.drawShadow(mStack, ability.getTitle(), HUConfig.CLIENT.rightSideAbilityBar.get() ? x - 32 - ability.getTitle().getString().length() : x + 26, abilityY + 3, 16777215 | (j1 << 24 & -16777216));
                         }
                     }
-                    if (mc.screen instanceof ChatScreen && ability.getKey() != 0) {
-                        KeyMapping keyBinding = ability.getKey() < 6 ? ClientEventHandler.ABILITY_KEYS.get(ability.getKey() - 1) : ability.getKey() == 7 ? mc.options.keyJump : ability.getKey() == 8 ? mc.options.keyAttack : mc.options.keyUse;
-                        mStack.pushPose();
-                        if (keyBinding.getKey().getDisplayName().getString().length() != 1) {
-                            mStack.translate(5, abilityY / 4F, 0);
-                            mStack.scale(0.75F, 0.75F, 1.0F);
+                    int key = ability.getKey();
+                    if (mc.screen instanceof ChatScreen && key != 0) {
+                        if (key == -1) {
+                            key = i + 1;
                         }
-                        mc.font.drawShadow(mStack, keyBinding.getKey().getDisplayName(), 20, abilityY + 12, 0xdfdfdf);
+                        KeyMapping keyBinding = key < 6 ? ClientEventHandler.ABILITY_KEYS.get(key - 1) : key == 7 ? mc.options.keyJump : key == 8 ? mc.options.keyAttack : mc.options.keyUse;
+                        mStack.pushPose();
+                        mc.font.drawShadow(mStack, keyBinding.getKey().getDisplayName(), HUConfig.CLIENT.rightSideAbilityBar.get() ? x - 3 : x + 20, abilityY + 12, 0xdfdfdf);
                         mStack.popPose();
                     }
                 }
-                RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-                RenderSystem.disableBlend();
+
 
                 if (!NAMES_TIMER.isEmpty()) {
                     for (String s : NAMES_TIMER.keySet()) {
-                        boolean contains = abilities.stream().anyMatch(ability -> ability.name.equals(s));
-                        if (!contains) {
+                        if (abilities.stream().noneMatch(ability -> ability.name.equals(s))) {
                             NAMES_TIMER.remove(s);
                         }
                     }
@@ -117,13 +133,9 @@ public class AbilityOverlay implements IIngameOverlay {
         }
     }
 
+
     public static List<Ability> getCurrentDisplayedAbilities(Player player) {
-        List<Ability> abilities, list = new ArrayList<>();
-        abilities = AbilityHelper.getAbilityMap(player).values().stream()
-                .filter(a -> a != null && a.isVisible(player)
-                        && (GsonHelper.getAsBoolean(a.getJsonObject(), "show_deactivated", false)
-                        || a.getConditionManager().isEnabled(player, "canActivate") && a.getConditionManager().isEnabled(player, "canBeEnabled")))
-                .sorted(Comparator.comparingInt(Ability::getKey)).collect(Collectors.toList());
+        List<Ability> abilities = AbilityOverlay.getAbilities(player), list = new ArrayList<>();
 
         if (abilities.isEmpty()) {
             return list;
@@ -135,15 +147,30 @@ public class AbilityOverlay implements IIngameOverlay {
             INDEX = abilities.size() - 1;
         }
 
-        int i = INDEX, added = 0;
-        while (list.size() < 5 && added < abilities.size()) {
+        int i = INDEX, added = 0, maxIndex = 5;
+        Superpower power = HUPackSuperpowers.getSuperpowerFrom(player);
+        if (power != null && power.jsonObject.has("max_abilities_display")) {
+            maxIndex = GsonHelper.getAsInt(power.jsonObject, "max_abilities_display");
+        }
+
+        while (list.size() < maxIndex && added < abilities.size()) {
             if (i >= abilities.size()) {
                 i = 0;
             }
-            list.add(abilities.get(i));
+            if (abilities.get(i).getConditionManager().isEnabled(player, "visibleInOverlay")) {
+                list.add(abilities.get(i));
+            }
             i++;
             added++;
         }
         return list;
+    }
+
+    public static List<Ability> getAbilities(Player player) {
+        return AbilityHelper.getAbilityMap(player).values().stream()
+                .filter(a -> a != null && a.isVisible()
+                        && (GsonHelper.getAsBoolean(a.getJsonObject(), "show_deactivated", false)
+                        || a.getConditionManager().isEnabled(player, "canActivate") && a.getConditionManager().isEnabled(player, "canBeEnabled")))
+                .collect(Collectors.toList());
     }
 }

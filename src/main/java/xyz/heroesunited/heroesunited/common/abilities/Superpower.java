@@ -8,8 +8,8 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Superpower implements IAbilityProvider {
 
@@ -40,8 +40,8 @@ public class Superpower implements IAbilityProvider {
     }
 
     @Override
-    public Map<String, Ability> getAbilities(Player player) {
-        Map<String, Ability> map = Maps.newHashMap();
+    public LinkedHashMap<String, Ability> getAbilities(Player player) {
+        LinkedHashMap<String, Ability> map = Maps.newLinkedHashMap();
         getContainedAbilities().forEach(a -> {
             Ability ability = a.create(player);
             ability.getAdditionalData().putString("Superpower", this.getRegistryName().toString());

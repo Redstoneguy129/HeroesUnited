@@ -10,7 +10,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.util.INBTSerializable;
+import org.apache.commons.compress.utils.Lists;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -65,14 +67,14 @@ public class ConditionManager implements INBTSerializable<CompoundTag> {
                 this.conditions.put(jsonObject, b);
                 this.sync(player);
             }
-            if (jsonObject.has("method")) {
-                String method = GsonHelper.getAsString(jsonObject, "method");
-                methodConditions.put(method, methodConditions.containsKey(method) ? methodConditions.get(method) && b : b);
-            } else {
-                JsonArray methods = GsonHelper.getAsJsonArray(jsonObject, "methods");
-                for (JsonElement method : methods) {
-                    methodConditions.put(method.getAsString(), methodConditions.containsKey(method.getAsString()) ? methodConditions.get(method.getAsString()) && b : b);
+            for (String method : ConditionManager.getMethods(jsonObject)) {
+                boolean b1 = b;
+                if (method.equals("isHidden")) {
+                    if (GsonHelper.getAsBoolean(jsonObject, "creative", false) && player.isCreative()) {
+                        b1 = !b;
+                    }
                 }
+                methodConditions.put(method, methodConditions.containsKey(method) ? methodConditions.get(method) && b1 : b1);
             }
         }
 
@@ -80,6 +82,21 @@ public class ConditionManager implements INBTSerializable<CompoundTag> {
             this.methodConditions = methodConditions;
             this.sync(player);
         }
+    }
+
+    public static List<String> getMethods(JsonObject jsonObject) {
+        List<String> strings = Lists.newArrayList();
+        if (jsonObject.has("method")) {
+            String method = GsonHelper.getAsString(jsonObject, "method");
+            strings.add(method);
+        }
+        if (jsonObject.has("methods")) {
+            JsonArray methods = GsonHelper.getAsJsonArray(jsonObject, "methods");
+            for (JsonElement method : methods) {
+                strings.add(method.getAsString());
+            }
+        }
+        return strings;
     }
 
     public void sync(Player player) {
@@ -98,11 +115,7 @@ public class ConditionManager implements INBTSerializable<CompoundTag> {
 
     public boolean isEnabled(Player player, String method) {
         this.update(player);
-        return isEnabled(method, true);
-    }
-
-    public boolean isEnabled(String method, boolean defaultValue) {
-        return this.methodConditions.getOrDefault(method, defaultValue);
+        return this.methodConditions.getOrDefault(method, !method.equals("isHidden"));
     }
 
     @Override

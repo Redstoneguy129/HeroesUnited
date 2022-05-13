@@ -15,7 +15,7 @@ import java.util.UUID;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class HUDataManager implements INBTSerializable<CompoundTag> {
 
-    protected Map<String, HUData<?>> dataMap = Maps.newHashMap();
+    protected Map<String, HUData<?>> dataMap = Maps.newLinkedHashMap();
     private final Ability ability;
 
     public HUDataManager() {

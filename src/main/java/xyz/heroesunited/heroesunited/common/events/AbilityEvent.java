@@ -61,15 +61,24 @@ public abstract class AbilityEvent extends PlayerEvent {
     }
 
     public static class KeyInput extends AbilityEvent {
+        private final KeyMap originalMap;
         private final KeyMap map;
 
-        public KeyInput(Player player, Ability ability, KeyMap map) {
+        public KeyInput(Player player, Ability ability, KeyMap originalMap, KeyMap map) {
             super(player, ability);
+            this.originalMap = originalMap;
             this.map = map;
         }
 
         public boolean isPressed(int key) {
-            return this.map.get(key);
+            return this.originalMap.get(key);
+        }
+
+        /**
+         * Needs for abilities, that using keys from index in overlay
+         */
+        public boolean isPressed() {
+            return this.map.get(-1);
         }
     }
 }

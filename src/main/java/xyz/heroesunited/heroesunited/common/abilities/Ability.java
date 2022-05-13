@@ -94,7 +94,7 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
         }
         this.conditionManager.update(player);
 
-        if (!canActivate(player) && !alwaysActive(player)) {
+        if (!canActivate(player) && !alwaysActive()) {
             player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> a.disable(name));
         }
     }
@@ -110,7 +110,12 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
 
     public int getKey() {
         if (getJsonObject().has("key")) {
-            return GsonHelper.getAsInt(GsonHelper.getAsJsonObject(this.getJsonObject(), "key"), "id");
+            JsonObject jsonObject = GsonHelper.getAsJsonObject(this.getJsonObject(), "key");
+            if (jsonObject.has("id")) {
+                return GsonHelper.getAsInt(jsonObject, "id");
+            } else {
+                return -1;
+            }
         }
         return 0;
     }
@@ -118,6 +123,7 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
     @Override
     public CompoundTag serializeNBT() {
         CompoundTag nbt = new CompoundTag();
+        nbt.putString("Name", this.name);
         nbt.putString("AbilityType", this.type.getRegistryName().toString());
         nbt.put("HUData", this.dataManager.serializeNBT());
         nbt.put("Conditions", this.conditionManager.serializeNBT());
@@ -128,6 +134,7 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
 
     @Override
     public void deserializeNBT(CompoundTag nbt) {
+        this.name = nbt.getString("Name");
         this.dataManager.deserializeNBT(nbt.getCompound("HUData"));
         this.conditionManager.deserializeNBT(nbt.getCompound("Conditions"));
         this.additionalData = nbt.getCompound("AdditionalData");
@@ -161,12 +168,16 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
         return false;
     }
 
-    public boolean isVisible(Player player) {
-        return !GsonHelper.getAsBoolean(getJsonObject(), "hidden", false) || !this.conditionManager.isEnabled(player, "isHidden");
+    public boolean isVisible() {
+        if (GsonHelper.getAsBoolean(getJsonObject(), "hidden", false)) {
+            return false;
+        }
+        boolean b = this.conditionManager.isEnabled(this.player, "isHidden");
+        return !b;
     }
 
-    public boolean alwaysActive(Player player) {
-        return GsonHelper.getAsBoolean(getJsonObject(), "active", false) && this.conditionManager.isEnabled(player, "alwaysActive");
+    public boolean alwaysActive() {
+        return GsonHelper.getAsBoolean(getJsonObject(), "active", false) && this.conditionManager.isEnabled(this.player, "alwaysActive");
     }
 
     public JsonObject getJsonObject() {

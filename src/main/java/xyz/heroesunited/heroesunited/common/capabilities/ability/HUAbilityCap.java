@@ -1,6 +1,8 @@
 package xyz.heroesunited.heroesunited.common.capabilities.ability;
 
+import com.google.common.collect.Maps;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -25,8 +27,8 @@ import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncAbilityC
 import xyz.heroesunited.heroesunited.util.KeyMap;
 
 import javax.annotation.Nullable;
+import java.util.LinkedHashMap;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class HUAbilityCap implements IHUAbilityCap {
 
@@ -34,12 +36,12 @@ public class HUAbilityCap implements IHUAbilityCap {
     });
 
     private final Player player;
-    protected ConcurrentHashMap<String, Ability> activeAbilities, containedAbilities;
+    protected LinkedHashMap<String, Ability> activeAbilities, containedAbilities;
 
     public HUAbilityCap(Player player) {
         this.player = player;
-        this.activeAbilities = new ConcurrentHashMap<>();
-        this.containedAbilities = new ConcurrentHashMap<>();
+        this.activeAbilities = Maps.newLinkedHashMap();
+        this.containedAbilities = Maps.newLinkedHashMap();
     }
 
     @Nullable
@@ -80,7 +82,7 @@ public class HUAbilityCap implements IHUAbilityCap {
     }
 
     @Override
-    public ConcurrentHashMap<String, Ability> getActiveAbilities() {
+    public LinkedHashMap<String, Ability> getActiveAbilities() {
         return activeAbilities;
     }
 
@@ -95,7 +97,7 @@ public class HUAbilityCap implements IHUAbilityCap {
     }
 
     @Override
-    public ConcurrentHashMap<String, Ability> getAbilities() {
+    public LinkedHashMap<String, Ability> getAbilities() {
         return containedAbilities;
     }
 
@@ -118,11 +120,6 @@ public class HUAbilityCap implements IHUAbilityCap {
 
     @Override
     public void onKeyInput(KeyMap map) {
-        this.activeAbilities.forEach((name, ability) -> {
-            if (ability != null && !MinecraftForge.EVENT_BUS.post(new AbilityEvent.KeyInput(this.player, ability, map))) {
-                ability.onKeyInput(player, map);
-            }
-        });
         for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
             SuitItem item = Suit.getSuitItem(equipmentSlot, player);
             if (item != null) {
@@ -131,10 +128,9 @@ public class HUAbilityCap implements IHUAbilityCap {
         }
     }
 
+    @Override
     public IHUAbilityCap copy(IHUAbilityCap cap) {
         this.deserializeNBT(cap.serializeNBT());
-        this.activeAbilities = cap.getActiveAbilities();
-        this.containedAbilities = cap.getAbilities();
         this.sync();
         return this;
     }
@@ -161,12 +157,12 @@ public class HUAbilityCap implements IHUAbilityCap {
     @Override
     public CompoundTag serializeNBT() {
         CompoundTag nbt = new CompoundTag();
-        CompoundTag activeAbilities = new CompoundTag(), abilities = new CompoundTag();
+        ListTag activeAbilities = new ListTag(), abilities = new ListTag();
         this.activeAbilities.forEach((id, ability) -> {
             this.containedAbilities.put(id, ability);
-            activeAbilities.put(id, ability.serializeNBT());
+            activeAbilities.add(ability.serializeNBT());
         });
-        this.containedAbilities.forEach((id, ability) -> abilities.put(id, ability.serializeNBT()));
+        this.containedAbilities.forEach((id, ability) -> abilities.add(ability.serializeNBT()));
 
         nbt.put("ActiveAbilities", activeAbilities);
         nbt.put("Abilities", abilities);
@@ -175,20 +171,23 @@ public class HUAbilityCap implements IHUAbilityCap {
 
     @Override
     public void deserializeNBT(CompoundTag nbt) {
-        CompoundTag activeAbilities = nbt.getCompound("ActiveAbilities"), abilities = nbt.getCompound("Abilities");
+        ListTag activeAbilities = nbt.getList("ActiveAbilities", 10), abilities = nbt.getList("Abilities", 10);
         this.activeAbilities.clear();
         this.containedAbilities.clear();
 
-        for (String id : activeAbilities.getAllKeys()) {
-            Ability ability = AbilityType.fromNBT(this.player, id, activeAbilities.getCompound(id));
+        for (int i = 0; i < activeAbilities.size(); i++) {
+            String name = activeAbilities.getCompound(i).getString("Name");
+            Ability ability = AbilityType.fromNBT(this.player, name, activeAbilities.getCompound(i));
             if (ability != null) {
-                this.activeAbilities.put(id, ability);
-                this.containedAbilities.put(id, ability);
+                this.activeAbilities.put(name, ability);
+                this.containedAbilities.put(name, ability);
             }
         }
-        for (String id : abilities.getAllKeys()) {
-            if (!this.containedAbilities.containsKey(id)) {
-                this.containedAbilities.put(id, AbilityType.fromNBT(this.player, id, abilities.getCompound(id)));
+
+        for (int i = 0; i < abilities.size(); i++) {
+            String name = abilities.getCompound(i).getString("Name");
+            if (!this.containedAbilities.containsKey(name)) {
+                this.containedAbilities.put(name, AbilityType.fromNBT(this.player, name, abilities.getCompound(i)));
             }
         }
     }

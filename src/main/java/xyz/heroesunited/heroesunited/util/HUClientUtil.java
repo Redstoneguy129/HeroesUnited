@@ -78,9 +78,8 @@ public class HUClientUtil {
             RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
             RenderSystem.enableBlend();
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             pPoseStack.pushPose();
-            pPoseStack.translate(pX, pY, 100.0F + blitOffset);
+            pPoseStack.translate(pX, pY, blitOffset);
             pPoseStack.translate(8.0D, 8.0D, 0.0D);
             pPoseStack.scale(1.0F, -1.0F, 1.0F);
             pPoseStack.scale(16.0F, 16.0F, 16.0F);

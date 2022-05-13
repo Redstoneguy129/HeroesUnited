@@ -54,13 +54,8 @@ public class JSAbilityManager extends JSReloadListener {
         public JSAbility(AbilityType type, Player player, JsonObject jsonObject, NashornScriptEngine engine) {
             super(type, player, jsonObject);
             this.engine = engine;
-        }
-
-        @Override
-        public void registerData() {
-            super.registerData();
             try {
-                engine.invokeFunction("registerData", this);
+                this.engine.invokeFunction("registerData", this);
             } catch (ScriptException | NoSuchMethodException ignored) {
             }
         }

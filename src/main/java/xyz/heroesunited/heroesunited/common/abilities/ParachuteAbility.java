@@ -28,22 +28,22 @@ public class ParachuteAbility extends JSONAbility {
 
     @Override
     public void onKeyInput(Player player, Map<Integer, Boolean> map) {
-        if (!getEnabled())
+        if (!this.getEnabled())
             super.onKeyInput(player, map);
     }
 
     @Override
     public void action(Player player) {
-        if (usingParachute(player)) {
+        if (this.usingParachute(player)) {
             Vec3 vec = player.getDeltaMovement();
             if (vec.y > -1) {
                 player.fallDistance = 0;
             }
             vec = vec.multiply(0.99F, 0.93F, 0.99F);
             player.setDeltaMovement(vec.x, vec.y, vec.z);
-            syncToAll(player);
+            this.syncToAll(player);
         } else {
-            setEnabled(player, false);
+            this.setEnabled(player, false);
         }
     }
 

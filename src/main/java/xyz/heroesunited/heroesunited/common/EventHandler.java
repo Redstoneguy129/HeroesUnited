@@ -204,7 +204,7 @@ public class EventHandler {
                 player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(a -> {
                     for (Map.Entry<String, Ability> e : a.getAbilities().entrySet()) {
                         Ability ability = e.getValue();
-                        if (ability != null && ability.alwaysActive(player)) {
+                        if (ability != null && ability.alwaysActive()) {
                             if (ability.canActivate(player)) {
                                 a.enable(e.getKey());
                             } else {

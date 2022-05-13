@@ -1,7 +1,6 @@
 package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.gson.JsonObject;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 
@@ -9,15 +8,8 @@ import java.util.Map;
 
 public class JSONAbility extends Ability {
 
-    protected ActionType actionType;
-
     public JSONAbility(AbilityType type, Player player, JsonObject jsonObject) {
         super(type, player, jsonObject);
-        if (jsonObject.has("key")) {
-            this.actionType = ActionType.getById(GsonHelper.getAsString(GsonHelper.getAsJsonObject(jsonObject, "key"), "pressType", "toggle"));
-        } else {
-            this.actionType = ActionType.CONSTANT;
-        }
     }
 
     @Override
@@ -29,14 +21,15 @@ public class JSONAbility extends Ability {
     @Override
     public void onUpdate(Player player) {
         super.onUpdate(player);
-        if (this.actionType != ActionType.ACTION) {
-            this.action(player);
-        } else {
+        if (this.getActionType() == ActionType.ACTION) {
             if (this.dataManager.getAsBoolean("enabled")) {
                 this.setEnabled(player, false);
+                return;
             }
+        } else {
+            this.action(player);
         }
-        if (this.actionType == ActionType.CONSTANT && !this.dataManager.getAsBoolean("enabled")) {
+        if (this.getActionType() == ActionType.CONSTANT && !this.dataManager.getAsBoolean("enabled")) {
             this.setEnabled(player, true);
         }
 
@@ -51,7 +44,6 @@ public class JSONAbility extends Ability {
     public void onDeactivated(Player player) {
         super.onDeactivated(player);
         this.setEnabled(player, false);
-        this.action(player);
     }
 
     public void action(Player player) {
@@ -63,13 +55,13 @@ public class JSONAbility extends Ability {
         super.onKeyInput(player, map);
         if (this.getKey() == 0) return;
         if (map.get(this.getKey())) {
-            if (this.actionType == ActionType.TOGGLE) {
+            if (this.getActionType() == ActionType.TOGGLE) {
                 this.setEnabled(player, !this.dataManager.getAsBoolean("enabled"));
             } else {
                 this.setEnabled(player, true);
             }
         } else {
-            if (this.actionType == ActionType.HELD) {
+            if (this.getActionType() == ActionType.HELD) {
                 this.setEnabled(player, false);
             }
         }
@@ -92,21 +84,11 @@ public class JSONAbility extends Ability {
         return this.dataManager.getAsBoolean("enabled");
     }
 
-    @Override
-    public CompoundTag serializeNBT() {
-        CompoundTag nbt = super.serializeNBT();
-        if (this.actionType != null) {
-            nbt.putString("actionType", this.actionType.name().toLowerCase());
+    public ActionType getActionType() {
+        if (this.getJsonObject().has("key")) {
+            return ActionType.getById(GsonHelper.getAsString(GsonHelper.getAsJsonObject(this.getJsonObject(), "key"), "pressType", "toggle"));
         }
-        return nbt;
-    }
-
-    @Override
-    public void deserializeNBT(CompoundTag nbt) {
-        super.deserializeNBT(nbt);
-        if (nbt.contains("actionType")) {
-            this.actionType = ActionType.getById(nbt.getString("actionType"));
-        }
+        return ActionType.CONSTANT;
     }
 
     public enum ActionType {

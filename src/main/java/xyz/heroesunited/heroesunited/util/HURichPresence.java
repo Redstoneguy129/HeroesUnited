@@ -66,10 +66,10 @@ public class HURichPresence {
     }
 
     public void setDiscordRichPresence(String title) {
-        this.setDiscordRichPresence(title, null, MiniLogos.NONE, null);
+        this.setDiscordRichPresence(title, null, "", null);
     }
 
-    public void setDiscordRichPresence(String title, String description, MiniLogos logo, String caption) {
+    public void setDiscordRichPresence(String title, String description, String logo, String caption) {
         if (!HURichPresence.isHiddenRPC()) {
             try {
                 RichPresence.Builder builder = new RichPresence.Builder();
@@ -77,8 +77,8 @@ public class HURichPresence {
                         .setDetails(title)
                         .setStartTimestamp(OffsetDateTime.now())
                         .setLargeImage("heroes_united", "Heroes United " + SharedConstants.getCurrentVersion().getName());
-                if (logo.getLogo() != null) {
-                    builder.setSmallImage(logo.getLogo(), caption);
+                if (!logo.isEmpty()) {
+                    builder.setSmallImage(logo, caption);
                 }
                 client.sendRichPresence(builder.build());
             } catch (Throwable e) {
@@ -102,27 +102,5 @@ public class HURichPresence {
 
     public static boolean isHiddenRPC() {
         return hiddenRPC;
-    }
-
-    public enum MiniLogos {
-        NONE,
-        BEN10("ben10"),
-        GENERATOR_REX("generator_rex"),
-        DANNY_PHANTOM("danny_phantom"),
-        EXTERNAL("external");
-
-        private final String logo;
-
-        MiniLogos(String logo) {
-            this.logo = logo;
-        }
-
-        MiniLogos() {
-            this.logo = null;
-        }
-
-        public String getLogo() {
-            return this.logo;
-        }
     }
 }

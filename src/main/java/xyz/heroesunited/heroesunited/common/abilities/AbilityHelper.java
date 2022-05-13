@@ -42,13 +42,13 @@ public class AbilityHelper {
     }
 
     public static Map<String, Ability> getActiveAbilityMap(Entity entity) {
-        Map<String, Ability> map = Maps.newHashMap();
+        Map<String, Ability> map = Maps.newLinkedHashMap();
         entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent((f) -> map.putAll(f.getActiveAbilities()));
         return map;
     }
 
     public static Map<String, Ability> getAbilityMap(Entity entity) {
-        Map<String, Ability> map = Maps.newHashMap();
+        Map<String, Ability> map = Maps.newLinkedHashMap();
         entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent((f) -> map.putAll(f.getAbilities()));
         return map;
     }
