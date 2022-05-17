@@ -6,6 +6,7 @@ import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -28,6 +29,7 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.keyframe.BoneAnimation;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
+import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.util.RenderUtils;
 import xyz.heroesunited.heroesunited.client.HULayerRenderer;
 import xyz.heroesunited.heroesunited.client.events.HideLayerEvent;
@@ -81,33 +83,58 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
                 ((IHUModelPart) (Object) value.modelPart(playerModel)).resetSize();
             }
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap));
+                GeoModel geoModel = cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap));
+                MinecraftForge.EVENT_BUS.post(new SetupAnimEvent(player, playerModel, iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch()));
+                HUClientUtil.copyAnglesToWear(playerModel);
+
                 PlayerGeoModel.ModelData modelData = new PlayerGeoModel.ModelData(renderer, iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch());
                 AnimationEvent<IHUPlayer> animationEvent = new AnimationEvent<>(cap, iModel.limbSwing(), iModel.limbSwingAmount(), Minecraft.getInstance().getFrameTime(), false, Arrays.asList(player, modelData, player.getUUID()));
                 if (!(Minecraft.getInstance().getOverlay() instanceof LoadingOverlay)) {
                     cap.getAnimatedModel().setLivingAnimations(cap, player.getUUID().hashCode(), animationEvent);
                 }
 
-                MinecraftForge.EVENT_BUS.post(new SetupAnimEvent(player, playerModel, iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch()));
-                HUClientUtil.copyAnglesToWear(playerModel);
-
-                if (MinecraftForge.EVENT_BUS.post(new RendererChangeEvent(player, renderer, matrixStack, buffer, buffer.getBuffer(type), light, getOverlayCoords(player, getWhiteOverlayProgress(entity, partialTicks)), iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch()))) {
-                    playerModel.setAllVisible(false);
-                } else {
-                    for (AnimationController<?> controller : cap.getFactory().getOrCreateAnimationData(player.getUUID().hashCode()).getAnimationControllers().values()) {
-                        if (controller.getCurrentAnimation() != null && controller.getAnimationState() == AnimationState.Running) {
-                            GeoBone bone = cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap)).getBone("player").get();
+                for (AnimationController<?> controller : cap.getFactory().getOrCreateAnimationData(player.getUUID().hashCode()).getAnimationControllers().values()) {
+                    if (controller.getCurrentAnimation() != null && controller.getAnimationState() == AnimationState.Running) {
+                        for (String s : Arrays.asList("player", "bipedHead", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg")) {
+                            GeoBone bone = geoModel.getBone(s).get();
+                            ModelPart modelPart = HUClientUtil.getModelRendererById(playerModel, s);
+                            IHUModelPart part = ((IHUModelPart) (Object) modelPart);
                             for (BoneAnimation boneAnimation : controller.getCurrentAnimation().boneAnimations) {
-                                if (boneAnimation.boneName.equals("player")) {
-                                    RenderUtils.translate(bone, matrixStack);
-                                    RenderUtils.moveToPivot(bone, matrixStack);
-                                    RenderUtils.rotate(bone, matrixStack);
-                                    RenderUtils.scale(bone, matrixStack);
-                                    RenderUtils.moveBackFromPivot(bone, matrixStack);
+                                if (boneAnimation.boneName.equals(s)) {
+                                    if (s.equals("player")) {
+                                        RenderUtils.translate(bone, matrixStack);
+                                        RenderUtils.moveToPivot(bone, matrixStack);
+                                        RenderUtils.rotate(bone, matrixStack);
+                                        RenderUtils.scale(bone, matrixStack);
+                                        RenderUtils.moveBackFromPivot(bone, matrixStack);
+                                        break;
+                                    }
+                                    modelPart.xRot = -bone.getRotationX();
+                                    modelPart.yRot = -bone.getRotationY();
+                                    modelPart.zRot = bone.getRotationZ();
+
+                                    if (bone.getPositionX() != 0) {
+                                        modelPart.x = -(bone.getPivotX() + bone.getPositionX());
+                                    }
+                                    if (bone.getPositionY() != 0) {
+                                        modelPart.y = (24 - bone.getPivotY()) - bone.getPositionY();
+                                    }
+                                    if (bone.getPositionZ() != 0) {
+                                        modelPart.z = bone.getPivotZ() + bone.getPositionZ();
+                                    }
+
+                                    if (bone.name.endsWith("Leg")) {
+                                        modelPart.y = modelPart.y - bone.getScaleY() * 2;
+                                    }
+                                    part.setSize(part.size().extend(bone.getScaleX() - 1.0F, bone.getScaleY() - 1.0F, bone.getScaleZ() - 1.0F));
                                 }
                             }
                         }
                     }
+                }
+
+                if (MinecraftForge.EVENT_BUS.post(new RendererChangeEvent(player, renderer, matrixStack, buffer, buffer.getBuffer(type), light, getOverlayCoords(player, getWhiteOverlayProgress(entity, partialTicks)), iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch()))) {
+                    playerModel.setAllVisible(false);
                 }
             });
 

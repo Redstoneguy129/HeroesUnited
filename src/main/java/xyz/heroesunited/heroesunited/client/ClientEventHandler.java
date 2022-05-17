@@ -42,14 +42,9 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
-import software.bernie.geckolib3.core.AnimationState;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.keyframe.BoneAnimation;
-import software.bernie.geckolib3.geo.render.built.GeoBone;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.*;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
-import xyz.heroesunited.heroesunited.client.renderer.IHUModelPart;
 import xyz.heroesunited.heroesunited.client.renderer.space.CelestialBodyRenderer;
 import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
@@ -72,7 +67,6 @@ import xyz.heroesunited.heroesunited.util.*;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -414,38 +408,6 @@ public class ClientEventHandler {
 
         AbilityHelper.getAbilityMap(event.getPlayer()).values().forEach(ability -> ability.getClientProperties().setAlwaysRotationAngles(event));
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-            for (AnimationController<?> controller : cap.getFactory().getOrCreateAnimationData(player.getUUID().hashCode()).getAnimationControllers().values()) {
-                if (controller.getCurrentAnimation() != null && controller.getAnimationState() == AnimationState.Running) {
-                    for (String s : Arrays.asList("bipedHead", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg")) {
-                        GeoBone bone = cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap)).getBone(s).get();
-                        ModelPart renderer = HUClientUtil.getModelRendererById(event.getPlayerModel(), s);
-                        IHUModelPart part = ((IHUModelPart) (Object) renderer);
-                        for (BoneAnimation boneAnimation : controller.getCurrentAnimation().boneAnimations) {
-                            if (boneAnimation.boneName.equals(s)) {
-                                renderer.xRot = -bone.getRotationX();
-                                renderer.yRot = -bone.getRotationY();
-                                renderer.zRot = bone.getRotationZ();
-
-                                if (bone.getPositionX() != 0) {
-                                    renderer.x = -(bone.getPivotX() + bone.getPositionX());
-                                }
-                                if (bone.getPositionY() != 0) {
-                                    renderer.y = (24 - bone.getPivotY()) - bone.getPositionY();
-                                }
-                                if (bone.getPositionZ() != 0) {
-                                    renderer.z = bone.getPivotZ() + bone.getPositionZ();
-                                }
-
-                                if (bone.name.endsWith("Leg")) {
-                                    renderer.y = renderer.y - bone.getScaleY() * 2;
-                                }
-                                part.setSize(part.size().extend(bone.getScaleX() - 1.0F, bone.getScaleY() - 1.0F, bone.getScaleZ() - 1.0F));
-                            }
-                        }
-                    }
-                }
-            }
-
             for (int slot = 0; slot <= 8; ++slot) {
                 ItemStack stack = cap.getInventory().getItem(slot);
                 if (stack != null && stack.getItem() instanceof IAccessory accessory) {
