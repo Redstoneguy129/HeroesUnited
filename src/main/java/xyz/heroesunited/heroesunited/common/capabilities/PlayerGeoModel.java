@@ -1,8 +1,8 @@
 package xyz.heroesunited.heroesunited.common.capabilities;
 
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
@@ -48,7 +48,7 @@ public class PlayerGeoModel extends AnimatedTickingGeoModel<IHUPlayer> {
         MolangParser parser = GeckoLibCache.getInstance().parser;
         if (animatable instanceof IHUPlayer && this.modelData != null) {
             for (PlayerPart part : PlayerPart.bodyParts()) {
-                ModelPart renderer = part.initialModelPart(this.modelData.renderer.getModel());
+                ModelPart renderer = part.initialModelPart(this.modelData.model);
                 parser.setValue(String.format("player.%s.x_rot", part.name().toLowerCase()), renderer.xRot / Math.PI * 180.0);
                 parser.setValue(String.format("player.%s.y_rot", part.name().toLowerCase()), renderer.yRot / Math.PI * 180.0);
                 parser.setValue(String.format("player.%s.z_rot", part.name().toLowerCase()), renderer.zRot / Math.PI * 180.0);
@@ -67,15 +67,15 @@ public class PlayerGeoModel extends AnimatedTickingGeoModel<IHUPlayer> {
     }
 
     public static class ModelData {
-        public final PlayerRenderer renderer;
+        public final PlayerModel<?> model;
         public final float limbSwing, limbSwingAmount, ageInTicks, headPitch, netHeadYaw;
 
-        public ModelData(PlayerRenderer renderer) {
-            this(renderer, 0, 0, 0, 0, 0);
+        public ModelData(PlayerModel<?> model) {
+            this(model, 0, 0, 0, 0, 0);
         }
 
-        public ModelData(PlayerRenderer renderer, float limbSwing, float limbSwingAmount, float ageInTicks, float headPitch, float netHeadYaw) {
-            this.renderer = renderer;
+        public ModelData(PlayerModel<?> model, float limbSwing, float limbSwingAmount, float ageInTicks, float headPitch, float netHeadYaw) {
+            this.model = model;
             this.limbSwing = limbSwing;
             this.limbSwingAmount = limbSwingAmount;
             this.ageInTicks = ageInTicks;

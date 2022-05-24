@@ -87,7 +87,7 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
                 MinecraftForge.EVENT_BUS.post(new SetupAnimEvent(player, playerModel, iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch()));
                 HUClientUtil.copyAnglesToWear(playerModel);
 
-                PlayerGeoModel.ModelData modelData = new PlayerGeoModel.ModelData(renderer, iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch());
+                PlayerGeoModel.ModelData modelData = new PlayerGeoModel.ModelData(playerModel, iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch());
                 AnimationEvent<IHUPlayer> animationEvent = new AnimationEvent<>(cap, iModel.limbSwing(), iModel.limbSwingAmount(), Minecraft.getInstance().getFrameTime(), false, Arrays.asList(player, modelData, player.getUUID()));
                 if (!(Minecraft.getInstance().getOverlay() instanceof LoadingOverlay)) {
                     cap.getAnimatedModel().setLivingAnimations(cap, player.getUUID().hashCode(), animationEvent);
