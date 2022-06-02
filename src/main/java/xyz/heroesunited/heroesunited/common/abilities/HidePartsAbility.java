@@ -33,12 +33,14 @@ public class HidePartsAbility extends JSONAbility {
                     JsonObject overrides = GsonHelper.getAsJsonObject(getJsonObject(), "visibility_parts");
 
                     for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
-                        PlayerPart part = PlayerPart.byName(entry.getKey());
-                        if (part != null) {
-                            if (entry.getValue() instanceof JsonObject) {
-                                part.setVisibility(event.getPlayerModel(), GsonHelper.getAsBoolean((JsonObject) entry.getValue(), "show"));
-                            } else {
-                                part.setVisibility(event.getPlayerModel(), GsonHelper.getAsBoolean(overrides, entry.getKey()));
+                        if (!entry.getKey().equals("scale")) {
+                            PlayerPart part = PlayerPart.byName(entry.getKey());
+                            if (part != null) {
+                                if (entry.getValue() instanceof JsonObject) {
+                                    part.setVisibility(event.getPlayerModel(), GsonHelper.getAsBoolean((JsonObject) entry.getValue(), "show"), GsonHelper.getAsFloat((JsonObject) entry.getValue(), "scale", 1.0F));
+                                } else {
+                                    part.setVisibility(event.getPlayerModel(), GsonHelper.getAsBoolean(overrides, entry.getKey()), GsonHelper.getAsFloat(overrides, "scale"));
+                                }
                             }
                         }
                     }
