@@ -99,7 +99,7 @@ minecraft.runs.all {
 }
 
 repositories {
-    maven { url 'https://maven.explodingcreeper.me/' }
+    maven { url 'https://maven.explodingcreeper.me/#/releases' }
 }
 
 dependencies {
