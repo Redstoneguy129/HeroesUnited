@@ -39,7 +39,7 @@ public class HidePartsAbility extends JSONAbility {
                                 if (entry.getValue() instanceof JsonObject) {
                                     part.setVisibility(event.getPlayerModel(), GsonHelper.getAsBoolean((JsonObject) entry.getValue(), "show"), GsonHelper.getAsFloat((JsonObject) entry.getValue(), "scale", 1.0F));
                                 } else {
-                                    part.setVisibility(event.getPlayerModel(), GsonHelper.getAsBoolean(overrides, entry.getKey()), GsonHelper.getAsFloat(overrides, "scale"));
+                                    part.setVisibility(event.getPlayerModel(), GsonHelper.getAsBoolean(overrides, entry.getKey()), GsonHelper.getAsFloat(overrides, "scale", 1.0F));
                                 }
                             }
                         }
