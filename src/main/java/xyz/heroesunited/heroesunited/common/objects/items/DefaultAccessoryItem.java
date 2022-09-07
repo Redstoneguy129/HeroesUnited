@@ -1,15 +1,9 @@
 package xyz.heroesunited.heroesunited.common.objects.items;
 
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -23,25 +17,14 @@ import java.util.List;
 public class DefaultAccessoryItem extends Item implements IAccessory {
 
     protected final EquipmentAccessoriesSlot accessorySlot;
-    private final String name;
+
+    public DefaultAccessoryItem(EquipmentAccessoriesSlot accessorySlot) {
+        this(new Properties(), accessorySlot);
+    }
 
     public DefaultAccessoryItem(Properties properties, EquipmentAccessoriesSlot accessorySlot) {
-        this(properties, accessorySlot, "");
-    }
-
-    public DefaultAccessoryItem(Properties properties, EquipmentAccessoriesSlot accessorySlot, String name) {
         super(properties.tab(HeroesUnited.ACCESSORIES).stacksTo(1));
         this.accessorySlot = accessorySlot;
-        this.name = name;
-    }
-
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
-        if (!StringUtil.isNullOrEmpty(name)) {
-            tooltip.add(new TextComponent("Made For " + name).withStyle(ChatFormatting.ITALIC));
-        }
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
     }
 
     @Override
@@ -54,7 +37,8 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
             parts.add(PlayerPart.RIGHT_ARM_WEAR);
         }
         if (this == HUItems.REDA_JACKET.get() || this == HUItems.REDA_SHIRT .get()
-                || this == HUItems.RED_JACKET.get() || this == HUItems.GREEN_SHIRT.get()) {
+                || this == HUItems.RED_JACKET.get() || this == HUItems.GREEN_SHIRT.get()
+                || this == HUItems.PETER_PARKER_SHIRT.get()|| this == HUItems.AKIRA_JACKET.get()) {
             parts.add(PlayerPart.RIGHT_ARM_WEAR);
             parts.add(PlayerPart.LEFT_ARM_WEAR);
             parts.add(PlayerPart.CHEST_WEAR);
@@ -63,25 +47,28 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
             parts.add(PlayerPart.HEAD);
             parts.add(PlayerPart.HEAD_WEAR);
         }
-        if (this == HUItems.JASON_MASK.get()) {
+        if (this == HUItems.JASON_MASK.get() || this == HUItems.CLOWN_HAT.get()) {
             parts.add(PlayerPart.HEAD_WEAR);
         }
-
-        if (this == HUItems.HOKAGE_CAPE.get()) {
-            parts.add(PlayerPart.HEAD_WEAR);
-            parts.add(PlayerPart.RIGHT_ARM_WEAR);
-            parts.add(PlayerPart.LEFT_ARM_WEAR);
-            parts.add(PlayerPart.CHEST_WEAR);
-            parts.add(PlayerPart.LEFT_LEG_WEAR);
+        if (this == HUItems.SONIC_SHOES.get()) {
             parts.add(PlayerPart.RIGHT_LEG_WEAR);
+            parts.add(PlayerPart.LEFT_LEG_WEAR);
         }
-
+        if (this == HUItems.BOOSTED_GEAR.get()) {
+            parts.add(PlayerPart.LEFT_ARM_WEAR);
+        }
+        if (this == HUItems.BIG_CHILL_CLOAK.get() || this == HUItems.HOKAGE_CAPE.get()) {
+            parts.addAll(PlayerPart.wearParts());
+        }
         return parts;
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
     public float getScale(ItemStack stack) {
+        if (stack.getItem() == HUItems.BIG_CHILL_CLOAK.get()) {
+            return 0.51F;
+        }
         if (accessorySlot == EquipmentAccessoriesSlot.JACKET) {
             return 0.33F;
         }

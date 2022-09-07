@@ -1,6 +1,7 @@
 package xyz.heroesunited.heroesunited.util;
 
 import com.google.common.collect.ImmutableList;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -64,7 +65,7 @@ public enum PlayerPart {
         };
     }
 
-    public ModelPart initialModelPart(PlayerModel<?> model) {
+    public ModelPart initialModelPart(HumanoidModel<?> model) {
         return switch (this) {
             case HEAD -> model.head;
             case CHEST -> model.body;

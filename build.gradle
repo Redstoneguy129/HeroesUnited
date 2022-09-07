@@ -98,7 +98,7 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:$project.mc_version-$project.forge_version"
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    //annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
     shade fg.deobf("software.bernie.geckolib:geckolib-1.18-forge:$project.geckolib_version")
 

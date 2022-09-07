@@ -11,7 +11,6 @@ public class HUData<T> {
     protected final String key;
     protected final boolean json;
     private final T defaultValue;
-    private boolean dirty;
     private T value;
 
     public HUData(String key, T defaultValue, boolean json) {
@@ -19,7 +18,6 @@ public class HUData<T> {
         this.defaultValue = defaultValue;
         this.value = defaultValue;
         this.json = json;
-        this.dirty = true;
     }
 
     public String getKey() {
@@ -40,14 +38,6 @@ public class HUData<T> {
 
     public boolean isJson() {
         return json;
-    }
-
-    public boolean isDirty() {
-        return this.dirty;
-    }
-
-    public void setDirty(boolean dirty) {
-        this.dirty = dirty;
     }
 
     public Object getFromJson(JsonObject json) {

@@ -17,6 +17,7 @@ public class HUDataManager implements INBTSerializable<CompoundTag> {
 
     protected Map<String, HUData<?>> dataMap = Maps.newLinkedHashMap();
     private final Ability ability;
+    private boolean dirty;
 
     public HUDataManager() {
         this(null);
@@ -46,26 +47,16 @@ public class HUDataManager implements INBTSerializable<CompoundTag> {
                 this.ability.onDataUpdated(data);
             }
 
-            data.setDirty(true);
-        }
-    }
-
-    public <T> void assignValue(HUData<T> data, CompoundTag nbt) {
-        if (data != null) {
-            T value = (T) data.deserializeNBT(nbt);
-            if (!value.equals(data.getValue())) {
-                data.setValue(value);
-                data.setDirty(false);
-            }
+            this.dirty = true;
         }
     }
 
     public void syncToAll(Player player, String abilityName) {
-        for (HUData<?> value : this.dataMap.values()) {
-            if (value.isDirty() && !player.level.isClientSide) {
-                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getId(), abilityName, value.getKey(), serializeNBT()));
-                value.setDirty(false);
+        if (this.dirty) {
+            if (!player.level.isClientSide) {
+                HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncHUData(player.getId(), abilityName, serializeNBT()));
             }
+            this.dirty = false;
         }
     }
 

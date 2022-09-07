@@ -23,12 +23,18 @@ import software.bernie.geckolib3.util.GeoUtils;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.renderer.GeckoAccessoryRenderer;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
+import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 
-public class JasonAccessory extends GeckoAccessory {
-    public JasonAccessory(EquipmentAccessoriesSlot accessorySlot) {
-        super(accessorySlot, "FalloutWolfGod");
+class ClothesAccessory extends GeckoAccessory {
+
+    private final String id;
+
+    public ClothesAccessory(EquipmentAccessoriesSlot accessorySlot, String id) {
+        super(accessorySlot);
+        this.id = id;
     }
 
     @Override
@@ -36,31 +42,37 @@ public class JasonAccessory extends GeckoAccessory {
         super.initializeClient(consumer);
         consumer.accept(new IItemRenderProperties() {
             private final BlockEntityWithoutLevelRenderer renderer = new GeckoAccessoryRenderer() {
+
                 @SuppressWarnings("unchecked")
                 @Override
                 public void render(GeoModel model, GeckoAccessory animatable, float partialTicks, RenderType type, PoseStack matrixStackIn, @Nullable MultiBufferSource renderTypeBuffer, @Nullable VertexConsumer vertexBuilder, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-                    AnimationProcessor<JasonAccessory> processor = this.getGeoModelProvider().getAnimationProcessor();
-
                     for (GeoBone topLevelBone : model.topLevelBones) {
                         topLevelBone.setHidden(true);
                     }
 
-                    EquipmentAccessoriesSlot slot = JasonAccessory.this.accessorySlot;
+                    EquipmentAccessoriesSlot slot = ClothesAccessory.this.accessorySlot;
+
                     if (slot == EquipmentAccessoriesSlot.TSHIRT) {
-                        processor.getBone("tshirt_body").setHidden(false);
-                        processor.getBone("tshirt_right_arm").setHidden(false);
-                        processor.getBone("tshirt_left_arm").setHidden(false);
+                        model.getBone("tshirt_body").ifPresent(b -> b.setHidden(false));
+                        model.getBone("tshirt_right_arm").ifPresent(b -> b.setHidden(false));
+                        model.getBone("tshirt_left_arm").ifPresent(b -> b.setHidden(false));
                     }
 
                     if (slot == EquipmentAccessoriesSlot.JACKET) {
-                        processor.getBone("body").setHidden(false);
-                        processor.getBone("right_arm").setHidden(false);
-                        processor.getBone("left_arm").setHidden(false);
+                        for (String s : Arrays.asList("jacket_head", "body", "right_arm",
+                                "left_arm", "jacket_right_leg", "jacket_left_leg")) {
+                            model.getBone(s).ifPresent(b -> b.setHidden(false));
+                        }
                     }
 
                     if (slot == EquipmentAccessoriesSlot.PANTS) {
-                        processor.getBone("right_leg").setHidden(false);
-                        processor.getBone("left_leg").setHidden(false);
+                        model.getBone("right_leg").ifPresent(b -> b.setHidden(false));
+                        model.getBone("left_leg").ifPresent(b -> b.setHidden(false));
+                    }
+
+                    if (slot == EquipmentAccessoriesSlot.SHOES) {
+                        model.getBone("right_leg_boots").ifPresent(b -> b.setHidden(false));
+                        model.getBone("left_leg_boots").ifPresent(b -> b.setHidden(false));
                     }
 
                     super.render(model, animatable, partialTicks, type, matrixStackIn, renderTypeBuffer, vertexBuilder, packedLightIn, packedOverlayIn, red, green, blue, alpha);
@@ -82,10 +94,20 @@ public class JasonAccessory extends GeckoAccessory {
         poseStack.scale(-1.0F, -1.0F, 1.0F);
 
         GeckoAccessoryRenderer accessoryRenderer = (GeckoAccessoryRenderer) RenderProperties.get(this).getItemStackRenderer();
-        GeoModel model = accessoryRenderer.getGeoModelProvider().getModel(getModelFile());
-        AnimationProcessor<JasonAccessory> processor = accessoryRenderer.getGeoModelProvider().getAnimationProcessor();
+        ResourceLocation location = getModelFile();
+        if (HUPlayerUtil.haveSmallArms(livingEntity)) {
+            location = new ResourceLocation(getModelFile().toString().replace(".geo", "_slim.geo"));
+        }
+        GeoModel model = accessoryRenderer.getGeoModelProvider().getModel(location);
+        AnimationProcessor<ClothesAccessory> processor = accessoryRenderer.getGeoModelProvider().getAnimationProcessor();
 
         for (IBone iBone : processor.getModelRendererList()) {
+            if (iBone.getName().contains("head")) {
+                GeoUtils.copyRotations(renderer.getModel().head, iBone);
+                iBone.setPositionX(renderer.getModel().head.x);
+                iBone.setPositionY(-renderer.getModel().head.y);
+                iBone.setPositionZ(renderer.getModel().head.z);
+            }
             if (iBone.getName().contains("body")) {
                 GeoUtils.copyRotations(renderer.getModel().body, iBone);
                 iBone.setPositionX(renderer.getModel().body.x);
@@ -104,19 +126,19 @@ public class JasonAccessory extends GeckoAccessory {
                 iBone.setPositionY(2 - renderer.getModel().leftArm.y);
                 iBone.setPositionZ(renderer.getModel().leftArm.z);
             }
+            if (iBone.getName().contains("right_leg")) {
+                GeoUtils.copyRotations(renderer.getModel().rightLeg, iBone);
+                iBone.setPositionX(renderer.getModel().rightLeg.x + 2);
+                iBone.setPositionY(12 - renderer.getModel().rightLeg.y);
+                iBone.setPositionZ(renderer.getModel().rightLeg.z);
+            }
+            if (iBone.getName().contains("left_leg")) {
+                GeoUtils.copyRotations(renderer.getModel().leftLeg, iBone);
+                iBone.setPositionX(renderer.getModel().leftLeg.x - 2);
+                iBone.setPositionY(12 - renderer.getModel().leftLeg.y);
+                iBone.setPositionZ(renderer.getModel().leftLeg.z);
+            }
         }
-
-        IBone rightLegBone = processor.getBone("right_leg");
-        GeoUtils.copyRotations(renderer.getModel().rightLeg, rightLegBone);
-        rightLegBone.setPositionX(renderer.getModel().rightLeg.x + 2);
-        rightLegBone.setPositionY(12 - renderer.getModel().rightLeg.y);
-        rightLegBone.setPositionZ(renderer.getModel().rightLeg.z);
-
-        IBone leftLegBone = processor.getBone("left_leg");
-        GeoUtils.copyRotations(renderer.getModel().leftLeg, leftLegBone);
-        leftLegBone.setPositionX(renderer.getModel().leftLeg.x - 2);
-        leftLegBone.setPositionY(12 - renderer.getModel().leftLeg.y);
-        leftLegBone.setPositionZ(renderer.getModel().leftLeg.z);
 
         accessoryRenderer.render(model, this, 0, RenderType.entityTranslucent(this.getTextureFile()), poseStack, bufferIn, bufferIn.getBuffer(RenderType.entityTranslucent(this.getTextureFile())), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
 
@@ -127,11 +149,11 @@ public class JasonAccessory extends GeckoAccessory {
 
     @Override
     public ResourceLocation getTextureFile() {
-        return new ResourceLocation(HeroesUnited.MODID, "textures/accessories/jason_clothes.png");
+        return new ResourceLocation(HeroesUnited.MODID, "textures/accessories/%s.png".formatted(this.id));
     }
 
     @Override
     public ResourceLocation getModelFile() {
-        return new ResourceLocation(HeroesUnited.MODID, "geo/jason_clothes.geo.json");
+        return new ResourceLocation(HeroesUnited.MODID, "geo/%s.geo.json".formatted(this.id));
     }
 }

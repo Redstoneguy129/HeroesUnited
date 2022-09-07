@@ -12,7 +12,7 @@
 			},
 			"bones": [
 				{
-					"name": "armorBody",
+					"name": "body",
 					"pivot": [0, 24, 0],
 					"cubes": [
 						{"origin": [-4, 12, -2], "size": [8, 12, 4], "inflate": 0.2, "uv": [0, 16]},
@@ -21,7 +21,7 @@
 				},
 				{
 					"name": "bone",
-					"parent": "armorBody",
+					"parent": "body",
 					"pivot": [0, 24, 0],
 					"cubes": [
 						{"origin": [-4.8, 12.4, -5.3], "size": [6, 6.5, 5.7], "inflate": -2.7, "uv": [113, 109]},
@@ -37,7 +37,7 @@
 				},
 				{
 					"name": "emblem",
-					"parent": "armorBody",
+					"parent": "body",
 					"pivot": [0, 23, 0],
 					"cubes": [
 						{"origin": [-13, 6.3, -9.3], "size": [26, 27, 21.3], "inflate": -9.7, "uv": [0, 86]},
@@ -45,7 +45,7 @@
 					]
 				},
 				{
-					"name": "armorRightArm",
+					"name": "right_arm",
 					"pivot": [-5, 22, 0],
 					"cubes": [
 						{"origin": [-8, 12, -2], "size": [4, 12, 4], "inflate": 0.1, "uv": [116, 131]},
@@ -53,7 +53,7 @@
 					]
 				},
 				{
-					"name": "armorLeftArm",
+					"name": "left_arm",
 					"pivot": [5, 22, 0],
 					"cubes": [
 						{"origin": [4, 12, -2], "size": [4, 12, 4], "inflate": 0.1, "uv": [0, 86]},

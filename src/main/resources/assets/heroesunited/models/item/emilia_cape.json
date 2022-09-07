@@ -1,8 +1,8 @@
 {
   "parent": "builtin/entity",
   "texture_size": [
-    48,
-    48
+    80,
+    80
   ],
   "display": {
     "thirdperson_righthand": {
@@ -13,8 +13,8 @@
       ],
       "translation": [
         -0.5,
-        -6.75,
-        -12.75
+        -5.5,
+        -15.5
       ],
       "scale": [
         0.75,
@@ -30,8 +30,8 @@
       ],
       "translation": [
         -0.5,
-        -6.75,
-        -12.75
+        -5.5,
+        -15.5
       ],
       "scale": [
         0.75,
@@ -42,12 +42,12 @@
     "firstperson_righthand": {
       "rotation": [
         0,
-        123,
+        154,
         0
       ],
       "translation": [
         2,
-        -6,
+        -2.5,
         -4.25
       ],
       "scale": [
@@ -59,12 +59,12 @@
     "firstperson_lefthand": {
       "rotation": [
         0,
-        123,
+        154,
         0
       ],
       "translation": [
         2,
-        -6,
+        -2.5,
         -4.25
       ],
       "scale": [
@@ -82,7 +82,7 @@
       "translation": [
         0,
         0,
-        -4
+        -13
       ],
       "scale": [
         0.75,
@@ -98,37 +98,37 @@
       ],
       "translation": [
         0,
-        -13,
+        -7,
         0
       ],
       "scale": [
-        0.75,
-        0.75,
-        0.75
+        0.4,
+        0.4,
+        0.4
       ]
     },
     "head": {
-      "rotation": [
-        90,
-        0,
-        0
-      ],
       "translation": [
         0,
-        0.5,
-        -31.5
+        -10.75,
+        0
       ],
       "scale": [
-        1.7,
-        1.7,
-        1.8
+        0.9296875,
+        0.755859375,
+        3.21875
       ]
     },
     "fixed": {
       "translation": [
         0,
-        -18,
-        -2.75
+        -14.25,
+        -2.5
+      ],
+      "scale": [
+        0.75,
+        0.75,
+        0.75
       ]
     }
   }

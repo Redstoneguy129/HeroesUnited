@@ -270,7 +270,7 @@ public class HUClientUtil {
         builder.vertex(poseStack, (float) box.minX, (float) box.maxY, (float) box.minZ).color(red, green, blue, alpha).uv2(combinedLightIn).endVertex();
     }
 
-    public static ModelPart getModelRendererById(PlayerModel model, String name) {
+    public static ModelPart getModelRendererById(HumanoidModel<?> model, String name) {
         return switch (name) {
             case "bipedHead" -> model.head;
             case "bipedBody" -> model.body;

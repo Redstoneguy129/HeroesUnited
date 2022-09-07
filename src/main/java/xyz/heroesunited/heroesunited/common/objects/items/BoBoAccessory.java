@@ -15,7 +15,7 @@ public class BoBoAccessory extends GeckoAccessory {
     private final AnimationFactory factory = new AnimationFactory(this);
 
     public BoBoAccessory() {
-        super(EquipmentAccessoriesSlot.HELMET, "Chappie");
+        super(EquipmentAccessoriesSlot.HELMET);
     }
 
     @Override

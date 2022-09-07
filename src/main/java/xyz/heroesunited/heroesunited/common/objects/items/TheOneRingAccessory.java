@@ -19,7 +19,7 @@ import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessori
 
 public class TheOneRingAccessory extends DefaultAccessoryItem {
     public TheOneRingAccessory() {
-        super(new Item.Properties(), EquipmentAccessoriesSlot.WRIST, "BlazeFire");
+        super(new Item.Properties(), EquipmentAccessoriesSlot.WRIST);
     }
 
     @OnlyIn(Dist.CLIENT)

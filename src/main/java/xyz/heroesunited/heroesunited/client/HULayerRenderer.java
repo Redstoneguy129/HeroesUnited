@@ -79,7 +79,9 @@ public class HULayerRenderer<T extends LivingEntity, M extends HumanoidModel<T>>
             suitModel.hat.visible = suitModel.head.visible =
                     suitModel.body.visible = suitModel.jacket.visible =
                             suitModel.leftSleeve.visible = suitModel.leftArm.visible =
-                                    suitModel.rightSleeve.visible = suitModel.rightArm.visible = cap.getInventory().haveStack(slot);
+                                    suitModel.rightSleeve.visible = suitModel.rightArm.visible =
+                                            suitModel.leftPants.visible = suitModel.leftLeg.visible =
+                                    suitModel.rightPants.visible = suitModel.rightLeg.visible = cap.getInventory().haveStack(slot);
         } else if (slot == EquipmentAccessoriesSlot.TSHIRT) {
             suitModel.hat.visible = suitModel.head.visible =
                     suitModel.body.visible = suitModel.jacket.visible =
@@ -89,11 +91,12 @@ public class HULayerRenderer<T extends LivingEntity, M extends HumanoidModel<T>>
             suitModel.body.visible = suitModel.jacket.visible =
                     suitModel.leftSleeve.visible = suitModel.leftArm.visible =
                             suitModel.rightSleeve.visible = suitModel.rightArm.visible = cap.getInventory().haveStack(slot);
+        } else if (slot == EquipmentAccessoriesSlot.PANTS || slot == EquipmentAccessoriesSlot.SHOES) {
+            suitModel.leftPants.visible = suitModel.rightPants.visible = suitModel.leftLeg.visible =
+                    suitModel.rightLeg.visible = cap.getInventory().haveStack(slot);
         }
 
-        suitModel.leftPants.visible = suitModel.rightPants.visible = suitModel.leftLeg.visible =
-                suitModel.rightLeg.visible = slot == EquipmentAccessoriesSlot.PANTS && cap.getInventory().haveStack(slot)
-                        || slot == EquipmentAccessoriesSlot.SHOES && cap.getInventory().haveStack(EquipmentAccessoriesSlot.SHOES);
+
 
         suitModel.copyPropertiesFrom(livingRenderer.getModel());
         suitModel.renderToBuffer(matrixStack, buffer.getBuffer(RenderType.entityTranslucent(accessoire.getTexture(stack, entity, slot))), packedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);

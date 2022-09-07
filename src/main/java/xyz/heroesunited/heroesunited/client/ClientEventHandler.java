@@ -58,6 +58,8 @@ import xyz.heroesunited.heroesunited.common.networking.server.ServerAbilityKeyIn
 import xyz.heroesunited.heroesunited.common.networking.server.ServerKeyInput;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerOpenAccessoriesInv;
 import xyz.heroesunited.heroesunited.common.networking.server.ServerToggleAbility;
+import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
+import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.common.space.CelestialBodies;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
@@ -398,6 +400,7 @@ public class ClientEventHandler {
     @SubscribeEvent
     public void setupAnim(SetupAnimEvent event) {
         Player player = event.getPlayer();
+        PlayerModel<?> model = event.getPlayerModel();
         AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.getClientProperties().setupAnim(event));
         for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
             SuitItem suitItem = Suit.getSuitItem(equipmentSlot, player);
@@ -406,29 +409,49 @@ public class ClientEventHandler {
             }
         }
 
-        AbilityHelper.getAbilityMap(event.getPlayer()).values().forEach(ability -> ability.getClientProperties().setAlwaysRotationAngles(event));
+        AbilityHelper.getAbilityMap(player).values().forEach(ability -> ability.getClientProperties().setAlwaysRotationAngles(event));
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             for (int slot = 0; slot <= 8; ++slot) {
                 ItemStack stack = cap.getInventory().getItem(slot);
-                if (stack != null && stack.getItem() instanceof IAccessory accessory) {
+                if (stack.getItem() instanceof IAccessory accessory) {
                     if (accessory.getHiddenParts(false) != null) {
                         for (PlayerPart part : accessory.getHiddenParts(false)) {
-                            part.setVisibility(event.getPlayerModel(), false, accessory.getPlayerWearSize(stack));
+                            part.setVisibility(model, false, accessory.getPlayerWearSize(stack));
                         }
                     }
                 }
             }
 
-            IFlyingAbility ability = IFlyingAbility.getFlyingAbility(event.getPlayer());
-            if (ability != null && ability.isFlying(event.getPlayer()) && ability.renderFlying(event.getPlayer()) && ability.setDefaultRotationAngles(event)) {
-                if (!event.getPlayer().isOnGround() && !event.getPlayer().isSwimming() && event.getPlayer().isSprinting()) {
-                    PlayerModel<?> model = event.getPlayerModel();
+            if (!cap.getInventory().getItem(EquipmentAccessoriesSlot.JACKET.getSlot()).isEmpty() &&
+                    cap.getInventory().getItem(EquipmentAccessoriesSlot.JACKET.getSlot()).getItem() == HUItems.EMILIA_CAPE.get()) {
+                model.leftLeg.xRot /= 100F;
+                model.rightLeg.xRot /= 100F;
+                model.rightLeg.yRot = model.leftLeg.yRot = model.body.yRot;
+                model.rightArm.setRotation(0, model.body.yRot, 0);
+                model.leftArm.setRotation(0, model.body.yRot, 0);
+                model.rightSleeve.copyFrom(model.rightArm);
+                model.leftSleeve.copyFrom(model.leftArm);
+                model.rightPants.copyFrom(model.rightLeg);
+                model.leftPants.copyFrom(model.leftLeg);
+
+                if (player.isCrouching()) {
+                    model.body.xRot = model.body.y = 0.0F;
+                    model.rightLeg.z = model.leftLeg.z = 0.1F;
+                    model.rightLeg.y = model.leftLeg.y = 12.0F;
+                    model.head.y = 1.2F;
+                    model.leftArm.y = model.rightArm.y = 2.0F;
+                }
+            }
+
+            IFlyingAbility ability = IFlyingAbility.getFlyingAbility(player);
+            if (ability != null && ability.isFlying(player) && ability.renderFlying(player) && ability.setDefaultRotationAngles(event)) {
+                if (!player.isOnGround() && !player.isSwimming() && player.isSprinting()) {
                     float flightAmount = cap.getFlightAmount(event.getPartialTicks());
-                    float armRotations = ability.rotateArms(event.getPlayer()) ? (float) Math.toRadians(180F) : 0F;
+                    float armRotations = ability.rotateArms(player) ? (float) Math.toRadians(180F) : 0F;
                     float delta = Mth.sin(player.tickCount / 10F) / 100F;
 
                     model.head.xRot = model.rotlerpRad(flightAmount, model.head.xRot, (-(float) Math.PI / 4F));
-                    if (ability.rotateArms(event.getPlayer())) {
+                    if (ability.rotateArms(player)) {
                         model.leftArm.xRot = armRotations;
                         model.rightArm.xRot = armRotations;
 

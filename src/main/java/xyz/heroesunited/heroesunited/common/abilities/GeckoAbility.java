@@ -2,7 +2,6 @@ package xyz.heroesunited.heroesunited.common.abilities;
 
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -55,9 +54,12 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
         });
     }
 
+    @Override
     public void registerControllers(AnimationData data) {
+
     }
 
+    @Override
     public AnimationFactory getFactory() {
         return this.factory;
     }
@@ -66,8 +68,8 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
     @Override
     public ResourceLocation getTexture() {
         if (this.getJsonObject().has("texture")) {
-            if (GsonHelper.getAsString(this.getJsonObject(), "texture").equals("player")) {
-                return Minecraft.getInstance().player.getSkinTextureLocation();
+            if (GsonHelper.getAsString(this.getJsonObject(), "texture").equals("player") && this.player instanceof AbstractClientPlayer player) {
+                return player.getSkinTextureLocation();
             } else {
                 return new ResourceLocation(GsonHelper.getAsString(this.getJsonObject(), "texture"));
             }
@@ -87,12 +89,18 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
     @OnlyIn(Dist.CLIENT)
     @Override
     public ResourceLocation getAnimationFile() {
+        if (this.getJsonObject().has("animation")) {
+            return new ResourceLocation(this.getJsonObject().get("animation").getAsString());
+        }
         return new ResourceLocation(getPowerLocation().getNamespace(), "animations/" + getPowerLocation().getPath() + "_" + this.name + ".animation.json");
     }
 
     protected ResourceLocation getPowerLocation() {
-        if (this.getAdditionalData().contains("Suit")) {
-            return new ResourceLocation(this.getAdditionalData().getString("Suit"));
+        for (String key : this.getAdditionalData().getAllKeys()) {
+            String power = this.getAdditionalData().getString(key);
+            if (power.contains(":")) {
+                return new ResourceLocation(power);
+            }
         }
         return new ResourceLocation(this.getAdditionalData().getString("Superpower"));
     }
