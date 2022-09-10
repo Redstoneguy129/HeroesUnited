@@ -20,7 +20,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.IItemRenderProperties;
-import net.minecraftforge.client.RenderProperties;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
@@ -29,7 +28,6 @@ import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.util.GeoUtils;
 import xyz.heroesunited.heroesunited.client.renderer.GeckoAccessoryRenderer;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
-import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 import java.util.function.Consumer;
 
@@ -69,46 +67,6 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
     @OnlyIn(Dist.CLIENT)
     @Override
     public void render(EntityRendererProvider.Context context, LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, LivingEntity livingEntity, ItemStack stack, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, int slot) {
-        if (stack.getItem() == HUItems.AKIRA_JACKET.get() || stack.getItem() == HUItems.PETER_PARKER_SHIRT.get()) {
-            GeckoAccessoryRenderer accessoryRenderer = (GeckoAccessoryRenderer) RenderProperties.get(this).getItemStackRenderer();
-            ResourceLocation location = getModelFile();
-            if (HUPlayerUtil.haveSmallArms(livingEntity)) {
-                location = new ResourceLocation(getModelFile().toString().replace(".geo", "_slim.geo"));
-            }
-            GeoModel model = accessoryRenderer.getGeoModelProvider().getModel(location);
-
-            IBone body = accessoryRenderer.getGeoModelProvider().getBone("armorBody");
-            if (body != null) {
-                GeoUtils.copyRotations(renderer.getModel().body, body);
-                body.setPositionX(renderer.getModel().body.x);
-                body.setPositionY(-renderer.getModel().body.y);
-                body.setPositionZ(renderer.getModel().body.z);
-            }
-
-            IBone rightArm = accessoryRenderer.getGeoModelProvider().getBone("armorRightArm");
-            if (rightArm != null) {
-                GeoUtils.copyRotations(renderer.getModel().rightArm, rightArm);
-                rightArm.setPositionX(renderer.getModel().rightArm.x + 5);
-                rightArm.setPositionY(2 - renderer.getModel().rightArm.y);
-                rightArm.setPositionZ(renderer.getModel().rightArm.z);
-            }
-
-            IBone leftArm = accessoryRenderer.getGeoModelProvider().getBone("armorLeftArm");
-            if (leftArm != null) {
-                GeoUtils.copyRotations(renderer.getModel().leftArm, leftArm);
-                leftArm.setPositionX(renderer.getModel().leftArm.x - 5);
-                leftArm.setPositionY(2 - renderer.getModel().leftArm.y);
-                leftArm.setPositionZ(renderer.getModel().leftArm.z);
-            }
-
-            poseStack.pushPose();
-            poseStack.translate(0.0D, 24 / 16F, 0.0D);
-            poseStack.scale(-1.0F, -1.0F, 1.0F);
-            accessoryRenderer.render(model, this, partialTicks, RenderType.entityTranslucent(this.getTextureFile()), poseStack, bufferIn, bufferIn.getBuffer(RenderType.entityTranslucent(this.getTextureFile())), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
-            poseStack.popPose();
-            return;
-        }
-
         if (stack.getItem() == HUItems.HOKAGE_CAPE.get()) {
             poseStack.pushPose();
             poseStack.translate(0.0D, 24 / 16F, 0.0D);
