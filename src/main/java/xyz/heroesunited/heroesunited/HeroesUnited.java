@@ -185,7 +185,7 @@ public class HeroesUnited {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public void registerLayers(final EntityRenderersEvent.AddLayers event) {
-        GeckoSuitRenderer.registerArmorRenderer(SuitItem.class, new GeckoSuitRenderer<>());
+        GeckoSuitRenderer.registerArmorRenderer(SuitItem.class, GeckoSuitRenderer::new);
 
         CelestialBodyRenderer.registerRenderer(new SunRenderer(event.getEntityModels().bakeLayer(HUModelLayers.SUN)), CelestialBodies.SUN);
         CelestialBodyRenderer.registerRenderer(new MercuryRenderer(event.getEntityModels().bakeLayer(HUModelLayers.PLANET)), CelestialBodies.MERCURY);

@@ -12,7 +12,7 @@
 			},
 			"bones": [
 				{
-					"name": "body",
+					"name": "tshirt_body",
 					"pivot": [0, 24, 0],
 					"cubes": [
 						{
@@ -44,7 +44,7 @@
 					]
 				},
 				{
-					"name": "right_arm",
+					"name": "tshirt_right_arm",
 					"pivot": [-5, 22, 0],
 					"cubes": [
 						{
@@ -76,7 +76,7 @@
 					]
 				},
 				{
-					"name": "left_arm",
+					"name": "tshirt_left_arm",
 					"pivot": [5, 22, 0],
 					"cubes": [
 						{

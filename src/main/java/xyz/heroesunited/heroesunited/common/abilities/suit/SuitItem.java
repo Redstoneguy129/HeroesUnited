@@ -103,7 +103,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
             @Override
             public HumanoidModel<?> getArmorModel(LivingEntity entityLiving, ItemStack itemStack, EquipmentSlot armorSlot, HumanoidModel<?> _default) {
                 try {
-                    return getArmorRenderer()
+                    return getArmorRenderer(entityLiving)
                             .setCurrentItem(entityLiving, itemStack, armorSlot)
                             .applyEntityStats(_default).applySlot(armorSlot);
                 } catch (GeckoLibException | IllegalArgumentException e) {
@@ -120,7 +120,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     public void renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side, ItemStack stack) {
         if (getSlot() != EquipmentSlot.CHEST) return;
         try {
-            GeoArmorRenderer geo = getArmorRenderer();
+            GeoArmorRenderer geo = getArmorRenderer(player);
             GeoModel model;
             if (HUPlayerUtil.haveSmallArms(player) && geo.getGeoModelProvider() instanceof GeckoSuitModel) {
                 model = geo.getGeoModelProvider().getModel(((GeckoSuitModel) geo.getGeoModelProvider()).getSlimModelLocation(this));
@@ -188,7 +188,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     @Override
     public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
         try {
-            ResourceLocation location = getArmorRenderer().getTextureLocation((ArmorItem) stack.getItem());
+            ResourceLocation location = getArmorRenderer(entity).getTextureLocation((ArmorItem) stack.getItem());
             if (Minecraft.getInstance().getResourceManager().hasResource(location)) {
                 return location.toString();
             } else {
@@ -229,9 +229,9 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
         }
     }
 
-    public GeoArmorRenderer getArmorRenderer() {
+    public GeoArmorRenderer getArmorRenderer(Entity entity) {
         Class<? extends ArmorItem> clazz = this.getClass();
-        return GeoArmorRenderer.getRenderer(clazz);
+        return GeoArmorRenderer.getRenderer(clazz, entity);
     }
 
     @Override
