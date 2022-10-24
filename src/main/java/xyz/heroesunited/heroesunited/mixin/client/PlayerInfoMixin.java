@@ -1,7 +1,6 @@
 package xyz.heroesunited.heroesunited.mixin.client;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
@@ -15,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.heroesunited.heroesunited.client.events.SkinChangeEvent;
 
 import javax.annotation.Nullable;
-import java.util.Map;
 
 @Mixin(PlayerInfo.class)
 public abstract class PlayerInfoMixin {
@@ -23,7 +21,6 @@ public abstract class PlayerInfoMixin {
     @Shadow @Nullable private String skinModel;
 
     @Shadow @Final private GameProfile profile;
-    @Shadow @Final private Map<MinecraftProfileTexture.Type, ResourceLocation> textureLocations;
     private String defaultModel;
 
     @Inject(method = "registerTextures()V", at = @At("TAIL"))

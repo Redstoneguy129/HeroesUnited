@@ -30,8 +30,8 @@ public class AlphaMaskTexture extends SimpleTexture {
     @Override
     public void load(ResourceManager manager) throws IOException {
         releaseId();
-        NativeImage image = this.getImage(manager, this.location);
-        NativeImage output = this.getImage(manager, this.output);
+        NativeImage image = this.getSkinOrImage(manager, this.location);
+        NativeImage output = this.getSkinOrImage(manager, this.output);
         NativeImage mask = NativeImage.read(manager.getResource(this.maskLocation).getInputStream());
 
         for (int y = 0; y < mask.getHeight(); ++y) {
@@ -69,7 +69,7 @@ public class AlphaMaskTexture extends SimpleTexture {
         image.upload(0, 0, 0, false);
     }
 
-    private NativeImage getImage(ResourceManager manager, ResourceLocation location) throws IOException {
+    public static NativeImage getSkinOrImage(ResourceManager manager, ResourceLocation location) throws IOException {
         if (location.getPath().startsWith("skins/")) {
             String s = location.getPath().replace("skins/", "");
             File file = new File(Minecraft.getInstance().getSkinManager().skinsDirectory.getAbsolutePath(), (s.length() > 2 ? s.substring(0, 2) : "xx"));

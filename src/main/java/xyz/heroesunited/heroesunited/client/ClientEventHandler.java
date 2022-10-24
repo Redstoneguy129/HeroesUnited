@@ -152,8 +152,8 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent
-    public void onWorldLastRender(RenderLevelLastEvent event) {
-        if (Minecraft.getInstance().level.dimension().equals(HeroesUnited.SPACE)) {
+    public void onWorldLastRender(RenderLevelStageEvent event) {
+        if (Minecraft.getInstance().level != null && Minecraft.getInstance().level.dimension().equals(HeroesUnited.SPACE)) {
             PoseStack matrixStack = event.getPoseStack();
             matrixStack.pushPose();
 

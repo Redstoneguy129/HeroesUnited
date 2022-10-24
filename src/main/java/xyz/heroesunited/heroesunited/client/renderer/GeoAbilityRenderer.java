@@ -26,7 +26,7 @@ import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import java.util.Arrays;
 import java.util.Optional;
 
-public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends HumanoidModel implements IGeoRenderer<T> {
+public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends HumanoidModel<AbstractClientPlayer> implements IGeoRenderer<T> {
 
     protected AbstractClientPlayer player;
     protected final T currentAbility;
@@ -41,6 +41,7 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends Humanoi
     public String leftBootBone = "armorLeftBoot";
 
     protected final AnimatedGeoModel<T> modelProvider;
+    public MultiBufferSource rtb;
 
     public GeoAbilityRenderer(T ability) {
         super(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_INNER_ARMOR));
@@ -179,6 +180,16 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends Humanoi
     }
 
     @Override
+    public void setCurrentRTB(MultiBufferSource rtb) {
+        this.rtb = rtb;
+    }
+
+    @Override
+    public MultiBufferSource getCurrentRTB() {
+        return this.rtb;
+    }
+
+    @Override
     public AnimatedGeoModel<T> getGeoModelProvider() {
         return this.modelProvider;
     }
@@ -193,8 +204,9 @@ public class GeoAbilityRenderer<T extends Ability & IGeoAbility> extends Humanoi
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public void setCurrentAbility(AbstractClientPlayer player, HumanoidModel from) {
+    public void setCurrentAbility(AbstractClientPlayer player, MultiBufferSource bufferSource, HumanoidModel from) {
         this.player = player;
+        this.rtb = bufferSource;
         from.copyPropertiesTo(this);
     }
 

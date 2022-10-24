@@ -38,7 +38,7 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
             @Override
             public void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
                 if (getEnabled()) {
-                    this.abilityRenderer.setCurrentAbility(player, renderer.getModel());
+                    this.abilityRenderer.setCurrentAbility(player, bufferIn, renderer.getModel());
                     this.abilityRenderer.renderToBuffer(poseStack, bufferIn.getBuffer(RenderType.entityTranslucent(abilityRenderer.getTextureLocation(GeckoAbility.this))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
                 }
             }
@@ -46,7 +46,7 @@ public class GeckoAbility extends JSONAbility implements IGeoAbility {
             @Override
             public boolean renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
                 if (getEnabled()) {
-                    this.abilityRenderer.setCurrentAbility(player, renderer.getModel());
+                    this.abilityRenderer.setCurrentAbility(player, bufferIn, renderer.getModel());
                     this.abilityRenderer.renderFirstPersonArm(renderer, poseStack, bufferIn, packedLightIn, side);
                 }
                 return true;
