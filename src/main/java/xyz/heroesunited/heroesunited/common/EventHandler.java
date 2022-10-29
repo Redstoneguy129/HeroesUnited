@@ -17,6 +17,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.phys.Vec3;
@@ -50,6 +51,8 @@ import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncCelestialBody;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncSuperpowers;
 import xyz.heroesunited.heroesunited.common.objects.HUAttributes;
+import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
+import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.common.space.CelestialBodies;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.common.space.Planet;
@@ -218,8 +221,12 @@ public class EventHandler {
                         AbilityHelper.getAbilities(player).forEach(type -> type.onUpdate(player));
 
                         for (int i = 0; i < cap.getInventory().getItems().size(); ++i) {
-                            if (!cap.getInventory().getItems().get(i).isEmpty()) {
-                                cap.getInventory().getItems().get(i).inventoryTick(player.level, player, i, false);
+                            ItemStack stack = cap.getInventory().getItems().get(i);
+                            if (!stack.isEmpty()) {
+                                stack.inventoryTick(player.level, player, i, false);
+                                if (stack.getItem() instanceof IAccessory accessory) {
+                                    accessory.accessoryTick(stack, player.level, player, EquipmentAccessoriesSlot.getFromSlotIndex(i));
+                                }
                             }
                         }
                         for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
