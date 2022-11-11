@@ -54,12 +54,17 @@ import xyz.heroesunited.heroesunited.client.model.HorasModel;
 import xyz.heroesunited.heroesunited.client.model.ParachuteModel;
 import xyz.heroesunited.heroesunited.client.model.SuitModel;
 import xyz.heroesunited.heroesunited.client.model.space.*;
-import xyz.heroesunited.heroesunited.client.renderer.*;
+import xyz.heroesunited.heroesunited.client.renderer.EnergyBlastRenderer;
+import xyz.heroesunited.heroesunited.client.renderer.GeckoSuitRenderer;
+import xyz.heroesunited.heroesunited.client.renderer.HorasRenderer;
+import xyz.heroesunited.heroesunited.client.renderer.SpaceshipRenderer;
 import xyz.heroesunited.heroesunited.client.renderer.space.*;
 import xyz.heroesunited.heroesunited.common.EventHandler;
 import xyz.heroesunited.heroesunited.common.HUConfig;
+import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.Condition;
+import xyz.heroesunited.heroesunited.common.abilities.GeoAbilityClientProperties;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerEvent;
@@ -135,8 +140,8 @@ public class HeroesUnited {
             return null;
         });
         AnimationController.addModelFetcher((IAnimatable o) -> {
-            if (o instanceof IGeoAbility) {
-                return (IAnimatableModel<Object>) ((IGeoAbility) o).getGeoModel();
+            if (o instanceof Ability a && a.getClientProperties() instanceof GeoAbilityClientProperties<?> properties) {
+                return (IAnimatableModel<Object>) properties.getGeoModel();
             }
             return null;
         });

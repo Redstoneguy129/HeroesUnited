@@ -174,18 +174,15 @@ public class HUClientUtil {
         }
     }
 
-    public static int getLivingOverlay(LivingEntity entity) {
-        return LivingEntityRenderer.getOverlayCoords(entity, 0.0F);
-    }
-
     public static void renderAura(PoseStack matrixStack, VertexConsumer builder, AABB box, float shrinkValue, Color color, int packedLightIn, int ticksExisted) {
+        ticksExisted = ticksExisted * 4;
         matrixStack.pushPose();
         for (int i = 0; i < 5; i++) {
-            float angle = ticksExisted * 4 + i * 180;
+            float angle = ticksExisted + i * 180;
             matrixStack.mulPose(new Quaternion(angle, -angle, angle, true));
             HUClientUtil.renderFilledBox(matrixStack, builder, box.deflate(shrinkValue), 1f, 1f, 1f, 1f, packedLightIn);
             for (int j = 0; j < 5; j++) {
-                float angleJ = ticksExisted * 4 + j * 180;
+                float angleJ = ticksExisted + j * 180;
                 matrixStack.mulPose(new Quaternion(angleJ, -angleJ, angleJ, true));
                 HUClientUtil.renderFilledBox(matrixStack, builder, box, color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F, packedLightIn);
             }
@@ -215,9 +212,7 @@ public class HUClientUtil {
             poseStack.translate(0, -0.04F, 0.05F);
             poseStack.scale(0.9F, 0.9F, 0.9F);
             if (entity.isFallFlying()) {
-                model.cape.xRot = 0F;
-                model.cape.yRot = 0F;
-                model.cape.zRot = 0F;
+                model.cape.setRotation(0, 0, 0);
             }
             if (entity instanceof Player player) {
                 double d0 = Mth.lerp(partialTicks, player.xCloakO, player.xCloak) - Mth.lerp(partialTicks, player.xo, player.getX());
@@ -239,16 +234,13 @@ public class HUClientUtil {
                 float f4 = Mth.lerp(partialTicks, player.oBob, player.bob);
                 f1 = f1 + Mth.sin(Mth.lerp(partialTicks, player.walkDistO, player.walkDist) * 6.0F) * 32.0F * f4;
 
-                model.cape.xRot = (float) -Math.toRadians(6.0F + f2 / 2.0F + f1);
-                model.cape.yRot = (float) Math.toRadians(180.0F - f3 / 2.0F);
-                model.cape.zRot = (float) Math.toRadians(f3 / 2.0F);
+                model.cape.setRotation((float) -Math.toRadians(6.0F + f2 / 2.0F + f1),
+                        (float) Math.toRadians(180.0F - f3 / 2.0F), (float) Math.toRadians(f3 / 2.0F));
 
                 IFlyingAbility b = IFlyingAbility.getFlyingAbility(player);
                 player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                     if (b != null && b.isFlying(player) && !entity.isOnGround() && !entity.isSwimming() && entity.isSprinting()) {
-                        model.cape.xRot = 0F;
-                        model.cape.yRot = 0F;
-                        model.cape.zRot = 0F;
+                        model.cape.setRotation(0, 0, 0);
                     }
                 });
             }

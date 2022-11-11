@@ -28,7 +28,6 @@ import software.bernie.geckolib3.core.AnimationState;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.keyframe.BoneAnimation;
-import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.util.RenderUtils;
 import xyz.heroesunited.heroesunited.client.HULayerRenderer;
@@ -94,42 +93,44 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
                 }
 
                 for (AnimationController<?> controller : cap.getFactory().getOrCreateAnimationData(player.getUUID().hashCode()).getAnimationControllers().values()) {
-                    if (controller.getCurrentAnimation() != null && controller.getAnimationState() == AnimationState.Running) {
+                    if (controller.getCurrentAnimation() != null && controller.getAnimationState() != AnimationState.Stopped) {
                         for (String s : Arrays.asList("player", "bipedHead", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg")) {
-                            GeoBone bone = geoModel.getBone(s).get();
-                            ModelPart modelPart = HUClientUtil.getModelRendererById(playerModel, s);
-                            IHUModelPart part = ((IHUModelPart) (Object) modelPart);
-                            for (BoneAnimation boneAnimation : controller.getCurrentAnimation().boneAnimations) {
-                                if (boneAnimation.boneName.equals(s)) {
-                                    if (s.equals("player")) {
-                                        RenderUtils.translate(bone, matrixStack);
-                                        RenderUtils.moveToPivot(bone, matrixStack);
-                                        RenderUtils.rotate(bone, matrixStack);
-                                        RenderUtils.scale(bone, matrixStack);
-                                        RenderUtils.moveBackFromPivot(bone, matrixStack);
-                                        break;
-                                    }
-                                    modelPart.xRot = -bone.getRotationX();
-                                    modelPart.yRot = -bone.getRotationY();
-                                    modelPart.zRot = bone.getRotationZ();
+                            geoModel.getBone(s).ifPresent(bone -> {
+                                ModelPart modelPart = HUClientUtil.getModelRendererById(playerModel, s);
+                                IHUModelPart part = ((IHUModelPart) (Object) modelPart);
+                                for (BoneAnimation boneAnimation : controller.getCurrentAnimation().boneAnimations) {
+                                    if (boneAnimation.boneName.equals(s)) {
+                                        if (s.equals("player")) {
+                                            RenderUtils.translate(bone, matrixStack);
+                                            RenderUtils.moveToPivot(bone, matrixStack);
+                                            RenderUtils.rotate(bone, matrixStack);
+                                            RenderUtils.scale(bone, matrixStack);
+                                            RenderUtils.moveBackFromPivot(bone, matrixStack);
+                                            break;
+                                        }
+                                        modelPart.xRot = -bone.getRotationX();
+                                        modelPart.yRot = -bone.getRotationY();
+                                        modelPart.zRot = bone.getRotationZ();
 
-                                    if (bone.getPositionX() != 0) {
-                                        modelPart.x = -(bone.getPivotX() + bone.getPositionX());
-                                    }
-                                    if (bone.getPositionY() != 0) {
-                                        modelPart.y = (24 - bone.getPivotY()) - bone.getPositionY();
-                                    }
-                                    if (bone.getPositionZ() != 0) {
-                                        modelPart.z = bone.getPivotZ() + bone.getPositionZ();
-                                    }
+                                        if (bone.getPositionX() != 0) {
+                                            modelPart.x = -(bone.getPivotX() + bone.getPositionX());
+                                        }
+                                        if (bone.getPositionY() != 0) {
+                                            modelPart.y = (24 - bone.getPivotY()) - bone.getPositionY();
+                                        }
+                                        if (bone.getPositionZ() != 0) {
+                                            modelPart.z = bone.getPivotZ() + bone.getPositionZ();
+                                        }
 
-                                    if (bone.name.endsWith("Leg")) {
-                                        modelPart.y = modelPart.y - bone.getScaleY() * 2;
+                                        if (bone.name.endsWith("Leg")) {
+                                            modelPart.y = modelPart.y - bone.getScaleY() * 2;
+                                        }
+                                        part.setSize(part.size().extend(bone.getScaleX() - 1.0F, bone.getScaleY() - 1.0F, bone.getScaleZ() - 1.0F));
                                     }
-                                    part.setSize(part.size().extend(bone.getScaleX() - 1.0F, bone.getScaleY() - 1.0F, bone.getScaleZ() - 1.0F));
                                 }
-                            }
+                            });
                         }
+
                     }
                 }
 

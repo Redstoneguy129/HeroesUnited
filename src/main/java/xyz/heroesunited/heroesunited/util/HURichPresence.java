@@ -7,7 +7,6 @@ import com.jagrosh.discordipc.entities.RichPresence;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -28,6 +27,7 @@ import java.util.stream.Collectors;
 public class HURichPresence {
 
     private static final HURichPresence RPC = new HURichPresence("778269026874163230");
+    private static final OffsetDateTime startDataTime = OffsetDateTime.now();
     private static boolean hiddenRPC = HUConfig.CLIENT.richPresence.get();
 
     public static HURichPresence getPresence() {
@@ -36,20 +36,20 @@ public class HURichPresence {
 
     private final Random random = new Random();
     private final List<String> list = new ArrayList<>();
-    private final IPCClient client;
+    public final IPCClient client;
 
     public HURichPresence(String clientID) {
         this.list.addAll(getListFromTXT(new ResourceLocation(HeroesUnited.MODID, "splash.txt")));
         this.list.addAll(getListFromTXT(new ResourceLocation("texts/splashes.txt")));
         this.client = new IPCClient(Long.parseLong(clientID));
-        client.setListener(new IPCListener() {
+        this.client.setListener(new IPCListener() {
             @Override
             public void onReady(IPCClient client) {
                 HeroesUnited.LOGGER.info("Logged into Discord");
             }
         });
         try {
-            client.connect(DiscordBuild.ANY);
+            this.client.connect(DiscordBuild.ANY);
         } catch (Throwable e) {
             HeroesUnited.LOGGER.info("No discord founded.");
         }
@@ -57,9 +57,9 @@ public class HURichPresence {
 
     private List<String> getListFromTXT(ResourceLocation resourceLocation) {
         try {
-            Resource iresource = Minecraft.getInstance().getResourceManager().getResource(resourceLocation);
-            BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(iresource.getInputStream(), StandardCharsets.UTF_8));
-            return bufferedreader.lines().map(String::trim).filter((p_215277_0_) -> p_215277_0_.hashCode() != 125780783).collect(Collectors.toList());
+            BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(Minecraft.getInstance().getResourceManager()
+                            .getResource(resourceLocation).getInputStream(), StandardCharsets.UTF_8));
+            return bufferedreader.lines().map(String::trim).filter((s) -> s.hashCode() != 125780783).collect(Collectors.toList());
         } catch (IOException ignored) {
             return Collections.emptyList();
         }
@@ -74,8 +74,7 @@ public class HURichPresence {
             try {
                 RichPresence.Builder builder = new RichPresence.Builder();
                 builder.setState(getQuote(description))
-                        .setDetails(title)
-                        .setStartTimestamp(OffsetDateTime.now())
+                        .setDetails(title).setStartTimestamp(startDataTime)
                         .setLargeImage("heroes_united", "Heroes United " + SharedConstants.getCurrentVersion().getName());
                 if (!logo.isEmpty()) {
                     builder.setSmallImage(logo, caption);

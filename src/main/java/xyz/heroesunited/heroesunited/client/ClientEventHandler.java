@@ -182,6 +182,18 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent
+    public void renderTick(TickEvent.RenderTickEvent event) {
+        Minecraft mc = Minecraft.getInstance();
+        if (event.phase == TickEvent.Phase.END && mc.player != null) {
+            for (Ability ability : AbilityHelper.getAbilityMap(mc.player).values()) {
+                if (ability.getClientProperties() instanceof GeoAbilityClientProperties<?> properties && properties.showingAnimationAlways()) {
+                    properties.getGeoRenderer().doAnimationProcess();
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
     public void clientTick(TickEvent.ClientTickEvent event) {
         Minecraft mc = Minecraft.getInstance();
         if (event.phase == TickEvent.Phase.END || mc.screen != null || mc.player == null || mc.player.isSpectator()) return;
@@ -223,13 +235,6 @@ public class ClientEventHandler {
             });
         }
     }
-
-    /*@SubscribeEvent
-    public void updateFov(FOVUpdateEvent event) {
-        if (event.getEntity().level.dimension().equals(HeroesUnited.SPACE)) {
-            event.setNewfov(-200);
-        }
-    }*/
 
     @SubscribeEvent
     public void renderEntityPre(RenderLivingEvent.Pre event) {
