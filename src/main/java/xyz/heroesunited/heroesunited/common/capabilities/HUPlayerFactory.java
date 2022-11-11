@@ -2,11 +2,11 @@ package xyz.heroesunited.heroesunited.common.capabilities;
 
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib3.core.manager.SingletonAnimationFactory;
 
 import java.util.HashMap;
 
-public class HUPlayerFactory extends AnimationFactory {
+public class HUPlayerFactory extends SingletonAnimationFactory {
     private final IHUPlayer animatable;
     private final HashMap<Integer, AnimationData> animationDataMap = new HashMap<>();
 
@@ -15,7 +15,8 @@ public class HUPlayerFactory extends AnimationFactory {
         this.animatable = animatable;
     }
 
-    public AnimationData getOrCreateAnimationData(Integer uniqueID) {
+    @Override
+    public AnimationData getOrCreateAnimationData(int uniqueID) {
         if (!animationDataMap.containsKey(uniqueID)) {
             HUAnimationData data = new HUAnimationData();
             animatable.registerControllers(data);

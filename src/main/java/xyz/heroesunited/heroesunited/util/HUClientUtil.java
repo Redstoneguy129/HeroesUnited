@@ -108,68 +108,61 @@ public class HUClientUtil {
     }
 
 
-    public static void renderGeckoRecursively(GeoBone bone, PoseStack stack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        stack.pushPose();
-        RenderUtils.translate(bone, stack);
-        RenderUtils.moveToPivot(bone, stack);
-        RenderUtils.rotate(bone, stack);
-        RenderUtils.scale(bone, stack);
-        RenderUtils.moveBackFromPivot(bone, stack);
-
+    public static void renderGeckoRecursively(GeoBone bone, PoseStack poseStack, VertexConsumer buffer, int packedLight,
+                                   int packedOverlay, float red, float green, float blue, float alpha) {
+        poseStack.pushPose();
+        RenderUtils.prepMatrixForBone(poseStack, bone);
         if (!bone.isHidden()) {
             for (GeoCube cube : bone.childCubes) {
-                stack.pushPose();
                 if (!bone.cubesAreHidden()) {
-                    HUClientUtil.renderGeckoCube(cube, stack, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+                    poseStack.pushPose();
+                    renderGeckoCube(cube, poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+                    poseStack.popPose();
                 }
-                stack.popPose();
             }
         }
-
         if (!bone.childBonesAreHiddenToo()) {
             for (GeoBone childBone : bone.childBones) {
-                HUClientUtil.renderGeckoRecursively(childBone, stack, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+                renderGeckoRecursively(childBone, poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
             }
         }
-
-        stack.popPose();
+        poseStack.popPose();
     }
 
-    public static void renderGeckoCube(GeoCube cube, PoseStack stack, VertexConsumer bufferIn, int packedLightIn,
+    public static void renderGeckoCube(GeoCube cube, PoseStack poseStack, VertexConsumer bufferIn, int packedLightIn,
                                    int packedOverlayIn, float red, float green, float blue, float alpha) {
-        RenderUtils.moveToPivot(cube, stack);
-        RenderUtils.rotate(cube, stack);
-        RenderUtils.moveBackFromPivot(cube, stack);
-        Matrix3f matrix3f = stack.last().normal();
-        Matrix4f matrix4f = stack.last().pose();
+        RenderUtils.translateToPivotPoint(poseStack, cube);
+        RenderUtils.rotateMatrixAroundCube(poseStack, cube);
+        RenderUtils.translateAwayFromPivotPoint(poseStack, cube);
+        Matrix3f normalisedPoseState = poseStack.last().normal();
+        Matrix4f poseState = poseStack.last().pose();
 
         for (GeoQuad quad : cube.quads) {
-            if (quad == null) {
+            if (quad == null)
                 continue;
-            }
+
             Vector3f normal = quad.normal.copy();
-            normal.transform(matrix3f);
+
+            normal.transform(normalisedPoseState);
 
             /*
              * Fix shading dark shading for flat cubes + compatibility wish Optifine shaders
              */
-            if ((cube.size.y() == 0 || cube.size.z() == 0) && normal.x() < 0) {
+            if ((cube.size.y() == 0 || cube.size.z() == 0) && normal.x() < 0)
                 normal.mul(-1, 1, 1);
-            }
-            if ((cube.size.x() == 0 || cube.size.z() == 0) && normal.y() < 0) {
+
+            if ((cube.size.x() == 0 || cube.size.z() == 0) && normal.y() < 0)
                 normal.mul(1, -1, 1);
-            }
-            if ((cube.size.x() == 0 || cube.size.y() == 0) && normal.z() < 0) {
+
+            if ((cube.size.x() == 0 || cube.size.y() == 0) && normal.z() < 0)
                 normal.mul(1, 1, -1);
-            }
 
             for (GeoVertex vertex : quad.vertices) {
-                Vector4f vector4f = new Vector4f(vertex.position.x(), vertex.position.y(), vertex.position.z(),
-                        1.0F);
-                vector4f.transform(matrix4f);
-                bufferIn.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha,
-                        vertex.textureU, vertex.textureV, packedOverlayIn, packedLightIn, normal.x(), normal.y(),
-                        normal.z());
+                Vector4f vector4f = new Vector4f(vertex.position.x(), vertex.position.y(), vertex.position.z(), 1);
+
+                vector4f.transform(poseState);
+                bufferIn.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, vertex.textureU,
+                        vertex.textureV, packedOverlayIn, packedLightIn, normal.x(), normal.y(), normal.z());
             }
         }
     }

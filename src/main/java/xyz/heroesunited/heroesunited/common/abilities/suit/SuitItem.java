@@ -41,6 +41,7 @@ import software.bernie.geckolib3.geo.exception.GeckoLibException;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
+import software.bernie.geckolib3.util.GeckoLibUtil;
 import software.bernie.geckolib3.util.GeoUtils;
 import xyz.heroesunited.heroesunited.client.model.GeckoSuitModel;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
@@ -56,7 +57,7 @@ import java.util.function.Consumer;
 
 public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable {
 
-    protected final AnimationFactory factory = new AnimationFactory(this);
+    protected final AnimationFactory factory = GeckoLibUtil.createFactory(this);
     protected final Suit suit;
 
     public SuitItem(ArmorMaterial materialIn, EquipmentSlot slot, Properties builder, Suit suit) {
@@ -130,7 +131,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
 
             geo.setCurrentItem(player, stack, getSlot());
             geo.applySlot(getSlot());
-            geo.getGeoModelProvider().setLivingAnimations(this, geo.getUniqueID(this), new AnimationEvent<>(this, 0, 0, 0, false, Arrays.asList(stack, player, slot)));
+            geo.getGeoModelProvider().setCustomAnimations(this, geo.getInstanceId(this), new AnimationEvent<>(this, 0, 0, 0, false, Arrays.asList(stack, player, slot)));
             if (renderer != null) {
                 geo.applyEntityStats(renderer.getModel());
             } else {

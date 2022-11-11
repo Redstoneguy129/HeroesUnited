@@ -25,6 +25,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.core.processor.IBone;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
+import software.bernie.geckolib3.util.GeckoLibUtil;
 import software.bernie.geckolib3.util.GeoUtils;
 import xyz.heroesunited.heroesunited.client.renderer.GeckoAccessoryRenderer;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
@@ -33,7 +34,7 @@ import java.util.function.Consumer;
 
 public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable {
 
-    private final AnimationFactory factory = new AnimationFactory(this);
+    private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
 
     public GeckoAccessory(EquipmentAccessoriesSlot accessorySlot) {
         super(new Properties(), accessorySlot);

@@ -11,7 +11,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraftforge.fml.ModList;
 import software.bernie.geckolib3.compat.PatchouliCompat;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.processor.IBone;
 import software.bernie.geckolib3.core.util.Color;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
@@ -34,9 +33,9 @@ public class GeckoSuitRenderer<T extends SuitItem> extends GeoArmorRenderer<T> {
     }
 
     @Override
-    public void render(float partialTicks, PoseStack stack, VertexConsumer bufferIn, int packedLightIn) {
-        stack.translate(0.0D, 24 / 16F, 0.0D);
-        stack.scale(-1.0F, -1.0F, 1.0F);
+    public void render(float partialTicks, PoseStack poseStack, VertexConsumer bufferIn, int packedLightIn) {
+        poseStack.translate(0.0D, 24 / 16F, 0.0D);
+        poseStack.scale(-1.0F, -1.0F, 1.0F);
         GeoModel model;
         if (HUPlayerUtil.haveSmallArms(this.entityLiving) && this.getGeoModelProvider() instanceof GeckoSuitModel) {
             model = this.getGeoModelProvider().getModel(((GeckoSuitModel<T>) this.getGeoModelProvider()).getSlimModelLocation(this.currentArmorItem));
@@ -46,22 +45,22 @@ public class GeckoSuitRenderer<T extends SuitItem> extends GeoArmorRenderer<T> {
 
         AnimationEvent<T> itemEvent = new AnimationEvent<>(this.currentArmorItem, 0, 0, 0, false,
                 Arrays.asList(this.itemStack, this.entityLiving, this.armorSlot));
-        this.getGeoModelProvider().setLivingAnimations(currentArmorItem, this.getUniqueID(this.currentArmorItem), itemEvent);
+        this.getGeoModelProvider().setCustomAnimations(currentArmorItem, this.getInstanceId(this.currentArmorItem), itemEvent);
         this.fitToBiped();
-        stack.pushPose();
+        poseStack.pushPose();
         RenderSystem.setShaderTexture(0, getTextureLocation(currentArmorItem));
-        Color renderColor = getRenderColor(currentArmorItem, partialTicks, stack, null, bufferIn, packedLightIn);
-        RenderType renderType = getRenderType(currentArmorItem, partialTicks, stack, null, bufferIn, packedLightIn,
+        Color renderColor = getRenderColor(currentArmorItem, partialTicks, poseStack, null, bufferIn, packedLightIn);
+        RenderType renderType = getRenderType(currentArmorItem, partialTicks, poseStack, null, bufferIn, packedLightIn,
                 getTextureLocation(currentArmorItem));
-        render(model, currentArmorItem, partialTicks, renderType, stack, null, bufferIn, packedLightIn,
+        render(model, currentArmorItem, partialTicks, renderType, poseStack, null, bufferIn, packedLightIn,
                 OverlayTexture.NO_OVERLAY, (float) renderColor.getRed() / 255f, (float) renderColor.getGreen() / 255f,
                 (float) renderColor.getBlue() / 255f, (float) renderColor.getAlpha() / 255);
         if (ModList.get().isLoaded("patchouli")) {
-            PatchouliCompat.patchouliLoaded(stack);
+            PatchouliCompat.patchouliLoaded(poseStack);
         }
-        stack.popPose();
-        stack.scale(-1.0F, -1.0F, 1.0F);
-        stack.translate(0.0D, -24 / 16F, 0.0D);
+        poseStack.popPose();
+        poseStack.scale(-1.0F, -1.0F, 1.0F);
+        poseStack.translate(0.0D, -24 / 16F, 0.0D);
     }
 
     @SuppressWarnings("incomplete-switch")
@@ -73,40 +72,33 @@ public class GeckoSuitRenderer<T extends SuitItem> extends GeoArmorRenderer<T> {
             this.getGeoModelProvider().getModel(this.getGeoModelProvider().getModelLocation(this.currentArmorItem));
         }
 
-        IBone headBone = this.getAndHideBone(this.headBone);
-        IBone bodyBone = this.getAndHideBone(this.bodyBone);
-        IBone rightArmBone = this.getAndHideBone(this.rightArmBone);
-        IBone leftArmBone = this.getAndHideBone(this.leftArmBone);
-        IBone rightLegBone = this.getAndHideBone(this.rightLegBone);
-        IBone leftLegBone = this.getAndHideBone(this.leftLegBone);
-        IBone rightBootBone = this.getAndHideBone(this.rightBootBone);
-        IBone leftBootBone = this.getAndHideBone(this.leftBootBone);
+        this.setBoneVisibility(this.headBone, false);
+        this.setBoneVisibility(this.bodyBone, false);
+        this.setBoneVisibility(this.rightArmBone, false);
+        this.setBoneVisibility(this.leftArmBone, false);
+        this.setBoneVisibility(this.rightLegBone, false);
+        this.setBoneVisibility(this.leftLegBone, false);
+        this.setBoneVisibility(this.rightBootBone, false);
+        this.setBoneVisibility(this.rightBootBone, false);
+        this.setBoneVisibility(this.leftBootBone, false);
 
         switch (slot) {
-            case HEAD:
-                if (headBone != null)
-                    headBone.setHidden(false);
-                break;
-            case CHEST:
-                if (bodyBone != null)
-                    bodyBone.setHidden(false);
-                if (rightArmBone != null)
-                    rightArmBone.setHidden(false);
-                if (leftArmBone != null)
-                    leftArmBone.setHidden(false);
-                break;
-            case LEGS:
-                if (rightLegBone != null)
-                    rightLegBone.setHidden(false);
-                if (leftLegBone != null)
-                    leftLegBone.setHidden(false);
-                break;
-            case FEET:
-                if (rightBootBone != null)
-                    rightBootBone.setHidden(false);
-                if (leftBootBone != null)
-                    leftBootBone.setHidden(false);
-                break;
+            case HEAD -> this.setBoneVisibility(this.headBone, true);
+            case CHEST -> {
+                this.setBoneVisibility(this.bodyBone, true);
+                this.setBoneVisibility(this.rightArmBone, true);
+                this.setBoneVisibility(this.leftArmBone, true);
+            }
+            case LEGS -> {
+                this.setBoneVisibility(this.rightLegBone, true);
+                this.setBoneVisibility(this.leftLegBone, true);
+            }
+            case FEET -> {
+                this.setBoneVisibility(this.rightBootBone, true);
+                this.setBoneVisibility(this.rightBootBone, true);
+                this.setBoneVisibility(this.leftBootBone, true);
+            }
+            default -> {}
         }
         return this;
     }
@@ -120,7 +112,7 @@ public class GeckoSuitRenderer<T extends SuitItem> extends GeoArmorRenderer<T> {
     }
 
     @Override
-    public RenderType getRenderType(T animatable, float partialTicks, PoseStack stack, MultiBufferSource renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn, ResourceLocation textureLocation) {
+    public RenderType getRenderType(T animatable, float partialTicks, PoseStack poseStack, MultiBufferSource renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn, ResourceLocation textureLocation) {
         return RenderType.entityTranslucent(getTextureLocation(animatable));
     }
 
@@ -129,7 +121,7 @@ public class GeckoSuitRenderer<T extends SuitItem> extends GeoArmorRenderer<T> {
     }
 
     @Override
-    public Integer getUniqueID(T animatable) {
-        return this.itemStack.isEmpty() ? super.getUniqueID(animatable) : GeckoLibUtil.getIDFromStack(this.itemStack);
+    public int getInstanceId(T animatable) {
+        return this.itemStack.isEmpty() ? super.getInstanceId(animatable) : GeckoLibUtil.getIDFromStack(this.itemStack);
     }
 }

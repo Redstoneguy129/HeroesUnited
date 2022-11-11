@@ -207,7 +207,7 @@ public class AbilitiesScreen extends Screen {
         }
 
         @Override
-        public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
+        public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
             Minecraft mc = Minecraft.getInstance();
             boolean hovered = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
             Color color = AbilityHelper.isActivated(this.ability.name, mc.player) ? hovered ? Color.ORANGE : Color.YELLOW :
@@ -231,11 +231,11 @@ public class AbilitiesScreen extends Screen {
             builder.vertex(x, y, 0).uv(0, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
 
             tesselator.end();
-            this.ability.getClientProperties().drawIcon(stack, ability.getJsonObject(), x + 2, y + 2);
+            this.ability.getClientProperties().drawIcon(poseStack, ability.getJsonObject(), x + 2, y + 2);
             RenderSystem.disableBlend();
             String name = this.ability.getTitle().getString().length() > 20 ? this.ability.getTitle().getString().substring(0, 20) : this.ability.getTitle().getString();
-            mc.font.draw(stack, name, x + 21, y + 7, 0);
-            mc.font.draw(stack, name, x + 20, y + 6, 0xFFFFFFFF);
+            mc.font.draw(poseStack, name, x + 21, y + 7, 0);
+            mc.font.draw(poseStack, name, x + 20, y + 6, 0xFFFFFFFF);
         }
 
         private static void onPressed(Button button) {

@@ -51,7 +51,7 @@ public interface IAbilityClientProperties {
     default void rendererChange(RendererChangeEvent event) {
     }
 
-    default void drawIcon(PoseStack stack, JsonObject jsonObject, int x, int y) {
+    default void drawIcon(PoseStack poseStack, JsonObject jsonObject, int x, int y) {
         if (jsonObject != null && jsonObject.has("icon")) {
             JsonObject icon = jsonObject.getAsJsonObject("icon");
             String type = GsonHelper.getAsString(icon, "type");
@@ -62,12 +62,12 @@ public interface IAbilityClientProperties {
                 int textureWidth = GsonHelper.getAsInt(icon, "texture_width", 256);
                 int textureHeight = GsonHelper.getAsInt(icon, "texture_height", 256);
                 RenderSystem.setShaderTexture(0, texture);
-                GuiComponent.blit(stack, x, y, GsonHelper.getAsInt(icon, "u", 0), GsonHelper.getAsInt(icon, "v", 0), width, height, textureWidth, textureHeight);
+                GuiComponent.blit(poseStack, x, y, GsonHelper.getAsInt(icon, "u", 0), GsonHelper.getAsInt(icon, "v", 0), width, height, textureWidth, textureHeight);
             } else if (type.equals("item")) {
-                HUClientUtil.renderGuiItem(stack, new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(GsonHelper.getAsString(icon, "item")))), x, y, 0);
+                HUClientUtil.renderGuiItem(poseStack, new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(GsonHelper.getAsString(icon, "item")))), x, y, 0);
             }
         } else {
-            HUClientUtil.renderGuiItem(stack, new ItemStack(Items.APPLE), x, y, 0);
+            HUClientUtil.renderGuiItem(poseStack, new ItemStack(Items.APPLE), x, y, 0);
         }
     }
 

@@ -62,7 +62,7 @@ public abstract class PlayerRendererMixin {
             cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap));
             AnimationEvent<IHUPlayer> animationEvent = new AnimationEvent<>(cap, 0, 0, Minecraft.getInstance().getFrameTime(), false, Arrays.asList(player, new PlayerGeoModel.ModelData(playerRenderer.getModel()), player.getUUID()));
             if (!(Minecraft.getInstance().getOverlay() instanceof LoadingOverlay)) {
-                cap.getAnimatedModel().setLivingAnimations(cap, player.getUUID().hashCode(), animationEvent);
+                cap.getAnimatedModel().setCustomAnimations(cap, player.getUUID().hashCode(), animationEvent);
             }
         });
         for (Ability ability : AbilityHelper.getAbilities(player)) {

@@ -16,11 +16,12 @@ import net.minecraft.world.entity.player.Player;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib3.util.GeckoLibUtil;
 
 import java.util.function.Consumer;
 
 public class GeckoAbility extends JSONAbility implements IAnimatable {
-    protected final AnimationFactory factory = new AnimationFactory(this);
+    protected final AnimationFactory factory = GeckoLibUtil.createFactory(this);
 
     public GeckoAbility(AbilityType type, Player player, JsonObject jsonObject) {
         super(type, player, jsonObject);

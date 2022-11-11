@@ -89,7 +89,7 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
                 PlayerGeoModel.ModelData modelData = new PlayerGeoModel.ModelData(playerModel, iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch());
                 AnimationEvent<IHUPlayer> animationEvent = new AnimationEvent<>(cap, iModel.limbSwing(), iModel.limbSwingAmount(), partialTicks, false, Arrays.asList(player, modelData, player.getUUID()));
                 if (!(Minecraft.getInstance().getOverlay() instanceof LoadingOverlay)) {
-                    cap.getAnimatedModel().setLivingAnimations(cap, player.getUUID().hashCode(), animationEvent);
+                    cap.getAnimatedModel().setCustomAnimations(cap, player.getUUID().hashCode(), animationEvent);
                 }
 
                 for (AnimationController<?> controller : cap.getFactory().getOrCreateAnimationData(player.getUUID().hashCode()).getAnimationControllers().values()) {
@@ -101,11 +101,7 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
                                 for (BoneAnimation boneAnimation : controller.getCurrentAnimation().boneAnimations) {
                                     if (boneAnimation.boneName.equals(s)) {
                                         if (s.equals("player")) {
-                                            RenderUtils.translate(bone, matrixStack);
-                                            RenderUtils.moveToPivot(bone, matrixStack);
-                                            RenderUtils.rotate(bone, matrixStack);
-                                            RenderUtils.scale(bone, matrixStack);
-                                            RenderUtils.moveBackFromPivot(bone, matrixStack);
+                                            RenderUtils.prepMatrixForBone(matrixStack, bone);
                                             break;
                                         }
                                         modelPart.xRot = -bone.getRotationX();

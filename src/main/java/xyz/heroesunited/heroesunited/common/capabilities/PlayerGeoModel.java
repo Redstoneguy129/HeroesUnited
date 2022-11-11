@@ -6,9 +6,9 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import software.bernie.geckolib3.core.molang.MolangParser;
 import software.bernie.geckolib3.model.AnimatedTickingGeoModel;
 import software.bernie.geckolib3.resource.GeckoLibCache;
-import software.bernie.shadowed.eliotlash.molang.MolangParser;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
 
@@ -35,11 +35,11 @@ public class PlayerGeoModel extends AnimatedTickingGeoModel<IHUPlayer> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void setLivingAnimations(IHUPlayer entity, Integer uniqueID, AnimationEvent customPredicate) {
+    public void setCustomAnimations(IHUPlayer entity, int uniqueID, AnimationEvent customPredicate) {
         if (customPredicate != null) {
             this.modelData = (ModelData) customPredicate.getExtraDataOfType(ModelData.class).get(0);
         }
-        super.setLivingAnimations(entity, uniqueID, customPredicate);
+        super.setCustomAnimations(entity, uniqueID, customPredicate);
     }
 
     @Override
@@ -49,19 +49,19 @@ public class PlayerGeoModel extends AnimatedTickingGeoModel<IHUPlayer> {
         if (animatable instanceof IHUPlayer && this.modelData != null) {
             for (PlayerPart part : PlayerPart.bodyParts()) {
                 ModelPart renderer = part.initialModelPart(this.modelData.model);
-                parser.setValue(String.format("player.%s.x_rot", part.name().toLowerCase()), renderer.xRot / Math.PI * 180.0);
-                parser.setValue(String.format("player.%s.y_rot", part.name().toLowerCase()), renderer.yRot / Math.PI * 180.0);
-                parser.setValue(String.format("player.%s.z_rot", part.name().toLowerCase()), renderer.zRot / Math.PI * 180.0);
+                parser.setValue(String.format("player.%s.x_rot", part.name().toLowerCase()), () -> renderer.xRot / Math.PI * 180.0);
+                parser.setValue(String.format("player.%s.y_rot", part.name().toLowerCase()), () -> renderer.yRot / Math.PI * 180.0);
+                parser.setValue(String.format("player.%s.z_rot", part.name().toLowerCase()), () -> renderer.zRot / Math.PI * 180.0);
 
-                parser.setValue(String.format("player.%s.x", part.name().toLowerCase()), renderer.x);
-                parser.setValue(String.format("player.%s.y", part.name().toLowerCase()), renderer.y);
-                parser.setValue(String.format("player.%s.z", part.name().toLowerCase()), renderer.z);
+                parser.setValue(String.format("player.%s.x", part.name().toLowerCase()), () -> renderer.x);
+                parser.setValue(String.format("player.%s.y", part.name().toLowerCase()), () -> renderer.y);
+                parser.setValue(String.format("player.%s.z", part.name().toLowerCase()), () -> renderer.z);
             }
-            parser.setValue("player.limbSwing", this.modelData.limbSwing);
-            parser.setValue("player.limbSwingAmount", this.modelData.limbSwingAmount);
-            parser.setValue("player.ageInTicks", this.modelData.ageInTicks);
-            parser.setValue("player.headPitch", this.modelData.headPitch);
-            parser.setValue("player.netHeadYaw", this.modelData.netHeadYaw);
+            parser.setValue("player.limbSwing", () -> this.modelData.limbSwing);
+            parser.setValue("player.limbSwingAmount", () -> this.modelData.limbSwingAmount);
+            parser.setValue("player.ageInTicks", () -> this.modelData.ageInTicks);
+            parser.setValue("player.headPitch", () -> this.modelData.headPitch);
+            parser.setValue("player.netHeadYaw", () -> this.modelData.netHeadYaw);
         }
 
     }

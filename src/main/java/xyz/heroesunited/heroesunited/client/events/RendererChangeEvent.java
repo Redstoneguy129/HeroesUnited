@@ -26,10 +26,10 @@ public class RendererChangeEvent extends PlayerEvent {
     private final int light, overlay;
     private final float limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, partialTicks;
 
-    public RendererChangeEvent(AbstractClientPlayer playerEntity, PlayerRenderer renderer, PoseStack stack, MultiBufferSource buffers, VertexConsumer builder, int light, int overlay, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public RendererChangeEvent(AbstractClientPlayer playerEntity, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource buffers, VertexConsumer builder, int light, int overlay, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         super(playerEntity);
         this.renderer = renderer;
-        this.stack = stack;
+        this.stack = poseStack;
         this.buffers = buffers;
         this.light = light;
         this.builder = builder;

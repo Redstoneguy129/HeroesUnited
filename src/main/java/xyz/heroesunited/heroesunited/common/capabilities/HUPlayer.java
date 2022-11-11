@@ -17,6 +17,7 @@ import net.minecraftforge.network.PacketDistributor;
 import software.bernie.geckolib3.core.AnimationState;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
+import software.bernie.geckolib3.core.builder.ILoopType;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
@@ -80,7 +81,7 @@ public class HUPlayer implements IHUPlayer {
             AnimationController controller = getController(controllerName);
             if (controller != null) {
                 controller.markNeedsReload();
-                controller.setAnimation(new AnimationBuilder().addAnimation(name, loop));
+                controller.setAnimation(new AnimationBuilder().addAnimation(name, loop ? ILoopType.EDefaultLoopTypes.LOOP : ILoopType.EDefaultLoopTypes.PLAY_ONCE));
             }
         });
         if (!livingEntity.level.isClientSide) {

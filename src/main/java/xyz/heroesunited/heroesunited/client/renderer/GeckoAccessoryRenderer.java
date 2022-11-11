@@ -38,7 +38,7 @@ public class GeckoAccessoryRenderer extends GeoItemRenderer<GeckoAccessory> {
     }
 
     @Override
-    public RenderType getRenderType(GeckoAccessory animatable, float partialTicks, PoseStack stack, @Nullable MultiBufferSource renderTypeBuffer, @Nullable VertexConsumer vertexBuilder, int packedLightIn, ResourceLocation textureLocation) {
+    public RenderType getRenderType(GeckoAccessory animatable, float partialTicks, PoseStack poseStack, @Nullable MultiBufferSource renderTypeBuffer, @Nullable VertexConsumer vertexBuilder, int packedLightIn, ResourceLocation textureLocation) {
         if (animatable == HUItems.JASON_MASK.get() || animatable == HUItems.ZEK_GLASSES.get() || animatable == HUItems.MADNESSCOMBAT.get()) {
             return RenderType.entityTranslucent(textureLocation);
         }

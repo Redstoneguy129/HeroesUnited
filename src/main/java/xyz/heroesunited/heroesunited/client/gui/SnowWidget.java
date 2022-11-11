@@ -47,14 +47,14 @@ public class SnowWidget {
             this.setDead();
     }
 
-    public static void drawSnowOnScreen(PoseStack stack, int width, int height) {
+    public static void drawSnowOnScreen(PoseStack poseStack, int width, int height) {
         if (!HUCalendarHelper.isSnowTime()) return;
         RenderSystem.setShaderTexture(0, snow);
         RenderSystem.setShaderColor(1, 1, 1, 1);
         int i = 0;
         for (SnowWidget snow : cloud) {
             if (snow != null && !snow.isDead()) {
-                snow.drawSnowflake(stack);
+                snow.drawSnowflake(poseStack);
                 if (snow.isDead()) createSnowDropWithChance(i, width, height);
             } else {
                 createSnowDropWithChance(i, width, height);

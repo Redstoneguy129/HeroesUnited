@@ -206,12 +206,12 @@ public class GeoAbilityRenderer<T extends Ability & IAnimatable> extends Humanoi
         this.modelProvider.getModel(getModelLocation(this.currentAbility));
         if (this.modelProvider.getAnimationFileLocation(this.currentAbility) != null) {
             AnimationEvent<T> abilityEvent = new AnimationEvent<>(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.player));
-            this.modelProvider.setLivingAnimations(this.currentAbility, this.getUniqueID(this.currentAbility), abilityEvent);
+            this.modelProvider.setCustomAnimations(this.currentAbility, this.getInstanceId(this.currentAbility), abilityEvent);
         }
     }
 
     @Override
-    public RenderType getRenderType(T animatable, float partialTicks, PoseStack stack, MultiBufferSource renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn, ResourceLocation textureLocation) {
+    public RenderType getRenderType(T animatable, float partialTicks, PoseStack poseStack, MultiBufferSource renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn, ResourceLocation textureLocation) {
         return RenderType.entityTranslucent(getTextureLocation(animatable));
     }
 

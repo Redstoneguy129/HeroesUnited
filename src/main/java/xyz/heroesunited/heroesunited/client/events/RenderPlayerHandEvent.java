@@ -21,11 +21,11 @@ public abstract class RenderPlayerHandEvent extends PlayerEvent {
     private final int light;
     private final AbstractClientPlayer player;
 
-    public RenderPlayerHandEvent(AbstractClientPlayer player, PlayerRenderer renderer, PoseStack stack, MultiBufferSource buffers, int light, HumanoidArm side) {
+    public RenderPlayerHandEvent(AbstractClientPlayer player, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource buffers, int light, HumanoidArm side) {
         super(player);
         this.player = player;
         this.renderer = renderer;
-        this.stack = stack;
+        this.stack = poseStack;
         this.buffers = buffers;
         this.light = light;
         this.side = side;
@@ -61,8 +61,8 @@ public abstract class RenderPlayerHandEvent extends PlayerEvent {
      */
     @Cancelable
     public static class Pre extends RenderPlayerHandEvent {
-        public Pre(AbstractClientPlayer player, PlayerRenderer renderer, PoseStack stack, MultiBufferSource buffers, int light, HumanoidArm side) {
-            super(player, renderer, stack, buffers, light, side);
+        public Pre(AbstractClientPlayer player, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource buffers, int light, HumanoidArm side) {
+            super(player, renderer, poseStack, buffers, light, side);
         }
     }
 
@@ -71,8 +71,8 @@ public abstract class RenderPlayerHandEvent extends PlayerEvent {
      * Can be used to render own hand.
      */
     public static class Post extends RenderPlayerHandEvent {
-        public Post(AbstractClientPlayer player, PlayerRenderer renderer, PoseStack stack, MultiBufferSource buffers, int light, HumanoidArm side) {
-            super(player, renderer, stack, buffers, light, side);
+        public Post(AbstractClientPlayer player, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource buffers, int light, HumanoidArm side) {
+            super(player, renderer, poseStack, buffers, light, side);
         }
     }
 }
