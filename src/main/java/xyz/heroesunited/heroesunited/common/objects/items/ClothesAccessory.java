@@ -12,8 +12,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.IItemRenderProperties;
-import net.minecraftforge.client.RenderProperties;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.processor.AnimationProcessor;
 import software.bernie.geckolib3.core.processor.IBone;
@@ -38,9 +37,9 @@ class ClothesAccessory extends GeckoAccessory {
     }
 
     @Override
-    public void initializeClient(Consumer<IItemRenderProperties> consumer) {
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
         super.initializeClient(consumer);
-        consumer.accept(new IItemRenderProperties() {
+        consumer.accept(new IClientItemExtensions() {
             private final BlockEntityWithoutLevelRenderer renderer = new GeckoAccessoryRenderer() {
 
                 @SuppressWarnings("unchecked")
@@ -80,7 +79,7 @@ class ClothesAccessory extends GeckoAccessory {
             };
 
             @Override
-            public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
                 return renderer;
             }
         });
@@ -93,7 +92,7 @@ class ClothesAccessory extends GeckoAccessory {
         poseStack.translate(0.0D, 24 / 16F, 0.0D);
         poseStack.scale(-1.0F, -1.0F, 1.0F);
 
-        GeckoAccessoryRenderer accessoryRenderer = (GeckoAccessoryRenderer) RenderProperties.get(this).getItemStackRenderer();
+        GeckoAccessoryRenderer accessoryRenderer = (GeckoAccessoryRenderer) IClientItemExtensions.of(this).getCustomRenderer();
         ResourceLocation location = getModelFile();
         if (HUPlayerUtil.haveSmallArms(livingEntity)) {
             location = new ResourceLocation(getModelFile().toString().replace(".geo", "_slim.geo"));

@@ -10,7 +10,7 @@ import xyz.heroesunited.heroesunited.HeroesUnited;
 
 public class HUEntities {
 
-    public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITIES, HeroesUnited.MODID);
+    public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, HeroesUnited.MODID);
 
     public static final RegistryObject<EntityType<HorasEntity>> HORAS = register("horas", EntityType.Builder.of(HorasEntity::new, MobCategory.CREATURE).sized(.9F, 2.15F));
     public static final RegistryObject<EntityType<EnergyBlastEntity>> ENERGY_BLAST = register("energy_blast", EntityType.Builder.<EnergyBlastEntity>of(EnergyBlastEntity::new, MobCategory.MISC).sized(0.5F, 0.5F));

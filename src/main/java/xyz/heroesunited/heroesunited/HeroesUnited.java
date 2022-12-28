@@ -4,26 +4,24 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.client.gui.ForgeIngameGui;
-import net.minecraftforge.client.gui.OverlayRegistry;
+import net.minecraftforge.client.event.*;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.AddPackFindersEvent;
-import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -35,11 +33,12 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.NewRegistryEvent;
-import net.minecraftforge.registries.RegistryBuilder;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
+import org.lwjgl.glfw.GLFW;
+import oshi.util.tuples.Pair;
 import software.bernie.geckolib3.GeckoLib;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.IAnimatableModel;
@@ -81,12 +80,12 @@ import xyz.heroesunited.heroesunited.common.objects.entities.HUEntities;
 import xyz.heroesunited.heroesunited.common.objects.entities.HorasEntity;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.space.CelestialBodies;
-import xyz.heroesunited.heroesunited.common.space.CelestialBody;
 import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.util.HUModelLayers;
-import xyz.heroesunited.heroesunited.util.HUOres;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
+
+import java.util.stream.Collectors;
 
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.FALL_RESISTANCE;
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOOST;
@@ -97,8 +96,8 @@ import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOO
 @Mod(HeroesUnited.MODID)
 public class HeroesUnited {
 
-    public static final ResourceKey<Level> SPACE = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(HeroesUnited.MODID, "space"));
-    public static final ResourceKey<Level> MARS = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(HeroesUnited.MODID, "mars"));
+    public static final ResourceKey<Level> SPACE = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(HeroesUnited.MODID, "space"));
+    public static final ResourceKey<Level> MARS = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(HeroesUnited.MODID, "mars"));
     public static final String MODID = "heroesunited";
     public static final Logger LOGGER = LogManager.getLogger();
 
@@ -149,9 +148,31 @@ public class HeroesUnited {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public void textureStitchPre(TextureStitchEvent.Pre e) {
-        e.addSprite(SunModel.SUN_TEXTURE_MATERIAL.texture());
-        e.addSprite(EarthModel.EARTH_TEXTURE_MATERIAL.texture());
+    public void registerKeyBinds(RegisterKeyMappingsEvent e) {
+        e.register(ClientEventHandler.ABILITIES_SCREEN);
+        e.register(ClientEventHandler.ACCESSORIES_SCREEN);
+        for (int i = 1; i < 6; i++) {
+            int key = switch (i) {
+                case 1 -> GLFW.GLFW_KEY_Z;
+                case 2 -> GLFW.GLFW_KEY_R;
+                case 3 -> GLFW.GLFW_KEY_G;
+                case 4 -> GLFW.GLFW_KEY_V;
+                default -> GLFW.GLFW_KEY_B;
+            };
+            ClientEventHandler.AbilityKeyBinding keyBinding = new ClientEventHandler.AbilityKeyBinding(HeroesUnited.MODID + ".key.ability_" + i, key, i);
+            e.register(keyBinding);
+            ClientEventHandler.ABILITY_KEYS.add(keyBinding);
+        }
+    }
+
+    /**
+     * Now using an atlases/ folder
+     */
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public void textureStitchPre(TextureStitchEvent e) {
+        //e.addSprite(SunModel.SUN_TEXTURE_MATERIAL.texture());
+        //e.addSprite(EarthModel.EARTH_TEXTURE_MATERIAL.texture());
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -177,6 +198,12 @@ public class HeroesUnited {
         event.registerLayerDefinition(HUModelLayers.SATURN, SaturnModel::createLayerDefinition);
         event.registerLayerDefinition(HUModelLayers.SUN, SunModel::createLayerDefinition);
         event.registerLayerDefinition(HUModelLayers.VENUS, VenusModel::createLayerDefinition);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public void registerGuiOverlay(final RegisterGuiOverlaysEvent event) {
+        event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "AbilityOverlay", new AbilityOverlay());
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -209,9 +236,8 @@ public class HeroesUnited {
     @OnlyIn(Dist.CLIENT)
     private void clientSetup(final FMLClientSetupEvent event) {
         Runtime.getRuntime().addShutdownHook(new Thread(HURichPresence::close));
-        HUPacks.HUPackFinder.createFoldersAndLoadThemes();
+        HUPacks.createFoldersAndLoadThemes();
         MenuScreens.register(HUContainers.ACCESSORIES.get(), AccessoriesScreen::new);
-        OverlayRegistry.registerOverlayAbove(ForgeIngameGui.HOTBAR_ELEMENT, "AbilityOverlay", new AbilityOverlay());
 
         new HorasInfo.DimensionInfo("Overworld", "Default      Dimension", new ResourceLocation("overworld"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/overworld.png"));
         new HorasInfo.DimensionInfo("Nether", "Default      Dimension", new ResourceLocation("the_nether"), new ResourceLocation(MODID, "textures/gui/horas/dimensions/the_nether.png"));
@@ -228,17 +254,15 @@ public class HeroesUnited {
     }
 
     @SubscribeEvent
-    public void newRegistries(NewRegistryEvent event) {
-        CelestialBodies.REGISTRY = event.create(new RegistryBuilder<CelestialBody>().setName(CelestialBodies.REGISTRY_KEY).setType(CelestialBody.class).setIDRange(0, Integer.MAX_VALUE));
-        AbilityType.ABILITIES = event.create(new RegistryBuilder<AbilityType>().setName(AbilityType.REGISTRY_KEY).setType(AbilityType.class).setIDRange(0, 2048));
-        Condition.REGISTRY = event.create(new RegistryBuilder<Condition>().setName(Condition.REGISTRY_KEY).setType(Condition.class).setIDRange(0, 2048));
-    }
+    public void registerSuitItems(final RegisterEvent event) {
+        event.register(ForgeRegistries.ITEMS.getRegistryKey(), helper -> {
+            for (Suit suit : Suit.SUITS.values()) {
+                for (Pair<ResourceLocation, SuitItem> pair : suit.createItems().values()) {
+                    helper.register(pair.getA(), pair.getB());
+                }
+            }
+        });
 
-    @SubscribeEvent
-    public void registerSuitItems(final RegistryEvent.Register<Item> event) {
-        for (Suit value : Suit.SUITS.values()) {
-            value.registerItems(event.getRegistry());
-        }
     }
 
     @SubscribeEvent
@@ -247,7 +271,6 @@ public class HeroesUnited {
             HUStructures.setupStructures();
             HUConfiguredStructures.registerConfiguredStructures();
         });*/
-        event.enqueueWork(HUOres::registerConfiguredFeatures);
         HUNetworking.registerMessages();
         LOGGER.info(MODID + ": common is ready!");
     }
@@ -279,11 +302,85 @@ public class HeroesUnited {
         }
     }
 
-    public static final CreativeModeTab ACCESSORIES = new CreativeModeTab(CreativeModeTab.TABS.length, "accessories") {
-        @NotNull
-        @Override
-        public ItemStack makeIcon() {
-            return HUItems.BOBO_ACCESSORY.get().getDefaultInstance();
+    public static CreativeModeTab ACCESSORIES;
+
+    @SubscribeEvent
+    public void registerTabs(CreativeModeTabEvent.Register event) {
+        ACCESSORIES = event.registerCreativeModeTab(new ResourceLocation(MODID, "accessories"), builder ->
+                builder.icon(() -> HUItems.BOBO_ACCESSORY.get().getDefaultInstance())
+                        .title(Component.translatable("tabs.heroesunited.accessories"))
+                .displayItems((featureFlags, tab, hasOp) -> {
+                    tab.accept(HUItems.AKIRA_JACKET.get());
+                    tab.accept(HUItems.ALLEN_WALKER_JACKET.get());
+                    tab.accept(HUItems.ALLEN_WALKER_PANTS.get());
+                    tab.accept(HUItems.ALLEN_WALKER_SHOES.get());
+                    tab.accept(HUItems.ARC_REACTOR_ACCESSORY.get());
+                    tab.accept(HUItems.BIG_CHILL_CLOAK.get());
+                    tab.accept(HUItems.BOBO_ACCESSORY.get());
+                    tab.accept(HUItems.BOOSTED_GEAR.get());
+                    tab.accept(HUItems.CAPTAIN_REX.get());
+                    tab.accept(HUItems.CAP_SHIELD_ACCESSORY.get());
+                    tab.accept(HUItems.CLOWN_HAT.get());
+                    tab.accept(HUItems.DARK_TROOPER_HELMET.get());
+                    tab.accept(HUItems.DOOM_HELMET.get());
+                    tab.accept(HUItems.EMILIA_CAPE.get());
+                    tab.accept(HUItems.FINN_ARM.get());
+                    tab.accept(HUItems.FLASH_RING.get());
+                    tab.accept(HUItems.FOTONIC_TRIDENT.get());
+                    tab.accept(HUItems.GREEN_GOGGLES.get());
+                    tab.accept(HUItems.GREEN_SHIRT.get());
+                    tab.accept(HUItems.HEADBAND.get());
+                    tab.accept(HUItems.HOKAGE_CAPE.get());
+                    tab.accept(HUItems.JANGO_FETT_HELMET.get());
+                    tab.accept(HUItems.JASON_MASK.get());
+                    tab.accept(HUItems.JASON_JACKET.get());
+                    tab.accept(HUItems.JASON_PANTS.get());
+                    tab.accept(HUItems.JASON_SHIRT.get());
+                    tab.accept(HUItems.KEYBLADE.get());
+                    tab.accept(HUItems.KEY_VECTOR_SIGMA.get());
+                    tab.accept(HUItems.MACHETE.get());
+                    tab.accept(HUItems.MADNESSCLAW.get());
+                    tab.accept(HUItems.MADNESSCOMBAT.get());
+                    tab.accept(HUItems.MATRIX_OF_LEADERSHIP.get());
+                    tab.accept(HUItems.MINING_PICK.get());
+                    tab.accept(HUItems.NITRO_JETPACK.get());
+                    tab.accept(HUItems.PERRY_TAIL.get());
+                    tab.accept(HUItems.PERRY_THE_PLATYPUS_HAT.get());
+                    tab.accept(HUItems.PETER_PARKER_SHIRT.get());
+                    tab.accept(HUItems.RED_JACKET.get());
+                    tab.accept(HUItems.REDA_JACKET.get());
+                    tab.accept(HUItems.REDA_SHIRT.get());
+                    tab.accept(HUItems.SMALLGILLY.get());
+                    tab.accept(HUItems.SONIC_SHOES.get());
+                    tab.accept(HUItems.STRANGE_MASK.get());
+                    tab.accept(HUItems.SWORD_OF_THE_STORM.get());
+                    tab.accept(HUItems.THE_ONE_RING_ACCESSORY.get());
+                    tab.accept(HUItems.WALLE_HEAD.get());
+                    tab.accept(HUItems.ZEK_GLASSES.get());
+                })
+        );
+    }
+
+    @SubscribeEvent
+    public void addItemsToTabs(CreativeModeTabEvent.BuildContents event) {
+        for (Suit suit : Suit.SUITS.values().stream().filter(suit -> suit.getItemGroup().equals(event.getTab())).toList()) {
+            for (Pair<ResourceLocation, SuitItem> suitItem : suit.getSuitItems()) {
+                event.accept(suitItem.getB());
+            }
         }
-    };
+
+        if (event.getTab().equals(CreativeModeTabs.SPAWN_EGGS)) {
+            event.getEntries().putAfter(Items.EMERALD.getDefaultInstance(), HUItems.HORAS.get().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            if (HUItems.COMIC_ITEM.isPresent()) {
+                event.getEntries().putAfter(HUItems.HORAS.get().getDefaultInstance(), HUItems.COMIC_ITEM.get().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            }
+        }
+        if (event.getTab().equals(CreativeModeTabs.INGREDIENTS)) {
+            event.getEntries().putAfter(Items.NETHERITE_INGOT.getDefaultInstance(), HUItems.TITANIUM_INGOT.get().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        }
+        if (event.getTab().equals(CreativeModeTabs.BUILDING_BLOCKS)) {
+            event.getEntries().putAfter(Items.DIAMOND_BLOCK.getDefaultInstance(), HUBlocks.TITANIUM.get().asItem().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.getEntries().putAfter(Items.DIAMOND_ORE.getDefaultInstance(), HUBlocks.TITANIUM_ORE.get().asItem().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        }
+    }
 }

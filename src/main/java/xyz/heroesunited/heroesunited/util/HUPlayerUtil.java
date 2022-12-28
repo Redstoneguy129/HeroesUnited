@@ -2,7 +2,7 @@ package xyz.heroesunited.heroesunited.util;
 
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -19,6 +19,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.registries.ForgeRegistries;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
@@ -55,10 +56,9 @@ public class HUPlayerUtil {
     }
 
     public static void playSoundToAll(Level world, Vec3 vec, double range, SoundEvent sound, SoundSource category, float volume, float pitch) {
-        for (Player player : world.getEntitiesOfClass(Player.class, getCollisionBoxWithRange(vec, range))) {
-            if (player instanceof ServerPlayer && sound.getRegistryName() != null) {
-                ((ServerPlayer) player).connection.send(new ClientboundCustomSoundPacket(sound.getRegistryName(), category, new Vec3(vec.x, vec.y, vec.z), volume, pitch));
-            }
+        for (ServerPlayer player : world.getEntitiesOfClass(ServerPlayer.class, getCollisionBoxWithRange(vec, range))) {
+            ForgeRegistries.SOUND_EVENTS.getHolder(sound).ifPresent(holder -> player.connection
+                    .send(new ClientboundSoundPacket(holder, category, vec.x, vec.y, vec.z, volume, pitch, player.getRandom().nextLong())));
         }
     }
 
@@ -95,33 +95,14 @@ public class HUPlayerUtil {
     }
 
     public static void setSuitForPlayer(Player player, Suit suit) {
-        Item helmet = suit.getHelmet();
-        Item chest = suit.getChestplate();
-        Item legs = suit.getLegs();
-        Item feet = suit.getBoots();
-        if (helmet != null) {
-            if (player.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
-                player.setItemSlot(EquipmentSlot.HEAD, new ItemStack(helmet));
-            } else player.addItem(new ItemStack(helmet));
-            player.playSound(SoundEvents.ITEM_PICKUP, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
-        }
-        if (chest != null) {
-            if (player.getItemBySlot(EquipmentSlot.CHEST).isEmpty()) {
-                player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(chest));
-            } else player.addItem(new ItemStack(chest));
-            player.playSound(SoundEvents.ITEM_PICKUP, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
-        }
-        if (legs != null) {
-            if (player.getItemBySlot(EquipmentSlot.LEGS).isEmpty()) {
-                player.setItemSlot(EquipmentSlot.LEGS, new ItemStack(legs));
-            } else player.addItem(new ItemStack(legs));
-            player.playSound(SoundEvents.ITEM_PICKUP, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
-        }
-        if (feet != null) {
-            if (player.getItemBySlot(EquipmentSlot.FEET).isEmpty()) {
-                player.setItemSlot(EquipmentSlot.FEET, new ItemStack(feet));
-            } else player.addItem(new ItemStack(feet));
-            player.playSound(SoundEvents.ITEM_PICKUP, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            Item helmet = suit.getItemBySlot(slot);
+            if (helmet != null) {
+                if (player.getItemBySlot(slot).isEmpty()) {
+                    player.setItemSlot(slot, new ItemStack(helmet));
+                } else player.addItem(new ItemStack(helmet));
+                player.playSound(SoundEvents.ITEM_PICKUP, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
+            }
         }
     }
 }

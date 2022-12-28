@@ -8,7 +8,7 @@ import net.minecraftforge.registries.RegistryObject;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
 public class HUContainers {
-    public static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, HeroesUnited.MODID);
+    public static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.MENU_TYPES, HeroesUnited.MODID);
 
     public static final RegistryObject<MenuType<AccessoriesContainer>> ACCESSORIES = register("accessories", AccessoriesContainer::new);
 

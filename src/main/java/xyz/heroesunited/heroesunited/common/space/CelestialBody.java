@@ -5,9 +5,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
-public class CelestialBody extends ForgeRegistryEntry<CelestialBody> {
+public class CelestialBody {
     protected Vec3 coordinates;
 
     public CelestialBody(Vec3 coordinates) {

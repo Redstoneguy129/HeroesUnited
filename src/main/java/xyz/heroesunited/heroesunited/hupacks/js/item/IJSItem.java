@@ -5,6 +5,7 @@ import io.netty.util.internal.StringUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngine;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
@@ -29,7 +30,7 @@ public interface IJSItem extends IAbilityProvider {
         if (!StringUtil.isNullOrEmpty(this.getPower().getPath())) {
             HUPackPowers.getPower(this.getPower()).forEach(a -> {
                 Ability ability = a.create(player);
-                ability.getAdditionalData().putString("Item", Objects.requireNonNull(self().getRegistryName()).toString());
+                ability.getAdditionalData().putString("Item", Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(self())).toString());
                 map.put(ability.name, ability);
             });
         }

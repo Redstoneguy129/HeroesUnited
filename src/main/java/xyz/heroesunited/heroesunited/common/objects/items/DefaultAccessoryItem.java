@@ -6,6 +6,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.registries.ForgeRegistries;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
@@ -13,6 +14,9 @@ import xyz.heroesunited.heroesunited.util.PlayerPart;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import net.minecraft.world.item.Item.Properties;
 
 public class DefaultAccessoryItem extends Item implements IAccessory {
 
@@ -23,7 +27,7 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
     }
 
     public DefaultAccessoryItem(Properties properties, EquipmentAccessoriesSlot accessorySlot) {
-        super(properties.tab(HeroesUnited.ACCESSORIES).stacksTo(1));
+        super(properties.stacksTo(1));
         this.accessorySlot = accessorySlot;
     }
 
@@ -83,10 +87,11 @@ public class DefaultAccessoryItem extends Item implements IAccessory {
             name = EquipmentAccessoriesSlot.WRIST.name().toLowerCase();
         }
 
+        ResourceLocation registryName = Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(this));
         if (EquipmentAccessoriesSlot.chestAccessories().contains(slot)) {
-            return new ResourceLocation(this.getRegistryName().getNamespace(), String.format("textures/accessories/%s/%s.png", this.getRegistryName().getPath(), name + slim));
+            return new ResourceLocation(registryName.getNamespace(), String.format("textures/accessories/%s/%s.png", registryName.getPath(), name + slim));
         } else {
-            return new ResourceLocation(this.getRegistryName().getNamespace(), String.format("textures/accessories/%s/%s.png", this.getRegistryName().getPath(), name));
+            return new ResourceLocation(registryName.getNamespace(), String.format("textures/accessories/%s/%s.png", registryName.getPath(), name));
         }
     }
 

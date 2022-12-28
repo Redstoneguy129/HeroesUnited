@@ -58,7 +58,7 @@ public class HURichPresence {
     private List<String> getListFromTXT(ResourceLocation resourceLocation) {
         try {
             BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(Minecraft.getInstance().getResourceManager()
-                            .getResource(resourceLocation).getInputStream(), StandardCharsets.UTF_8));
+                            .getResource(resourceLocation).get().open(), StandardCharsets.UTF_8));
             return bufferedreader.lines().map(String::trim).filter((s) -> s.hashCode() != 125780783).collect(Collectors.toList());
         } catch (IOException ignored) {
             return Collections.emptyList();

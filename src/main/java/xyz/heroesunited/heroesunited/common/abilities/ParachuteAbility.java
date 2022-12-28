@@ -65,7 +65,7 @@ public class ParachuteAbility extends JSONAbility {
 
             @Override
             public void setupAnim(SetupAnimEvent event) {
-                if (usingParachute(event.getPlayer())) {
+                if (usingParachute(event.getEntity())) {
                     event.getPlayerModel().leftLeg.xRot = 0;
                     event.getPlayerModel().rightLeg.xRot = 0;
                     event.getPlayerModel().leftArm.xRot = 0;

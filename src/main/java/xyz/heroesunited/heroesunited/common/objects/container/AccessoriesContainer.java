@@ -129,7 +129,7 @@ public class AccessoriesContainer extends AbstractContainerMenu {
                 if (!this.moveItemStackTo(itemstack1, 9, 45, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (equipmentSlot.getType() == EquipmentSlot.Type.ARMOR && !this.slots.get(8 - equipmentSlot.getIndex()).hasItem()) {
+            } else if (equipmentSlot.isArmor() && !this.slots.get(8 - equipmentSlot.getIndex()).hasItem()) {
                 int i = 8 - equipmentSlot.getIndex();
                 if (!this.moveItemStackTo(itemstack1, i, i + 1, false)) {
                     return ItemStack.EMPTY;

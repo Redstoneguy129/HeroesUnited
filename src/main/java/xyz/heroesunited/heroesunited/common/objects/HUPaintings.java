@@ -1,18 +1,19 @@
 package xyz.heroesunited.heroesunited.common.objects;
 
-import net.minecraft.world.entity.decoration.Motive;
+import net.minecraft.world.entity.decoration.Painting;
+import net.minecraft.world.entity.decoration.PaintingVariant;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
 public class HUPaintings {
 
-    public static final DeferredRegister<Motive> PAINTINGS = DeferredRegister.create(ForgeRegistries.PAINTING_TYPES, HeroesUnited.MODID);
+    public static final DeferredRegister<PaintingVariant> PAINTINGS = DeferredRegister.create(ForgeRegistries.PAINTING_VARIANTS, HeroesUnited.MODID);
 
-    public static final Motive HORAS = register("horas", 32, 32);
+    public static final PaintingVariant HORAS = register("horas", 32, 32);
 
-    private static Motive register(String name, int width, int height) {
-        Motive type = new Motive(width, height);
+    private static PaintingVariant register(String name, int width, int height) {
+        PaintingVariant type = new PaintingVariant(width, height);
         PAINTINGS.register(name, () -> type);
         return type;
     }

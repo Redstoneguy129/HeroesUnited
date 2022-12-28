@@ -1,12 +1,13 @@
 package xyz.heroesunited.heroesunited.hupacks.js;
 
+import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.RegisterEvent;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngine;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -16,34 +17,27 @@ import xyz.heroesunited.heroesunited.common.abilities.IAbilityClientProperties;
 import xyz.heroesunited.heroesunited.common.abilities.JSONAbility;
 
 import javax.script.ScriptException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
 public class JSAbilityManager extends JSReloadListener {
 
-    private final List<AbilityType> types = new ArrayList<>();
+    private final Map<ResourceLocation, AbilityType> types = Maps.newConcurrentMap();
 
     public JSAbilityManager(IEventBus bus) {
         super("huabilities", new NashornScriptEngineFactory());
-        bus.addGenericListener(AbilityType.class, this::registerAbilityTypes);
+        bus.addListener((RegisterEvent e) -> e.register(AbilityType.ABILITY_TYPES
+                        .getRegistryKey(), (helper) -> types.forEach(helper::register)));
     }
 
     @Override
     public void apply(Map<ResourceLocation, NashornScriptEngine> map, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
         for (Map.Entry<ResourceLocation, NashornScriptEngine> entry : map.entrySet()) {
             try {
-                types.add(new AbilityType((type, player, json) -> new JSAbility(type, player, json, entry.getValue())).setRegistryName(entry.getKey()));
+                types.put(entry.getKey(), new AbilityType((type, player, json) -> new JSAbility(type, player, json, entry.getValue())));
             } catch (Throwable throwable) {
                 HeroesUnited.LOGGER.error("Couldn't read hupack ability {}", entry.getKey(), throwable);
             }
-        }
-    }
-
-    public void registerAbilityTypes(RegistryEvent.Register<AbilityType> event) {
-        for (AbilityType type : types) {
-            event.getRegistry().register(type);
         }
     }
 

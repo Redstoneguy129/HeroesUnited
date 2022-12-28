@@ -31,7 +31,9 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.IItemRenderProperties;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
@@ -54,6 +56,8 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Consumer;
+
+import net.minecraft.world.item.Item.Properties;
 
 public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable {
 
@@ -98,18 +102,18 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     }
 
     @Override
-    public void initializeClient(Consumer<IItemRenderProperties> consumer) {
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
         super.initializeClient(consumer);
-        consumer.accept(new IItemRenderProperties() {
+        consumer.accept(new IClientItemExtensions() {
             @Override
-            public HumanoidModel<?> getArmorModel(LivingEntity entityLiving, ItemStack itemStack, EquipmentSlot armorSlot, HumanoidModel<?> _default) {
+            public @NotNull HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
                 try {
-                    return getArmorRenderer(entityLiving)
-                            .setCurrentItem(entityLiving, itemStack, armorSlot)
-                            .applyEntityStats(_default).applySlot(armorSlot);
+                    return getArmorRenderer(livingEntity)
+                            .setCurrentItem(livingEntity, itemStack, equipmentSlot)
+                            .applyEntityStats(original).applySlot(equipmentSlot);
                 } catch (GeckoLibException | IllegalArgumentException e) {
                     if (itemStack != ItemStack.EMPTY && itemStack.getItem() instanceof SuitItem) {
-                        return getSuit().getArmorModel(entityLiving, itemStack, armorSlot, _default);
+                        return getSuit().getArmorModel(livingEntity, itemStack, equipmentSlot, original);
                     }
                     return null;
                 }
@@ -138,7 +142,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
                 return;
             }
             if (model.topLevelBones.isEmpty())
-                throw new GeckoLibException(getRegistryName(), "Model doesn't have any parts");
+                throw new GeckoLibException(ForgeRegistries.ITEMS.getKey(this), "Model doesn't have any parts");
             GeoBone bone = model.getBone(side == HumanoidArm.LEFT ? geo.leftArmBone : geo.rightArmBone).get();
             geo.attackTime = 0.0F;
             geo.crouching = false;
@@ -154,7 +158,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
             bone.setPositionZ(modelRenderer.z);
 
             if (bone.childBones.isEmpty() && bone.childCubes.isEmpty())
-                throw new GeckoLibException(getRegistryName(), "Bone doesn't have any parts");
+                throw new GeckoLibException(ForgeRegistries.ITEMS.getKey(this), "Bone doesn't have any parts");
 
             for (GeoBone o : model.topLevelBones) {
                 if (o != bone) {
@@ -190,7 +194,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
         try {
             ResourceLocation location = getArmorRenderer(entity).getTextureLocation((ArmorItem) stack.getItem());
-            if (Minecraft.getInstance().getResourceManager().hasResource(location)) {
+            if (Minecraft.getInstance().getResourceManager().getResource(location).isPresent()) {
                 return location.toString();
             } else {
                 throw new GeckoLibException(location,

@@ -1,7 +1,7 @@
 package xyz.heroesunited.heroesunited.common.networking.server;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
@@ -13,7 +13,6 @@ import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesContain
 import java.util.function.Supplier;
 
 public class ServerOpenAccessoriesInv {
-    public static final TranslatableComponent TRANSLATION = new TranslatableComponent("gui.heroesunited.accessories");
 
     private final int entityId;
 

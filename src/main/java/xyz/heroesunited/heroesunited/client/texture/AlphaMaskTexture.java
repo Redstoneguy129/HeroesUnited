@@ -32,7 +32,7 @@ public class AlphaMaskTexture extends SimpleTexture {
         releaseId();
         NativeImage image = this.getSkinOrImage(manager, this.location);
         NativeImage output = this.getSkinOrImage(manager, this.output);
-        NativeImage mask = NativeImage.read(manager.getResource(this.maskLocation).getInputStream());
+        NativeImage mask = NativeImage.read(manager.getResource(this.maskLocation).get().open());
 
         for (int y = 0; y < mask.getHeight(); ++y) {
             for (int x = 0; x < mask.getWidth(); ++x) {
@@ -75,7 +75,7 @@ public class AlphaMaskTexture extends SimpleTexture {
             File file = new File(Minecraft.getInstance().getSkinManager().skinsDirectory.getAbsolutePath(), (s.length() > 2 ? s.substring(0, 2) : "xx"));
             return NativeImage.read(new FileInputStream(new File(file, s)));
         }
-        return NativeImage.read(manager.getResource(location).getInputStream());
+        return NativeImage.read(manager.getResource(location).get().open());
     }
 
     public static ResourceLocation getTexture(ResourceLocation base, ResourceLocation outputTex, ResourceLocation mask) {

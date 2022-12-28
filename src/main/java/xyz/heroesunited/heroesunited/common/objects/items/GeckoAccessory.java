@@ -1,7 +1,7 @@
 package xyz.heroesunited.heroesunited.common.objects.items;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -19,8 +19,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.IItemRenderProperties;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.registries.ForgeRegistries;
 import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.PlayState;
+import software.bernie.geckolib3.core.builder.AnimationBuilder;
+import software.bernie.geckolib3.core.builder.ILoopType;
+import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.core.processor.IBone;
@@ -32,6 +37,8 @@ import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessori
 
 import java.util.function.Consumer;
 
+import net.minecraft.world.item.Item.Properties;
+
 public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable {
 
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
@@ -41,28 +48,32 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
     }
 
     @Override
-    public void initializeClient(Consumer<IItemRenderProperties> consumer) {
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
         super.initializeClient(consumer);
-        consumer.accept(new IItemRenderProperties() {
+        consumer.accept(new IClientItemExtensions() {
             private final BlockEntityWithoutLevelRenderer renderer = new GeckoAccessoryRenderer();
 
             @Override
-            public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
                 return renderer;
             }
         });
     }
 
     public ResourceLocation getTextureFile() {
-        return new ResourceLocation(this.getRegistryName().getNamespace(), String.format("textures/accessories/%s.png", this.getRegistryName().getPath()));
+        return new ResourceLocation(this.registryName().getNamespace(), String.format("textures/accessories/%s.png", this.registryName().getPath()));
     }
 
     public ResourceLocation getModelFile() {
-        return new ResourceLocation(this.getRegistryName().getNamespace(), String.format("geo/%s.geo.json", this.getRegistryName().getPath()));
+        return new ResourceLocation(this.registryName().getNamespace(), String.format("geo/%s.geo.json", this.registryName().getPath()));
     }
 
     public ResourceLocation getAnimationFile() {
-        return new ResourceLocation(this.getRegistryName().getNamespace(), String.format("animations/%s.animation.json", this.getRegistryName().getPath()));
+        return new ResourceLocation(this.registryName().getNamespace(), String.format("animations/%s.animation.json", this.registryName().getPath()));
+    }
+
+    private ResourceLocation registryName() {
+        return ForgeRegistries.ITEMS.getKey(this);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -85,10 +96,10 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
 
             poseStack.pushPose();
             renderer.getModel().translateToHand(side, poseStack);
-            poseStack.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
-            poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+            poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
+            poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
             poseStack.translate((side == HumanoidArm.LEFT ? -1 : 1) / 16.0F, 0.125D, -0.625D);
-            Minecraft.getInstance().getItemInHandRenderer().renderItem(livingEntity, stack, transformType, side == HumanoidArm.LEFT, poseStack, bufferIn, packedLightIn);
+            Minecraft.getInstance().getEntityRenderDispatcher().getItemInHandRenderer().renderItem(livingEntity, stack, transformType, side == HumanoidArm.LEFT, poseStack, bufferIn, packedLightIn);
             poseStack.popPose();
         }
         if (this.accessorySlot.equals(EquipmentAccessoriesSlot.GLOVES)) {
@@ -97,16 +108,16 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
                 poseStack.pushPose();
                 renderer.getModel().translateToHand(side, poseStack);
                 if (stack.getItem() == HUItems.SMALLGILLY.get()) {
-                    poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+                    poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
                     poseStack.scale(0.625F, -0.625F, -0.625F);
                     poseStack.translate(side == HumanoidArm.LEFT ? -0.6 : -0.4, -0.35D, -0.625D);
-                    ResourceLocation modelFile = new ResourceLocation(this.getRegistryName().getNamespace(), String.format("geo/%s.geo.json", this.getRegistryName().getPath() + (side == HumanoidArm.LEFT ? "" : "_v2")));
+                    ResourceLocation modelFile = new ResourceLocation(this.registryName().getNamespace(), String.format("geo/%s.geo.json", this.registryName().getPath() + (side == HumanoidArm.LEFT ? "" : "_v2")));
                     new GeckoAccessoryRenderer(modelFile).render(this, poseStack, bufferIn, packedLightIn, stack);
                 } else {
-                    poseStack.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
-                    poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+                    poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
+                    poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
                     poseStack.translate((side == HumanoidArm.LEFT ? -1 : 1) / 16.0F, 0.125D, -0.625D);
-                    Minecraft.getInstance().getItemInHandRenderer().renderItem(livingEntity, stack, transformType, side == HumanoidArm.LEFT, poseStack, bufferIn, packedLightIn);
+                    Minecraft.getInstance().getEntityRenderDispatcher().getItemInHandRenderer().renderItem(livingEntity, stack, transformType, side == HumanoidArm.LEFT, poseStack, bufferIn, packedLightIn);
                 }
                 poseStack.popPose();
             }
@@ -116,7 +127,7 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
             poseStack.pushPose();
             renderer.getModel().body.translateAndRotate(poseStack);
             poseStack.translate(0.0D, -0.25D, 0.0D);
-            poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+            poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
             poseStack.scale(0.625F, -0.625F, -0.625F);
             Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemTransforms.TransformType.HEAD, packedLightIn, OverlayTexture.NO_OVERLAY, poseStack, bufferIn, 0);
             poseStack.popPose();
@@ -126,7 +137,7 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
             poseStack.pushPose();
             renderer.getModel().head.translateAndRotate(poseStack);
             poseStack.translate(0.0D, -0.25D, 0.0D);
-            poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+            poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
             poseStack.scale(0.625F, -0.625F, -0.625F);
             Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemTransforms.TransformType.HEAD, packedLightIn, OverlayTexture.NO_OVERLAY, poseStack, bufferIn, 0);
             poseStack.popPose();
@@ -214,6 +225,12 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
 
     @Override
     public void registerControllers(AnimationData data) {
+        if (this == HUItems.BOBO_ACCESSORY.get()) {
+            data.addAnimationController(new AnimationController<>(this, "controller", 20.0F, event -> {
+                event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.bobo", ILoopType.EDefaultLoopTypes.LOOP));
+                return PlayState.CONTINUE;
+            }));
+        }
     }
 
     @Override

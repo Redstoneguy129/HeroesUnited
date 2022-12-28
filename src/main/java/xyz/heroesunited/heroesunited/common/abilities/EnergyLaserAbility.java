@@ -47,8 +47,8 @@ public class EnergyLaserAbility extends BasicLaserAbility {
             @Override
             public void setupAnim(SetupAnimEvent event) {
                 if (getAlpha(event.getPartialTicks()) != 0) {
-                    ModelPart modelArm = isLeftArm(event.getPlayer()) ? event.getPlayerModel().leftArm : event.getPlayerModel().rightArm;
-                    modelArm.xRot = (float) Math.toRadians(event.getPlayer().getXRot() - 90);
+                    ModelPart modelArm = isLeftArm(event.getEntity()) ? event.getPlayerModel().leftArm : event.getPlayerModel().rightArm;
+                    modelArm.xRot = (float) Math.toRadians(event.getEntity().getXRot() - 90);
                     modelArm.yRot = event.getPlayerModel().head.yRot;
                     modelArm.zRot = 0;
                 }

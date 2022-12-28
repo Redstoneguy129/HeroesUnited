@@ -23,6 +23,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.GameData;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegisterEvent;
+import org.apache.commons.compress.utils.Lists;
+import oshi.util.tuples.Pair;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 import xyz.heroesunited.heroesunited.client.model.SuitModel;
@@ -31,15 +34,13 @@ import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessori
 import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class Suit {
 
     public static final Map<ResourceLocation, Suit> SUITS = Maps.newHashMap();
     private ResourceLocation registryName = null;
-    protected SuitItem helmet, chestplate, legs, boots;
+    protected final Map<EquipmentSlot, Pair<ResourceLocation, SuitItem>> itemList = Maps.newHashMap();
 
     public Suit(ResourceLocation name) {
         this.setRegistryName(name);
@@ -49,19 +50,21 @@ public abstract class Suit {
         this(new ResourceLocation(modid, name));
     }
 
-    public void registerItems(IForgeRegistry<Item> e) {
-        e.register(helmet = createItem(this, EquipmentSlot.HEAD));
-        e.register(chestplate = createItem(this, EquipmentSlot.CHEST));
-        e.register(legs = createItem(this, EquipmentSlot.LEGS));
-        e.register(boots = createItem(this, EquipmentSlot.FEET));
+    public Map<EquipmentSlot, Pair<ResourceLocation, SuitItem>> createItems() {
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            if (slot.isArmor()) {
+                this.itemList.put(slot, this.createItem(this, slot));
+            }
+        }
+        return this.itemList;
     }
 
-    protected SuitItem createItem(Suit suit, EquipmentSlot slot) {
+    protected Pair<ResourceLocation, SuitItem> createItem(Suit suit, EquipmentSlot slot) {
         return this.createItem(suit, slot, slot.getName());
     }
 
-    protected SuitItem createItem(Suit suit, EquipmentSlot slot, String name) {
-        return (SuitItem) new SuitItem(suit.getSuitMaterial(), slot, new Item.Properties().stacksTo(1).tab(suit.getItemGroup()), suit).setRegistryName(suit.getRegistryName().getNamespace(), suit.getRegistryName().getPath() + "_" + name);
+    protected Pair<ResourceLocation, SuitItem> createItem(Suit suit, EquipmentSlot slot, String name) {
+        return new Pair<>(new ResourceLocation(suit.getRegistryName().getNamespace(), suit.getRegistryName().getPath() + "_" + name), new SuitItem(suit.getSuitMaterial(), slot, new Item.Properties().stacksTo(1), suit));
     }
 
     public boolean canEquip(Player player) {
@@ -73,7 +76,7 @@ public abstract class Suit {
     }
 
     public CreativeModeTab getItemGroup() {
-        return CreativeModeTab.TAB_COMBAT;
+        return CreativeModeTabs.COMBAT;
     }
 
     public List<Component> getDescription(ItemStack stack) {
@@ -164,38 +167,17 @@ public abstract class Suit {
         this.registryName = GameData.checkPrefix(name.toString(), true);
     }
 
-    public SuitItem getHelmet() {
-        return helmet;
+    public Collection<Pair<ResourceLocation, SuitItem>> getSuitItems() {
+        return this.itemList.values();
     }
 
-    public SuitItem getChestplate() {
-        return chestplate;
-    }
-
-    public SuitItem getLegs() {
-        return legs;
-    }
-
-    public SuitItem getBoots() {
-        return boots;
-    }
-
-    protected SuitItem getItemBySlot(EquipmentSlot slot) {
-        if (slot == EquipmentSlot.HEAD) {
-            return getHelmet();
-        }
-        if (slot == EquipmentSlot.CHEST) {
-            return getChestplate();
-        }
-        if (slot == EquipmentSlot.LEGS) {
-            return getLegs();
-        }
-        return getBoots();
+    public SuitItem getItemBySlot(EquipmentSlot slot) {
+        return this.itemList.get(slot) != null ? this.itemList.get(slot).getB() : null;
     }
 
     public boolean hasArmorOn(LivingEntity entity) {
         for (EquipmentSlot slot : EquipmentSlot.values()) {
-            if (slot.getType() == EquipmentSlot.Type.ARMOR) {
+            if (slot.isArmor()) {
                 if (getItemBySlot(slot) != null && (entity.getItemBySlot(slot).isEmpty() || entity.getItemBySlot(slot).getItem() != getItemBySlot(slot))) {
                     return false;
                 }
@@ -228,7 +210,7 @@ public abstract class Suit {
 
     public static Suit getSuit(LivingEntity entity) {
         for (EquipmentSlot slot : EquipmentSlot.values()) {
-            if (slot.getType() == EquipmentSlot.Type.ARMOR) {
+            if (slot.isArmor()) {
                 Item item = entity.getItemBySlot(slot).getItem();
                 if (item instanceof SuitItem suitItem) {
                     if (suitItem.getSuit().hasArmorOn(entity)) {

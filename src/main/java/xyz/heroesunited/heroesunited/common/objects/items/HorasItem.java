@@ -9,6 +9,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
@@ -20,9 +21,11 @@ import xyz.heroesunited.heroesunited.common.objects.entities.HUEntities;
 
 import java.util.Objects;
 
-public class HorasItem extends HUItem {
+import net.minecraft.world.item.Item.Properties;
+
+public class HorasItem extends Item {
     public HorasItem(Properties properties) {
-        super(Items.EMERALD, properties);
+        super(properties);
     }
 
     @Override

@@ -2,6 +2,7 @@ package xyz.heroesunited.heroesunited.common.networking.server;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -42,7 +43,7 @@ public class ServerHorasPlayerSetDimension {
             if (playerEntity != null) {
                 HorasEntity horas = (HorasEntity) playerEntity.level.getEntity(horasID);
                 final BlockPos[] horasPos = {new BlockPos(0, 0, 0)};
-                playerEntity.changeDimension(playerEntity.getCommandSenderWorld().getServer().getLevel(ResourceKey.create(Registry.DIMENSION_REGISTRY, this.world)), new ITeleporter() {
+                playerEntity.changeDimension(playerEntity.getCommandSenderWorld().getServer().getLevel(ResourceKey.create(Registries.DIMENSION, this.world)), new ITeleporter() {
                     @Override
                     public Entity placeEntity(Entity entity, ServerLevel currentWorld, ServerLevel world, float yaw, Function<Boolean, Entity> repositionEntity) {
                         int attempts = 0;
@@ -100,7 +101,7 @@ public class ServerHorasPlayerSetDimension {
                     }
                 });
                 if (horas != null) {
-                    horas.changeDimension(playerEntity.getCommandSenderWorld().getServer().getLevel(ResourceKey.create(Registry.DIMENSION_REGISTRY, this.world)), new ITeleporter() {
+                    horas.changeDimension(playerEntity.getCommandSenderWorld().getServer().getLevel(ResourceKey.create(Registries.DIMENSION, this.world)), new ITeleporter() {
                         @Override
                         public Entity placeEntity(Entity entity, ServerLevel currentWorld, ServerLevel world, float yaw, Function<Boolean, Entity> repositionEntity) {
                             Entity repositionedEntity = repositionEntity.apply(false);

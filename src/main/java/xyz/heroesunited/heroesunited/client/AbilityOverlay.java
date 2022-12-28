@@ -11,8 +11,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.client.gui.ForgeIngameGui;
-import net.minecraftforge.client.gui.IIngameOverlay;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
+import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.HUConfig;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class AbilityOverlay implements IIngameOverlay {
+public class AbilityOverlay implements IGuiOverlay {
 
     private static final Map<String, Integer> NAMES_TIMER = Maps.newConcurrentMap();
     private static final ResourceLocation WIDGETS = new ResourceLocation(HeroesUnited.MODID, "textures/gui/widgets.png");
@@ -33,7 +33,7 @@ public class AbilityOverlay implements IIngameOverlay {
     protected static int INDEX = 0;
 
     @Override
-    public void render(ForgeIngameGui gui, PoseStack mStack, float partialTicks, int width, int height) {
+    public void render(ForgeGui gui, PoseStack mStack, float partialTicks, int width, int height) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player != null && mc.player.isAlive()) {
             List<Ability> abilities = getCurrentDisplayedAbilities(mc.player);

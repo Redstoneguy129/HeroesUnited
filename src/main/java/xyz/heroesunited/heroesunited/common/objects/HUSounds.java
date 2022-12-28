@@ -13,7 +13,7 @@ public class HUSounds {
     public static final SoundEvent FLYING = register("flying");
 
     private static SoundEvent register(String name) {
-        SoundEvent soundEvent = new SoundEvent(new ResourceLocation(HeroesUnited.MODID, name));
+        SoundEvent soundEvent = SoundEvent.createVariableRangeEvent(new ResourceLocation(HeroesUnited.MODID, name));
         SOUNDS.register(name, () -> soundEvent);
         return soundEvent;
     }

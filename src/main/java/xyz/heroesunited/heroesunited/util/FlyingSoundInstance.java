@@ -2,6 +2,7 @@ package xyz.heroesunited.heroesunited.util;
 
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -13,7 +14,7 @@ public class FlyingSoundInstance extends AbstractTickableSoundInstance {
     private int time;
 
     public FlyingSoundInstance(SoundEvent soundEvent, LocalPlayer p_119673_) {
-        super(soundEvent, SoundSource.PLAYERS);
+        super(soundEvent, SoundSource.PLAYERS, SoundInstance.createUnseededRandom());
         this.player = p_119673_;
         this.looping = true;
         this.delay = 0;

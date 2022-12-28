@@ -13,6 +13,7 @@ buildscript {
         classpath 'org.parchmentmc:librarian:1.+'
     }
 }
+apply from: 'https://raw.githubusercontent.com/SizableShrimp/ForgeUpdatesRemapper/main/remapper.gradle'
 
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
@@ -28,7 +29,7 @@ archivesBaseName = "heroesunited"
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
-    mappings channel: 'parchment', version: "2022.03.13-${mc_version}"
+    mappings channel: 'parchment', version: "2022.12.18-${mc_version}"
     //mappings channel: 'official', version: "${mc_version}"
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 

@@ -1,7 +1,9 @@
 package xyz.heroesunited.heroesunited.hupacks.js;
 
 import com.google.common.collect.Maps;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -28,12 +30,14 @@ public abstract class JSReloadListener extends SimplePreparableReloadListener<Ma
     @Override
     public Map<ResourceLocation, NashornScriptEngine> prepare(ResourceManager manager, ProfilerFiller profiler) {
         Map<ResourceLocation, NashornScriptEngine> map = Maps.newHashMap();
-        for (ResourceLocation resourcelocation : manager.listResources(this.directory, (s) -> s.endsWith(".js"))) {
-            String s = resourcelocation.getPath();
-            ResourceLocation location = new ResourceLocation(resourcelocation.getNamespace(), s.substring(this.directory.length() + 1, s.length() - ".js".length()));
+        FileToIdConverter filetoidconverter = js(this.directory);
+
+        for(Map.Entry<ResourceLocation, Resource> entry : filetoidconverter.listMatchingResources(manager).entrySet()) {
+            ResourceLocation resourcelocation = entry.getKey();
+            ResourceLocation location = filetoidconverter.fileToId(resourcelocation);
 
             try (
-                    InputStream inputstream = manager.getResource(resourcelocation).getInputStream();
+                    InputStream inputstream = manager.getResource(resourcelocation).get().open();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8))
             ) {
                 NashornScriptEngine engine = (NashornScriptEngine) this.manager.getScriptEngine();
@@ -50,5 +54,9 @@ public abstract class JSReloadListener extends SimplePreparableReloadListener<Ma
         }
 
         return map;
+    }
+
+    public static FileToIdConverter js(String pName) {
+        return new FileToIdConverter(pName, ".js");
     }
 }

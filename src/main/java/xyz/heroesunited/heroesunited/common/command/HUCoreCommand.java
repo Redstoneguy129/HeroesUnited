@@ -13,7 +13,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -31,7 +31,7 @@ import java.util.List;
 public class HUCoreCommand {
     private static final SuggestionProvider<CommandSourceStack> SUGGEST_SUPERPOWERS = (context, builder) -> SharedSuggestionProvider.suggestResource(HUPackSuperpowers.getSuperpowers().values().stream().map(Superpower::getRegistryName), builder);
     private static final SuggestionProvider<CommandSourceStack> SUGGEST_SUITS = (context, builder) -> SharedSuggestionProvider.suggestResource(Suit.SUITS.values().stream().map(Suit::getRegistryName), builder);
-    public static final DynamicCommandExceptionType DIDNT_EXIST = new DynamicCommandExceptionType((object) -> new TranslatableComponent("commands.heroesunited.DidntExist", object));
+    public static final DynamicCommandExceptionType DIDNT_EXIST = new DynamicCommandExceptionType((object) -> Component.translatable("commands.heroesunited.DidntExist", object));
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("heroesunited").requires((player) -> player.hasPermission(2))
@@ -62,7 +62,7 @@ public class HUCoreCommand {
                 k.syncToAll();
             });
         }
-        commandSource.sendSuccess(new TranslatableComponent("commands.heroesunited.slow_mo", speed), true);
+        commandSource.sendSuccess(Component.translatable("commands.heroesunited.slow_mo", speed), true);
         return players.size();
     }
 
@@ -74,9 +74,9 @@ public class HUCoreCommand {
                 i++;
         }
         if (i == 1)
-            commandSource.sendSuccess(new TranslatableComponent("commands.heroesunited.superpower.set.single", (players.iterator().next()).getDisplayName(), superpower.getDisplayName()), true);
+            commandSource.sendSuccess(Component.translatable("commands.heroesunited.superpower.set.single", (players.iterator().next()).getDisplayName(), superpower.getDisplayName()), true);
         else
-            commandSource.sendSuccess(new TranslatableComponent("commands.heroesunited.superpower.set.multiple", i, superpower.getDisplayName()), true);
+            commandSource.sendSuccess(Component.translatable("commands.heroesunited.superpower.set.multiple", i, superpower.getDisplayName()), true);
         return players.size();
     }
 
@@ -93,9 +93,9 @@ public class HUCoreCommand {
                 i++;
         }
         if (i == 1)
-            commandSource.sendSuccess(new TranslatableComponent("commands.heroesunited.superpowerlevel.set.single", (players.iterator().next()).getDisplayName(), level), true);
+            commandSource.sendSuccess(Component.translatable("commands.heroesunited.superpowerlevel.set.single", (players.iterator().next()).getDisplayName(), level), true);
         else
-            commandSource.sendSuccess(new TranslatableComponent("commands.heroesunited.superpowerlevel.set.multiple", i, level), true);
+            commandSource.sendSuccess(Component.translatable("commands.heroesunited.superpowerlevel.set.multiple", i, level), true);
         return players.size();
     }
 
@@ -107,9 +107,9 @@ public class HUCoreCommand {
                 i++;
         }
         if (i == 1)
-            commandSource.sendSuccess(new TranslatableComponent("commands.heroesunited.superpower.removed", (players.iterator().next()).getDisplayName()), true);
+            commandSource.sendSuccess(Component.translatable("commands.heroesunited.superpower.removed", (players.iterator().next()).getDisplayName()), true);
         else
-            commandSource.sendSuccess(new TranslatableComponent("commands.heroesunited.superpower.removed.multiple", i), true);
+            commandSource.sendSuccess(Component.translatable("commands.heroesunited.superpower.removed.multiple", i), true);
         return players.size();
     }
 
@@ -131,7 +131,7 @@ public class HUCoreCommand {
                 cap.syncToAll();
             }
         }
-        commandSource.sendSuccess(new TranslatableComponent("commands.heroesunited.ability.disabled"), true);
+        commandSource.sendSuccess(Component.translatable("commands.heroesunited.ability.disabled"), true);
 
         return players.size();
     }
@@ -150,12 +150,12 @@ public class HUCoreCommand {
         for (ServerPlayer pl : players) {
             HUPlayerUtil.setSuitForPlayer(pl, suit);
         }
-        TranslatableComponent display = new TranslatableComponent(Util.makeDescriptionId("suits", suit.getRegistryName()));
+        Component display = Component.translatable(Util.makeDescriptionId("suits", suit.getRegistryName()));
 
         if (players.size() == 1)
-            commandSource.sendSuccess(new TranslatableComponent("commands.heroesunited.suit.set.single", (players.iterator().next()).getDisplayName(), display), true);
+            commandSource.sendSuccess(Component.translatable("commands.heroesunited.suit.set.single", (players.iterator().next()).getDisplayName(), display), true);
         else
-            commandSource.sendSuccess(new TranslatableComponent("commands.heroesunited.suit.set.multiple", display), true);
+            commandSource.sendSuccess(Component.translatable("commands.heroesunited.suit.set.multiple", display), true);
         return players.size();
     }
 }

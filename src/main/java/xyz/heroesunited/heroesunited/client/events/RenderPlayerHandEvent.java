@@ -35,7 +35,7 @@ public abstract class RenderPlayerHandEvent extends PlayerEvent {
         return renderer;
     }
 
-    public AbstractClientPlayer getPlayer() {
+    public AbstractClientPlayer getEntity() {
         return player;
     }
 

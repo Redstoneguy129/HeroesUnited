@@ -103,7 +103,7 @@ public class AbilityHelper {
         List<AbilityCreator> abilityList = new ArrayList<>();
         abilities.entrySet().forEach((e) -> {
             if (e.getValue() instanceof JsonObject jsonObject) {
-                AbilityType ability = AbilityType.ABILITIES.get().getValue(new ResourceLocation(GsonHelper.getAsString(jsonObject, "ability")));
+                AbilityType ability = AbilityType.REGISTRY.get().getValue(new ResourceLocation(GsonHelper.getAsString(jsonObject, "ability")));
                 if (ability != null) {
                     abilityList.add(new AbilityCreator(e.getKey(), ability, jsonObject));
                 } else {

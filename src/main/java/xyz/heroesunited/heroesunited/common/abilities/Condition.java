@@ -14,8 +14,8 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegistryBuilder;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
@@ -30,11 +30,10 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class Condition extends ForgeRegistryEntry<Condition> {
+public class Condition {
 
-    public static final ResourceLocation REGISTRY_KEY = new ResourceLocation(HeroesUnited.MODID, "conditions");
-    public static final DeferredRegister<Condition> CONDITIONS = DeferredRegister.create(REGISTRY_KEY, HeroesUnited.MODID);
-    public static Supplier<IForgeRegistry<Condition>> REGISTRY = () -> null;
+    public static final DeferredRegister<Condition> CONDITIONS = DeferredRegister.create(new ResourceLocation(HeroesUnited.MODID, "conditions"), HeroesUnited.MODID);
+    public static final Supplier<IForgeRegistry<Condition>> REGISTRY = CONDITIONS.makeRegistry(RegistryBuilder::new);
 
     private final Predicate<ConditionVariables> function;
     private Consumer<ConditionVariables> earlyFunction = (c) -> {};
@@ -46,11 +45,6 @@ public class Condition extends ForgeRegistryEntry<Condition> {
     public Condition(Predicate<ConditionVariables> function, Consumer<ConditionVariables> earlyFunction) {
         this(function);
         this.earlyFunction = earlyFunction;
-    }
-
-    public Condition(Predicate<ConditionVariables> function, String modid, String name) {
-        this(function);
-        this.setRegistryName(modid, name);
     }
 
     public boolean apply(Player player, JsonObject jsonObject, Ability ability) {

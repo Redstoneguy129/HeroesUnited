@@ -4,8 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
@@ -32,15 +31,15 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.network.PacketDistributor;
+import org.joml.Quaternionf;
 import org.lwjgl.glfw.GLFW;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.*;
@@ -80,28 +79,8 @@ public class ClientEventHandler {
     public static final List<AbilityKeyBinding> ABILITY_KEYS = new ArrayList<>();
     public static final KeyMap KEY_MAP = new KeyMap();
 
-    public ClientEventHandler() {
-        if (Minecraft.getInstance() != null) {
-            ClientRegistry.registerKeyBinding(ABILITIES_SCREEN);
-            ClientRegistry.registerKeyBinding(ACCESSORIES_SCREEN);
-
-            for (int i = 1; i < 6; i++) {
-                int key = switch (i) {
-                    case 1 -> GLFW.GLFW_KEY_Z;
-                    case 2 -> GLFW.GLFW_KEY_R;
-                    case 3 -> GLFW.GLFW_KEY_G;
-                    case 4 -> GLFW.GLFW_KEY_V;
-                    default -> GLFW.GLFW_KEY_B;
-                };
-                AbilityKeyBinding keyBinding = new AbilityKeyBinding(HeroesUnited.MODID + ".key.ability_" + i, key, i);
-                ClientRegistry.registerKeyBinding(keyBinding);
-                ABILITY_KEYS.add(keyBinding);
-            }
-        }
-    }
-
     @SubscribeEvent
-    public void mouseScroll(InputEvent.MouseScrollEvent e) {
+    public void mouseScroll(InputEvent.MouseScrollingEvent e) {
         if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_ALT) ||
                 InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_RIGHT_ALT)) {
             if (AbilityOverlay.getAbilities(Minecraft.getInstance().player).size() > AbilityOverlay.getCurrentDisplayedAbilities(Minecraft.getInstance().player).size()) {
@@ -116,7 +95,7 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent
-    public void keyInput(InputEvent.KeyInputEvent e) {
+    public void keyInput(InputEvent.Key e) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.screen != null) return;
 
@@ -148,7 +127,7 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public void huRender(RendererChangeEvent event) {
-        AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.getClientProperties().rendererChange(event));
+        AbilityHelper.getAbilities(event.getEntity()).forEach(ability -> ability.getClientProperties().rendererChange(event));
     }
 
     @SubscribeEvent
@@ -165,7 +144,7 @@ public class ClientEventHandler {
             for (CelestialBody celestialBody : CelestialBodies.REGISTRY.get().getValues()) {
                 matrixStack.pushPose();
                 matrixStack.translate(celestialBody.getCoordinates().x, celestialBody.getCoordinates().y, celestialBody.getCoordinates().z);
-                matrixStack.mulPose(new Quaternion(0, 0, 180, true));
+                matrixStack.mulPose(HUClientUtil.quatFromXYZ(0, 0, 180, true));
                 CelestialBodyRenderer celestialBodyRenderer = CelestialBodyRenderer.getRenderer(celestialBody);
                 celestialBodyRenderer.render(matrixStack, buffers, LevelRenderer.getLightColor(Minecraft.getInstance().level, new BlockPos(celestialBody.getCoordinates())), event.getPartialTick());
 
@@ -330,7 +309,7 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent
-    public void setDiscordPresence(EntityJoinWorldEvent event) {
+    public void setDiscordPresence(EntityJoinLevelEvent event) {
         if (!(event.getEntity() instanceof Player) || Minecraft.getInstance().player == null || Minecraft.getInstance().player.getUUID() != event.getEntity().getUUID())
             return;
         HURichPresence.getPresence().setDiscordRichPresence("Playing Heroes United");
@@ -338,7 +317,7 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public void renderPlayerPre(RenderPlayerEvent.Pre event) {
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
         AbilityHelper.getAbilities(player).forEach(ability -> ability.getClientProperties().renderPlayerPre(event));
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             IFlyingAbility ability = IFlyingAbility.getFlyingAbility(player);
@@ -352,43 +331,43 @@ public class ClientEventHandler {
                         float defaultRotation = Mth.clamp(distance, 0.0F, 1.0F) * ability.getDegreesForWalk(player);
 
                         event.getPoseStack().pushPose();
-                        event.getPoseStack().mulPose(Vector3f.YP.rotationDegrees(-player.getYRot()));
-                        event.getPoseStack().mulPose(Vector3f.XP.rotationDegrees(Mth.clamp(defaultRotation + (cap.getFlightAmount(event.getPartialTick()) * ability.getDegreesForSprint(player)), 0, ability.getDegreesForSprint(player))));
-                        event.getPoseStack().mulPose(Vector3f.YP.rotationDegrees(player.getYRot()));
+                        event.getPoseStack().mulPose(Axis.YP.rotationDegrees(-player.getYRot()));
+                        event.getPoseStack().mulPose(Axis.XP.rotationDegrees(Mth.clamp(defaultRotation + (cap.getFlightAmount(event.getPartialTick()) * ability.getDegreesForSprint(player)), 0, ability.getDegreesForSprint(player))));
+                        event.getPoseStack().mulPose(Axis.YP.rotationDegrees(player.getYRot()));
                     }
                 }
             }
         });
-        if (GlidingAbility.getInstance(event.getPlayer()) != null && GlidingAbility.getInstance(event.getPlayer()).canGliding(event.getPlayer())) {
+        if (GlidingAbility.getInstance(event.getEntity()) != null && GlidingAbility.getInstance(event.getEntity()).canGliding(event.getEntity())) {
             event.getPoseStack().pushPose();
-            event.getPoseStack().mulPose(new Quaternion(0, -event.getPlayer().getYRot(), 0, true));
-            event.getPoseStack().mulPose(new Quaternion(90F + event.getPlayer().getXRot(), 0, 0, true));
-            event.getPoseStack().mulPose(new Quaternion(0, event.getPlayer().getYRot(), 0, true));
+            event.getPoseStack().mulPose(HUClientUtil.quatFromXYZ(0, -event.getEntity().getYRot(), 0, true));
+            event.getPoseStack().mulPose(HUClientUtil.quatFromXYZ(90F + event.getEntity().getXRot(), 0, 0, true));
+            event.getPoseStack().mulPose(HUClientUtil.quatFromXYZ(0, event.getEntity().getYRot(), 0, true));
         }
-        AbilityHelper.getAbilityMap(event.getPlayer()).values().forEach(ability -> ability.getClientProperties().renderPlayerPreAlways(event));
+        AbilityHelper.getAbilityMap(event.getEntity()).values().forEach(ability -> ability.getClientProperties().renderPlayerPreAlways(event));
     }
 
     @SubscribeEvent
     public void renderPlayerPost(RenderPlayerEvent.Post event) {
-        AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.getClientProperties().renderPlayerPost(event));
-        AbilityHelper.getAbilityMap(event.getPlayer()).values().forEach(ability -> ability.getClientProperties().renderPlayerPostAlways(event));
-        IFlyingAbility ability = IFlyingAbility.getFlyingAbility(event.getPlayer());
-        event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-            if (ability != null && ability.isFlying(event.getPlayer()) && ability.renderFlying(event.getPlayer())) {
-                if (!event.getPlayer().isOnGround() && !event.getPlayer().isSwimming()) {
-                    if (!(event.getPlayer().getFallFlyingTicks() > 4) && !event.getPlayer().isVisuallySwimming()) {
+        AbilityHelper.getAbilities(event.getEntity()).forEach(ability -> ability.getClientProperties().renderPlayerPost(event));
+        AbilityHelper.getAbilityMap(event.getEntity()).values().forEach(ability -> ability.getClientProperties().renderPlayerPostAlways(event));
+        IFlyingAbility ability = IFlyingAbility.getFlyingAbility(event.getEntity());
+        event.getEntity().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+            if (ability != null && ability.isFlying(event.getEntity()) && ability.renderFlying(event.getEntity())) {
+                if (!event.getEntity().isOnGround() && !event.getEntity().isSwimming()) {
+                    if (!(event.getEntity().getFallFlyingTicks() > 4) && !event.getEntity().isVisuallySwimming()) {
                         event.getPoseStack().popPose();
                     }
                 }
             }
         });
-        if (GlidingAbility.getInstance(event.getPlayer()) != null && GlidingAbility.getInstance(event.getPlayer()).canGliding(event.getPlayer())) {
+        if (GlidingAbility.getInstance(event.getEntity()) != null && GlidingAbility.getInstance(event.getEntity()).canGliding(event.getEntity())) {
             event.getPoseStack().popPose();
         }
     }
 
     @SubscribeEvent
-    public void onRenderBlockOverlay(RenderBlockOverlayEvent event) {
+    public void onRenderBlockOverlay(RenderBlockScreenEffectEvent event) {
         event.getPlayer().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             if (cap.isIntangible()) {
                 event.setCanceled(true);
@@ -398,15 +377,15 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public void registerControllers(RegisterPlayerControllerEvent event) {
-        AbilityHelper.getAbilityMap(event.getPlayer()).values().forEach(ability -> ability.getClientProperties().registerPlayerControllers(event));
+        AbilityHelper.getAbilityMap(event.getEntity()).values().forEach(ability -> ability.getClientProperties().registerPlayerControllers(event));
     }
 
     @SuppressWarnings("unchecked")
     @SubscribeEvent
     public void setupAnim(SetupAnimEvent event) {
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
         PlayerModel<?> model = event.getPlayerModel();
-        AbilityHelper.getAbilities(event.getPlayer()).forEach(ability -> ability.getClientProperties().setupAnim(event));
+        AbilityHelper.getAbilities(event.getEntity()).forEach(ability -> ability.getClientProperties().setupAnim(event));
         for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
             SuitItem suitItem = Suit.getSuitItem(equipmentSlot, player);
             if (suitItem != null) {
@@ -486,12 +465,12 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public void onInputUpdate(MovementInputUpdateEvent event) {
-        AbilityHelper.getAbilityMap(event.getPlayer()).values().forEach(ability -> ability.getClientProperties().inputUpdate(event));
+        AbilityHelper.getAbilityMap(event.getEntity()).values().forEach(ability -> ability.getClientProperties().inputUpdate(event));
     }
 
     @SubscribeEvent
     public void renderPlayerHandPost(RenderPlayerHandEvent.Post event) {
-        AbilityHelper.getAbilityMap(event.getPlayer()).values().forEach(ability -> ability.getClientProperties().renderAlwaysFirstPersonArm(Minecraft.getInstance().getEntityModels(), event.getRenderer(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), event.getPlayer(), event.getSide()));
+        AbilityHelper.getAbilityMap(event.getEntity()).values().forEach(ability -> ability.getClientProperties().renderAlwaysFirstPersonArm(Minecraft.getInstance().getEntityModels(), event.getRenderer(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), event.getEntity(), event.getSide()));
     }
 
     @SubscribeEvent
@@ -524,7 +503,7 @@ public class ClientEventHandler {
         AbstractClientPlayer player = mc.player;
         boolean canceled = false;
         for (BasicLaserAbility a : AbilityHelper.getListOfType(BasicLaserAbility.class, AbilityHelper.getAbilities(player))) {
-            float alpha = a.getAlpha(event.getPartialTicks());
+            float alpha = a.getAlpha(event.getPartialTick());
             if (alpha == 0) continue;
             Color color = HUJsonUtils.getColor(a.getJsonObject());
             HitResult hitResult = HUPlayerUtil.getPosLookingAt(player, a.getDataManager().getAsFloat("distance"));

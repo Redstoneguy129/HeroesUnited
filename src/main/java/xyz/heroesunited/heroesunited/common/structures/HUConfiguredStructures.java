@@ -1,8 +1,8 @@
 package xyz.heroesunited.heroesunited.common.structures;
 
-import net.minecraft.core.Registry;
+/*import net.minecraft.core.Registry;
 import net.minecraft.data.BuiltinRegistries;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
+import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;*/
 
 public class HUConfiguredStructures {
 
@@ -19,7 +19,7 @@ public class HUConfiguredStructures {
      * But the best time to register configured features by code is honestly to do it in FMLCommonSetupEvent.
      */
     public static void registerConfiguredStructures() {
-        Registry<ConfiguredStructureFeature<?, ?>> registry = BuiltinRegistries.CONFIGURED_STRUCTURE_FEATURE;
+        //Registry<ConfiguredStructureFeature<?, ?>> registry = BuiltinRegistries.CONFIGURED_STRUCTURE_FEATURE;
         //Registry.register(registry, new ResourceLocation(HeroesUnited.MODID, "configured_city"), CONFIGURED_CITY);
 
         /* Ok so, this part may be hard to grasp but basically, just add your structure to this to

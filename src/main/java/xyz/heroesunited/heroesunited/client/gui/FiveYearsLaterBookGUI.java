@@ -8,9 +8,10 @@ import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.HttpTexture;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.client.gui.widget.ExtendedButton;
 import net.minecraftforge.client.gui.widget.ForgeSlider;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 
@@ -31,7 +32,7 @@ public class FiveYearsLaterBookGUI extends Screen {
     private double value = 0.0D;
 
     public FiveYearsLaterBookGUI() {
-        super(new TranslatableComponent("screen.heroesunited.fiveyearslater"));
+        super(Component.translatable("screen.heroesunited.fiveyearslater"));
     }
 
     @Override
@@ -44,14 +45,14 @@ public class FiveYearsLaterBookGUI extends Screen {
         super.init();
         this.xSize = (width - 200) / 2;
         this.ySize = (height - 260) / 2;
-        this.addRenderableWidget(new Button(xSize - 20, height / 2, 20, 20, new TranslatableComponent("<"), b -> backPage()));
-        this.addRenderableWidget(new Button(xSize + 200, height / 2, 20, 20, new TranslatableComponent(">"), b -> nextPage()));
+        this.addRenderableWidget(new ExtendedButton(xSize - 20, height / 2, 20, 20, Component.translatable("<"), b -> backPage()));
+        this.addRenderableWidget(new ExtendedButton(xSize + 200, height / 2, 20, 20, Component.translatable(">"), b -> nextPage()));
         //this.addRenderableWidget(new Button(xSize + 70, height / 2 + 130, 60, 20, new TranslationTextComponent(isHighRes ? "Low res" : "High res"), b -> isHighRes = !isHighRes));
         if (pageNum == pages.length - 1) {
-            this.addRenderableWidget(new Button(xSize + 25, ySize + (260 / 2) + 50, 150, 20, new TranslatableComponent("Check Out The 5YL Comic!"),
+            this.addRenderableWidget(new ExtendedButton(xSize + 25, ySize + (260 / 2) + 50, 150, 20, Component.translatable("Check Out The 5YL Comic!"),
                     b -> minecraft.setScreen(new ConfirmLinkScreen(this::confirmCallback, "https://www.theinktank.co/5yearslater", true))));
         }
-        ForgeSlider slider = new ForgeSlider(xSize + 50, height / 2 + 130, 100, 20, TextComponent.EMPTY, TextComponent.EMPTY, 0, 1275, 0, false) {
+        ForgeSlider slider = new ForgeSlider(xSize + 50, height / 2 + 130, 100, 20, Component.empty(), Component.empty(), 0, 1275, 0, false) {
             @Override
             protected void applyValue() {
                 super.applyValue();

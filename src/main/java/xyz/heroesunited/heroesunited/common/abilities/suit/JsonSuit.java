@@ -14,6 +14,8 @@ import net.minecraft.world.item.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegisterEvent;
+import oshi.util.tuples.Pair;
 import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
@@ -44,32 +46,25 @@ public class JsonSuit extends Suit {
         return jsonObject;
     }
 
-    @Override
-    public void registerItems(IForgeRegistry<Item> e) {
-        if (jsonObject.has("slots")) {
-            JsonObject slots = jsonObject.getAsJsonObject("slots");
-            if (slots.has("head")) {
-                e.register(helmet = createItem(this, EquipmentSlot.HEAD, slots));
+    public Map<EquipmentSlot, Pair<ResourceLocation, SuitItem>> createItems() {
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            if (slot.isArmor()) {
+
+                if (this.jsonObject.has("slots")) {
+                    JsonObject slots = jsonObject.getAsJsonObject("slots");
+                    if (slots.has(slot.getName().toLowerCase())) {
+                        this.itemList.put(slot, this.createItem(this, slot, slots));
+                    }
+                } else {
+                    this.itemList.put(slot, this.createItem(this, slot));
+                }
             }
-            if (slots.has("chest")) {
-                e.register(chestplate = createItem(this, EquipmentSlot.CHEST, slots));
-            }
-            if (slots.has("legs")) {
-                e.register(legs = createItem(this, EquipmentSlot.LEGS, slots));
-            }
-            if (slots.has("feet")) {
-                e.register(boots = createItem(this, EquipmentSlot.FEET, slots));
-            }
-        } else {
-            e.register(helmet = createItem(this, EquipmentSlot.HEAD));
-            e.register(chestplate = createItem(this, EquipmentSlot.CHEST));
-            e.register(legs = createItem(this, EquipmentSlot.LEGS));
-            e.register(boots = createItem(this, EquipmentSlot.FEET));
         }
+        return this.itemList;
     }
 
-    protected SuitItem createItem(Suit suit, EquipmentSlot slot, JsonObject slots) {
-        return (SuitItem) new SuitItem(suit.getSuitMaterial(), slot, new Item.Properties().stacksTo(1).tab(suit.getItemGroup()), suit).setRegistryName(suit.getRegistryName().getNamespace(), suit.getRegistryName().getPath() + "_" + GsonHelper.getAsString(slots, slot.getName().toLowerCase()));
+    protected Pair<ResourceLocation, SuitItem> createItem(Suit suit, EquipmentSlot slot, JsonObject slots) {
+        return new Pair<>(new ResourceLocation(suit.getRegistryName().getNamespace(), suit.getRegistryName().getPath() + "_" + GsonHelper.getAsString(slots, slot.getName().toLowerCase())), new SuitItem(suit.getSuitMaterial(), slot, new Item.Properties().stacksTo(1), suit));
     }
 
     @Override
@@ -170,7 +165,7 @@ public class JsonSuit extends Suit {
                             part.setVisibility(event.getPlayerModel(), false);
                         }
                     } else {
-                        if (hasArmorOn(event.getPlayer()) && !GsonHelper.getAsBoolean(overrides, entry.getKey())) {
+                        if (hasArmorOn(event.getEntity()) && !GsonHelper.getAsBoolean(overrides, entry.getKey())) {
                             part.setVisibility(event.getPlayerModel(), false);
                         }
                     }

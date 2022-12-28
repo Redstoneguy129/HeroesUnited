@@ -6,18 +6,17 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegistryBuilder;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.util.hudata.HUData;
 
 import java.util.function.Supplier;
 
-public class AbilityType extends ForgeRegistryEntry<AbilityType> {
+public class AbilityType {
 
-    public static final ResourceLocation REGISTRY_KEY = new ResourceLocation(HeroesUnited.MODID, "ability_types");
-    public static final DeferredRegister<AbilityType> ABILITY_TYPES = DeferredRegister.create(REGISTRY_KEY, HeroesUnited.MODID);
-    public static Supplier<IForgeRegistry<AbilityType>> ABILITIES = () -> null;
+    public static final DeferredRegister<AbilityType> ABILITY_TYPES = DeferredRegister.create(new ResourceLocation(HeroesUnited.MODID, "ability_types"), HeroesUnited.MODID);
+    public static final Supplier<IForgeRegistry<AbilityType>> REGISTRY = ABILITY_TYPES.makeRegistry(RegistryBuilder::new);
 
     private final AbilitySupplier supplier;
 
@@ -25,13 +24,8 @@ public class AbilityType extends ForgeRegistryEntry<AbilityType> {
         this.supplier = supplier;
     }
 
-    public AbilityType(AbilitySupplier supplier, String modid, String name) {
-        this(supplier);
-        this.setRegistryName(modid, name);
-    }
-
     public static Ability fromNBT(Player player, String id, CompoundTag tag) {
-        AbilityType type = AbilityType.ABILITIES.get().getValue(new ResourceLocation(tag.getString("AbilityType")));
+        AbilityType type = AbilityType.REGISTRY.get().getValue(new ResourceLocation(tag.getString("AbilityType")));
         if (type != null) {
             Ability ability = type.create(player, id, GsonHelper.parse(tag.getString("JsonObject")));
             ability.deserializeNBT(tag);

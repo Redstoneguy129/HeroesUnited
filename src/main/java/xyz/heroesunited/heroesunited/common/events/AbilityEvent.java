@@ -46,8 +46,8 @@ public abstract class AbilityEvent extends PlayerEvent {
 
         @Nullable
         @Override
-        public Player getPlayer() {
-            return super.getPlayer();
+        public Player getEntity() {
+            return super.getEntity();
         }
 
         public HUDataManager getDataManager() {

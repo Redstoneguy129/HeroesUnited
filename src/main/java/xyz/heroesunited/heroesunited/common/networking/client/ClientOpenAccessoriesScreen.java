@@ -3,7 +3,7 @@ package xyz.heroesunited.heroesunited.common.networking.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -53,7 +53,7 @@ public class ClientOpenAccessoriesScreen {
                         @OnlyIn(Dist.CLIENT)
                         @Override
                         public void run() {
-                            mc.setScreen(new AccessoriesScreen(menu, localplayer.getInventory(), new TranslatableComponent("gui.heroesunited.accessories")));
+                            mc.setScreen(new AccessoriesScreen(menu, localplayer.getInventory(), Component.translatable("gui.heroesunited.accessories")));
                         }
                     });
                 });

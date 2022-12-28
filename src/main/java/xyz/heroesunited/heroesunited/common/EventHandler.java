@@ -22,7 +22,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.util.ITeleporter;
 import net.minecraftforge.event.AddReloadListenerEvent;
@@ -34,7 +33,6 @@ import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.network.NetworkDirection;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -62,7 +60,6 @@ import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.hupacks.js.item.IJSItem;
 import xyz.heroesunited.heroesunited.mixin.entity.LivingEntityAccessor;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
-import xyz.heroesunited.heroesunited.util.HUOres;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 import xyz.heroesunited.heroesunited.util.HUTickrate;
 
@@ -115,7 +112,7 @@ public class EventHandler {
                 for (CelestialBody celestialBody : CelestialBodies.REGISTRY.get().getValues()) {
                     celestialBody.tick();
                     for (Player mpPlayer : event.player.level.players()) {
-                        HUNetworking.INSTANCE.sendTo(new ClientSyncCelestialBody(celestialBody.writeNBT(), celestialBody.getRegistryName()), ((ServerPlayer) mpPlayer).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                        HUNetworking.INSTANCE.sendTo(new ClientSyncCelestialBody(celestialBody.writeNBT(), CelestialBodies.REGISTRY.get().getKey(celestialBody)), ((ServerPlayer) mpPlayer).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                     }
                 }
             for (Ability a : AbilityHelper.getAbilities(event.player)) {
@@ -127,8 +124,8 @@ public class EventHandler {
     }
 
     @SubscribeEvent
-    public void livingUpdate(LivingEvent.LivingUpdateEvent event) {
-        LivingEntity entity = event.getEntityLiving();
+    public void livingUpdate(LivingEvent.LivingTickEvent event) {
+        LivingEntity entity = event.getEntity();
         if (entity != null && entity.isAlive()) {
             if (!entity.level.isClientSide && !HUPlayerUtil.canBreath(entity)) {
                 entity.hurt((new DamageSource("space_drown")).bypassArmor(), 1);
@@ -139,7 +136,7 @@ public class EventHandler {
                     ResourceLocation res = entity.level.dimension().location();
                     try (
                             InputStreamReader reader = new InputStreamReader(entity.level.getServer().getResourceManager().getResource(
-                                    new ResourceLocation(res.getNamespace(), String.format("dimension_type/%s.json", res.getPath()))).getInputStream(), StandardCharsets.UTF_8)
+                                    new ResourceLocation(res.getNamespace(), String.format("dimension_type/%s.json", res.getPath()))).get().open(), StandardCharsets.UTF_8)
                     ) {
                         jsonObject = GsonHelper.fromJson(HUPacks.GSON, reader, JsonObject.class);
                     } catch (IOException e) {
@@ -263,11 +260,11 @@ public class EventHandler {
 
     @SubscribeEvent
     public void onLivingHurt(LivingAttackEvent event) {
-        if (!event.getEntityLiving().level.isClientSide && event.getEntityLiving().level.dimension().equals(HeroesUnited.SPACE) && event.getSource() == DamageSource.OUT_OF_WORLD) {
+        if (!event.getEntity().level.isClientSide && event.getEntity().level.dimension().equals(HeroesUnited.SPACE) && event.getSource() == DamageSource.OUT_OF_WORLD) {
             event.setCanceled(true);
         }
-        if (event.getEntityLiving() instanceof Player) {
-            for (Ability a : AbilityHelper.getAbilities(event.getEntityLiving())) {
+        if (event.getEntity() instanceof Player) {
+            for (Ability a : AbilityHelper.getAbilities(event.getEntity())) {
                 if (a.type.equals(AbilityType.DAMAGE_IMMUNITY)) {
                     for (String s : HUJsonUtils.getStringsFromArray(GsonHelper.getAsJsonArray(a.getJsonObject(), "damage_sources"))) {
                         if (s.equals(event.getSource().getMsgId()) && a.getEnabled()) {
@@ -286,8 +283,8 @@ public class EventHandler {
         if (entity instanceof Player) {
             entity.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                 if (cap.isIntangible()) {
-                    if (event.getState().getShape(event.getWorld(), event.getPos()) != Shapes.empty()) {
-                        if (entity.position().y >= (event.getPos().getY() + event.getState().getShape(event.getWorld(), event.getPos()).bounds().getYsize())) {
+                    if (event.getState().getShape(event.getLevel(), event.getPos()) != Shapes.empty()) {
+                        if (entity.position().y >= (event.getPos().getY() + event.getState().getShape(event.getLevel(), event.getPos()).bounds().getYsize())) {
                             IFlyingAbility b = IFlyingAbility.getFlyingAbility((Player) entity);
                             collidable.set(b != null && !b.isFlying((Player) entity) && !entity.isCrouching());
                         } else {
@@ -309,9 +306,9 @@ public class EventHandler {
 
     @SubscribeEvent
     public void onChangeEquipment(LivingEquipmentChangeEvent event) {
-        if (event.getEntityLiving() instanceof Player player) {
+        if (event.getEntity() instanceof Player player) {
             player.getCapability(HUAbilityCap.CAPABILITY).ifPresent(cap -> {
-                if (event.getSlot().getType() == EquipmentSlot.Type.ARMOR) {
+                if (event.getSlot().isArmor()) {
                     if (event.getFrom().getItem() instanceof SuitItem suitItem && !cap.getAbilities().isEmpty()) {
                         if (!(event.getTo().getItem() instanceof SuitItem) || ((SuitItem) event.getTo().getItem()).getSuit() != suitItem.getSuit()) {
                             cap.clearAbilities((a) -> {
@@ -359,8 +356,8 @@ public class EventHandler {
 
     @SubscribeEvent
     public void LivingFallEvent(LivingFallEvent event) {
-        AttributeInstance fallAttribute = event.getEntityLiving().getAttribute(HUAttributes.FALL_RESISTANCE);
-        if (fallAttribute != null && event.getEntityLiving() instanceof Player) {
+        AttributeInstance fallAttribute = event.getEntity().getAttribute(HUAttributes.FALL_RESISTANCE);
+        if (fallAttribute != null && event.getEntity() instanceof Player) {
             fallAttribute.setBaseValue(event.getDamageMultiplier());
             event.setDamageMultiplier((float) fallAttribute.getValue());
         }
@@ -368,22 +365,22 @@ public class EventHandler {
 
     @SubscribeEvent
     public void LivingJumpEvent(LivingEvent.LivingJumpEvent event) {
-        AttributeInstance attributeInstance = event.getEntityLiving().getAttribute(HUAttributes.JUMP_BOOST);
-        if (event.getEntityLiving() instanceof Player player && attributeInstance != null) {
+        AttributeInstance attributeInstance = event.getEntity().getAttribute(HUAttributes.JUMP_BOOST);
+        if (event.getEntity() instanceof Player player && attributeInstance != null) {
             player.setDeltaMovement(player.getDeltaMovement().x, player.getDeltaMovement().y + 0.1F * attributeInstance.getValue(), player.getDeltaMovement().z);
         }
     }
 
     @SubscribeEvent
     public void loggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        if (event.getPlayer() instanceof ServerPlayer player) {
+        if (event.getEntity() instanceof ServerPlayer player) {
             HUNetworking.INSTANCE.sendTo(new ClientSyncSuperpowers(HUPackSuperpowers.getInstance().registeredSuperpowers), player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
         }
     }
 
     @SubscribeEvent
     public void loggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        if (event.getPlayer() instanceof ServerPlayer player) {
+        if (event.getEntity() instanceof ServerPlayer player) {
             HUNetworking.INSTANCE.sendTo(new ClientSyncSuperpowers(Maps.newHashMap()), player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
         }
     }
@@ -394,13 +391,10 @@ public class EventHandler {
         event.addListener(new HUPackSuperpowers());
     }
 
-    @SubscribeEvent
+    /*@SubscribeEvent
     public void biomeLoading(BiomeLoadingEvent event) {
-        if (BiomeDictionary.hasType(ResourceKey.create(Registry.BIOME_REGISTRY, Objects.requireNonNull(event.getName())), BiomeDictionary.Type.OVERWORLD)) {
-            event.getGeneration().addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, Holder.direct(HUOres.ORE_TITANIUM_PLACEMENT.value()));
-        }
         //event.getGeneration().getStructures().add(() -> HUConfiguredStructures.CONFIGURED_CITY);
-    }
+    }*/
 
     /**
      * Will go into the world's chunkgenerator and manually add our structure spacing.

@@ -4,8 +4,7 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
@@ -17,12 +16,13 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import org.joml.Quaternionf;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
@@ -71,7 +71,7 @@ public class HorasScreen extends Screen {
     private TabEnum currentTab;
 
     public HorasScreen(HorasEntity horas) {
-        super(new TranslatableComponent("screen.heroesunited.horasscreen"));
+        super(Component.translatable("screen.heroesunited.horasscreen"));
         this.horas = horas;
     }
 
@@ -164,7 +164,7 @@ public class HorasScreen extends Screen {
             HorasInfo.AlienInfo alien1 = (HorasInfo.AlienInfo) alienInfoHUEntityHashMap.keySet().toArray()[alienPage * 3];
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 6, y + 7, 256, 256, 75, 138);
-            drawCenteredString(matrixStack, this.font, new TextComponent(alien1.getName()), x + 6 + (75 / 2), y + 14, 16777215);
+            drawCenteredString(matrixStack, this.font, Component.literal(alien1.getName()), x + 6 + (75 / 2), y + 14, 16777215);
             this.drawEntity(x + 6 + (75 / 2), y + 114, alienInfoHUEntityHashMap.get(alien1));
             List<Character> alien1CharacterList = new ArrayList<>();
             for (char i : alien1.getDescription().toCharArray()) {
@@ -186,7 +186,7 @@ public class HorasScreen extends Screen {
                 }
                 StringBuilder newLine = new StringBuilder();
                 characters.forEach(newLine::append);
-                drawString(matrixStack, this.font, new TextComponent(newLine.toString()), x + 9, y + 76 + (lineCount * 12), 16777215);
+                drawString(matrixStack, this.font, Component.literal(newLine.toString()), x + 9, y + 76 + (lineCount * 12), 16777215);
                 lineCount++;
                 characters.clear();
             }
@@ -195,7 +195,7 @@ public class HorasScreen extends Screen {
             HorasInfo.AlienInfo alien2 = (HorasInfo.AlienInfo) alienInfoHUEntityHashMap.keySet().toArray()[alienPage * 3 + 1];
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 84, y + 7, 256, 256, 75, 138);
-            drawCenteredString(matrixStack, this.font, new TextComponent(alien2.getName()), x + 84 + (75 / 2), y + 14, 16777215);
+            drawCenteredString(matrixStack, this.font, Component.literal(alien2.getName()), x + 84 + (75 / 2), y + 14, 16777215);
             this.drawEntity(x + 84 + (75 / 2), y + 114, alienInfoHUEntityHashMap.get(alien2));
             List<Character> alien2CharacterList = new ArrayList<>();
             for (char i : alien2.getDescription().toCharArray()) {
@@ -214,7 +214,7 @@ public class HorasScreen extends Screen {
                 }
                 StringBuilder newLine = new StringBuilder();
                 characters.forEach(newLine::append);
-                drawString(matrixStack, this.font, new TextComponent(newLine.toString()), x + 87, y + 76 + (lineCount2 * 12), 16777215);
+                drawString(matrixStack, this.font, Component.literal(newLine.toString()), x + 87, y + 76 + (lineCount2 * 12), 16777215);
                 lineCount2++;
                 characters.clear();
             }
@@ -223,7 +223,7 @@ public class HorasScreen extends Screen {
             HorasInfo.AlienInfo alien3 = (HorasInfo.AlienInfo) alienInfoHUEntityHashMap.keySet().toArray()[alienPage * 3 + 2];
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 163, y + 7, 256, 256, 75, 138);
-            drawCenteredString(matrixStack, this.font, new TextComponent(alien3.getName()), x + 163 + (75 / 2), y + 14, 16777215);
+            drawCenteredString(matrixStack, this.font, Component.literal(alien3.getName()), x + 163 + (75 / 2), y + 14, 16777215);
             this.drawEntity(x + 163 + (75 / 2), y + 114, alienInfoHUEntityHashMap.get(alien3));
             List<Character> alien3CharacterList = new ArrayList<>();
             for (char i : alien3.getDescription().toCharArray()) {
@@ -239,7 +239,7 @@ public class HorasScreen extends Screen {
                 }
                 StringBuilder newLine = new StringBuilder();
                 characters.forEach(newLine::append);
-                drawString(matrixStack, this.font, new TextComponent(newLine.toString()), x + 166, y + 76 + (lineCount3 * 12), 16777215);
+                drawString(matrixStack, this.font, Component.literal(newLine.toString()), x + 166, y + 76 + (lineCount3 * 12), 16777215);
                 lineCount3++;
                 characters.clear();
             }
@@ -260,7 +260,7 @@ public class HorasScreen extends Screen {
             HorasInfo.EvoInfo evo1 = (HorasInfo.EvoInfo) evoInfoHUEntityHashMap.keySet().toArray()[evoPage * 3];
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 6, y + 7, 256, 256, 75, 138);
-            drawCenteredString(matrixStack, this.font, new TextComponent(evo1.getName()), x + 6 + (75 / 2), y + 14, 16777215);
+            drawCenteredString(matrixStack, this.font, Component.literal(evo1.getName()), x + 6 + (75 / 2), y + 14, 16777215);
             this.drawEntity(x + 6 + (75 / 2), y + 114, evoInfoHUEntityHashMap.get(evo1));
             List<Character> evo1CharacterList = new ArrayList<>();
             for (char i : evo1.getDescription().toCharArray()) {
@@ -282,7 +282,7 @@ public class HorasScreen extends Screen {
                 }
                 StringBuilder newLine = new StringBuilder();
                 characters.forEach(newLine::append);
-                drawString(matrixStack, this.font, new TextComponent(newLine.toString()), x + 9, y + 76 + (lineCount * 12), 16777215);
+                drawString(matrixStack, this.font, Component.literal(newLine.toString()), x + 9, y + 76 + (lineCount * 12), 16777215);
                 lineCount++;
                 characters.clear();
             }
@@ -291,7 +291,7 @@ public class HorasScreen extends Screen {
             HorasInfo.EvoInfo evo2 = (HorasInfo.EvoInfo) evoInfoHUEntityHashMap.keySet().toArray()[evoPage * 3 + 1];
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 84, y + 7, 256, 256, 75, 138);
-            drawCenteredString(matrixStack, this.font, new TextComponent(evo2.getName()), x + 84 + (75 / 2), y + 14, 16777215);
+            drawCenteredString(matrixStack, this.font, Component.literal(evo2.getName()), x + 84 + (75 / 2), y + 14, 16777215);
             this.drawEntity(x + 84 + (75 / 2), y + 114, evoInfoHUEntityHashMap.get(evo2));
             List<Character> evo2CharacterList = new ArrayList<>();
             for (char i : evo2.getDescription().toCharArray()) {
@@ -310,7 +310,7 @@ public class HorasScreen extends Screen {
                 }
                 StringBuilder newLine = new StringBuilder();
                 characters.forEach(newLine::append);
-                drawString(matrixStack, this.font, new TextComponent(newLine.toString()), x + 87, y + 76 + (lineCount2 * 12), 16777215);
+                drawString(matrixStack, this.font, Component.literal(newLine.toString()), x + 87, y + 76 + (lineCount2 * 12), 16777215);
                 lineCount2++;
                 characters.clear();
             }
@@ -319,7 +319,7 @@ public class HorasScreen extends Screen {
             HorasInfo.EvoInfo evo3 = (HorasInfo.EvoInfo) evoInfoHUEntityHashMap.keySet().toArray()[evoPage * 3 + 2];
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 163, y + 7, 256, 256, 75, 138);
-            drawCenteredString(matrixStack, this.font, new TextComponent(evo3.getName()), x + 163 + (75 / 2), y + 14, 16777215);
+            drawCenteredString(matrixStack, this.font, Component.literal(evo3.getName()), x + 163 + (75 / 2), y + 14, 16777215);
             this.drawEntity(x + 163 + (75 / 2), y + 114, evoInfoHUEntityHashMap.get(evo3));
             List<Character> evo3CharacterList = new ArrayList<>();
             for (char i : evo3.getDescription().toCharArray()) {
@@ -335,7 +335,7 @@ public class HorasScreen extends Screen {
                 }
                 StringBuilder newLine = new StringBuilder();
                 characters.forEach(newLine::append);
-                drawString(matrixStack, this.font, new TextComponent(newLine.toString()), x + 166, y + 76 + (lineCount3 * 12), 16777215);
+                drawString(matrixStack, this.font, Component.literal(newLine.toString()), x + 166, y + 76 + (lineCount3 * 12), 16777215);
                 lineCount3++;
                 characters.clear();
             }
@@ -356,7 +356,7 @@ public class HorasScreen extends Screen {
             HorasInfo.GhostInfo ghost1 = (HorasInfo.GhostInfo) ghostInfoHUEntityHashMap.keySet().toArray()[ghostPage * 3];
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 6, y + 7, 256, 256, 75, 138);
-            drawCenteredString(matrixStack, this.font, new TextComponent(ghost1.getName()), x + 6 + (75 / 2), y + 14, 16777215);
+            drawCenteredString(matrixStack, this.font, Component.literal(ghost1.getName()), x + 6 + (75 / 2), y + 14, 16777215);
             this.drawEntity(x + 6 + (75 / 2), y + 114, ghostInfoHUEntityHashMap.get(ghost1));
             List<Character> ghost1CharacterList = new ArrayList<>();
             for (char i : ghost1.getDescription().toCharArray()) {
@@ -378,7 +378,7 @@ public class HorasScreen extends Screen {
                 }
                 StringBuilder newLine = new StringBuilder();
                 characters.forEach(newLine::append);
-                drawString(matrixStack, this.font, new TextComponent(newLine.toString()), x + 9, y + 76 + (lineCount * 12), 16777215);
+                drawString(matrixStack, this.font, Component.literal(newLine.toString()), x + 9, y + 76 + (lineCount * 12), 16777215);
                 lineCount++;
                 characters.clear();
             }
@@ -387,7 +387,7 @@ public class HorasScreen extends Screen {
             HorasInfo.GhostInfo ghost2 = (HorasInfo.GhostInfo) ghostInfoHUEntityHashMap.keySet().toArray()[ghostPage * 3 + 1];
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 84, y + 7, 256, 256, 75, 138);
-            drawCenteredString(matrixStack, this.font, new TextComponent(ghost2.getName()), x + 84 + (75 / 2), y + 14, 16777215);
+            drawCenteredString(matrixStack, this.font, Component.literal(ghost2.getName()), x + 84 + (75 / 2), y + 14, 16777215);
             this.drawEntity(x + 84 + (75 / 2), y + 114, ghostInfoHUEntityHashMap.get(ghost2));
             List<Character> ghost2CharacterList = new ArrayList<>();
             for (char i : ghost2.getDescription().toCharArray()) {
@@ -406,7 +406,7 @@ public class HorasScreen extends Screen {
                 }
                 StringBuilder newLine = new StringBuilder();
                 characters.forEach(newLine::append);
-                drawString(matrixStack, this.font, new TextComponent(newLine.toString()), x + 87, y + 76 + (lineCount2 * 12), 16777215);
+                drawString(matrixStack, this.font, Component.literal(newLine.toString()), x + 87, y + 76 + (lineCount2 * 12), 16777215);
                 lineCount2++;
                 characters.clear();
             }
@@ -415,7 +415,7 @@ public class HorasScreen extends Screen {
             HorasInfo.GhostInfo ghost3 = (HorasInfo.GhostInfo) ghostInfoHUEntityHashMap.keySet().toArray()[ghostPage * 3 + 2];
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 163, y + 7, 256, 256, 75, 138);
-            drawCenteredString(matrixStack, this.font, new TextComponent(ghost3.getName()), x + 163 + (75 / 2), y + 14, 16777215);
+            drawCenteredString(matrixStack, this.font, Component.literal(ghost3.getName()), x + 163 + (75 / 2), y + 14, 16777215);
             this.drawEntity(x + 163 + (75 / 2), y + 114, ghostInfoHUEntityHashMap.get(ghost3));
             List<Character> ghost3CharacterList = new ArrayList<>();
             for (char i : ghost3.getDescription().toCharArray()) {
@@ -431,7 +431,7 @@ public class HorasScreen extends Screen {
                 }
                 StringBuilder newLine = new StringBuilder();
                 characters.forEach(newLine::append);
-                drawString(matrixStack, this.font, new TextComponent(newLine.toString()), x + 166, y + 76 + (lineCount3 * 12), 16777215);
+                drawString(matrixStack, this.font, Component.literal(newLine.toString()), x + 166, y + 76 + (lineCount3 * 12), 16777215);
                 lineCount3++;
                 characters.clear();
             }
@@ -452,7 +452,7 @@ public class HorasScreen extends Screen {
             HorasInfo.PlanetInfo planet1 = (HorasInfo.PlanetInfo) planetInfoHUEntityHashMap.keySet().toArray()[planetPage * 3];
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 6, y + 7, 256, 256, 75, 138);
-            drawCenteredString(matrixStack, this.font, new TextComponent(planet1.getName()), x + 6 + (75 / 2), y + 14, 16777215);
+            drawCenteredString(matrixStack, this.font, Component.literal(planet1.getName()), x + 6 + (75 / 2), y + 14, 16777215);
             RenderSystem.setShaderTexture(0, planetInfoHUEntityHashMap.get(planet1));
             this.blit(matrixStack, x + 8, y + 25, 256, 256, 71, 45);
             this.addRenderableWidget(new ImageButton(x + 6 + 20, y + 127, 33, 11, 0, 0, 0, travel, (buttons) -> HUNetworking.INSTANCE.sendToServer(new ServerHorasPlayerSetDimension(planet1.getDimensionID(), this.horas.getId()))));
@@ -473,7 +473,7 @@ public class HorasScreen extends Screen {
                 }
                 StringBuilder newLine = new StringBuilder();
                 characters.forEach(newLine::append);
-                drawString(matrixStack, this.font, new TextComponent(newLine.toString()), x + 9, y + 73 + (lineCount * 12), 16777215);
+                drawString(matrixStack, this.font, Component.literal(newLine.toString()), x + 9, y + 73 + (lineCount * 12), 16777215);
                 lineCount++;
                 characters.clear();
             }
@@ -482,7 +482,7 @@ public class HorasScreen extends Screen {
             HorasInfo.PlanetInfo planet2 = (HorasInfo.PlanetInfo) planetInfoHUEntityHashMap.keySet().toArray()[planetPage * 3 + 1];
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 84, y + 7, 256, 256, 75, 138);
-            drawCenteredString(matrixStack, this.font, new TextComponent(planet2.getName()), x + 84 + (75 / 2), y + 14, 16777215);
+            drawCenteredString(matrixStack, this.font, Component.literal(planet2.getName()), x + 84 + (75 / 2), y + 14, 16777215);
             RenderSystem.setShaderTexture(0, planetInfoHUEntityHashMap.get(planet2));
             this.blit(matrixStack, x + 86, y + 25, 256, 256, 71, 45);
             this.addRenderableWidget(new ImageButton(x + 84 + 20, y + 127, 33, 11, 0, 0, 0, travel, (buttons) -> HUNetworking.INSTANCE.sendToServer(new ServerHorasPlayerSetDimension(planet2.getDimensionID(), this.horas.getId()))));
@@ -503,7 +503,7 @@ public class HorasScreen extends Screen {
                 }
                 StringBuilder newLine = new StringBuilder();
                 characters.forEach(newLine::append);
-                drawString(matrixStack, this.font, new TextComponent(newLine.toString()), x + 87, y + 73 + (lineCount2 * 12), 16777215);
+                drawString(matrixStack, this.font, Component.literal(newLine.toString()), x + 87, y + 73 + (lineCount2 * 12), 16777215);
                 lineCount2++;
                 characters.clear();
             }
@@ -512,7 +512,7 @@ public class HorasScreen extends Screen {
             HorasInfo.PlanetInfo planet3 = (HorasInfo.PlanetInfo) planetInfoHUEntityHashMap.keySet().toArray()[planetPage * 3 + 2];
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 163, y + 7, 256, 256, 75, 138);
-            drawCenteredString(matrixStack, this.font, new TextComponent(planet3.getName()), x + 163 + (75 / 2), y + 14, 16777215);
+            drawCenteredString(matrixStack, this.font, Component.literal(planet3.getName()), x + 163 + (75 / 2), y + 14, 16777215);
             RenderSystem.setShaderTexture(0, planetInfoHUEntityHashMap.get(planet3));
             this.blit(matrixStack, x + 165, y + 25, 256, 256, 71, 45);
             this.addRenderableWidget(new ImageButton(x + 163 + 20, y + 127, 33, 11, 0, 0, 0, travel, (buttons) -> HUNetworking.INSTANCE.sendToServer(new ServerHorasPlayerSetDimension(planet3.getDimensionID(), this.horas.getId()))));
@@ -533,7 +533,7 @@ public class HorasScreen extends Screen {
                 }
                 StringBuilder newLine = new StringBuilder();
                 characters.forEach(newLine::append);
-                drawString(matrixStack, this.font, new TextComponent(newLine.toString()), x + 166, y + 73 + (lineCount3 * 12), 16777215);
+                drawString(matrixStack, this.font, Component.literal(newLine.toString()), x + 166, y + 73 + (lineCount3 * 12), 16777215);
                 lineCount3++;
                 characters.clear();
             }
@@ -554,7 +554,7 @@ public class HorasScreen extends Screen {
             HorasInfo.DimensionInfo dimension1 = (HorasInfo.DimensionInfo) dimensionInfoHUEntityHashMap.keySet().toArray()[dimensionPage * 3];
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 6, y + 7, 256, 256, 75, 138);
-            drawCenteredString(matrixStack, this.font, new TextComponent(dimension1.getName()), x + 6 + (75 / 2), y + 14, 16777215);
+            drawCenteredString(matrixStack, this.font, Component.literal(dimension1.getName()), x + 6 + (75 / 2), y + 14, 16777215);
             RenderSystem.setShaderTexture(0, dimensionInfoHUEntityHashMap.get(dimension1));
             this.blit(matrixStack, x + 8, y + 25, 256, 256, 71, 45);
             this.addRenderableWidget(new ImageButton(x + 6 + 20, y + 127, 33, 11, 0, 0, 0, travel, (buttons) -> HUNetworking.INSTANCE.sendToServer(new ServerHorasPlayerSetDimension(dimension1.getDimensionID(), this.horas.getId()))));
@@ -575,7 +575,7 @@ public class HorasScreen extends Screen {
                 }
                 StringBuilder newLine = new StringBuilder();
                 characters.forEach(newLine::append);
-                drawString(matrixStack, this.font, new TextComponent(newLine.toString()), x + 9, y + 73 + (lineCount * 12), 16777215);
+                drawString(matrixStack, this.font, Component.literal(newLine.toString()), x + 9, y + 73 + (lineCount * 12), 16777215);
                 lineCount++;
                 characters.clear();
             }
@@ -584,7 +584,7 @@ public class HorasScreen extends Screen {
             HorasInfo.DimensionInfo dimension2 = (HorasInfo.DimensionInfo) dimensionInfoHUEntityHashMap.keySet().toArray()[dimensionPage * 3 + 1];
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 84, y + 7, 256, 256, 75, 138);
-            drawCenteredString(matrixStack, this.font, new TextComponent(dimension2.getName()), x + 84 + (75 / 2), y + 14, 16777215);
+            drawCenteredString(matrixStack, this.font, Component.literal(dimension2.getName()), x + 84 + (75 / 2), y + 14, 16777215);
             RenderSystem.setShaderTexture(0, dimensionInfoHUEntityHashMap.get(dimension2));
             this.blit(matrixStack, x + 86, y + 25, 256, 256, 71, 45);
             this.addRenderableWidget(new ImageButton(x + 84 + 20, y + 127, 33, 11, 0, 0, 0, travel, (buttons) -> HUNetworking.INSTANCE.sendToServer(new ServerHorasPlayerSetDimension(dimension2.getDimensionID(), this.horas.getId()))));
@@ -605,7 +605,7 @@ public class HorasScreen extends Screen {
                 }
                 StringBuilder newLine = new StringBuilder();
                 characters.forEach(newLine::append);
-                drawString(matrixStack, this.font, new TextComponent(newLine.toString()), x + 87, y + 73 + (lineCount2 * 12), 16777215);
+                drawString(matrixStack, this.font, Component.literal(newLine.toString()), x + 87, y + 73 + (lineCount2 * 12), 16777215);
                 lineCount2++;
                 characters.clear();
             }
@@ -614,7 +614,7 @@ public class HorasScreen extends Screen {
             HorasInfo.DimensionInfo dimension3 = (HorasInfo.DimensionInfo) dimensionInfoHUEntityHashMap.keySet().toArray()[dimensionPage * 3 + 2];
             RenderSystem.setShaderTexture(0, info);
             this.blit(matrixStack, x + 163, y + 7, 256, 256, 75, 138);
-            drawCenteredString(matrixStack, this.font, new TextComponent(dimension3.getName()), x + 163 + (75 / 2), y + 14, 16777215);
+            drawCenteredString(matrixStack, this.font, Component.literal(dimension3.getName()), x + 163 + (75 / 2), y + 14, 16777215);
             RenderSystem.setShaderTexture(0, dimensionInfoHUEntityHashMap.get(dimension3));
             this.blit(matrixStack, x + 165, y + 25, 256, 256, 71, 45);
             this.addRenderableWidget(new ImageButton(x + 163 + 20, y + 127, 33, 11, 0, 0, 0, travel, (buttons) -> HUNetworking.INSTANCE.sendToServer(new ServerHorasPlayerSetDimension(dimension3.getDimensionID(), this.horas.getId()))));
@@ -635,7 +635,7 @@ public class HorasScreen extends Screen {
                 }
                 StringBuilder newLine = new StringBuilder();
                 characters.forEach(newLine::append);
-                drawString(matrixStack, this.font, new TextComponent(newLine.toString()), x + 166, y + 73 + (lineCount3 * 12), 16777215);
+                drawString(matrixStack, this.font, Component.literal(newLine.toString()), x + 166, y + 73 + (lineCount3 * 12), 16777215);
                 lineCount3++;
                 characters.clear();
             }
@@ -658,10 +658,10 @@ public class HorasScreen extends Screen {
             PoseStack posestack1 = new PoseStack();
             posestack1.translate(0.0D, 0.0D, 1000.0D);
             posestack1.scale((float) 40, (float) 40, (float) 40);
-            Quaternion quaternion = Vector3f.ZP.rotationDegrees(180.0F);
-            Quaternion quaternion1 = Vector3f.XP.rotationDegrees(f1 * 20.0F);
-            quaternion.mul(quaternion1);
-            posestack1.mulPose(quaternion);
+            Quaternionf Quaternionf = Axis.ZP.rotationDegrees(180.0F);
+            Quaternionf quaternion1 = Axis.XP.rotationDegrees(f1 * 20.0F);
+            Quaternionf.mul(quaternion1);
+            posestack1.mulPose(Quaternionf);
             float f2 = entity.yBodyRot;
             float f3 = entity.getYRot();
             float f4 = entity.getXRot();
@@ -674,7 +674,7 @@ public class HorasScreen extends Screen {
             entity.yHeadRotO = entity.getYRot();
             Lighting.setupForEntityInInventory();
             EntityRenderDispatcher entityrenderdispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-            quaternion1.conj();
+            quaternion1.conjugate();
             entityrenderdispatcher.overrideCameraOrientation(quaternion1);
             entityrenderdispatcher.setRenderShadow(false);
             MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();

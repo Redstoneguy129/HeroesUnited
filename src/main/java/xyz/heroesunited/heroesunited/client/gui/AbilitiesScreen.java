@@ -6,15 +6,16 @@ import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.client.gui.widget.ExtendedButton;
 import net.minecraftforge.network.PacketDistributor;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.AbilityOverlay;
@@ -44,7 +45,7 @@ public class AbilitiesScreen extends Screen {
     private int left, top;
 
     public AbilitiesScreen() {
-        super(new TranslatableComponent("gui.heroesunited.abilities"));
+        super(Component.translatable("gui.heroesunited.abilities"));
     }
 
     @Override
@@ -60,7 +61,7 @@ public class AbilitiesScreen extends Screen {
         top = (height - 170) / 2;
         IHUPlayer cap = HUPlayer.getCap(minecraft.player);
 
-        this.addRenderableWidget(new Button(left + 110, top + 5, 80, 20, new TranslatableComponent("Change Theme"), (b) -> {
+        this.addRenderableWidget(new ExtendedButton(left + 110, top + 5, 80, 20, Component.translatable("Change Theme"), (b) -> {
             if (cap != null && cap.getTheme() >= themes.size())
                 cap.setTheme(0);
             HUNetworking.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ServerSetTheme(cap.getTheme() + 1, themes.size()));
@@ -161,7 +162,7 @@ public class AbilitiesScreen extends Screen {
     }
 
     public void renderAbilityDescription(PoseStack poseStack, int mx, int my, AbilityButton button) {
-        if (!(mx >= button.x && mx <= button.x + button.getWidth() && my >= button.y && my <= button.y + button.getHeight()))
+        if (!(mx >= button.getX() && mx <= button.getX() + button.getWidth() && my >= button.getY() && my <= button.getY() + button.getHeight()))
             return;
         if (button.ability.getHoveredDescription() == null) return;
         int bgX = mx + button.descWidth > this.width ? mx - button.descWidth : mx + 15;
@@ -192,7 +193,7 @@ public class AbilitiesScreen extends Screen {
         this.font.drawShadow(poseStack, activate ? "Ability can be activated" : "Ability cannot be activated", bgX + 10, bgY + 10 + (button.abilityDescription.size() + 1) * 13, activate ? 0x00FF00 : 0xFF0000);
     }
 
-    public static class AbilityButton extends Button {
+    public static class AbilityButton extends ExtendedButton {
 
         private final AbilitiesScreen parent;
         private final Ability ability;
@@ -200,7 +201,7 @@ public class AbilitiesScreen extends Screen {
         private int descWidth, descHeight;
 
         public AbilityButton(int x, int y, int id, AbilitiesScreen screen, Ability ability) {
-            super(x + 25, y + 50 + 25 * id, 150, 20, TextComponent.EMPTY, AbilityButton::onPressed);
+            super(x + 25, y + 50 + 25 * id, 150, 20, Component.empty(), AbilityButton::onPressed);
             this.parent = screen;
             this.ability = ability;
             this.prepareDescriptionRender();
@@ -209,7 +210,7 @@ public class AbilitiesScreen extends Screen {
         @Override
         public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
             Minecraft mc = Minecraft.getInstance();
-            boolean hovered = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
+            boolean hovered = mouseX >= getX() && mouseX <= getX() + width && mouseY >= getY() && mouseY <= getY() + height;
             Color color = AbilityHelper.isActivated(this.ability.name, mc.player) ? hovered ? Color.ORANGE : Color.YELLOW :
                     hovered ? ability.canActivate(mc.player) ? Color.GREEN : Color.RED : Color.WHITE;
 
@@ -225,17 +226,17 @@ public class AbilitiesScreen extends Screen {
 
             builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 
-            builder.vertex(x, y + height, 0).uv(0, 1).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
-            builder.vertex(x + width, y + height, 0).uv(1, 1).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
-            builder.vertex(x + width, y, 0).uv(1, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
-            builder.vertex(x, y, 0).uv(0, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            builder.vertex(getX(), getY() + height, 0).uv(0, 1).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            builder.vertex(getX() + width, getY() + height, 0).uv(1, 1).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            builder.vertex(getX() + width, getY(), 0).uv(1, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            builder.vertex(getX(), getY(), 0).uv(0, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
 
             tesselator.end();
-            this.ability.getClientProperties().drawIcon(poseStack, ability.getJsonObject(), x + 2, y + 2);
+            this.ability.getClientProperties().drawIcon(poseStack, ability.getJsonObject(), getX() + 2, getY() + 2);
             RenderSystem.disableBlend();
             String name = this.ability.getTitle().getString().length() > 20 ? this.ability.getTitle().getString().substring(0, 20) : this.ability.getTitle().getString();
-            mc.font.draw(poseStack, name, x + 21, y + 7, 0);
-            mc.font.draw(poseStack, name, x + 20, y + 6, 0xFFFFFFFF);
+            mc.font.draw(poseStack, name, getX() + 21, getY() + 7, 0);
+            mc.font.draw(poseStack, name, getX() + 20, getY() + 6, 0xFFFFFFFF);
         }
 
         private static void onPressed(Button button) {
@@ -292,7 +293,7 @@ public class AbilitiesScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
-        for (Widget widget : renderables) {
+        for (Renderable widget : renderables) {
             if (mouseButton == 0 && widget instanceof Button && ((Button) widget).mouseClicked(mouseX, mouseY, mouseButton)) {
                 return true;
             }

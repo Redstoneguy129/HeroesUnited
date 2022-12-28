@@ -2,7 +2,6 @@ package xyz.heroesunited.heroesunited.client.renderer.space;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Quaternion;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -16,6 +15,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import xyz.heroesunited.heroesunited.HeroesUnited;
+import xyz.heroesunited.heroesunited.util.HUClientUtil;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -73,7 +73,7 @@ public class AsteroidsBeltRenderer extends CelestialBodyRenderer {
             } else {
                 counter = 0;
             }
-        matrixStack.mulPose(new Quaternion(0, counter, 0, true));
+        matrixStack.mulPose(HUClientUtil.quatFromXYZ(0, counter, 0, true));
         for (ModelPart asteroid : asteroids) {
             VertexConsumer buffer = buffers.getBuffer(RenderType.entitySolid(textures.get(asteroid)));
             asteroid.render(matrixStack, buffer, packedLight, OverlayTexture.NO_OVERLAY);

@@ -3,7 +3,7 @@ package xyz.heroesunited.heroesunited.common.abilities;
 import com.google.gson.JsonObject;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
@@ -124,7 +124,10 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
     public CompoundTag serializeNBT() {
         CompoundTag nbt = new CompoundTag();
         nbt.putString("Name", this.name);
-        nbt.putString("AbilityType", this.type.getRegistryName().toString());
+        ResourceLocation abilityType = AbilityType.REGISTRY.get().getKey(this.type);
+        if (abilityType != null) {
+            nbt.putString("AbilityType", abilityType.toString());
+        }
         nbt.put("HUData", this.dataManager.serializeNBT());
         nbt.put("Conditions", this.conditionManager.serializeNBT());
         nbt.put("AdditionalData", additionalData);
@@ -144,7 +147,7 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
         if (getJsonObject().has("title")) {
             return Component.Serializer.fromJson(GsonHelper.getAsJsonObject(getJsonObject(), "title"));
         } else {
-            return new TranslatableComponent(name);
+            return Component.translatable(name);
         }
     }
 

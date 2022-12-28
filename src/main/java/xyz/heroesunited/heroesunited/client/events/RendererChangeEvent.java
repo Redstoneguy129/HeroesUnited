@@ -43,8 +43,8 @@ public class RendererChangeEvent extends PlayerEvent {
     }
 
     @Override
-    public AbstractClientPlayer getPlayer() {
-        return (AbstractClientPlayer) super.getPlayer();
+    public AbstractClientPlayer getEntity() {
+        return (AbstractClientPlayer) super.getEntity();
     }
 
     public PlayerRenderer getRenderer() {

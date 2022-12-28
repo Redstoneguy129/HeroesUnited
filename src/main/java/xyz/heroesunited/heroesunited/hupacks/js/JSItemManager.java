@@ -5,8 +5,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegisterEvent;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngine;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -49,9 +50,9 @@ public class JSItemManager extends JSReloadListener {
     }
 
     @SubscribeEvent
-    public void registerItems(RegistryEvent.Register<Item> event) {
-        for (var e : items.entrySet()) {
-            event.getRegistry().register(TYPES.get(e.getValue().getKey().type).apply(e.getValue()).setRegistryName(e.getKey()));
-        }
+    public void registerItems(RegisterEvent event) {
+        event.register(ForgeRegistries.ITEMS.getRegistryKey(),
+                helper -> items.forEach((key, value) ->
+                        helper.register(key, TYPES.get(value.getKey().type).apply(value))));
     }
 }

@@ -21,13 +21,13 @@ public class CommandAbility extends JSONAbility implements CommandSource {
     @Override
     public void action(Player player) {
         if (player.level instanceof ServerLevel level && getEnabled()) {
-            level.getServer().getCommands().performCommand(new CommandSourceStack(this, player.position(), player.getRotationVector(), level, 4, player.getName().getString(), player.getDisplayName(), level.getServer(), player), GsonHelper.getAsString(getJsonObject(), "command", "/say Hello World"));
+            level.getServer().getCommands().performPrefixedCommand(new CommandSourceStack(this, player.position(), player.getRotationVector(), level, 4, player.getName().getString(), player.getDisplayName(), level.getServer(), player), GsonHelper.getAsString(getJsonObject(), "command", "/say Hello World"));
         }
     }
 
     @Override
-    public void sendMessage(Component component, @NotNull UUID uuid) {
-        HeroesUnited.LOGGER.error(name + " error: " + component.getString());
+    public void sendSystemMessage(Component pComponent) {
+        HeroesUnited.LOGGER.error(name + " error: " + pComponent.getString());
     }
 
     @Override

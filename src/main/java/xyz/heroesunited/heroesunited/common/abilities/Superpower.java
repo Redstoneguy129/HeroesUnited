@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
@@ -32,7 +32,7 @@ public class Superpower implements IAbilityProvider {
     }
 
     public Component getDisplayName() {
-        return new TranslatableComponent(Util.makeDescriptionId("superpowers", name));
+        return Component.translatable(Util.makeDescriptionId("superpowers", name));
     }
 
     public ResourceLocation getRegistryName() {

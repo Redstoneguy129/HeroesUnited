@@ -27,6 +27,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
@@ -39,6 +40,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import software.bernie.geckolib3.geo.render.built.*;
 import software.bernie.geckolib3.util.RenderUtils;
 import xyz.heroesunited.heroesunited.HeroesUnited;
@@ -55,6 +59,11 @@ import java.util.Random;
 
 @OnlyIn(Dist.CLIENT)
 public class HUClientUtil {
+
+    public static Quaternionf quatFromXYZ(float x, float y, float z, boolean degrees) {
+        float conversionFactor = degrees ? (float) Math.PI / 180 : 1;
+        return new Quaternionf().rotationXYZ(x * conversionFactor, y * conversionFactor, z * conversionFactor);
+    }
 
     public static ModelPart getSuitModelPart(Entity entity) {
         return getSuitModelPart(HUPlayerUtil.haveSmallArms(entity));
@@ -141,7 +150,7 @@ public class HUClientUtil {
             if (quad == null)
                 continue;
 
-            Vector3f normal = quad.normal.copy();
+            Axis normal = quad.normal.copy();
 
             normal.transform(normalisedPoseState);
 
@@ -172,11 +181,11 @@ public class HUClientUtil {
         matrixStack.pushPose();
         for (int i = 0; i < 5; i++) {
             float angle = ticksExisted + i * 180;
-            matrixStack.mulPose(new Quaternion(angle, -angle, angle, true));
+            matrixStack.mulPose(HUClientUtil.quatFromXYZ(angle, -angle, angle, true));
             HUClientUtil.renderFilledBox(matrixStack, builder, box.deflate(shrinkValue), 1f, 1f, 1f, 1f, packedLightIn);
             for (int j = 0; j < 5; j++) {
                 float angleJ = ticksExisted + j * 180;
-                matrixStack.mulPose(new Quaternion(angleJ, -angleJ, angleJ, true));
+                matrixStack.mulPose(HUClientUtil.quatFromXYZ(angleJ, -angleJ, angleJ, true));
                 HUClientUtil.renderFilledBox(matrixStack, builder, box, color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F, packedLightIn);
             }
         }
@@ -306,7 +315,7 @@ public class HUClientUtil {
         to.zRot = from.zRot;
     }
 
-    public static void renderLightning(Random random, PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn, double y, int j, Color color) {
+    public static void renderLightning(RandomSource random, PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn, double y, int j, Color color) {
         float[] afloat = new float[8], afloat1 = new float[8];
         float f = 0.0F;
         float f1 = 0.0F;

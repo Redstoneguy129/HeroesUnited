@@ -4,14 +4,11 @@ import com.google.gson.*;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.registries.ForgeRegistries;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
@@ -84,7 +81,7 @@ public class HUJsonUtils {
         } else if (jsonElement.isJsonObject()) {
             lines.add(Component.Serializer.fromJson(jsonElement));
         } else if (jsonElement.isJsonPrimitive()) {
-            lines.add(new TextComponent(jsonElement.getAsString()));
+            lines.add(Component.literal(jsonElement.getAsString()));
         }
 
         return lines;
@@ -92,7 +89,7 @@ public class HUJsonUtils {
 
     public static CreativeModeTab getItemGroup(JsonObject json, String memberName) {
         if (json.has(memberName) && json.get(memberName).isJsonPrimitive()) {
-            return Arrays.stream(CreativeModeTab.TABS).filter(itemGroup -> json.get(memberName).getAsString().equalsIgnoreCase(itemGroup.getRecipeFolderName().toLowerCase())).findFirst().orElse(null);
+            return CreativeModeTabs.allTabs().stream().filter((CreativeModeTab itemGroup) -> json.get(memberName).getAsString().equalsIgnoreCase(itemGroup.getDisplayName().getString().toLowerCase())).findFirst().orElse(null);
         } else {
             throw new JsonSyntaxException("Missing " + memberName + ", expected to find an item");
         }
