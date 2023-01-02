@@ -14,14 +14,13 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.PacketDistributor;
-import software.bernie.geckolib3.core.AnimationState;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.builder.ILoopType;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.Animation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 import xyz.heroesunited.heroesunited.common.events.RegisterPlayerControllerEvent;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSetAnimation;
@@ -35,7 +34,7 @@ import java.util.Map;
 public class HUPlayer implements IHUPlayer {
     public final AccessoriesInventory inventory;
     protected final LivingEntity livingEntity;
-    protected final HUPlayerFactory factory = new HUPlayerFactory(this);
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     protected Map<ResourceLocation, Level> superpowerLevels;
     private int theme;
     private float flightAmount, flightAmountO, slowMo = 20F;
@@ -80,12 +79,11 @@ public class HUPlayer implements IHUPlayer {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             AnimationController controller = getController(controllerName);
             if (controller != null) {
-                controller.markNeedsReload();
-                controller.setAnimation(new AnimationBuilder().addAnimation(name, loop ? ILoopType.EDefaultLoopTypes.LOOP : ILoopType.EDefaultLoopTypes.PLAY_ONCE));
+                controller.setAnimation(RawAnimation.begin().then(name, loop ? Animation.LoopType.LOOP : Animation.LoopType.PLAY_ONCE));
             }
         });
         if (!livingEntity.level.isClientSide) {
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity), new ClientSetAnimation(livingEntity.getId(), name, controllerName, this.modelProvider.getAnimationFileLocation(this), loop));
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity), new ClientSetAnimation(livingEntity.getId(), name, controllerName, this.modelProvider.getAnimationResource(this), loop));
         }
         syncToAll();
     }
@@ -162,28 +160,8 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController<>(this, "controller", 1, this::predicate));
-        if (livingEntity instanceof Player) {
-            MinecraftForge.EVENT_BUS.post(new RegisterPlayerControllerEvent(this, (Player) livingEntity, data));
-        }
-    }
-
-    private <P extends IHUPlayer> PlayState predicate(AnimationEvent<P> event) {
-        if (event.getController().getAnimationState().equals(AnimationState.Stopped)) {
-            event.getController().markNeedsReload();
-        }
-        return PlayState.CONTINUE;
-    }
-
-    @Override
-    public AnimationFactory getFactory() {
-        return this.factory;
-    }
-
-    @Override
     public AnimationController getController(String controllerName) {
-        return getFactory().getOrCreateAnimationData(livingEntity.getUUID().hashCode()).getAnimationControllers().get(controllerName);
+        return getAnimatableInstanceCache().getManagerForId(livingEntity.getUUID().hashCode()).getAnimationControllers().get(controllerName);
     }
 
     @Override
@@ -228,7 +206,15 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
-    public int tickTimer() {
-        return this.livingEntity.tickCount;
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, "controller", 1, state -> PlayState.CONTINUE));
+        if (livingEntity instanceof Player) {
+            MinecraftForge.EVENT_BUS.post(new RegisterPlayerControllerEvent(this, (Player) livingEntity, controllers));
+        }
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return this.cache;
     }
 }

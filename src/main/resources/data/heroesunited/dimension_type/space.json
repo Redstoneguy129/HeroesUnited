@@ -1,5 +1,7 @@
 {
   "has_raids": false,
+  "monster_spawn_block_light_limit": 15,
+  "monster_spawn_light_level": 15,
   "height": 256,
   "min_y": 0,
   "noodle_caves_enabled": false,

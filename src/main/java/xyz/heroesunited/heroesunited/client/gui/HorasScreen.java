@@ -17,7 +17,6 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -98,7 +97,7 @@ public class HorasScreen extends Screen {
 
     @Override
     public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        SnowWidget.drawSnowOnScreen(matrixStack, this.width, this.height);
+        SnowWidget.drawSnowOnScreen(matrixStack, this.width, this.height, partialTicks);
         this.renderBackground(matrixStack);
         RenderSystem.enableBlend();
         RenderSystem.setShaderTexture(0, TabEnum.MENU.getLocation());

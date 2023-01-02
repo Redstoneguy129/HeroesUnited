@@ -39,7 +39,6 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.network.PacketDistributor;
-import org.joml.Quaternionf;
 import org.lwjgl.glfw.GLFW;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.*;
@@ -132,6 +131,7 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public void onWorldLastRender(RenderLevelStageEvent event) {
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
         if (Minecraft.getInstance().level != null && Minecraft.getInstance().level.dimension().equals(HeroesUnited.SPACE)) {
             PoseStack matrixStack = event.getPoseStack();
             matrixStack.pushPose();

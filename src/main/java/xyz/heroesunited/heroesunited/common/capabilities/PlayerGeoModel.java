@@ -4,66 +4,71 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.molang.MolangParser;
-import software.bernie.geckolib3.model.AnimatedTickingGeoModel;
-import software.bernie.geckolib3.resource.GeckoLibCache;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.molang.MolangParser;
+import software.bernie.geckolib.core.object.DataTicket;
+import software.bernie.geckolib.model.DefaultedGeoModel;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
 
 import javax.annotation.Nullable;
 
-public class PlayerGeoModel extends AnimatedTickingGeoModel<IHUPlayer> {
+public class PlayerGeoModel extends DefaultedGeoModel<IHUPlayer> {
+
+    public static final DataTicket<ModelData> PLAYER_MODEL_DATA = new DataTicket<>("player_model_data", ModelData.class);
+
     @Nullable
     private ModelData modelData;
 
-    @Override
-    public ResourceLocation getModelLocation(IHUPlayer o) {
-        return new ResourceLocation(HeroesUnited.MODID, "geo/player.geo.json");
+    public PlayerGeoModel() {
+        super(new ResourceLocation("heroesunited", "player"));
     }
 
     @Override
-    public ResourceLocation getTextureLocation(IHUPlayer o) {
+    protected String subtype() {
+        return "entity";
+    }
+
+    @Override
+    public ResourceLocation getTextureResource(IHUPlayer o) {
         return ((LocalPlayer) ((HUPlayer) o).livingEntity).getSkinTextureLocation();
     }
 
     @Override
-    public ResourceLocation getAnimationFileLocation(IHUPlayer o) {
+    public ResourceLocation getAnimationResource(IHUPlayer o) {
         return ((HUPlayer) o).animationFile != null ? ((HUPlayer) o).animationFile : new ResourceLocation(HeroesUnited.MODID, "animations/player.animation.json");
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void setCustomAnimations(IHUPlayer entity, int uniqueID, AnimationEvent customPredicate) {
+    public void setCustomAnimations(IHUPlayer entity, long instanceId, AnimationState<IHUPlayer> customPredicate) {
         if (customPredicate != null) {
-            this.modelData = (ModelData) customPredicate.getExtraDataOfType(ModelData.class).get(0);
+            this.modelData = customPredicate.getData(PLAYER_MODEL_DATA);
         }
-        super.setCustomAnimations(entity, uniqueID, customPredicate);
+        super.setCustomAnimations(entity, instanceId, customPredicate);
     }
 
     @Override
-    public void setMolangQueries(IAnimatable animatable, double currentTick) {
-        super.setMolangQueries(animatable, currentTick);
-        MolangParser parser = GeckoLibCache.getInstance().parser;
-        if (animatable instanceof IHUPlayer && this.modelData != null) {
+    public void applyMolangQueries(IHUPlayer animatable, double animTime) {
+        super.applyMolangQueries(animatable, animTime);
+        MolangParser parser = MolangParser.INSTANCE;
+        if (animatable != null && this.modelData != null) {
             for (PlayerPart part : PlayerPart.bodyParts()) {
                 ModelPart renderer = part.initialModelPart(this.modelData.model);
-                parser.setValue(String.format("player.%s.x_rot", part.name().toLowerCase()), () -> renderer.xRot / Math.PI * 180.0);
-                parser.setValue(String.format("player.%s.y_rot", part.name().toLowerCase()), () -> renderer.yRot / Math.PI * 180.0);
-                parser.setValue(String.format("player.%s.z_rot", part.name().toLowerCase()), () -> renderer.zRot / Math.PI * 180.0);
+                parser.setMemoizedValue(String.format("player.%s.x_rot", part.name().toLowerCase()), () -> renderer.xRot / Math.PI * 180.0);
+                parser.setMemoizedValue(String.format("player.%s.y_rot", part.name().toLowerCase()), () -> renderer.yRot / Math.PI * 180.0);
+                parser.setMemoizedValue(String.format("player.%s.z_rot", part.name().toLowerCase()), () -> renderer.zRot / Math.PI * 180.0);
 
-                parser.setValue(String.format("player.%s.x", part.name().toLowerCase()), () -> renderer.x);
-                parser.setValue(String.format("player.%s.y", part.name().toLowerCase()), () -> renderer.y);
-                parser.setValue(String.format("player.%s.z", part.name().toLowerCase()), () -> renderer.z);
+                parser.setMemoizedValue(String.format("player.%s.x", part.name().toLowerCase()), () -> renderer.x);
+                parser.setMemoizedValue(String.format("player.%s.y", part.name().toLowerCase()), () -> renderer.y);
+                parser.setMemoizedValue(String.format("player.%s.z", part.name().toLowerCase()), () -> renderer.z);
             }
-            parser.setValue("player.limbSwing", () -> this.modelData.limbSwing);
-            parser.setValue("player.limbSwingAmount", () -> this.modelData.limbSwingAmount);
-            parser.setValue("player.ageInTicks", () -> this.modelData.ageInTicks);
-            parser.setValue("player.headPitch", () -> this.modelData.headPitch);
-            parser.setValue("player.netHeadYaw", () -> this.modelData.netHeadYaw);
+            parser.setMemoizedValue("player.limbSwing", () -> this.modelData.limbSwing);
+            parser.setMemoizedValue("player.limbSwingAmount", () -> this.modelData.limbSwingAmount);
+            parser.setMemoizedValue("player.ageInTicks", () -> this.modelData.ageInTicks);
+            parser.setMemoizedValue("player.headPitch", () -> this.modelData.headPitch);
+            parser.setMemoizedValue("player.netHeadYaw", () -> this.modelData.netHeadYaw);
         }
-
     }
 
     public static class ModelData {

@@ -31,6 +31,8 @@ import java.util.Objects;
 
 public class HUPlayerUtil {
 
+    public static final EquipmentSlot[] ARMOR_SLOTS = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
+
     public static boolean canBreath(LivingEntity entity) {
         boolean canBreath = !entity.level.dimension().equals(HeroesUnited.SPACE);
         if (Planet.PLANETS_MAP.containsKey(entity.level.dimension())) {

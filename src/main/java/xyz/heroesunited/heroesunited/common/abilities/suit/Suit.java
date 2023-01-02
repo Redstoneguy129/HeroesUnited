@@ -22,11 +22,8 @@ import net.minecraft.world.item.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.GameData;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegisterEvent;
-import org.apache.commons.compress.utils.Lists;
 import oshi.util.tuples.Pair;
-import software.bernie.geckolib3.core.manager.AnimationData;
+import software.bernie.geckolib.core.animation.AnimatableManager;
 import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 import xyz.heroesunited.heroesunited.client.model.SuitModel;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
@@ -34,13 +31,16 @@ import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessori
 import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public abstract class Suit {
 
     public static final Map<ResourceLocation, Suit> SUITS = Maps.newHashMap();
     private ResourceLocation registryName = null;
-    protected final Map<EquipmentSlot, Pair<ResourceLocation, SuitItem>> itemList = Maps.newHashMap();
+    protected final Map<EquipmentSlot, Pair<ResourceLocation, SuitItem>> itemList = Maps.newLinkedHashMap();
 
     public Suit(ResourceLocation name) {
         this.setRegistryName(name);
@@ -51,10 +51,8 @@ public abstract class Suit {
     }
 
     public Map<EquipmentSlot, Pair<ResourceLocation, SuitItem>> createItems() {
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
-            if (slot.isArmor()) {
-                this.itemList.put(slot, this.createItem(this, slot));
-            }
+        for (EquipmentSlot slot : HUPlayerUtil.ARMOR_SLOTS) {
+            this.itemList.put(slot, this.createItem(this, slot));
         }
         return this.itemList;
     }
@@ -111,7 +109,7 @@ public abstract class Suit {
     public void renderLayer(EntityRendererProvider.Context context, LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> entityRenderer, LivingEntity entity, ItemStack stack, EquipmentSlot slot, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
     }
 
-    public <B extends SuitItem> void registerControllers(AnimationData data, B suitItem) {
+    public <B extends SuitItem> void registerControllers(AnimatableManager.ControllerRegistrar data, B suitItem) {
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -176,11 +174,9 @@ public abstract class Suit {
     }
 
     public boolean hasArmorOn(LivingEntity entity) {
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
-            if (slot.isArmor()) {
-                if (getItemBySlot(slot) != null && (entity.getItemBySlot(slot).isEmpty() || entity.getItemBySlot(slot).getItem() != getItemBySlot(slot))) {
-                    return false;
-                }
+        for (EquipmentSlot slot : HUPlayerUtil.ARMOR_SLOTS) {
+            if (getItemBySlot(slot) != null && (entity.getItemBySlot(slot).isEmpty() || entity.getItemBySlot(slot).getItem() != getItemBySlot(slot))) {
+                return false;
             }
         }
         return true;
@@ -209,13 +205,11 @@ public abstract class Suit {
     }
 
     public static Suit getSuit(LivingEntity entity) {
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
-            if (slot.isArmor()) {
-                Item item = entity.getItemBySlot(slot).getItem();
-                if (item instanceof SuitItem suitItem) {
-                    if (suitItem.getSuit().hasArmorOn(entity)) {
-                        return suitItem.getSuit();
-                    }
+        for (EquipmentSlot slot : HUPlayerUtil.ARMOR_SLOTS) {
+            Item item = entity.getItemBySlot(slot).getItem();
+            if (item instanceof SuitItem suitItem) {
+                if (suitItem.getSuit().hasArmorOn(entity)) {
+                    return suitItem.getSuit();
                 }
             }
         }

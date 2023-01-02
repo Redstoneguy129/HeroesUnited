@@ -8,7 +8,6 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.math.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
@@ -40,11 +39,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import software.bernie.geckolib3.geo.render.built.*;
-import software.bernie.geckolib3.util.RenderUtils;
+import org.joml.*;
+import software.bernie.geckolib.cache.object.*;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.util.RenderUtils;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.model.CapeModel;
 import xyz.heroesunited.heroesunited.common.abilities.IFlyingAbility;
@@ -55,6 +54,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.Math;
 import java.util.Random;
 
 @OnlyIn(Dist.CLIENT)
@@ -109,29 +109,28 @@ public class HUClientUtil {
         }
     }
 
-    public static void renderGeckoModel(GeoModel model, PoseStack matrixStackIn, @Nullable VertexConsumer vertexBuilder,
-                                        int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        for (GeoBone group : model.topLevelBones) {
+    public static <T extends GeoAnimatable> void renderGeckoModel(GeoModel<T> model, T animatable, PoseStack matrixStackIn, @Nullable VertexConsumer vertexBuilder,
+                                                                  int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+        BakedGeoModel geoModel = model.getBakedModel(model.getModelResource(animatable));
+        for (GeoBone group : geoModel.topLevelBones()) {
             HUClientUtil.renderGeckoRecursively(group, matrixStackIn, vertexBuilder, packedLightIn, packedOverlayIn, red, green, blue, alpha);
         }
     }
 
-
     public static void renderGeckoRecursively(GeoBone bone, PoseStack poseStack, VertexConsumer buffer, int packedLight,
-                                   int packedOverlay, float red, float green, float blue, float alpha) {
+                                              int packedOverlay, float red, float green, float blue, float alpha) {
         poseStack.pushPose();
         RenderUtils.prepMatrixForBone(poseStack, bone);
         if (!bone.isHidden()) {
-            for (GeoCube cube : bone.childCubes) {
-                if (!bone.cubesAreHidden()) {
-                    poseStack.pushPose();
-                    renderGeckoCube(cube, poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
-                    poseStack.popPose();
-                }
+            for (GeoCube cube : bone.getCubes()) {
+                poseStack.pushPose();
+                renderGeckoCube(cube, poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+                poseStack.popPose();
             }
         }
-        if (!bone.childBonesAreHiddenToo()) {
-            for (GeoBone childBone : bone.childBones) {
+
+        if (!bone.isHidingChildren()) {
+            for (GeoBone childBone : bone.getChildBones()) {
                 renderGeckoRecursively(childBone, poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
             }
         }
@@ -143,35 +142,24 @@ public class HUClientUtil {
         RenderUtils.translateToPivotPoint(poseStack, cube);
         RenderUtils.rotateMatrixAroundCube(poseStack, cube);
         RenderUtils.translateAwayFromPivotPoint(poseStack, cube);
+
         Matrix3f normalisedPoseState = poseStack.last().normal();
         Matrix4f poseState = poseStack.last().pose();
 
-        for (GeoQuad quad : cube.quads) {
+        for (GeoQuad quad : cube.quads()) {
             if (quad == null)
                 continue;
 
-            Axis normal = quad.normal.copy();
+            Vector3f normal = normalisedPoseState.transform(new Vector3f(quad.normal()));
 
-            normal.transform(normalisedPoseState);
+            RenderUtils.fixInvertedFlatCube(cube, normal);
 
-            /*
-             * Fix shading dark shading for flat cubes + compatibility wish Optifine shaders
-             */
-            if ((cube.size.y() == 0 || cube.size.z() == 0) && normal.x() < 0)
-                normal.mul(-1, 1, 1);
+            for (GeoVertex vertex : quad.vertices()) {
+                Vector3f position = vertex.position();
+                Vector4f vector4f = poseState.transform(new Vector4f(position.x(), position.y(), position.z(), 1.0f));
 
-            if ((cube.size.x() == 0 || cube.size.z() == 0) && normal.y() < 0)
-                normal.mul(1, -1, 1);
-
-            if ((cube.size.x() == 0 || cube.size.y() == 0) && normal.z() < 0)
-                normal.mul(1, 1, -1);
-
-            for (GeoVertex vertex : quad.vertices) {
-                Vector4f vector4f = new Vector4f(vertex.position.x(), vertex.position.y(), vertex.position.z(), 1);
-
-                vector4f.transform(poseState);
-                bufferIn.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, vertex.textureU,
-                        vertex.textureV, packedOverlayIn, packedLightIn, normal.x(), normal.y(), normal.z());
+                bufferIn.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, vertex.texU(),
+                        vertex.texV(), packedOverlayIn, packedLightIn, normal.x(), normal.y(), normal.z());
             }
         }
     }

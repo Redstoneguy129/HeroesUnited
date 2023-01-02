@@ -2,9 +2,6 @@ package xyz.heroesunited.heroesunited.common;
 
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
-import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,7 +16,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.common.ForgeMod;
@@ -67,7 +63,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -260,7 +255,7 @@ public class EventHandler {
 
     @SubscribeEvent
     public void onLivingHurt(LivingAttackEvent event) {
-        if (!event.getEntity().level.isClientSide && event.getEntity().level.dimension().equals(HeroesUnited.SPACE) && event.getSource() == DamageSource.OUT_OF_WORLD) {
+        if (!event.getEntity().level.isClientSide && event.getEntity().level.dimension().equals(HeroesUnited.SPACE) && event.getSource() == DamageSource.OUT_OF_WORLD && event.getAmount() != Float.MAX_VALUE) {
             event.setCanceled(true);
         }
         if (event.getEntity() instanceof Player) {

@@ -13,8 +13,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegisterEvent;
 import oshi.util.tuples.Pair;
 import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
@@ -22,6 +20,7 @@ import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.ConditionManager;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
+import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
 
 import java.util.ArrayList;
@@ -47,17 +46,14 @@ public class JsonSuit extends Suit {
     }
 
     public Map<EquipmentSlot, Pair<ResourceLocation, SuitItem>> createItems() {
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
-            if (slot.isArmor()) {
-
-                if (this.jsonObject.has("slots")) {
-                    JsonObject slots = jsonObject.getAsJsonObject("slots");
-                    if (slots.has(slot.getName().toLowerCase())) {
-                        this.itemList.put(slot, this.createItem(this, slot, slots));
-                    }
-                } else {
-                    this.itemList.put(slot, this.createItem(this, slot));
+        for (EquipmentSlot slot : HUPlayerUtil.ARMOR_SLOTS) {
+            if (this.jsonObject.has("slots")) {
+                JsonObject slots = jsonObject.getAsJsonObject("slots");
+                if (slots.has(slot.getName().toLowerCase())) {
+                    this.itemList.put(slot, this.createItem(this, slot, slots));
                 }
+            } else {
+                this.itemList.put(slot, this.createItem(this, slot));
             }
         }
         return this.itemList;

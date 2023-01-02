@@ -3,6 +3,7 @@ package xyz.heroesunited.heroesunited.client.renderer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -14,133 +15,315 @@ import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.HumanoidArm;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.processor.IBone;
-import software.bernie.geckolib3.geo.render.built.GeoModel;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
-import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
-import software.bernie.geckolib3.util.GeoUtils;
+import org.joml.Matrix4f;
+import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.constant.DataTickets;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.object.DataTicket;
+import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.renderer.GeoRenderer;
+import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import software.bernie.geckolib.util.RenderUtils;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.GeoAbilityClientProperties;
+import xyz.heroesunited.heroesunited.common.abilities.animatable.GeoAbility;
 
-import java.util.Arrays;
+import javax.annotation.Nullable;
+import java.util.List;
 
-public class GeoAbilityRenderer<T extends Ability & IAnimatable> extends HumanoidModel<AbstractClientPlayer> implements IGeoRenderer<T> {
+public class GeoAbilityRenderer<T extends Ability & GeoAbility> extends HumanoidModel<AbstractClientPlayer> implements GeoRenderer<T> {
 
-    protected AbstractClientPlayer player;
-    protected final T currentAbility;
+    public static final DataTicket<Ability> ABILITY_DATA_TICKET = new DataTicket<>("ability", Ability.class);
 
-    public String headBone = "armorHead";
-    public String bodyBone = "armorBody";
-    public String rightArmBone = "armorRightArm";
-    public String leftArmBone = "armorLeftArm";
-    public String rightLegBone = "armorRightLeg";
-    public String leftLegBone = "armorLeftLeg";
-    public String rightBootBone = "armorRightBoot";
-    public String leftBootBone = "armorLeftBoot";
-
-    protected final AnimatedGeoModel<T> modelProvider;
+    protected final List<GeoRenderLayer<T>> renderLayers = new ObjectArrayList<>();
+    protected final GeoModel<T> model;
     protected final GeoAbilityClientProperties<T> clientProperties;
-    public MultiBufferSource rtb;
+
+    protected T ability;
+    protected HumanoidModel<?> baseModel;
+    protected float scaleWidth = 1, scaleHeight = 1;
+
+    protected Matrix4f entityRenderTranslations = new Matrix4f();
+    protected Matrix4f modelRenderTranslations = new Matrix4f();
+
+    protected BakedGeoModel lastModel = null;
+    protected GeoBone head, body, rightArm, leftArm, rightLeg, leftLeg, rightBoot, leftBoot;
+
+    protected AbstractClientPlayer player = null;
 
     public GeoAbilityRenderer(GeoAbilityClientProperties<T> clientProperties, T ability) {
         super(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_INNER_ARMOR));
-        this.currentAbility = ability;
-        this.modelProvider = clientProperties.getGeoModel();
+
+        this.model = clientProperties.getGeoModel();
+        this.ability = ability;
         this.clientProperties = clientProperties;
     }
 
     @Override
-    public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        GeoModel model = this.modelProvider.getModel(getModelLocation(this.currentAbility));
-        if (!this.clientProperties.showingAnimationAlways()) this.doAnimationProcess();
-        if (alpha != 0F && !this.clientProperties.renderGeoAbilityRenderer(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha, false, model, this.player, this)) {
-            matrixStackIn.translate(0.0D, 1.5D, 0.0D);
-            matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
-            this.fitToBiped();
-            matrixStackIn.pushPose();
-            RenderSystem.setShaderTexture(0, this.getTextureLocation(this.currentAbility));
-            RenderType renderType = this.getRenderType(this.currentAbility, 0, matrixStackIn, null, bufferIn, packedLightIn, this.getTextureLocation(this.currentAbility));
-            this.render(model, this.currentAbility, 0, renderType, matrixStackIn, null, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
-            matrixStackIn.popPose();
-            matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
-            matrixStackIn.translate(0.0D, -1.5D, 0.0D);
+    public GeoModel<T> getGeoModel() {
+        return this.model;
+    }
+
+    @Override
+    public T getAnimatable() {
+        return this.ability;
+    }
+
+    @Override
+    public long getInstanceId(T animatable) {
+        return ability.name.hashCode() + this.player.getId();
+    }
+
+    @Override
+    public RenderType getRenderType(T animatable, ResourceLocation texture, @org.jetbrains.annotations.Nullable MultiBufferSource bufferSource, float partialTick) {
+        return RenderType.entityTranslucent(texture);
+    }
+
+    @Override
+    public List<GeoRenderLayer<T>> getRenderLayers() {
+        return this.renderLayers;
+    }
+
+    public GeoAbilityRenderer<T> addRenderLayer(GeoRenderLayer<T> renderLayer) {
+        this.renderLayers.add(renderLayer);
+
+        return this;
+    }
+
+    public GeoAbilityRenderer<T> withScale(float scale) {
+        return withScale(scale, scale);
+    }
+
+    public GeoAbilityRenderer<T> withScale(float scaleWidth, float scaleHeight) {
+        this.scaleWidth = scaleWidth;
+        this.scaleHeight = scaleHeight;
+
+        return this;
+    }
+
+    @Nullable
+    public GeoBone getHeadBone() {
+        return this.model.getBone("armorHead").orElse(null);
+    }
+
+    @Nullable
+    public GeoBone getBodyBone() {
+        return this.model.getBone("armorBody").orElse(null);
+    }
+
+    @Nullable
+    public GeoBone getRightArmBone() {
+        return this.model.getBone("armorRightArm").orElse(null);
+    }
+
+    @Nullable
+    public GeoBone getLeftArmBone() {
+        return this.model.getBone("armorLeftArm").orElse(null);
+    }
+
+    @Nullable
+    public GeoBone getRightLegBone() {
+        return this.model.getBone("armorRightLeg").orElse(null);
+    }
+
+    @Nullable
+    public GeoBone getLeftLegBone() {
+        return this.model.getBone("armorLeftLeg").orElse(null);
+    }
+
+    @Nullable
+    public GeoBone getRightBootBone() {
+        return this.model.getBone("armorRightBoot").orElse(null);
+    }
+
+    @Nullable
+    public GeoBone getLeftBootBone() {
+        return this.model.getBone("armorLeftBoot").orElse(null);
+    }
+
+    @Override
+    public void preRender(PoseStack poseStack, T animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource,
+                          @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight,
+                          int packedOverlay, float red, float green, float blue, float alpha) {
+        this.entityRenderTranslations = new Matrix4f(poseStack.last().pose());
+
+        applyBaseModel(this.baseModel);
+        grabRelevantBones(getGeoModel().getBakedModel(getGeoModel().getModelResource(this.ability)));
+        applyBaseTransformations(this.baseModel);
+
+        if (this.scaleWidth != 1 && this.scaleHeight != 1)
+            poseStack.scale(this.scaleWidth, this.scaleHeight, this.scaleWidth);
+    }
+
+    @Override
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight,
+                               int packedOverlay, float red, float green, float blue, float alpha) {
+        Minecraft mc = Minecraft.getInstance();
+        MultiBufferSource bufferSource = mc.renderBuffers().bufferSource();
+
+        if (mc.levelRenderer.shouldShowEntityOutlines() && mc.shouldEntityAppearGlowing(this.player))
+            bufferSource = mc.renderBuffers().outlineBufferSource();
+
+        float partialTick = mc.getFrameTime();
+        RenderType renderType = getRenderType(this.ability, getTextureLocation(this.ability), bufferSource, partialTick);
+        if (alpha != 0F && !this.clientProperties.renderGeoAbilityRenderer(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, false, getGeoModel().getBakedModel(getGeoModel().getModelResource(this.ability)), this.player, this)) {
+            defaultRender(poseStack, this.ability, bufferSource, renderType, bufferSource.getBuffer(renderType), 0, partialTick, packedLight);
         }
     }
 
-    public void fitToBiped() {
-        if (this.headBone != null) {
-            IBone headBone = this.modelProvider.getBone(this.headBone);
-            GeoUtils.copyRotations(this.head, headBone);
-            headBone.setPositionX(this.head.x);
-            headBone.setPositionY(-this.head.y);
-            headBone.setPositionZ(this.head.z);
+    @Override
+    public void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, RenderType renderType,
+                               MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick,
+                               int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+        poseStack.pushPose();
+        poseStack.translate(0, 24 / 16f, 0);
+        poseStack.scale(-1, -1, 1);
+
+        if (!isReRender && !this.clientProperties.showingAnimationAlways()) {
+            this.doAnimationProcess();
         }
 
-        if (this.bodyBone != null) {
-            IBone bodyBone = this.modelProvider.getBone(this.bodyBone);
-            GeoUtils.copyRotations(this.body, bodyBone);
-            bodyBone.setPositionX(this.body.x);
-            bodyBone.setPositionY(-this.body.y);
-            bodyBone.setPositionZ(this.body.z);
+        this.modelRenderTranslations = new Matrix4f(poseStack.last().pose());
+
+        GeoRenderer.super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+        poseStack.popPose();
+    }
+
+    public void doAnimationProcess() {
+        AnimationState<T> animationState = new AnimationState<>(this.ability, 0, 0, Minecraft.getInstance().getFrameTime(), false);
+        long instanceId = getInstanceId(this.ability);
+
+        animationState.setData(DataTickets.TICK, this.ability.getTick(this.player));
+        animationState.setData(DataTickets.ENTITY, this.player);
+        animationState.setData(ABILITY_DATA_TICKET, this.ability);
+        this.model.addAdditionalStateData(this.ability, instanceId, animationState::setData);
+        this.model.handleAnimations(this.ability, instanceId, animationState);
+    }
+
+    @Override
+    public void renderRecursively(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight,
+                                  int packedOverlay, float red, float green, float blue, float alpha) {
+        if (bone.isTrackingMatrices()) {
+            Matrix4f poseState = new Matrix4f(poseStack.last().pose());
+
+            bone.setModelSpaceMatrix(RenderUtils.invertAndMultiplyMatrices(poseState, this.modelRenderTranslations));
+            bone.setLocalSpaceMatrix(RenderUtils.invertAndMultiplyMatrices(poseState, this.entityRenderTranslations));
         }
 
-        if (this.rightArmBone != null) {
-            IBone rightArmBone = this.modelProvider.getBone(this.rightArmBone);
-            GeoUtils.copyRotations(this.rightArm, rightArmBone);
-            rightArmBone.setPositionX(this.rightArm.x + 5);
-            rightArmBone.setPositionY(2 - this.rightArm.y);
-            rightArmBone.setPositionZ(this.rightArm.z);
+        GeoRenderer.super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+    }
+
+
+    protected void grabRelevantBones(BakedGeoModel bakedModel) {
+        if (this.lastModel == bakedModel)
+            return;
+
+        this.lastModel = bakedModel;
+        this.head = getHeadBone();
+        this.body = getBodyBone();
+        this.rightArm = getRightArmBone();
+        this.leftArm = getLeftArmBone();
+        this.rightLeg = getRightLegBone();
+        this.leftLeg = getLeftLegBone();
+        this.rightBoot = getRightBootBone();
+        this.leftBoot = getLeftBootBone();
+    }
+
+    public void prepForRender(@Nullable AbstractClientPlayer entity, @Nullable HumanoidModel<?> baseModel) {
+        if (entity == null || baseModel == null)
+            return;
+
+        this.baseModel = baseModel;
+        this.player = entity;
+    }
+
+
+    protected void applyBaseModel(HumanoidModel<?> baseModel) {
+        this.young = baseModel.young;
+        this.crouching = baseModel.crouching;
+        this.riding = baseModel.riding;
+        this.rightArmPose = baseModel.rightArmPose;
+        this.leftArmPose = baseModel.leftArmPose;
+    }
+
+    protected void applyBaseTransformations(HumanoidModel<?> baseModel) {
+        if (this.head != null) {
+            ModelPart headPart = baseModel.head;
+
+            RenderUtils.matchModelPartRot(headPart, this.head);
+            this.head.updatePosition(headPart.x, -headPart.y, headPart.z);
         }
 
-        if (this.leftArmBone != null) {
-            IBone leftArmBone = this.modelProvider.getBone(this.leftArmBone);
-            GeoUtils.copyRotations(this.leftArm, leftArmBone);
-            leftArmBone.setPositionX(this.leftArm.x - 5);
-            leftArmBone.setPositionY(2 - this.leftArm.y);
-            leftArmBone.setPositionZ(this.leftArm.z);
+        if (this.body != null) {
+            ModelPart bodyPart = baseModel.body;
+
+            RenderUtils.matchModelPartRot(bodyPart, this.body);
+            this.body.updatePosition(bodyPart.x, -bodyPart.y, bodyPart.z);
         }
 
-        if (this.rightLegBone != null) {
-            IBone rightLegBone = this.modelProvider.getBone(this.rightLegBone);
-            GeoUtils.copyRotations(this.rightLeg, rightLegBone);
-            rightLegBone.setPositionX(this.rightLeg.x + 2);
-            rightLegBone.setPositionY(12 - this.rightLeg.y);
-            rightLegBone.setPositionZ(this.rightLeg.z);
-            if (this.rightBootBone != null) {
-                IBone rightBootBone = this.modelProvider.getBone(this.rightBootBone);
-                GeoUtils.copyRotations(this.rightLeg, rightBootBone);
-                rightBootBone.setPositionX(this.rightLeg.x + 2);
-                rightBootBone.setPositionY(12 - this.rightLeg.y);
-                rightBootBone.setPositionZ(this.rightLeg.z);
+        if (this.rightArm != null) {
+            ModelPart rightArmPart = baseModel.rightArm;
+
+            RenderUtils.matchModelPartRot(rightArmPart, this.rightArm);
+            this.rightArm.updatePosition(rightArmPart.x + 5, 2 - rightArmPart.y, rightArmPart.z);
+        }
+
+        if (this.leftArm != null) {
+            ModelPart leftArmPart = baseModel.leftArm;
+
+            RenderUtils.matchModelPartRot(leftArmPart, this.leftArm);
+            this.leftArm.updatePosition(leftArmPart.x - 5f, 2f - leftArmPart.y, leftArmPart.z);
+        }
+
+        if (this.rightLeg != null) {
+            ModelPart rightLegPart = baseModel.rightLeg;
+
+            RenderUtils.matchModelPartRot(rightLegPart, this.rightLeg);
+            this.rightLeg.updatePosition(rightLegPart.x + 2, 12 - rightLegPart.y, rightLegPart.z);
+
+            if (this.rightBoot != null) {
+                RenderUtils.matchModelPartRot(rightLegPart, this.rightBoot);
+                this.rightBoot.updatePosition(rightLegPart.x + 2, 12 - rightLegPart.y, rightLegPart.z);
             }
         }
 
-        if (this.leftLegBone != null) {
-            IBone leftLegBone = this.modelProvider.getBone(this.leftLegBone);
-            GeoUtils.copyRotations(this.leftLeg, leftLegBone);
-            leftLegBone.setPositionX(this.leftLeg.x - 2);
-            leftLegBone.setPositionY(12 - this.leftLeg.y);
-            leftLegBone.setPositionZ(this.leftLeg.z);
-            if (this.leftBootBone != null) {
-                IBone leftBootBone = this.modelProvider.getBone(this.leftBootBone);
-                GeoUtils.copyRotations(this.leftLeg, leftBootBone);
-                leftBootBone.setPositionX(this.leftLeg.x - 2);
-                leftBootBone.setPositionY(12 - this.leftLeg.y);
-                leftBootBone.setPositionZ(this.leftLeg.z);
+        if (this.leftLeg != null) {
+            ModelPart leftLegPart = baseModel.leftLeg;
+
+            RenderUtils.matchModelPartRot(leftLegPart, this.leftLeg);
+            this.leftLeg.updatePosition(leftLegPart.x - 2, 12 - leftLegPart.y, leftLegPart.z);
+
+            if (this.leftBoot != null) {
+                RenderUtils.matchModelPartRot(leftLegPart, this.leftBoot);
+                this.leftBoot.updatePosition(leftLegPart.x - 2, 12 - leftLegPart.y, leftLegPart.z);
             }
         }
     }
+
+    @Override
+    public void setAllVisible(boolean pVisible) {
+        super.setAllVisible(pVisible);
+
+        setBoneVisible(this.head, pVisible);
+        setBoneVisible(this.body, pVisible);
+        setBoneVisible(this.rightArm, pVisible);
+        setBoneVisible(this.leftArm, pVisible);
+        setBoneVisible(this.rightLeg, pVisible);
+        setBoneVisible(this.leftLeg, pVisible);
+        setBoneVisible(this.rightBoot, pVisible);
+        setBoneVisible(this.leftBoot, pVisible);
+    }
+
 
     public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource buffer, int packedLightIn, HumanoidArm side) {
-        this.renderFirstPersonArm(renderer, poseStack, buffer.getBuffer(RenderType.entityTranslucent(getTextureLocation(currentAbility))), packedLightIn, OverlayTexture.NO_OVERLAY, side, 1f, 1f, 1f, 1f);
+        this.renderFirstPersonArm(renderer, poseStack, buffer.getBuffer(RenderType.entityTranslucent(getTextureLocation(ability))), packedLightIn, OverlayTexture.NO_OVERLAY, side, 1f, 1f, 1f, 1f);
     }
 
     public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack poseStack, VertexConsumer builder, int packedLightIn, int packedOverlayIn, HumanoidArm side, float red, float green, float blue, float alpha) {
-        GeoModel model = this.modelProvider.getModel(getModelLocation(this.currentAbility));
+        BakedGeoModel model = this.model.getBakedModel(getModelLocation(this.ability));
         if (!this.clientProperties.showingAnimationAlways()) this.doAnimationProcess();
-        if (alpha == 0F || model.topLevelBones.isEmpty())
+        if (alpha == 0F || model.topLevelBones().isEmpty())
             return;
 
         this.attackTime = 0.0F;
@@ -150,21 +333,18 @@ public class GeoAbilityRenderer<T extends Ability & IAnimatable> extends Humanoi
         poseStack.translate(0.0D, 1.5F, 0.0D);
         poseStack.scale(-1.0F, -1.0F, 1.0F);
         if (!this.clientProperties.renderGeoAbilityRenderer(poseStack, builder, packedLightIn, packedOverlayIn, red, green, blue, alpha, true, model, this.player, this)) {
-            model.getBone(side == HumanoidArm.LEFT ? this.leftArmBone : this.rightArmBone).ifPresent(bone -> {
-                if (!bone.childBones.isEmpty() || !bone.childCubes.isEmpty()) {
-                    ModelPart modelRenderer = side == HumanoidArm.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
-                    GeoUtils.copyRotations(modelRenderer, bone);
-                    bone.setPositionX(side == HumanoidArm.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
-                    bone.setPositionY(2 - modelRenderer.y);
-                    bone.setPositionZ(modelRenderer.z);
-                    bone.setHidden(false);
+            GeoBone bone = side == HumanoidArm.LEFT ? getLeftArmBone() : getRightArmBone();
+            if (!bone.getChildBones().isEmpty() || !bone.getCubes().isEmpty()) {
+                ModelPart modelRenderer = side == HumanoidArm.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
+                RenderUtils.matchModelPartRot(modelRenderer, bone);
+                bone.updatePosition(side == HumanoidArm.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5, 2 - modelRenderer.y, modelRenderer.z);
+                bone.setHidden(false);
 
-                    poseStack.pushPose();
-                    RenderSystem.setShaderTexture(0, this.getTextureLocation(this.currentAbility));
-                    this.renderRecursively(bone, poseStack, builder, packedLightIn, packedOverlayIn, red, green, blue, alpha);
-                    poseStack.popPose();
-                }
-            });
+                poseStack.pushPose();
+                RenderSystem.setShaderTexture(0, this.getTextureLocation(this.ability));
+                this.renderRecursively(poseStack, this.ability, bone, null, null, builder, false, Minecraft.getInstance().getFrameTime(), packedLightIn, packedOverlayIn, red, green, blue, alpha);
+                poseStack.popPose();
+            }
         }
         poseStack.scale(-1.0F, -1.0F, 1.0F);
         poseStack.translate(0.0D, -1.5F, 0.0D);
@@ -172,50 +352,18 @@ public class GeoAbilityRenderer<T extends Ability & IAnimatable> extends Humanoi
     }
 
     @Override
-    public void setCurrentRTB(MultiBufferSource rtb) {
-        this.rtb = rtb;
-    }
-
-    @Override
-    public MultiBufferSource getCurrentRTB() {
-        return this.rtb;
-    }
-
-    @Override
-    public AnimatedGeoModel<T> getGeoModelProvider() {
-        return this.modelProvider;
-    }
-
-    @Override
     public ResourceLocation getTextureLocation(T instance) {
-        return this.modelProvider.getTextureLocation(instance);
+        return this.model.getTextureResource(instance);
     }
 
     public ResourceLocation getModelLocation(T instance) {
-        return this.modelProvider.getModelLocation(instance);
+        return this.model.getModelResource(instance);
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public void setCurrentAbility(AbstractClientPlayer player, MultiBufferSource bufferSource, HumanoidModel from) {
-        this.player = player;
-        this.rtb = bufferSource;
-        from.copyPropertiesTo(this);
-    }
+    protected void setBoneVisible(@Nullable GeoBone bone, boolean visible) {
+        if (bone == null)
+            return;
 
-    public void doAnimationProcess() {
-        this.modelProvider.getModel(getModelLocation(this.currentAbility));
-        if (this.modelProvider.getAnimationFileLocation(this.currentAbility) != null) {
-            AnimationEvent<T> abilityEvent = new AnimationEvent<>(this.currentAbility, 0, 0, 0, false, Arrays.asList(this.currentAbility, this.player));
-            this.modelProvider.setCustomAnimations(this.currentAbility, this.getInstanceId(this.currentAbility), abilityEvent);
-        }
-    }
-
-    @Override
-    public RenderType getRenderType(T animatable, float partialTicks, PoseStack poseStack, MultiBufferSource renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn, ResourceLocation textureLocation) {
-        return RenderType.entityTranslucent(getTextureLocation(animatable));
-    }
-
-    public AbstractClientPlayer getPlayer() {
-        return player;
+        bone.setHidden(!visible);
     }
 }

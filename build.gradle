@@ -99,9 +99,9 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:$project.mc_version-$project.forge_version"
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    //annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
-    shade fg.deobf("software.bernie.geckolib:geckolib-forge-1.18:$project.geckolib_version")
+    shade fg.deobf("software.bernie.geckolib:geckolib-forge-$project.mc_version:$project.geckolib_version")
 
     library('com.github.jagrosh:DiscordIPC:ff8c5b73ee') {
         exclude group: 'org.slf4j'

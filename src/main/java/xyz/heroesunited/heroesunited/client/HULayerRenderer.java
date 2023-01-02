@@ -23,6 +23,7 @@ import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
+import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 public class HULayerRenderer<T extends LivingEntity, M extends HumanoidModel<T>> extends RenderLayer<T, M> {
 
@@ -64,10 +65,8 @@ public class HULayerRenderer<T extends LivingEntity, M extends HumanoidModel<T>>
             }
         });
 
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
-            if (slot.isArmor()) {
-                renderSuit(matrixStack, buffer, entity, slot, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
-            }
+        for (EquipmentSlot slot : HUPlayerUtil.ARMOR_SLOTS) {
+            renderSuit(matrixStack, buffer, entity, slot, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
         }
     }
 

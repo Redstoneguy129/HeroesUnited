@@ -4,12 +4,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.geo.render.built.GeoModel;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 import xyz.heroesunited.heroesunited.client.renderer.GeoAbilityRenderer;
+import xyz.heroesunited.heroesunited.common.abilities.animatable.GeoAbility;
 
-public abstract class GeoAbilityClientProperties<T extends Ability & IAnimatable> implements IAbilityClientProperties {
+public abstract class GeoAbilityClientProperties<T extends Ability & GeoAbility> implements IAbilityClientProperties {
 
     protected final T ability;
     protected final GeoAbilityRenderer<T> abilityRenderer;
@@ -33,20 +33,20 @@ public abstract class GeoAbilityClientProperties<T extends Ability & IAnimatable
         return null;
     }
 
-    public AnimatedGeoModel<T> getGeoModel() {
-        return new AnimatedGeoModel<>() {
+    public GeoModel<T> getGeoModel() {
+        return new GeoModel<T>() {
             @Override
-            public ResourceLocation getModelLocation(T ability) {
+            public ResourceLocation getModelResource(T ability) {
                 return GeoAbilityClientProperties.this.getModelPath();
             }
 
             @Override
-            public ResourceLocation getTextureLocation(T ability) {
+            public ResourceLocation getTextureResource(T ability) {
                 return GeoAbilityClientProperties.this.getTexture();
             }
 
             @Override
-            public ResourceLocation getAnimationFileLocation(T ability) {
+            public ResourceLocation getAnimationResource(T ability) {
                 return GeoAbilityClientProperties.this.getAnimationFile();
             }
         };
@@ -56,7 +56,7 @@ public abstract class GeoAbilityClientProperties<T extends Ability & IAnimatable
         return true;
     }
 
-    public boolean renderGeoAbilityRenderer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, boolean firstPerson, GeoModel model, AbstractClientPlayer player, GeoAbilityRenderer<T> renderer) {
+    public boolean renderGeoAbilityRenderer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, boolean firstPerson, BakedGeoModel model, AbstractClientPlayer player, GeoAbilityRenderer<T> renderer) {
         return false;
     }
 

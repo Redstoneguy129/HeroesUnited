@@ -34,34 +34,33 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.geckolib3.core.util.Color;
-import software.bernie.geckolib3.geo.exception.GeckoLibException;
-import software.bernie.geckolib3.geo.render.built.GeoBone;
-import software.bernie.geckolib3.geo.render.built.GeoModel;
-import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
-import software.bernie.geckolib3.util.GeckoLibUtil;
-import software.bernie.geckolib3.util.GeoUtils;
+import software.bernie.geckolib.GeckoLibException;
+import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.object.Color;
+import software.bernie.geckolib.renderer.GeoArmorRenderer;
+import software.bernie.geckolib.util.GeckoLibUtil;
+import software.bernie.geckolib.util.RenderUtils;
 import xyz.heroesunited.heroesunited.client.model.GeckoSuitModel;
+import xyz.heroesunited.heroesunited.client.renderer.GeckoSuitRenderer;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
 import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
-import net.minecraft.world.item.Item.Properties;
+public class SuitItem extends ArmorItem implements IAbilityProvider, GeoItem {
 
-public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable {
-
-    protected final AnimationFactory factory = GeckoLibUtil.createFactory(this);
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     protected final Suit suit;
 
     public SuitItem(ArmorMaterial materialIn, EquipmentSlot slot, Properties builder, Suit suit) {
@@ -105,77 +104,70 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
         super.initializeClient(consumer);
         consumer.accept(new IClientItemExtensions() {
+            private GeoArmorRenderer<?> renderer;
+
             @Override
             public @NotNull HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
-                try {
-                    return getArmorRenderer(livingEntity)
-                            .setCurrentItem(livingEntity, itemStack, equipmentSlot)
-                            .applyEntityStats(original).applySlot(equipmentSlot);
-                } catch (GeckoLibException | IllegalArgumentException e) {
-                    if (itemStack != ItemStack.EMPTY && itemStack.getItem() instanceof SuitItem) {
-                        return getSuit().getArmorModel(livingEntity, itemStack, equipmentSlot, original);
-                    }
-                    return null;
+                if (SuitItem.this.getSuit() instanceof JsonSuit) {
+                    if (this.renderer == null)
+                        this.renderer = new GeckoSuitRenderer<>();
+
+                    // This prepares our GeoArmorRenderer for the current render frame.
+                    // These parameters may be null however, so we don't do anything further with them
+                    this.renderer.prepForRender(livingEntity, itemStack, equipmentSlot, original);
+
+                    return this.renderer;
                 }
+                return getSuit().getArmorModel(livingEntity, itemStack, equipmentSlot, original);
             }
         });
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @OnlyIn(Dist.CLIENT)
     public void renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side, ItemStack stack) {
-        if (getSlot() != EquipmentSlot.CHEST) return;
+        if (getSlot() != EquipmentSlot.CHEST || !(IClientItemExtensions.of(stack).getHumanoidArmorModel(player, stack, getSlot(), renderer.getModel()) instanceof GeoArmorRenderer armorRenderer)) return;
         try {
-            GeoArmorRenderer geo = getArmorRenderer(player);
-            GeoModel model;
-            if (HUPlayerUtil.haveSmallArms(player) && geo.getGeoModelProvider() instanceof GeckoSuitModel) {
-                model = geo.getGeoModelProvider().getModel(((GeckoSuitModel) geo.getGeoModelProvider()).getSlimModelLocation(this));
+            BakedGeoModel model;
+            if (HUPlayerUtil.haveSmallArms(player) && armorRenderer.getGeoModel() instanceof GeckoSuitModel) {
+                model = armorRenderer.getGeoModel().getBakedModel(((GeckoSuitModel) armorRenderer.getGeoModel()).getSlimModelResource(this));
             } else {
-                model = geo.getGeoModelProvider().getModel(geo.getGeoModelProvider().getModelLocation(this));
+                model = armorRenderer.getGeoModel().getBakedModel(armorRenderer.getGeoModel().getModelResource(this));
             }
 
-            geo.setCurrentItem(player, stack, getSlot());
-            geo.applySlot(getSlot());
-            geo.getGeoModelProvider().setCustomAnimations(this, geo.getInstanceId(this), new AnimationEvent<>(this, 0, 0, 0, false, Arrays.asList(stack, player, slot)));
-            if (renderer != null) {
-                geo.applyEntityStats(renderer.getModel());
-            } else {
-                return;
-            }
-            if (model.topLevelBones.isEmpty())
+            armorRenderer.prepForRender(player, stack, getSlot(), renderer.getModel());
+
+            long instanceId = armorRenderer.getInstanceId(stack.getItem());
+            armorRenderer.getGeoModel().handleAnimations(this, instanceId, new AnimationState(this, 0, 0, 0, false));
+            if (model.topLevelBones().isEmpty())
                 throw new GeckoLibException(ForgeRegistries.ITEMS.getKey(this), "Model doesn't have any parts");
-            GeoBone bone = model.getBone(side == HumanoidArm.LEFT ? geo.leftArmBone : geo.rightArmBone).get();
-            geo.attackTime = 0.0F;
-            geo.crouching = false;
-            geo.swimAmount = 0.0F;
+            GeoBone bone = side == HumanoidArm.LEFT ? armorRenderer.getLeftArmBone() : armorRenderer.getRightArmBone();
+            armorRenderer.attackTime = 0.0F;
+            armorRenderer.crouching = false;
+            armorRenderer.swimAmount = 0.0F;
             poseStack.pushPose();
             poseStack.translate(0.0D, 1.5F, 0.0D);
             poseStack.scale(-1.0F, -1.0F, 1.0F);
 
             ModelPart modelRenderer = side == HumanoidArm.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
-            GeoUtils.copyRotations(modelRenderer, bone);
-            bone.setPositionX(side == HumanoidArm.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5);
-            bone.setPositionY(2 - modelRenderer.y);
-            bone.setPositionZ(modelRenderer.z);
 
-            if (bone.childBones.isEmpty() && bone.childCubes.isEmpty())
+            RenderUtils.matchModelPartRot(modelRenderer, bone);
+            bone.updatePosition(side == HumanoidArm.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5, 2 - modelRenderer.y, modelRenderer.z);
+
+            if (bone.getChildBones().isEmpty() && bone.getCubes().isEmpty())
                 throw new GeckoLibException(ForgeRegistries.ITEMS.getKey(this), "Bone doesn't have any parts");
 
-            for (GeoBone o : model.topLevelBones) {
-                if (o != bone) {
-                    o.setHidden(true);
-                }
-            }
+            bone.setHidden(false);
 
             poseStack.pushPose();
-            RenderSystem.setShaderTexture(0, geo.getTextureLocation(this));
-            VertexConsumer builder = bufferIn.getBuffer(RenderType.entityTranslucent(geo.getTextureLocation(this)));
-            Color renderColor = geo.getRenderColor(this, 0, poseStack, null, builder, packedLightIn);
+            RenderSystem.setShaderTexture(0, armorRenderer.getTextureLocation(this));
+            VertexConsumer builder = bufferIn.getBuffer(RenderType.entityTranslucent(armorRenderer.getTextureLocation(this)));
+            Color renderColor = armorRenderer.getRenderColor(this, 0, packedLightIn);
 
-            geo.render(model, stack.getItem(), Minecraft.getInstance().getFrameTime(), RenderType.entityTranslucent(geo.getTextureLocation(this)), poseStack, bufferIn, builder, packedLightIn,
-                    OverlayTexture.NO_OVERLAY, (float) renderColor.getRed() / 255f, (float) renderColor.getGreen() / 255f,
+            armorRenderer.renderRecursively(poseStack, stack.getItem(), bone, null, null, builder,
+                    false, Minecraft.getInstance().getFrameTime(), packedLightIn, OverlayTexture.NO_OVERLAY,
+                    (float) renderColor.getRed() / 255f, (float) renderColor.getGreen() / 255f,
                     (float) renderColor.getBlue() / 255f, (float) renderColor.getAlpha() / 255);
-
-
             poseStack.popPose();
             poseStack.scale(-1.0F, -1.0F, 1.0F);
             poseStack.translate(0.0D, -1.5F, 0.0D);
@@ -193,16 +185,19 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
     @Override
     public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
         try {
-            ResourceLocation location = getArmorRenderer(entity).getTextureLocation((ArmorItem) stack.getItem());
-            if (Minecraft.getInstance().getResourceManager().getResource(location).isPresent()) {
-                return location.toString();
-            } else {
-                throw new GeckoLibException(location,
-                        "Could not find texture. If you are getting this with a built mod, please just restart your game.");
+            if (entity instanceof LivingEntity e && IClientItemExtensions.of(stack).getHumanoidArmorModel(e, stack, getSlot(), null) instanceof GeoArmorRenderer armorRenderer) {
+                ResourceLocation location = armorRenderer.getGeoModel().getTextureResource((GeoAnimatable) stack.getItem());
+                if (Minecraft.getInstance().getResourceManager().getResource(location).isPresent()) {
+                    return location.toString();
+                } else {
+                    throw new GeckoLibException(location,
+                            "Could not find texture. If you are getting this with a built mod, please just restart your game.");
+                }
             }
         } catch (GeckoLibException | IllegalArgumentException e) {
             return getSuit().getSuitTexture(stack, entity, slot);
         }
+        return getSuit().getSuitTexture(stack, entity, slot);
     }
 
     @Nullable
@@ -234,11 +229,6 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
         }
     }
 
-    public GeoArmorRenderer getArmorRenderer(Entity entity) {
-        Class<? extends ArmorItem> clazz = this.getClass();
-        return GeoArmorRenderer.getRenderer(clazz, entity);
-    }
-
     @Override
     public boolean canEquip(ItemStack stack, EquipmentSlot armorType, Entity entity) {
         if (entity instanceof Player) {
@@ -247,11 +237,13 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, IAnimatable
         return super.canEquip(stack, armorType, entity);
     }
 
-    public void registerControllers(AnimationData data) {
-        getSuit().registerControllers(data, this);
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        getSuit().registerControllers(controllers, this);
     }
 
-    public AnimationFactory getFactory() {
-        return this.factory;
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return this.cache;
     }
 }

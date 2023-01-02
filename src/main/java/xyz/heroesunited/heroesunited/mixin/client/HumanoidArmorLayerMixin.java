@@ -60,7 +60,7 @@ public abstract class HumanoidArmorLayerMixin<T extends LivingEntity, M extends 
     public void renderArmor(HumanoidArmorLayer humanoidArmorLayer, PoseStack poseStack, MultiBufferSource buffer, int packedlightIn, boolean withGlint, Model model, float red, float green, float blue, ResourceLocation armorResource) {
         RenderType renderType = RenderType.entityTranslucent(armorResource);
         if (model instanceof GeckoSuitRenderer renderer) {
-            renderType = renderer.getRenderType(renderer.getCurrentArmorItem(), Minecraft.getInstance().getFrameTime(), poseStack, buffer, null, packedlightIn, armorResource);
+            renderType = renderer.getRenderType(renderer.getAnimatable(), renderer.getTextureLocation(renderer.getAnimatable()), buffer, Minecraft.getInstance().getFrameTime());
         }
         VertexConsumer ivertexbuilder = ItemRenderer.getArmorFoilBuffer(buffer, renderType, false, withGlint);
         model.renderToBuffer(poseStack, ivertexbuilder, packedlightIn, OverlayTexture.NO_OVERLAY, red, green, blue, 1.0F);

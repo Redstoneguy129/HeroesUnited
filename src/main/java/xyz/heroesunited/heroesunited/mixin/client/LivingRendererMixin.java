@@ -2,7 +2,6 @@ package xyz.heroesunited.heroesunited.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
@@ -24,12 +23,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import software.bernie.geckolib3.core.AnimationState;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.keyframe.BoneAnimation;
-import software.bernie.geckolib3.geo.render.built.GeoModel;
-import software.bernie.geckolib3.util.RenderUtils;
+import software.bernie.geckolib.constant.DataTickets;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.keyframe.BoneAnimation;
+import software.bernie.geckolib.util.RenderUtils;
 import xyz.heroesunited.heroesunited.client.HULayerRenderer;
 import xyz.heroesunited.heroesunited.client.events.HideLayerEvent;
 import xyz.heroesunited.heroesunited.client.events.RendererChangeEvent;
@@ -82,43 +80,45 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
                 ((IHUModelPart) (Object) value.modelPart(playerModel)).resetSize();
             }
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-                GeoModel geoModel = cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap));
                 MinecraftForge.EVENT_BUS.post(new SetupAnimEvent(player, playerModel, iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch()));
                 HUClientUtil.copyAnglesToWear(playerModel);
 
-                PlayerGeoModel.ModelData modelData = new PlayerGeoModel.ModelData(playerModel, iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch());
-                AnimationEvent<IHUPlayer> animationEvent = new AnimationEvent<>(cap, iModel.limbSwing(), iModel.limbSwingAmount(), partialTicks, false, Arrays.asList(player, modelData, player.getUUID()));
-                if (!(Minecraft.getInstance().getOverlay() instanceof LoadingOverlay)) {
-                    cap.getAnimatedModel().setCustomAnimations(cap, player.getUUID().hashCode(), animationEvent);
-                }
+                AnimationState<IHUPlayer> animationState = new AnimationState<>(cap, iModel.limbSwing(), iModel.limbSwingAmount(), partialTicks, false);
+                long instanceId = player.getId();
 
-                for (AnimationController<?> controller : cap.getFactory().getOrCreateAnimationData(player.getUUID().hashCode()).getAnimationControllers().values()) {
-                    if (controller.getCurrentAnimation() != null && controller.getAnimationState() != AnimationState.Stopped) {
+                animationState.setData(DataTickets.TICK, cap.getTick(player));
+                animationState.setData(DataTickets.ENTITY, player);
+                animationState.setData(PlayerGeoModel.PLAYER_MODEL_DATA, new PlayerGeoModel.ModelData(playerModel, iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch()));
+                cap.getAnimatedModel().addAdditionalStateData(cap, instanceId, animationState::setData);
+                cap.getAnimatedModel().handleAnimations(cap, instanceId, animationState);
+
+                for (AnimationController<?> controller : cap.getAnimatableInstanceCache().getManagerForId(player.getUUID().hashCode()).getAnimationControllers().values()) {
+                    if (controller.getCurrentAnimation() != null && controller.getAnimationState() != AnimationController.State.STOPPED) {
                         for (String s : Arrays.asList("player", "bipedHead", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg")) {
-                            geoModel.getBone(s).ifPresent(bone -> {
+                            cap.getAnimatedModel().getBone(s).ifPresent(bone -> {
                                 ModelPart modelPart = HUClientUtil.getModelRendererById(playerModel, s);
                                 IHUModelPart part = ((IHUModelPart) (Object) modelPart);
-                                for (BoneAnimation boneAnimation : controller.getCurrentAnimation().boneAnimations) {
-                                    if (boneAnimation.boneName.equals(s)) {
+                                for (BoneAnimation boneAnimation : controller.getCurrentAnimation().animation().boneAnimations()) {
+                                    if (boneAnimation.boneName().equals(s)) {
                                         if (s.equals("player")) {
                                             RenderUtils.prepMatrixForBone(matrixStack, bone);
                                             break;
                                         }
-                                        modelPart.xRot = -bone.getRotationX();
-                                        modelPart.yRot = -bone.getRotationY();
-                                        modelPart.zRot = bone.getRotationZ();
+                                        modelPart.xRot = -bone.getRotX();
+                                        modelPart.yRot = -bone.getRotY();
+                                        modelPart.zRot = bone.getRotZ();
 
-                                        if (bone.getPositionX() != 0) {
-                                            modelPart.x = -(bone.getPivotX() + bone.getPositionX());
+                                        if (bone.getPosX() != 0) {
+                                            modelPart.x = -(bone.getPivotX() + bone.getPosX());
                                         }
-                                        if (bone.getPositionY() != 0) {
-                                            modelPart.y = (24 - bone.getPivotY()) - bone.getPositionY();
+                                        if (bone.getPosY() != 0) {
+                                            modelPart.y = (24 - bone.getPivotY()) - bone.getPosY();
                                         }
-                                        if (bone.getPositionZ() != 0) {
-                                            modelPart.z = bone.getPivotZ() + bone.getPositionZ();
+                                        if (bone.getPosZ() != 0) {
+                                            modelPart.z = bone.getPivotZ() + bone.getPosZ();
                                         }
 
-                                        if (bone.name.endsWith("Leg")) {
+                                        if (bone.getName().endsWith("Leg")) {
                                             modelPart.y = modelPart.y - bone.getScaleY() * 2;
                                         }
                                         part.setSize(part.size().extend(bone.getScaleX() - 1.0F, bone.getScaleY() - 1.0F, bone.getScaleZ() - 1.0F));

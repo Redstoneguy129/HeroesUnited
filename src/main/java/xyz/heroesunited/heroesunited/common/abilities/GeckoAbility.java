@@ -13,15 +13,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.geckolib3.util.GeckoLibUtil;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.util.GeckoLibUtil;
+import xyz.heroesunited.heroesunited.common.abilities.animatable.GeoAbility;
 
 import java.util.function.Consumer;
 
-public class GeckoAbility extends JSONAbility implements IAnimatable {
-    protected final AnimationFactory factory = GeckoLibUtil.createFactory(this);
+public class GeckoAbility extends JSONAbility implements GeoAbility {
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public GeckoAbility(AbilityType type, Player player, JsonObject jsonObject) {
         super(type, player, jsonObject);
@@ -35,7 +35,7 @@ public class GeckoAbility extends JSONAbility implements IAnimatable {
             @Override
             public void render(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
                 if (getEnabled()) {
-                    this.abilityRenderer.setCurrentAbility(player, bufferIn, renderer.getModel());
+                    this.abilityRenderer.prepForRender(player, renderer.getModel());
                     this.abilityRenderer.renderToBuffer(poseStack, bufferIn.getBuffer(RenderType.entityTranslucent(abilityRenderer.getTextureLocation(GeckoAbility.this))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
                 }
             }
@@ -43,7 +43,7 @@ public class GeckoAbility extends JSONAbility implements IAnimatable {
             @Override
             public boolean renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
                 if (getEnabled()) {
-                    this.abilityRenderer.setCurrentAbility(player, bufferIn, renderer.getModel());
+                    this.abilityRenderer.prepForRender(player, renderer.getModel());
                     this.abilityRenderer.renderFirstPersonArm(renderer, poseStack, bufferIn, packedLightIn, side);
                 }
                 return true;
@@ -90,12 +90,12 @@ public class GeckoAbility extends JSONAbility implements IAnimatable {
     }
 
     @Override
-    public void registerControllers(AnimationData data) {
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 
     }
 
     @Override
-    public AnimationFactory getFactory() {
-        return this.factory;
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return this.cache;
     }
 }

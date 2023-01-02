@@ -11,7 +11,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
@@ -102,7 +101,7 @@ public class AbilitiesScreen extends Screen {
     @Override
     public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         IHUPlayer cap = HUPlayer.getCap(minecraft.player);
-        SnowWidget.drawSnowOnScreen(matrixStack, this.width, this.height);
+        SnowWidget.drawSnowOnScreen(matrixStack, this.width, this.height, partialTicks);
         this.renderBackground(matrixStack);
         matrixStack.pushPose();
         ResourceLocation theme = getTheme("default");

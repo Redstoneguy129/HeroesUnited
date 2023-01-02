@@ -1,6 +1,7 @@
 package xyz.heroesunited.heroesunited.common.objects.items;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
@@ -10,6 +11,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
@@ -21,27 +23,24 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.registries.ForgeRegistries;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.builder.ILoopType;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.geckolib3.core.processor.IBone;
-import software.bernie.geckolib3.geo.render.built.GeoModel;
-import software.bernie.geckolib3.util.GeckoLibUtil;
-import software.bernie.geckolib3.util.GeoUtils;
+import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.util.GeckoLibUtil;
+import software.bernie.geckolib.util.RenderUtils;
 import xyz.heroesunited.heroesunited.client.renderer.GeckoAccessoryRenderer;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 
 import java.util.function.Consumer;
 
-import net.minecraft.world.item.Item.Properties;
+public class GeckoAccessory extends DefaultAccessoryItem implements GeoItem {
 
-public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable {
-
-    private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public GeckoAccessory(EquipmentAccessoriesSlot accessorySlot) {
         super(new Properties(), accessorySlot);
@@ -112,7 +111,12 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
                     poseStack.scale(0.625F, -0.625F, -0.625F);
                     poseStack.translate(side == HumanoidArm.LEFT ? -0.6 : -0.4, -0.35D, -0.625D);
                     ResourceLocation modelFile = new ResourceLocation(this.registryName().getNamespace(), String.format("geo/%s.geo.json", this.registryName().getPath() + (side == HumanoidArm.LEFT ? "" : "_v2")));
-                    new GeckoAccessoryRenderer(modelFile).render(this, poseStack, bufferIn, packedLightIn, stack);
+                    GeckoAccessoryRenderer accessoryRenderer = new GeckoAccessoryRenderer(modelFile);
+
+                    RenderType renderType = accessoryRenderer.getRenderType(this, accessoryRenderer.getTextureLocation(this), bufferIn, Minecraft.getInstance().getFrameTime());
+                    VertexConsumer buffer = ItemRenderer.getFoilBufferDirect(bufferIn, renderType, false, stack.hasFoil());
+                    accessoryRenderer.defaultRender(poseStack, this, bufferIn, renderType, buffer,
+                            0, Minecraft.getInstance().getFrameTime(), packedLightIn);
                 } else {
                     poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
                     poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
@@ -147,31 +151,23 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
     @OnlyIn(Dist.CLIENT)
     public void renderHokageCape(LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, LivingEntity livingEntity, float partialTicks) {
         GeckoAccessoryRenderer accessoryRenderer = new GeckoAccessoryRenderer();
-        GeoModel model = accessoryRenderer.getGeoModelProvider().getModel(getModelFile());
+        GeoModel<GeckoAccessory> model = accessoryRenderer.getGeoModel();
 
-        IBone headBone = accessoryRenderer.getGeoModelProvider().getBone("armorHead");
-        GeoUtils.copyRotations(renderer.getModel().head, headBone);
-        headBone.setPositionX(renderer.getModel().head.x);
-        headBone.setPositionY(-renderer.getModel().head.y);
-        headBone.setPositionZ(renderer.getModel().head.z);
+        GeoBone headBone = model.getBone("armorHead").get();
+        RenderUtils.matchModelPartRot(renderer.getModel().head, headBone);
+        headBone.updatePosition(renderer.getModel().head.x, -renderer.getModel().head.y, renderer.getModel().head.z);
 
-        IBone bodyBone = accessoryRenderer.getGeoModelProvider().getBone("armorBody");
-        GeoUtils.copyRotations(renderer.getModel().body, bodyBone);
-        bodyBone.setPositionX(renderer.getModel().body.x);
-        bodyBone.setPositionY(-renderer.getModel().body.y);
-        bodyBone.setPositionZ(renderer.getModel().body.z);
+        GeoBone bodyBone = model.getBone("armorBody").get();
+        RenderUtils.matchModelPartRot(renderer.getModel().body, bodyBone);
+        bodyBone.updatePosition(renderer.getModel().body.x, -renderer.getModel().body.y, renderer.getModel().body.z);
 
-        IBone rightArmBone = accessoryRenderer.getGeoModelProvider().getBone("armorRightArm");
-        GeoUtils.copyRotations(renderer.getModel().rightArm, rightArmBone);
-        rightArmBone.setPositionX(renderer.getModel().rightArm.x + 5);
-        rightArmBone.setPositionY(2 - renderer.getModel().rightArm.y);
-        rightArmBone.setPositionZ(renderer.getModel().rightArm.z);
+        GeoBone rightArmBone = model.getBone("armorRightArm").get();
+        RenderUtils.matchModelPartRot(renderer.getModel().rightArm, rightArmBone);
+        rightArmBone.updatePosition(renderer.getModel().rightArm.x + 5, 2 - renderer.getModel().rightArm.y, renderer.getModel().rightArm.z);
 
-        IBone leftArmBone = accessoryRenderer.getGeoModelProvider().getBone("armorLeftArm");
-        GeoUtils.copyRotations(renderer.getModel().leftArm, leftArmBone);
-        leftArmBone.setPositionX(renderer.getModel().leftArm.x - 5);
-        leftArmBone.setPositionY(2 - renderer.getModel().leftArm.y);
-        leftArmBone.setPositionZ(renderer.getModel().leftArm.z);
+        GeoBone leftArmBone = model.getBone("armorLeftArm").get();
+        RenderUtils.matchModelPartRot(renderer.getModel().leftArm, leftArmBone);
+        leftArmBone.updatePosition(renderer.getModel().leftArm.x - 5, 2 - renderer.getModel().leftArm.y, renderer.getModel().leftArm.z);
 
         if (livingEntity instanceof AbstractClientPlayer player) {
             double d0 = Mth.lerp(partialTicks, player.xCloakO, player.xCloak) - Mth.lerp(partialTicks, player.xo, player.getX());
@@ -185,31 +181,34 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
 
             f1 = f1 + Mth.sin(Mth.lerp(partialTicks, player.walkDistO, player.walkDist) * 6.0F) * 32.0F * Mth.lerp(partialTicks, player.oBob, player.bob);
 
-            IBone cape = accessoryRenderer.getGeoModelProvider().getBone("cape");
+            GeoBone cape = model.getBone("cape").get();
             float rot = Mth.clamp(f2 + f1, 0F, 80F);
-            cape.setRotationX((float) Math.toRadians(-rot));
-            cape.setPositionY(0);
-            cape.setPositionZ(0);
+            cape.setRotX((float) Math.toRadians(-rot));
+            cape.setPosY(0);
+            cape.setPosZ(0);
             rot = 0.15F + rot / 80F;
             if (player.isCrouching()) {
-                cape.setRotationX(0.5F + cape.getRotationX());
-                cape.setPositionY(2.2F);
-                cape.setPositionZ(-1F);
+                cape.setRotX(0.5F + cape.getRotX());
+                cape.setPosY(2.2F);
+                cape.setPosZ(-1F);
                 rot += 0.15F;
             }
 
-            IBone right = accessoryRenderer.getGeoModelProvider().getBone("right");
-            right.setRotationX(rot * (float) Math.toRadians(-9.5));
-            right.setRotationY(rot * (float) Math.toRadians(-59));
-            right.setRotationZ(rot * (float) Math.toRadians(8.8));
+            GeoBone right = model.getBone("right").get();
+            right.setRotX(rot * (float) Math.toRadians(-9.5));
+            right.setRotY(rot * (float) Math.toRadians(-59));
+            right.setRotZ(rot * (float) Math.toRadians(8.8));
 
-            IBone left = accessoryRenderer.getGeoModelProvider().getBone("left");
-            left.setRotationX(rot * (float) Math.toRadians(-9.5));
-            left.setRotationY(rot * (float) Math.toRadians(59));
-            left.setRotationZ(rot * (float) Math.toRadians(-8.8));
+            GeoBone left = model.getBone("left").get();
+            left.setRotX(rot * (float) Math.toRadians(-9.5));
+            left.setRotY(rot * (float) Math.toRadians(59));
+            left.setRotZ(rot * (float) Math.toRadians(-8.8));
         }
 
-        accessoryRenderer.render(model, this, partialTicks, RenderType.entityTranslucent(this.getTextureFile()), poseStack, bufferIn, bufferIn.getBuffer(RenderType.entityTranslucent(this.getTextureFile())), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+        RenderType renderType = RenderType.entityTranslucent(this.getTextureFile());
+        accessoryRenderer.defaultRender(poseStack, this, bufferIn, renderType, bufferIn.getBuffer(renderType),
+                0, partialTicks, packedLightIn);
+
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -224,17 +223,17 @@ public class GeckoAccessory extends DefaultAccessoryItem implements IAnimatable 
     }
 
     @Override
-    public void registerControllers(AnimationData data) {
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         if (this == HUItems.BOBO_ACCESSORY.get()) {
-            data.addAnimationController(new AnimationController<>(this, "controller", 20.0F, event -> {
-                event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.bobo", ILoopType.EDefaultLoopTypes.LOOP));
+            controllers.add(new AnimationController<>(this, "controller", 20, event -> {
+                event.getController().setAnimation(RawAnimation.begin().thenLoop("animation.bobo"));
                 return PlayState.CONTINUE;
             }));
         }
     }
 
     @Override
-    public AnimationFactory getFactory() {
-        return factory;
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return this.cache;
     }
 }

@@ -2,23 +2,23 @@ package xyz.heroesunited.heroesunited.common.objects.items;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.processor.AnimationProcessor;
-import software.bernie.geckolib3.core.processor.IBone;
-import software.bernie.geckolib3.geo.render.built.GeoBone;
-import software.bernie.geckolib3.geo.render.built.GeoModel;
-import software.bernie.geckolib3.util.GeoUtils;
+import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
+import software.bernie.geckolib.core.animation.AnimationProcessor;
+import software.bernie.geckolib.util.RenderUtils;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.renderer.GeckoAccessoryRenderer;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
@@ -44,8 +44,10 @@ class ClothesAccessory extends GeckoAccessory {
 
                 @SuppressWarnings("unchecked")
                 @Override
-                public void render(GeoModel model, GeckoAccessory animatable, float partialTicks, RenderType type, PoseStack matrixStackIn, @Nullable MultiBufferSource renderTypeBuffer, @Nullable VertexConsumer vertexBuilder, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-                    for (GeoBone topLevelBone : model.topLevelBones) {
+                public void defaultRender(PoseStack poseStack, GeckoAccessory animatable, MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
+                    BakedGeoModel geoModel = this.model.getBakedModel(this.model.getModelResource(animatable));
+
+                    for (GeoBone topLevelBone : geoModel.topLevelBones()) {
                         topLevelBone.setHidden(true);
                     }
 
@@ -73,8 +75,7 @@ class ClothesAccessory extends GeckoAccessory {
                         model.getBone("right_leg_boots").ifPresent(b -> b.setHidden(false));
                         model.getBone("left_leg_boots").ifPresent(b -> b.setHidden(false));
                     }
-
-                    super.render(model, animatable, partialTicks, type, matrixStackIn, renderTypeBuffer, vertexBuilder, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+                    super.defaultRender(poseStack, animatable, bufferSource, renderType, buffer, yaw, partialTick, packedLight);
                 }
             };
 
@@ -97,49 +98,40 @@ class ClothesAccessory extends GeckoAccessory {
         if (HUPlayerUtil.haveSmallArms(livingEntity)) {
             location = new ResourceLocation(getModelFile().toString().replace(".geo", "_slim.geo"));
         }
-        GeoModel model = accessoryRenderer.getGeoModelProvider().getModel(location);
-        AnimationProcessor<ClothesAccessory> processor = accessoryRenderer.getGeoModelProvider().getAnimationProcessor();
+        BakedGeoModel model = accessoryRenderer.getGeoModel().getBakedModel(location);
+        AnimationProcessor<GeckoAccessory> processor = accessoryRenderer.getGeoModel().getAnimationProcessor();
 
-        for (IBone iBone : processor.getModelRendererList()) {
+        for (CoreGeoBone iBone : processor.getRegisteredBones()) {
             if (iBone.getName().contains("head")) {
-                GeoUtils.copyRotations(renderer.getModel().head, iBone);
-                iBone.setPositionX(renderer.getModel().head.x);
-                iBone.setPositionY(-renderer.getModel().head.y);
-                iBone.setPositionZ(renderer.getModel().head.z);
+                RenderUtils.matchModelPartRot(renderer.getModel().head, iBone);
+                iBone.updatePosition(renderer.getModel().head.x, -renderer.getModel().head.y, renderer.getModel().head.z);
             }
             if (iBone.getName().contains("body")) {
-                GeoUtils.copyRotations(renderer.getModel().body, iBone);
-                iBone.setPositionX(renderer.getModel().body.x);
-                iBone.setPositionY(-renderer.getModel().body.y);
-                iBone.setPositionZ(renderer.getModel().body.z);
+                RenderUtils.matchModelPartRot(renderer.getModel().body, iBone);
+                iBone.updatePosition(renderer.getModel().body.x, -renderer.getModel().body.y, renderer.getModel().body.z);
             }
             if (iBone.getName().contains("right_arm")) {
-                GeoUtils.copyRotations(renderer.getModel().rightArm, iBone);
-                iBone.setPositionX(renderer.getModel().rightArm.x + 5);
-                iBone.setPositionY(2 - renderer.getModel().rightArm.y);
-                iBone.setPositionZ(renderer.getModel().rightArm.z);
+                RenderUtils.matchModelPartRot(renderer.getModel().rightArm, iBone);
+                iBone.updatePosition(renderer.getModel().rightArm.x + 5, 2 - renderer.getModel().rightArm.y, renderer.getModel().rightArm.z);
+
             }
             if (iBone.getName().contains("left_arm")) {
-                GeoUtils.copyRotations(renderer.getModel().leftArm, iBone);
-                iBone.setPositionX(renderer.getModel().leftArm.x - 5);
-                iBone.setPositionY(2 - renderer.getModel().leftArm.y);
-                iBone.setPositionZ(renderer.getModel().leftArm.z);
+                RenderUtils.matchModelPartRot(renderer.getModel().leftArm, iBone);
+                iBone.updatePosition(renderer.getModel().leftArm.x - 5, 2 - renderer.getModel().leftArm.y, renderer.getModel().leftArm.z);
             }
             if (iBone.getName().contains("right_leg")) {
-                GeoUtils.copyRotations(renderer.getModel().rightLeg, iBone);
-                iBone.setPositionX(renderer.getModel().rightLeg.x + 2);
-                iBone.setPositionY(12 - renderer.getModel().rightLeg.y);
-                iBone.setPositionZ(renderer.getModel().rightLeg.z);
+                RenderUtils.matchModelPartRot(renderer.getModel().rightLeg, iBone);
+                iBone.updatePosition(renderer.getModel().rightLeg.x + 2, 12 - renderer.getModel().rightLeg.y, renderer.getModel().rightLeg.z);
             }
             if (iBone.getName().contains("left_leg")) {
-                GeoUtils.copyRotations(renderer.getModel().leftLeg, iBone);
-                iBone.setPositionX(renderer.getModel().leftLeg.x - 2);
-                iBone.setPositionY(12 - renderer.getModel().leftLeg.y);
-                iBone.setPositionZ(renderer.getModel().leftLeg.z);
+                RenderUtils.matchModelPartRot(renderer.getModel().leftLeg, iBone);
+                iBone.updatePosition(renderer.getModel().leftLeg.x + 2, 12 - renderer.getModel().leftLeg.y, renderer.getModel().leftLeg.z);
             }
         }
 
-        accessoryRenderer.render(model, this, 0, RenderType.entityTranslucent(this.getTextureFile()), poseStack, bufferIn, bufferIn.getBuffer(RenderType.entityTranslucent(this.getTextureFile())), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+        RenderType type = RenderType.entityTranslucent(this.getTextureFile());
+        accessoryRenderer.defaultRender(poseStack, this, bufferIn, type, bufferIn.getBuffer(type),
+                0, Minecraft.getInstance().getFrameTime(), packedLightIn);
 
         poseStack.scale(-1.0F, -1.0F, 1.0F);
         poseStack.translate(0.0D, -24 / 16F, 0.0D);

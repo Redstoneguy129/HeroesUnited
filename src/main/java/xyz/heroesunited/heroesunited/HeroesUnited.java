@@ -3,7 +3,6 @@ package xyz.heroesunited.heroesunited;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -39,10 +38,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
 import oshi.util.tuples.Pair;
-import software.bernie.geckolib3.GeckoLib;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.IAnimatableModel;
-import software.bernie.geckolib3.core.controller.AnimationController;
+import software.bernie.geckolib.GeckoLib;
 import xyz.heroesunited.heroesunited.client.AbilityOverlay;
 import xyz.heroesunited.heroesunited.client.ClientEventHandler;
 import xyz.heroesunited.heroesunited.client.HorasInfo;
@@ -54,16 +50,13 @@ import xyz.heroesunited.heroesunited.client.model.ParachuteModel;
 import xyz.heroesunited.heroesunited.client.model.SuitModel;
 import xyz.heroesunited.heroesunited.client.model.space.*;
 import xyz.heroesunited.heroesunited.client.renderer.EnergyBlastRenderer;
-import xyz.heroesunited.heroesunited.client.renderer.GeckoSuitRenderer;
 import xyz.heroesunited.heroesunited.client.renderer.HorasRenderer;
 import xyz.heroesunited.heroesunited.client.renderer.SpaceshipRenderer;
 import xyz.heroesunited.heroesunited.client.renderer.space.*;
 import xyz.heroesunited.heroesunited.common.EventHandler;
 import xyz.heroesunited.heroesunited.common.HUConfig;
-import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityType;
 import xyz.heroesunited.heroesunited.common.abilities.Condition;
-import xyz.heroesunited.heroesunited.common.abilities.GeoAbilityClientProperties;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerEvent;
@@ -84,8 +77,6 @@ import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
 import xyz.heroesunited.heroesunited.util.HUModelLayers;
 import xyz.heroesunited.heroesunited.util.HURichPresence;
-
-import java.util.stream.Collectors;
 
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.FALL_RESISTANCE;
 import static xyz.heroesunited.heroesunited.common.objects.HUAttributes.JUMP_BOOST;
@@ -127,23 +118,12 @@ public class HeroesUnited {
         MinecraftForge.EVENT_BUS.register(new EventHandler());
         MinecraftForge.EVENT_BUS.register(new HUPlayerEvent());
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, HUConfig.CLIENT_SPEC);
-
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> DimensionSpecialEffects.EFFECTS.put(new ResourceLocation(MODID, "space"), new SpaceDimensionRenderInfo()));
     }
 
-    static {
-        AnimationController.addModelFetcher((IAnimatable o) -> {
-            if (o instanceof IHUPlayer) {
-                return (IAnimatableModel<Object>) ((IHUPlayer) o).getAnimatedModel();
-            }
-            return null;
-        });
-        AnimationController.addModelFetcher((IAnimatable o) -> {
-            if (o instanceof Ability a && a.getClientProperties() instanceof GeoAbilityClientProperties<?> properties) {
-                return (IAnimatableModel<Object>) properties.getGeoModel();
-            }
-            return null;
-        });
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public void registerKeyBinds(RegisterDimensionSpecialEffectsEvent e) {
+        e.register(new ResourceLocation(MODID, "space"), new SpaceDimensionRenderInfo());
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -203,7 +183,7 @@ public class HeroesUnited {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public void registerGuiOverlay(final RegisterGuiOverlaysEvent event) {
-        event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "AbilityOverlay", new AbilityOverlay());
+        event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "ability_overlay", new AbilityOverlay());
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -217,8 +197,6 @@ public class HeroesUnited {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public void registerLayers(final EntityRenderersEvent.AddLayers event) {
-        GeckoSuitRenderer.registerArmorRenderer(SuitItem.class, GeckoSuitRenderer::new);
-
         CelestialBodyRenderer.registerRenderer(new SunRenderer(event.getEntityModels().bakeLayer(HUModelLayers.SUN)), CelestialBodies.SUN);
         CelestialBodyRenderer.registerRenderer(new MercuryRenderer(event.getEntityModels().bakeLayer(HUModelLayers.PLANET)), CelestialBodies.MERCURY);
         CelestialBodyRenderer.registerRenderer(new VenusRenderer(event.getEntityModels().bakeLayer(HUModelLayers.VENUS)), CelestialBodies.VENUS);
@@ -371,7 +349,7 @@ public class HeroesUnited {
 
         if (event.getTab().equals(CreativeModeTabs.SPAWN_EGGS)) {
             event.getEntries().putAfter(Items.EMERALD.getDefaultInstance(), HUItems.HORAS.get().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            if (HUItems.COMIC_ITEM.isPresent()) {
+            if (HUItems.COMIC_ITEM != null) {
                 event.getEntries().putAfter(HUItems.HORAS.get().getDefaultInstance(), HUItems.COMIC_ITEM.get().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             }
         }

@@ -2,7 +2,6 @@ package xyz.heroesunited.heroesunited.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -17,7 +16,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import software.bernie.geckolib.constant.DataTickets;
+import software.bernie.geckolib.core.animation.AnimationState;
 import xyz.heroesunited.heroesunited.client.events.RenderLayerEvent;
 import xyz.heroesunited.heroesunited.client.events.RenderPlayerHandEvent;
 import xyz.heroesunited.heroesunited.client.model.SuitModel;
@@ -32,8 +32,6 @@ import xyz.heroesunited.heroesunited.common.capabilities.PlayerGeoModel;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
-
-import java.util.Arrays;
 
 @Mixin(PlayerRenderer.class)
 public abstract class PlayerRendererMixin {
@@ -59,11 +57,14 @@ public abstract class PlayerRendererMixin {
         MinecraftForge.EVENT_BUS.post(new RenderPlayerHandEvent.Post(player, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, side));
 
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
-            cap.getAnimatedModel().getModel(cap.getAnimatedModel().getModelLocation(cap));
-            AnimationEvent<IHUPlayer> animationEvent = new AnimationEvent<>(cap, 0, 0, Minecraft.getInstance().getFrameTime(), false, Arrays.asList(player, new PlayerGeoModel.ModelData(playerRenderer.getModel()), player.getUUID()));
-            if (!(Minecraft.getInstance().getOverlay() instanceof LoadingOverlay)) {
-                cap.getAnimatedModel().setCustomAnimations(cap, player.getUUID().hashCode(), animationEvent);
-            }
+            AnimationState<IHUPlayer> animationState = new AnimationState<>(cap, 0, 0, Minecraft.getInstance().getFrameTime(), false);
+            long instanceId = player.getId();
+
+            animationState.setData(DataTickets.TICK, cap.getTick(player));
+            animationState.setData(DataTickets.ENTITY, player);
+            animationState.setData(PlayerGeoModel.PLAYER_MODEL_DATA, new PlayerGeoModel.ModelData(playerRenderer.getModel()));
+            cap.getAnimatedModel().addAdditionalStateData(cap, instanceId, animationState::setData);
+            cap.getAnimatedModel().handleAnimations(cap, instanceId, animationState);
         });
         for (Ability ability : AbilityHelper.getAbilities(player)) {
             if (!ability.getClientProperties().renderFirstPersonArm(modelSet, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side)) {

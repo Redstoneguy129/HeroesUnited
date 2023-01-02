@@ -1,0 +1,19 @@
+{
+  "sources": [
+    {
+      "type": "directory",
+      "source": "planets",
+      "prefix": "planets/"
+    },
+    {
+      "type": "directory",
+      "source": "accessories",
+      "prefix": "accessories/"
+    },
+    {
+      "type": "directory",
+      "source": "suits",
+      "prefix": "suits/"
+    }
+  ]
+}

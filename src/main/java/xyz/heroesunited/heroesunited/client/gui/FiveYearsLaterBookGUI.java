@@ -3,12 +3,10 @@ package xyz.heroesunited.heroesunited.client.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.HttpTexture;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.gui.widget.ExtendedButton;
@@ -64,7 +62,7 @@ public class FiveYearsLaterBookGUI extends Screen {
 
     @Override
     public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        SnowWidget.drawSnowOnScreen(matrixStack, this.width, this.height);
+        SnowWidget.drawSnowOnScreen(matrixStack, this.width, this.height, partialTicks);
         this.renderBackground(matrixStack);
         String page, modPage;
         try {

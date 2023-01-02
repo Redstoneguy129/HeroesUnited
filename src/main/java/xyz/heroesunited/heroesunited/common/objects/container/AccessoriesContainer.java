@@ -19,6 +19,7 @@ import xyz.heroesunited.heroesunited.common.abilities.IAbilityProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.HUAbilityCap;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
+import xyz.heroesunited.heroesunited.util.HUPlayerUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,7 +27,6 @@ import javax.annotation.Nullable;
 public class AccessoriesContainer extends AbstractContainerMenu {
 
     private static final ResourceLocation[] ARMOR_SLOT_TEXTURES = new ResourceLocation[]{InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS, InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS, InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE, InventoryMenu.EMPTY_ARMOR_SLOT_HELMET};
-    private static final EquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 
     private final LivingEntity livingEntity;
 
@@ -54,7 +54,7 @@ public class AccessoriesContainer extends AbstractContainerMenu {
         }
 
         for (int k = 0; k < 4; ++k) {
-            final EquipmentSlot type = VALID_EQUIPMENT_SLOTS[k];
+            final EquipmentSlot type = HUPlayerUtil.ARMOR_SLOTS[k];
             this.addSlot(new Slot(playerInventory, 36 + (3 - k), 8, 8 + k * 18) {
                 @Override
                 public int getMaxStackSize() {

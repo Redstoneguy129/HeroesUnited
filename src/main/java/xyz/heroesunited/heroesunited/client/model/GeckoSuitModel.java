@@ -2,33 +2,50 @@ package xyz.heroesunited.heroesunited.client.model;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import xyz.heroesunited.heroesunited.common.abilities.suit.JsonSuit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 
-public class GeckoSuitModel<T extends SuitItem> extends AnimatedGeoModel<T> {
+public class GeckoSuitModel<T extends SuitItem> extends DefaultedItemGeoModel<T> {
 
-    public ResourceLocation getSlimModelLocation(T item) {
-        return getLayer(item, "slim_model", getModelLocation(item));
+    private boolean slim;
+
+    public GeckoSuitModel() {
+        super(new ResourceLocation(""));
     }
 
-    public ResourceLocation getSlimTextureLocation(T item) {
-        return getLayer(item, "slim_texture", getTextureLocation(item));
+    public void setSlim(boolean slim) {
+        this.slim = slim;
+    }
+
+    public ResourceLocation getSlimModelResource(T item) {
+        return getLayer(item, "slim_model", getLayer(item, "model", new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "geo/" + item.getSuit().getRegistryName().getPath() + ".geo.json")));
+    }
+
+    public ResourceLocation getSlimTextureResource(T item) {
+        return getLayer(item, "slim_texture", getLayer(item, "texture", new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "textures/suits/" + item.getSuit().getRegistryName().getPath() + ".png")));
     }
 
     @Override
-    public ResourceLocation getModelLocation(T item) {
+    public ResourceLocation getModelResource(T item) {
+        if (slim) {
+            return getSlimModelResource(item);
+        }
+
         return getLayer(item, "model", new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "geo/" + item.getSuit().getRegistryName().getPath() + ".geo.json"));
     }
 
     @Override
-    public ResourceLocation getTextureLocation(T item) {
+    public ResourceLocation getTextureResource(T item) {
+        if (slim) {
+            return getSlimTextureResource(item);
+        }
         return getLayer(item, "texture", new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "textures/suits/" + item.getSuit().getRegistryName().getPath() + ".png"));
     }
 
     @Override
-    public ResourceLocation getAnimationFileLocation(T item) {
+    public ResourceLocation getAnimationResource(T item) {
         return getLayer(item, "animation", new ResourceLocation(item.getSuit().getRegistryName().getNamespace(), "animations/" + item.getSuit().getRegistryName().getPath() + ".animation.json"));
     }
 
