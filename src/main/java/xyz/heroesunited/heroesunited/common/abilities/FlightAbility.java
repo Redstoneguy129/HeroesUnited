@@ -6,6 +6,9 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.DistExecutor;
 import xyz.heroesunited.heroesunited.util.FlyingSoundInstance;
 import xyz.heroesunited.heroesunited.util.hudata.HUData;
 
@@ -25,7 +28,13 @@ public class FlightAbility extends JSONAbility implements IFlyingAbility {
         super.onDataUpdated(data);
         if (data.getKey().equals("enabled") && ((boolean) data.getValue())) {
             if (this.player instanceof LocalPlayer localPlayer) {
-                Minecraft.getInstance().getSoundManager().play(new FlyingSoundInstance(this.getSoundEvent(), localPlayer));
+                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> new Runnable() {
+                    @OnlyIn(Dist.CLIENT)
+                    @Override
+                    public void run() {
+                        Minecraft.getInstance().getSoundManager().play(new FlyingSoundInstance(FlightAbility.this.getSoundEvent(), localPlayer));
+                    }
+                });
             }
         }
     }

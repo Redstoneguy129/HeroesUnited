@@ -4,6 +4,8 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.molang.MolangParser;
 import software.bernie.geckolib.core.object.DataTicket;
@@ -48,6 +50,7 @@ public class PlayerGeoModel extends DefaultedGeoModel<IHUPlayer> {
         super.setCustomAnimations(entity, instanceId, customPredicate);
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public void applyMolangQueries(IHUPlayer animatable, double animTime) {
         super.applyMolangQueries(animatable, animTime);
