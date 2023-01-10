@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[36,)"
+loaderVersion="[44,)"
 license="MIT"
 
 [[mods]]
@@ -13,6 +13,6 @@ description="Heroes United is a Minecraft mod.\nThis mod helps developers create
 [[dependencies.heroesunited]]
     modId="forge"
     mandatory=true
-    versionRange="[36,)"
+    versionRange="[44,)"
     ordering="NONE"
     side="BOTH"

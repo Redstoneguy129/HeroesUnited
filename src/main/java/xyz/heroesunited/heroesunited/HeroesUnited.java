@@ -61,6 +61,7 @@ import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
 import xyz.heroesunited.heroesunited.common.abilities.suit.SuitItem;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerEvent;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
+import xyz.heroesunited.heroesunited.common.capabilities.PlayerGeoModel;
 import xyz.heroesunited.heroesunited.common.capabilities.ability.IHUAbilityCap;
 import xyz.heroesunited.heroesunited.common.capabilities.hudata.IHUDataCap;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
@@ -120,6 +121,10 @@ public class HeroesUnited {
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, HUConfig.CLIENT_SPEC);
     }
 
+    static {
+        PlayerGeoModel.registerMolangQueries();
+    }
+
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public void registerKeyBinds(RegisterDimensionSpecialEffectsEvent e) {
@@ -143,16 +148,6 @@ public class HeroesUnited {
             e.register(keyBinding);
             ClientEventHandler.ABILITY_KEYS.add(keyBinding);
         }
-    }
-
-    /**
-     * Now using an atlases/ folder
-     */
-    @OnlyIn(Dist.CLIENT)
-    @SubscribeEvent
-    public void textureStitchPre(TextureStitchEvent e) {
-        //e.addSprite(SunModel.SUN_TEXTURE_MATERIAL.texture());
-        //e.addSprite(EarthModel.EARTH_TEXTURE_MATERIAL.texture());
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -341,9 +336,9 @@ public class HeroesUnited {
 
     @SubscribeEvent
     public void addItemsToTabs(CreativeModeTabEvent.BuildContents event) {
-        for (Suit suit : Suit.SUITS.values().stream().filter(suit -> suit.getItemGroup().equals(event.getTab())).toList()) {
+        for (Suit suit : Suit.SUITS.values().stream().filter(suit -> suit.getItemGroup() == null && event.getTab().equals(CreativeModeTabs.COMBAT) || suit.getItemGroup() != null && suit.getItemGroup().equals(event.getTab())).toList()) {
             for (Pair<ResourceLocation, SuitItem> suitItem : suit.getSuitItems()) {
-                event.accept(suitItem.getB());
+                event.accept(suitItem.getB(), suit.getItemGroup() == null ? CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY : CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             }
         }
 

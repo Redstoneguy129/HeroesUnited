@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.molang.LazyVariable;
 import software.bernie.geckolib.core.molang.MolangParser;
 import software.bernie.geckolib.core.object.DataTicket;
 import software.bernie.geckolib.model.DefaultedGeoModel;
@@ -72,6 +73,26 @@ public class PlayerGeoModel extends DefaultedGeoModel<IHUPlayer> {
             parser.setMemoizedValue("player.headPitch", () -> this.modelData.headPitch);
             parser.setMemoizedValue("player.netHeadYaw", () -> this.modelData.netHeadYaw);
         }
+    }
+
+    public static void registerMolangQueries() {
+        MolangParser parser = MolangParser.INSTANCE;
+
+        for (PlayerPart part : PlayerPart.bodyParts()) {
+            parser.register(new LazyVariable(String.format("player.%s.x_rot", part.name().toLowerCase()), 0));
+            parser.register(new LazyVariable(String.format("player.%s.y_rot", part.name().toLowerCase()), 0));
+            parser.register(new LazyVariable(String.format("player.%s.z_rot", part.name().toLowerCase()), 0));
+
+            parser.register(new LazyVariable(String.format("player.%s.x", part.name().toLowerCase()), 0));
+            parser.register(new LazyVariable(String.format("player.%s.y", part.name().toLowerCase()), 0));
+            parser.register(new LazyVariable(String.format("player.%s.z", part.name().toLowerCase()), 0));
+        }
+
+        parser.register(new LazyVariable("player.limbSwing", 0));
+        parser.register(new LazyVariable("player.limbSwingAmount", 0));
+        parser.register(new LazyVariable("player.ageInTicks", 0));
+        parser.register(new LazyVariable("player.headPitch", 0));
+        parser.register(new LazyVariable("player.netHeadYaw", 0));
     }
 
     public static class ModelData {

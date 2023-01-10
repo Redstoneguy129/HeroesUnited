@@ -1,7 +1,12 @@
 {
     "pack": {
-        "description": "heroesunited resources",
-        "pack_format": 9,
-        "_comment": "Core mod for the Heroes United project."
+        "pack_format": 12,
+        "description": {
+            "description": "heroesunited resources",
+            "translate": "pack.forge.description"
+        },
+        "_comment": "Core mod for the Heroes United project.",
+        "forge:resource_pack_format": 12,
+        "forge:data_pack_format": 10
     }
 }

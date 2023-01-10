@@ -207,7 +207,13 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "controller", 1, state -> PlayState.CONTINUE));
+        controllers.add(new AnimationController<>(this, "controller", 1, state -> {
+            if (this.livingEntity.isCrouching()) {
+                state.setAnimation(RawAnimation.begin().thenPlay("hello"));
+            }
+
+            return PlayState.CONTINUE;
+        }));
         if (livingEntity instanceof Player) {
             MinecraftForge.EVENT_BUS.post(new RegisterPlayerControllerEvent(this, (Player) livingEntity, controllers));
         }

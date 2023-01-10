@@ -191,14 +191,16 @@ public class GeoAbilityRenderer<T extends Ability & GeoAbility> extends Humanoid
     }
 
     public void doAnimationProcess() {
-        AnimationState<T> animationState = new AnimationState<>(this.ability, 0, 0, Minecraft.getInstance().getFrameTime(), false);
-        long instanceId = getInstanceId(this.ability);
+        if (this.player != null && this.model != null) {
+            AnimationState<T> animationState = new AnimationState<>(this.ability, 0, 0, Minecraft.getInstance().getFrameTime(), false);
+            long instanceId = getInstanceId(this.ability);
 
-        animationState.setData(DataTickets.TICK, this.ability.getTick(this.player));
-        animationState.setData(DataTickets.ENTITY, this.player);
-        animationState.setData(ABILITY_DATA_TICKET, this.ability);
-        this.model.addAdditionalStateData(this.ability, instanceId, animationState::setData);
-        this.model.handleAnimations(this.ability, instanceId, animationState);
+            animationState.setData(DataTickets.TICK, this.ability.getTick(this.player));
+            animationState.setData(DataTickets.ENTITY, this.player);
+            animationState.setData(ABILITY_DATA_TICKET, this.ability);
+            this.model.addAdditionalStateData(this.ability, instanceId, animationState::setData);
+            this.model.handleAnimations(this.ability, instanceId, animationState);
+        }
     }
 
     @Override

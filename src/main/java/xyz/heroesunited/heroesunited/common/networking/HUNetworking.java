@@ -19,6 +19,7 @@ public class HUNetworking {
     public static void registerMessages() {
         INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(HeroesUnited.MODID, "networking"), () -> "1.0", s -> true, s -> true);
         //Client
+        INSTANCE.registerMessage(NextID(), ClientAbilityAnimTrigger.class, ClientAbilityAnimTrigger::toBytes, ClientAbilityAnimTrigger::new, ClientAbilityAnimTrigger::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncHUPlayer.class, ClientSyncHUPlayer::toBytes, ClientSyncHUPlayer::new, ClientSyncHUPlayer::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncAbilityCap.class, ClientSyncAbilityCap::toBytes, ClientSyncAbilityCap::new, ClientSyncAbilityCap::handle);
         INSTANCE.registerMessage(NextID(), ClientSetAnimation.class, ClientSetAnimation::toBytes, ClientSetAnimation::new, ClientSetAnimation::handle);
