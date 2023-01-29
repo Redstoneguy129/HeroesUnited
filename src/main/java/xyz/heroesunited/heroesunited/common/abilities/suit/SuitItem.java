@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -125,8 +126,9 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, GeoItem {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @OnlyIn(Dist.CLIENT)
-    public void renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side, ItemStack stack) {
-        if (getSlot() != EquipmentSlot.CHEST || !(IClientItemExtensions.of(stack).getHumanoidArmorModel(player, stack, getSlot(), renderer.getModel()) instanceof GeoArmorRenderer armorRenderer)) return;
+    public void renderFirstPersonArm(EntityModelSet modelSet, @Nullable PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side, ItemStack stack) {
+        HumanoidModel humanoidModel = renderer == null ? new HumanoidModel(modelSet.bakeLayer(ModelLayers.PLAYER_INNER_ARMOR)) : renderer.getModel();
+        if (getSlot() != EquipmentSlot.CHEST || !(IClientItemExtensions.of(stack).getHumanoidArmorModel(player, stack, getSlot(), humanoidModel) instanceof GeoArmorRenderer armorRenderer)) return;
         try {
             BakedGeoModel model;
             if (HUPlayerUtil.haveSmallArms(player) && armorRenderer.getGeoModel() instanceof GeckoSuitModel) {
@@ -135,7 +137,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, GeoItem {
                 model = armorRenderer.getGeoModel().getBakedModel(armorRenderer.getGeoModel().getModelResource(this));
             }
 
-            armorRenderer.prepForRender(player, stack, getSlot(), renderer.getModel());
+            armorRenderer.prepForRender(player, stack, getSlot(), humanoidModel);
 
             long instanceId = armorRenderer.getInstanceId(stack.getItem());
             armorRenderer.getGeoModel().handleAnimations(this, instanceId, new AnimationState(this, 0, 0, 0, false));
@@ -149,7 +151,7 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, GeoItem {
             poseStack.translate(0.0D, 1.5F, 0.0D);
             poseStack.scale(-1.0F, -1.0F, 1.0F);
 
-            ModelPart modelRenderer = side == HumanoidArm.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
+            ModelPart modelRenderer = side == HumanoidArm.LEFT ? humanoidModel.leftArm : humanoidModel.rightArm;
 
             RenderUtils.matchModelPartRot(modelRenderer, bone);
             bone.updatePosition(side == HumanoidArm.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5, 2 - modelRenderer.y, modelRenderer.z);

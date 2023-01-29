@@ -2,6 +2,7 @@ package xyz.heroesunited.heroesunited.common.capabilities;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.common.util.INBTSerializable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animation.AnimationController;
@@ -48,6 +49,8 @@ public interface IHUPlayer extends INBTSerializable<CompoundTag>, GeoEntity {
      * Accessories inventory
      **/
     AccessoriesInventory getInventory();
+
+    LivingEntity getLivingEntity();
 
     IHUPlayer copy(IHUPlayer ihuPlayer);
 

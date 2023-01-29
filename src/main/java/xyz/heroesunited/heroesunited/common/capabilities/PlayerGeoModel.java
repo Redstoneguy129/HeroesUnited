@@ -24,7 +24,7 @@ public class PlayerGeoModel extends DefaultedGeoModel<IHUPlayer> {
     private ModelData modelData;
 
     public PlayerGeoModel() {
-        super(new ResourceLocation("heroesunited", "player"));
+        super(new ResourceLocation(HeroesUnited.MODID, "player"));
     }
 
     @Override
@@ -42,7 +42,6 @@ public class PlayerGeoModel extends DefaultedGeoModel<IHUPlayer> {
         return ((HUPlayer) o).animationFile != null ? ((HUPlayer) o).animationFile : new ResourceLocation(HeroesUnited.MODID, "animations/player.animation.json");
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void setCustomAnimations(IHUPlayer entity, long instanceId, AnimationState<IHUPlayer> customPredicate) {
         if (customPredicate != null) {
@@ -67,6 +66,8 @@ public class PlayerGeoModel extends DefaultedGeoModel<IHUPlayer> {
                 parser.setMemoizedValue(String.format("player.%s.y", part.name().toLowerCase()), () -> renderer.y);
                 parser.setMemoizedValue(String.format("player.%s.z", part.name().toLowerCase()), () -> renderer.z);
             }
+            parser.setMemoizedValue("player.x_rot", () -> animatable.getLivingEntity().getXRot());
+            parser.setMemoizedValue("player.y_rot", () -> animatable.getLivingEntity().getYRot());
             parser.setMemoizedValue("player.limbSwing", () -> this.modelData.limbSwing);
             parser.setMemoizedValue("player.limbSwingAmount", () -> this.modelData.limbSwingAmount);
             parser.setMemoizedValue("player.ageInTicks", () -> this.modelData.ageInTicks);
@@ -88,6 +89,8 @@ public class PlayerGeoModel extends DefaultedGeoModel<IHUPlayer> {
             parser.register(new LazyVariable(String.format("player.%s.z", part.name().toLowerCase()), 0));
         }
 
+        parser.register(new LazyVariable("player.x_rot", 0));
+        parser.register(new LazyVariable("player.y_rot", 0));
         parser.register(new LazyVariable("player.limbSwing", 0));
         parser.register(new LazyVariable("player.limbSwingAmount", 0));
         parser.register(new LazyVariable("player.ageInTicks", 0));

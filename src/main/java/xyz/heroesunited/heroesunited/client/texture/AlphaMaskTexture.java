@@ -2,6 +2,7 @@ package xyz.heroesunited.heroesunited.client.texture;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.SimpleTexture;
@@ -29,44 +30,50 @@ public class AlphaMaskTexture extends SimpleTexture {
 
     @Override
     public void load(ResourceManager manager) throws IOException {
-        releaseId();
-        NativeImage image = this.getSkinOrImage(manager, this.location);
-        NativeImage output = this.getSkinOrImage(manager, this.output);
+        NativeImage image = getSkinOrImage(manager, this.location);
+        NativeImage output = getSkinOrImage(manager, this.output);
         NativeImage mask = NativeImage.read(manager.getResource(this.maskLocation).get().open());
 
         for (int y = 0; y < mask.getHeight(); ++y) {
             for (int x = 0; x < mask.getWidth(); ++x) {
                 int pixelMask = mask.getPixelRGBA(x, y);
+                int pixelOutput = output.getPixelRGBA(x, y);
                 Color color = new Color(pixelMask, true);
-                Color colorOutput = new Color(output.getPixelRGBA(x, y), true);
                 Color colorDefault = new Color(image.getPixelRGBA(x, y), true);
                 boolean isBlack = color.getRed() == 0 && color.getGreen() == 0 && color.getBlue() == 0;
                 boolean isWhite = color.getRed() == 255 && color.getGreen() == 255 && color.getBlue() == 255;
-                if (colorDefault.equals(colorOutput)) {
+                if (colorDefault.getRGB() == pixelOutput) {
                     if (isBlack || isWhite) {
                         float hue = 1F - (color.getRed() + color.getGreen() + color.getBlue()) / 3F / 255F;
-                        int newAlpha = pixelMask == 0 ? 0 : (int) (colorDefault.getAlpha() * hue);
-                        Color newColor = new Color(colorDefault.getRed(), colorDefault.getGreen(), colorDefault.getBlue(), newAlpha);
-                        image.setPixelRGBA(x, y, newColor.getRGB());
+                        image.setPixelRGBA(x, y, new Color(colorDefault.getRed(), colorDefault.getGreen(),
+                                colorDefault.getBlue(), pixelMask == 0 ? 0 : (int) (colorDefault.getAlpha() * hue)).getRGB());
                     } else {
-                        image.setPixelRGBA(x, y, color.getRGB());
+                        image.setPixelRGBA(x, y, pixelMask);
                     }
                 } else {
-                    if (pixelMask == 0 || isWhite) {
-                        image.setPixelRGBA(x, y, colorDefault.getRGB());
-                    } else {
-                        if (isBlack) {
-                            image.setPixelRGBA(x, y, colorOutput.getRGB());
-                        } else {
-                            image.setPixelRGBA(x, y, color.getRGB());
-                        }
-                    }
+                    image.setPixelRGBA(x, y, pixelMask == 0 || isWhite ?
+                                colorDefault.getRGB() : isBlack ? pixelOutput : pixelMask);
                 }
             }
         }
         mask.close();
-        TextureUtil.prepareImage(this.getId(), image.getWidth(), image.getHeight());
-        image.upload(0, 0, 0, false);
+
+        if (!RenderSystem.isOnRenderThread()) {
+            RenderSystem.recordRenderCall(() -> {
+                TextureUtil.prepareImage(this.getId(), image.getWidth(), image.getHeight());
+                this.bind();
+                image.upload(0, 0, 0, false);
+            });
+        } else {
+            TextureUtil.prepareImage(this.getId(), image.getWidth(), image.getHeight());
+            this.bind();
+            image.upload(0, 0, 0, false);
+        }
+    }
+
+    @Override
+    public void close() {
+        this.releaseId();
     }
 
     public static NativeImage getSkinOrImage(ResourceManager manager, ResourceLocation location) throws IOException {

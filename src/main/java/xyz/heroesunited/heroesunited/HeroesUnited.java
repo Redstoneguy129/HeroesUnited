@@ -11,6 +11,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
@@ -34,6 +35,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
+import net.minecraftforge.registries.RegistryObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
@@ -73,6 +75,7 @@ import xyz.heroesunited.heroesunited.common.objects.container.HUContainers;
 import xyz.heroesunited.heroesunited.common.objects.entities.HUEntities;
 import xyz.heroesunited.heroesunited.common.objects.entities.HorasEntity;
 import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
+import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.common.space.CelestialBodies;
 import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 import xyz.heroesunited.heroesunited.hupacks.HUPacks;
@@ -223,7 +226,7 @@ public class HeroesUnited {
 
     @SubscribeEvent
     public void addPackFinders(final AddPackFindersEvent event) {
-        event.addRepositorySource(new HUPacks.HUPackFinder());
+        event.addRepositorySource(HUPacks.getInstance().folderPackFinder);
     }
 
     @SubscribeEvent
@@ -283,53 +286,11 @@ public class HeroesUnited {
                 builder.icon(() -> HUItems.BOBO_ACCESSORY.get().getDefaultInstance())
                         .title(Component.translatable("tabs.heroesunited.accessories"))
                 .displayItems((featureFlags, tab, hasOp) -> {
-                    tab.accept(HUItems.AKIRA_JACKET.get());
-                    tab.accept(HUItems.ALLEN_WALKER_JACKET.get());
-                    tab.accept(HUItems.ALLEN_WALKER_PANTS.get());
-                    tab.accept(HUItems.ALLEN_WALKER_SHOES.get());
-                    tab.accept(HUItems.ARC_REACTOR_ACCESSORY.get());
-                    tab.accept(HUItems.BIG_CHILL_CLOAK.get());
-                    tab.accept(HUItems.BOBO_ACCESSORY.get());
-                    tab.accept(HUItems.BOOSTED_GEAR.get());
-                    tab.accept(HUItems.CAPTAIN_REX.get());
-                    tab.accept(HUItems.CAP_SHIELD_ACCESSORY.get());
-                    tab.accept(HUItems.CLOWN_HAT.get());
-                    tab.accept(HUItems.DARK_TROOPER_HELMET.get());
-                    tab.accept(HUItems.DOOM_HELMET.get());
-                    tab.accept(HUItems.EMILIA_CAPE.get());
-                    tab.accept(HUItems.FINN_ARM.get());
-                    tab.accept(HUItems.FLASH_RING.get());
-                    tab.accept(HUItems.FOTONIC_TRIDENT.get());
-                    tab.accept(HUItems.GREEN_GOGGLES.get());
-                    tab.accept(HUItems.GREEN_SHIRT.get());
-                    tab.accept(HUItems.HEADBAND.get());
-                    tab.accept(HUItems.HOKAGE_CAPE.get());
-                    tab.accept(HUItems.JANGO_FETT_HELMET.get());
-                    tab.accept(HUItems.JASON_MASK.get());
-                    tab.accept(HUItems.JASON_JACKET.get());
-                    tab.accept(HUItems.JASON_PANTS.get());
-                    tab.accept(HUItems.JASON_SHIRT.get());
-                    tab.accept(HUItems.KEYBLADE.get());
-                    tab.accept(HUItems.KEY_VECTOR_SIGMA.get());
-                    tab.accept(HUItems.MACHETE.get());
-                    tab.accept(HUItems.MADNESSCLAW.get());
-                    tab.accept(HUItems.MADNESSCOMBAT.get());
-                    tab.accept(HUItems.MATRIX_OF_LEADERSHIP.get());
-                    tab.accept(HUItems.MINING_PICK.get());
-                    tab.accept(HUItems.NITRO_JETPACK.get());
-                    tab.accept(HUItems.PERRY_TAIL.get());
-                    tab.accept(HUItems.PERRY_THE_PLATYPUS_HAT.get());
-                    tab.accept(HUItems.PETER_PARKER_SHIRT.get());
-                    tab.accept(HUItems.RED_JACKET.get());
-                    tab.accept(HUItems.REDA_JACKET.get());
-                    tab.accept(HUItems.REDA_SHIRT.get());
-                    tab.accept(HUItems.SMALLGILLY.get());
-                    tab.accept(HUItems.SONIC_SHOES.get());
-                    tab.accept(HUItems.STRANGE_MASK.get());
-                    tab.accept(HUItems.SWORD_OF_THE_STORM.get());
-                    tab.accept(HUItems.THE_ONE_RING_ACCESSORY.get());
-                    tab.accept(HUItems.WALLE_HEAD.get());
-                    tab.accept(HUItems.ZEK_GLASSES.get());
+                    for (RegistryObject<Item> registryObject : HUItems.ITEMS.getEntries()) {
+                        if (registryObject.get() instanceof IAccessory) {
+                            tab.accept(registryObject.get());
+                        }
+                    }
                 })
         );
     }
@@ -353,6 +314,8 @@ public class HeroesUnited {
         }
         if (event.getTab().equals(CreativeModeTabs.BUILDING_BLOCKS)) {
             event.getEntries().putAfter(Items.DIAMOND_BLOCK.getDefaultInstance(), HUBlocks.TITANIUM.get().asItem().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        }
+        if (event.getTab().equals(CreativeModeTabs.NATURAL_BLOCKS)) {
             event.getEntries().putAfter(Items.DIAMOND_ORE.getDefaultInstance(), HUBlocks.TITANIUM_ORE.get().asItem().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         }
     }

@@ -80,6 +80,7 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
                 ((IHUModelPart) (Object) value.modelPart(playerModel)).resetSize();
             }
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+                cap.getAnimatedModel().getBakedModel(cap.getAnimatedModel().getModelResource(cap));
                 MinecraftForge.EVENT_BUS.post(new SetupAnimEvent(player, playerModel, iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch()));
                 HUClientUtil.copyAnglesToWear(playerModel);
 

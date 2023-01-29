@@ -57,6 +57,8 @@ public abstract class PlayerRendererMixin {
         MinecraftForge.EVENT_BUS.post(new RenderPlayerHandEvent.Post(player, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, side));
 
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+            cap.getAnimatedModel().getBakedModel(cap.getAnimatedModel().getModelResource(cap));
+
             AnimationState<IHUPlayer> animationState = new AnimationState<>(cap, 0, 0, Minecraft.getInstance().getFrameTime(), false);
             long instanceId = player.getId();
 

@@ -18,9 +18,10 @@ public interface GeoAbility extends GeoAnimatable {
 
     default void triggerAnim(@Nullable String controllerName, String animName) {
         Ability ability = (Ability) this;
+        long instanceId = ability.name.hashCode() + ability.getPlayer().getId();
 
         if (ability.getPlayer().getLevel().isClientSide()) {
-            getAnimatableInstanceCache().getManagerForId(ability.name.hashCode() + ability.getPlayer().getId()).tryTriggerAnimation(controllerName, animName);
+            getAnimatableInstanceCache().getManagerForId(instanceId).tryTriggerAnimation(controllerName, animName);
         } else {
             HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(ability::getPlayer), new ClientAbilityAnimTrigger(ability.getPlayer().getId(), ability.name, controllerName, animName));
         }

@@ -19,7 +19,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -191,18 +190,18 @@ public class HUClientUtil {
         }
     }
 
-    public static void renderCape(LivingEntityRenderer<? extends LivingEntity, ? extends HumanoidModel<?>> renderer, LivingEntity entity, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, float partialTicks, ResourceLocation texture) {
-        if (renderer != null) {
-            if (entity.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof ElytraItem || entity instanceof LocalPlayer && ((Player) entity).isModelPartShown(PlayerModelPart.CAPE) && ((LocalPlayer) entity).getCloakTextureLocation() != null) {
+    public static void renderCape(HumanoidModel<? extends LivingEntity> model, LivingEntity entity, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, float partialTicks, ResourceLocation texture) {
+        if (model != null) {
+            if (entity.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof ElytraItem || entity instanceof LocalPlayer player && player.isCapeLoaded() && player.isModelPartShown(PlayerModelPart.CAPE) && player.getCloakTextureLocation() != null) {
                 return;
             }
-            final CapeModel model = new CapeModel(Minecraft.getInstance().getEntityModels().bakeLayer(HUModelLayers.CAPE));
+            final CapeModel capeModel = new CapeModel(Minecraft.getInstance().getEntityModels().bakeLayer(HUModelLayers.CAPE));
             poseStack.pushPose();
-            renderer.getModel().body.translateAndRotate(poseStack);
+            model.body.translateAndRotate(poseStack);
             poseStack.translate(0, -0.04F, 0.05F);
             poseStack.scale(0.9F, 0.9F, 0.9F);
             if (entity.isFallFlying()) {
-                model.cape.setRotation(0, 0, 0);
+                capeModel.cape.setRotation(0, 0, 0);
             }
             if (entity instanceof Player player) {
                 double d0 = Mth.lerp(partialTicks, player.xCloakO, player.xCloak) - Mth.lerp(partialTicks, player.xo, player.getX());
@@ -224,17 +223,17 @@ public class HUClientUtil {
                 float f4 = Mth.lerp(partialTicks, player.oBob, player.bob);
                 f1 = f1 + Mth.sin(Mth.lerp(partialTicks, player.walkDistO, player.walkDist) * 6.0F) * 32.0F * f4;
 
-                model.cape.setRotation((float) -Math.toRadians(6.0F + f2 / 2.0F + f1),
+                capeModel.cape.setRotation((float) -Math.toRadians(6.0F + f2 / 2.0F + f1),
                         (float) Math.toRadians(180.0F - f3 / 2.0F), (float) Math.toRadians(f3 / 2.0F));
 
                 IFlyingAbility b = IFlyingAbility.getFlyingAbility(player);
                 player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                     if (b != null && b.isFlying(player) && !entity.isOnGround() && !entity.isSwimming() && entity.isSprinting()) {
-                        model.cape.setRotation(0, 0, 0);
+                        capeModel.cape.setRotation(0, 0, 0);
                     }
                 });
             }
-            model.renderToBuffer(poseStack, bufferIn.getBuffer(RenderType.entityTranslucent(texture)), packedLightIn, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
+            capeModel.renderToBuffer(poseStack, bufferIn.getBuffer(RenderType.entityTranslucent(texture)), packedLightIn, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
             poseStack.popPose();
         }
     }

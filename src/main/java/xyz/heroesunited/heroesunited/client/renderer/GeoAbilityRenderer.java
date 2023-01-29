@@ -15,7 +15,9 @@ import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.constant.DataTickets;
@@ -206,16 +208,36 @@ public class GeoAbilityRenderer<T extends Ability & GeoAbility> extends Humanoid
     @Override
     public void renderRecursively(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight,
                                   int packedOverlay, float red, float green, float blue, float alpha) {
+        poseStack.pushPose();
+        RenderUtils.translateMatrixToBone(poseStack, bone);
+        RenderUtils.translateToPivotPoint(poseStack, bone);
+        RenderUtils.rotateMatrixAroundBone(poseStack, bone);
+        RenderUtils.scaleMatrixForBone(poseStack, bone);
+
         if (bone.isTrackingMatrices()) {
             Matrix4f poseState = new Matrix4f(poseStack.last().pose());
+            Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(poseState, this.entityRenderTranslations);
+            Vec3 renderOffset = animatable.getPlayer().isCrouching() ? new Vec3(0.0D, -0.125D, 0.0D) : Vec3.ZERO;
 
             bone.setModelSpaceMatrix(RenderUtils.invertAndMultiplyMatrices(poseState, this.modelRenderTranslations));
-            bone.setLocalSpaceMatrix(RenderUtils.invertAndMultiplyMatrices(poseState, this.entityRenderTranslations));
+            bone.setLocalSpaceMatrix(localMatrix.translation(new Vector3f(renderOffset.toVector3f())));
+
+            Matrix4f worldPosition = new Matrix4f(localMatrix);
+
+            bone.setWorldSpaceMatrix(worldPosition.translation(new Vector3f(animatable.getPlayer().position().toVector3f())));
         }
 
-        GeoRenderer.super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
-    }
+        RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
 
+        renderCubesOfBone(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+
+        if (!isReRender)
+            applyRenderLayersForBone(poseStack, animatable, bone, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
+
+        renderChildBones(poseStack, animatable, bone, renderType, bufferSource, buffer, false, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+
+        poseStack.popPose();
+    }
 
     protected void grabRelevantBones(BakedGeoModel bakedModel) {
         if (this.lastModel == bakedModel)

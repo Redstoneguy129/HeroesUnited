@@ -1,9 +1,6 @@
 package xyz.heroesunited.heroesunited.common.objects.items;
 
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.DeferredRegister;
@@ -48,8 +45,8 @@ public class HUItems {
     public static final RegistryObject<GeckoAccessory> JANGO_FETT_HELMET = ITEMS.register("jango_fett_helmet", () -> new GeckoAccessory(EquipmentAccessoriesSlot.HELMET));
     public static final RegistryObject<GeckoAccessory> JASON_MASK = ITEMS.register("jason_mask", () -> new GeckoAccessory(EquipmentAccessoriesSlot.HELMET));
     public static final RegistryObject<ClothesAccessory> JASON_JACKET = ITEMS.register("jason_jacket", () -> new ClothesAccessory(EquipmentAccessoriesSlot.JACKET, "jason_clothes"));
-    public static final RegistryObject<ClothesAccessory> JASON_PANTS = ITEMS.register("jason_pants", () -> new ClothesAccessory(EquipmentAccessoriesSlot.PANTS, "jason_clothes"));
     public static final RegistryObject<ClothesAccessory> JASON_SHIRT = ITEMS.register("jason_shirt", () -> new ClothesAccessory(EquipmentAccessoriesSlot.TSHIRT, "jason_clothes"));
+    public static final RegistryObject<ClothesAccessory> JASON_PANTS = ITEMS.register("jason_pants", () -> new ClothesAccessory(EquipmentAccessoriesSlot.PANTS, "jason_clothes"));
     public static final RegistryObject<GeckoAccessory> KEYBLADE = ITEMS.register("keyblade", () -> new GeckoAccessory(EquipmentAccessoriesSlot.TSHIRT));
     public static final RegistryObject<GeckoAccessory> KEY_VECTOR_SIGMA = ITEMS.register("key_vector_sigma", () -> new GeckoAccessory(EquipmentAccessoriesSlot.TSHIRT));
     public static final RegistryObject<GeckoAccessory> MACHETE = ITEMS.register("machete", () -> new GeckoAccessory(EquipmentAccessoriesSlot.WRIST));

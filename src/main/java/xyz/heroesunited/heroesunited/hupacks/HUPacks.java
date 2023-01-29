@@ -2,48 +2,54 @@ package xyz.heroesunited.heroesunited.hupacks;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.minecraft.FileUtil;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.*;
+import net.minecraft.server.packs.PackResources;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
-import net.minecraft.server.packs.repository.BuiltInPackSource;
-import net.minecraft.server.packs.repository.Pack;
-import net.minecraft.server.packs.repository.PackRepository;
-import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.server.packs.repository.*;
+import net.minecraft.server.packs.resources.IoSupplier;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.util.Unit;
-import net.minecraft.world.flag.FeatureFlags;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.resource.DelegatingPackResources;
 import net.minecraftforge.resource.ResourcePackLoader;
-import net.minecraftforge.server.ServerLifecycleHooks;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
 import xyz.heroesunited.heroesunited.hupacks.js.JSAbilityManager;
 import xyz.heroesunited.heroesunited.hupacks.js.JSItemManager;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 public class HUPacks {
 
     private static HUPacks instance;
-    private static final CompletableFuture<Unit> RELOAD_INITIAL_TASK = CompletableFuture.completedFuture(Unit.INSTANCE);
-    private final ReloadableResourceManager resourceManager = new ReloadableResourceManager(PackType.SERVER_DATA);
-    public final PackRepository hupackFinder = new PackRepository(new HUPackFinder());
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-    private static final File DIRECTORY = new File("hupacks");
+    private final ReloadableResourceManager resourceManager = new ReloadableResourceManager(PackType.SERVER_DATA);
+    public final RepositorySource folderPackFinder = new HURepositorySource();
+    public final PackRepository hupackFinder = new PackRepository(folderPackFinder);
 
     public HUPacks() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -60,8 +66,7 @@ public class HUPacks {
         List<File> resultList = new ArrayList<>();
 
         try {
-            if (!DIRECTORY.exists()) FileUtils.forceMkdir(DIRECTORY);
-            File[] files = DIRECTORY.listFiles((file) -> {
+            File[] files = getDirectory().listFiles((file) -> {
                 boolean isZip = file.isFile() && file.getName().endsWith(".zip");
                 boolean hasMeta = file.isDirectory() && (new File(file, "pack.mcmeta")).isFile();
                 return isZip || hasMeta;
@@ -84,13 +89,11 @@ public class HUPacks {
 
     private void construct(FMLConstructModEvent event) {
         event.enqueueWork(() -> {
-            ResourcePackLoader.loadResourcePacks(this.hupackFinder, ServerLifecycleHooks::buildPackFinder);
-
             try {
                 this.hupackFinder.reload();
                 this.hupackFinder.setSelected(hupackFinder.getAvailableIds());
 
-                this.resourceManager.createReload(Util.backgroundExecutor(), Runnable::run, RELOAD_INITIAL_TASK, this.hupackFinder.openAllSelected()).done().whenComplete((unit, throwable) -> {
+                this.resourceManager.createReload(Util.backgroundExecutor(), Runnable::run, CompletableFuture.completedFuture(Unit.INSTANCE), this.hupackFinder.openAllSelected()).done().whenComplete((unit, throwable) -> {
                     if (throwable != null) {
                         this.resourceManager.close();
                     }
@@ -114,35 +117,55 @@ public class HUPacks {
         return resourceManager;
     }
 
-    public static class HUPackFinder extends BuiltInPackSource {
-        private static final PackMetadataSection VERSION_METADATA_SECTION = new PackMetadataSection(Component.translatable("huPack.vanilla.description"), PackType.SERVER_DATA.getVersion(SharedConstants.getCurrentVersion()));
-        private static final FeatureFlagsMetadataSection FEATURE_FLAGS_METADATA_SECTION = new FeatureFlagsMetadataSection(FeatureFlags.DEFAULT_FLAGS);
-        private static final BuiltInMetadata BUILT_IN_METADATA = BuiltInMetadata.of(PackMetadataSection.TYPE, VERSION_METADATA_SECTION, FeatureFlagsMetadataSection.TYPE, FEATURE_FLAGS_METADATA_SECTION);
-        private static final Component VANILLA_NAME = Component.translatable("huPack.vanilla.name");
-        private static final ResourceLocation PACKS_DIR = new ResourceLocation("minecraft", "hupacks");
-
-        public HUPackFinder() {
-            super(PackType.SERVER_DATA, createVanillaPackSource(), PACKS_DIR);
+    public static File getDirectory() {
+        File hupacks = FMLPaths.GAMEDIR.get().resolve("hupacks").toFile();
+        try {
+            if (!hupacks.exists()) FileUtils.forceMkdir(hupacks);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return hupacks;
+    }
 
-        public static VanillaPackResources createVanillaPackSource() {
-            return (new VanillaPackResourcesBuilder()).setMetadata(BUILT_IN_METADATA).exposeNamespace("minecraft").applyDevelopmentConfig().pushJarResources().build();
-        }
+    public static class HURepositorySource implements RepositorySource {
+        private final Path folder = getDirectory().toPath();
+        private final PackType packType = PackType.SERVER_DATA;
 
         @Override
-        protected Component getPackTitle(String pId) {
-            return Component.literal(pId);
-        }
+        public void loadPacks(Consumer<Pack> pOnLoad) {
+            try {
+                FileUtil.createDirectoriesSafe(this.folder);
+                try (DirectoryStream<Path> directorystream = Files.newDirectoryStream(this.folder)) {
+                    List<PackResources> packs = new ArrayList<>();
+                    for (Path path : directorystream) {
+                        Pack.ResourcesSupplier supplier = FolderRepositorySource.detectPackResources(path, false);
+                        if (supplier != null) {
+                            packs.add(supplier.open(path.getFileName().toString()));
+                        }
+                    }
+                    ModList.get().getModFiles().stream().filter(mf -> mf.requiredLanguageLoaders().stream()
+                                    .noneMatch(ls->ls.languageName().equals("minecraft")))
+                            .forEach((modFile) -> packs.add(ResourcePackLoader.createPackForMod(modFile)));
+                    final Pack pack = Pack.readMetaAndCreate("hupacks", Component.literal("HU-packs Resources"), true,
+                            id -> new DelegatingPackResources(id, false, new PackMetadataSection(Component.translatable("heroesunited.resources.hupacks", packs.size()),
+                                    this.packType.getVersion(SharedConstants.getCurrentVersion())), packs) {
+                                @Override
+                                public @Nullable IoSupplier<InputStream> getRootResource(String @NotNull ... paths) {
+                                    if (paths[0].equals("pack.png")) {
+                                        return IoSupplier.create(ModList.get().getModFileById(HeroesUnited.MODID).getFile().findResource("assets/heroesunited/textures/gui/pack.png"));
+                                    }
+                                    return super.getRootResource(paths);
+                                }
+                            },
+                            this.packType, Pack.Position.BOTTOM, PackSource.DEFAULT);
+                    if (pack != null) {
+                        pOnLoad.accept(pack);
+                    }
+                }
+            } catch (IOException ioexception) {
+                HeroesUnited.LOGGER.warn("Failed to list packs in {}", this.folder, ioexception);
+            }
 
-        @Nullable
-        protected Pack createVanillaPack(PackResources pResources) {
-            return Pack.readMetaAndCreate("vanilla", VANILLA_NAME, false,
-                    (s) -> pResources, PackType.SERVER_DATA, Pack.Position.BOTTOM, PackSource.BUILT_IN);
-        }
-
-        @Nullable
-        protected Pack createBuiltinPack(String p_250992_, Pack.ResourcesSupplier p_250814_, Component p_249835_) {
-            return Pack.readMetaAndCreate(p_250992_, p_249835_, false, p_250814_, PackType.SERVER_DATA, Pack.Position.TOP, PackSource.BUILT_IN);
         }
     }
 }

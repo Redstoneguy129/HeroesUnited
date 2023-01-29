@@ -101,5 +101,6 @@
   "tabs.heroesunited.accessories": "Accessories",
 
   "key.categories.heroesunited": "Heroes United",
-  "subtitles.flying": "Flight"
+  "subtitles.flying": "Flight",
+  "heroesunited.resources.hupacks": "Loaded {0} hu-packs"
 }

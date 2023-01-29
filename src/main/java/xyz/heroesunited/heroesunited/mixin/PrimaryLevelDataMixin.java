@@ -1,4 +1,4 @@
-package xyz.heroesunited.heroesunited.mixin.client;
+package xyz.heroesunited.heroesunited.mixin;
 
 import net.minecraft.world.level.storage.PrimaryLevelData;
 import org.spongepowered.asm.mixin.Mixin;
@@ -10,8 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class PrimaryLevelDataMixin {
 
     @Inject(method = "hasConfirmedExperimentalWarning", at = @At("HEAD"), cancellable = true, remap = false)
-    private void ignoreExperimentalSettingsScreen(CallbackInfoReturnable<Boolean> cir)
-    {
+    private void ignoreExperimentalWarning(CallbackInfoReturnable<Boolean> cir) {
         cir.setReturnValue(true);
     }
 }

@@ -41,7 +41,7 @@ public class ClientAbilityAnimTrigger {
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             Entity entity = Minecraft.getInstance().level.getEntity(this.entityId);
-            for (Ability ability : AbilityHelper.getAbilities(entity)) {
+            for (Ability ability : AbilityHelper.getAbilityMap(entity).values()) {
                 if (ability.name.equals(this.abilityName) && ability instanceof GeoAbility a) {
                     a.triggerAnim(this.controllerName.isEmpty() ? null : this.controllerName, this.animName);
                 }

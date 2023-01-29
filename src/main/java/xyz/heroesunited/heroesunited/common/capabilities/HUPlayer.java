@@ -34,7 +34,7 @@ import java.util.Map;
 public class HUPlayer implements IHUPlayer {
     public final AccessoriesInventory inventory;
     protected final LivingEntity livingEntity;
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this, false);
     protected Map<ResourceLocation, Level> superpowerLevels;
     private int theme;
     private float flightAmount, flightAmountO, slowMo = 20F;
@@ -155,6 +155,11 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
+    public LivingEntity getLivingEntity() {
+        return livingEntity;
+    }
+
+    @Override
     public PlayerGeoModel getAnimatedModel() {
         return modelProvider;
     }
@@ -207,13 +212,7 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "controller", 1, state -> {
-            if (this.livingEntity.isCrouching()) {
-                state.setAnimation(RawAnimation.begin().thenPlay("hello"));
-            }
-
-            return PlayState.CONTINUE;
-        }));
+        controllers.add(new AnimationController<>(this, "controller", state -> PlayState.CONTINUE));
         if (livingEntity instanceof Player) {
             MinecraftForge.EVENT_BUS.post(new RegisterPlayerControllerEvent(this, (Player) livingEntity, controllers));
         }

@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -14,6 +15,7 @@ import net.minecraft.world.item.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import oshi.util.tuples.Pair;
+import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
@@ -26,6 +28,7 @@ import xyz.heroesunited.heroesunited.util.PlayerPart;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 public class JsonSuit extends Suit {
 
@@ -35,6 +38,9 @@ public class JsonSuit extends Suit {
     public JsonSuit(Map.Entry<ResourceLocation, JsonObject> map) {
         super(map.getKey());
         this.jsonObject = map.getValue();
+        if (jsonObject.has("visibility_parts")) {
+            HeroesUnited.LOGGER.error(HeroesUnited.MODID + ": Deprecated `visibility_parts` for %s suit".formatted(this.getRegistryName()));
+        }
     }
 
     public ConditionManager getConditionManager() {
@@ -150,6 +156,48 @@ public class JsonSuit extends Suit {
     @Override
     public void setupAnim(SetupAnimEvent event, EquipmentSlot slot) {
         super.setupAnim(event, slot);
+        if (jsonObject.has("hidden_parts")) {
+            JsonElement hiddenParts = jsonObject.get("hidden_parts");
+
+            // "hidden_parts": ["head"] - will hide head part, when item in head slot
+            // Basically this hide a part named in array, with their usual arrangement in slots
+            if (hiddenParts.isJsonArray()) {
+                for (JsonElement json : hiddenParts.getAsJsonArray()) {
+                    if (json instanceof JsonPrimitive primitive && primitive.isString()) {
+                        PlayerPart part = PlayerPart.byName(json.getAsString());
+                        if (part != null && part.getSlotsByPart().contains(slot)) {
+                            part.setVisibility(event.getPlayerModel(), false);
+                        }
+                    }
+                }
+            }
+            if (hiddenParts.isJsonObject()) {
+                BiConsumer<String, JsonElement> consumer = (key, element) -> {
+                    if (slot.getName().equals(key) && element instanceof JsonPrimitive primitive && primitive.isString()) {
+                        PlayerPart part = PlayerPart.byName(primitive.getAsString());
+                        if (part != null) {
+                            part.setVisibility(event.getPlayerModel(), false);
+                        }
+                    }
+                };
+                for (Map.Entry<String, JsonElement> e : hiddenParts.getAsJsonObject().entrySet()) {
+                    // "hidden_parts": {
+                    //      "head": ["head_wear", "head_wear"],
+                    //      "chest": ["right_arm_wear", "left_arm_wear"]
+                    // }
+                    // Basically this hide a part named in array, when it's in slot mentioned in array
+                    if (e.getValue().isJsonArray()) {
+                        for (JsonElement json : e.getValue().getAsJsonArray()) {
+                            consumer.accept(e.getKey(), json);
+                        }
+                    } else {
+                        consumer.accept(e.getKey(), e.getValue());
+                    }
+                }
+            }
+
+        }
+
         if (jsonObject.has("visibility_parts")) {
             JsonObject overrides = GsonHelper.getAsJsonObject(jsonObject, "visibility_parts");
 

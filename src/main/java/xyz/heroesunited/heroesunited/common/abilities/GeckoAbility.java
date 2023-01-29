@@ -21,7 +21,7 @@ import xyz.heroesunited.heroesunited.common.abilities.animatable.GeoAbility;
 import java.util.function.Consumer;
 
 public class GeckoAbility extends JSONAbility implements GeoAbility {
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this, false);
 
     public GeckoAbility(AbilityType type, Player player, JsonObject jsonObject) {
         super(type, player, jsonObject);

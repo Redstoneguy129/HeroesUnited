@@ -1,10 +1,12 @@
 package xyz.heroesunited.heroesunited.util;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.world.entity.EquipmentSlot;
 import xyz.heroesunited.heroesunited.client.renderer.IHUModelPart;
 
 import java.util.List;
@@ -75,6 +77,21 @@ public enum PlayerPart {
             case LEFT_LEG -> model.leftLeg;
             default -> null;
         };
+    }
+
+    public List<EquipmentSlot> getSlotsByPart() {
+        List<EquipmentSlot> list = Lists.newArrayList();
+        switch (this) {
+            case HEAD, HEAD_WEAR -> list.add(EquipmentSlot.HEAD);
+            case CHEST, RIGHT_ARM, LEFT_ARM,
+                    CHEST_WEAR, RIGHT_ARM_WEAR, LEFT_ARM_WEAR -> list.add(EquipmentSlot.CHEST);
+            case RIGHT_LEG, LEFT_LEG,
+                    RIGHT_LEG_WEAR, LEFT_LEG_WEAR -> {
+                list.add(EquipmentSlot.LEGS);
+                list.add(EquipmentSlot.FEET);
+            }
+        }
+        return list;
     }
 
     public static PlayerPart byName(String name) {

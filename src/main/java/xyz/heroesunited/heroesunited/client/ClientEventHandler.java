@@ -7,7 +7,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -15,7 +14,6 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.layers.*;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
@@ -31,7 +29,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.common.MinecraftForge;
@@ -61,7 +58,6 @@ import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.common.space.CelestialBodies;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
-import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.util.*;
 
@@ -473,7 +469,7 @@ public class ClientEventHandler {
         AbilityHelper.getAbilityMap(event.getEntity()).values().forEach(ability -> ability.getClientProperties().renderAlwaysFirstPersonArm(Minecraft.getInstance().getEntityModels(), event.getRenderer(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), event.getEntity(), event.getSide()));
     }
 
-    @SubscribeEvent
+    /*@SubscribeEvent
     public void renderPlayerLayers(RenderLayerEvent.Armor.Post event) {
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             SuitItem suitItem = Suit.getSuitItem(slot, event.getLivingEntity());
@@ -489,7 +485,7 @@ public class ClientEventHandler {
                 }
             }
         }
-    }
+    }*/
 
     @SubscribeEvent
     public void renderPlayerLayers(RenderLayerEvent.Player event) {

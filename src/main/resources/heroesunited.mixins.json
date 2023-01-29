@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
   "client": [
+    "PrimaryLevelDataMixin",
     "client.CubeMixin",
     "client.EntityRenderDispatcherMixin",
     "client.EntityRendererMixin",
@@ -17,7 +18,6 @@
     "client.PlayerInfoMixin",
     "client.PlayerModelMixin",
     "client.PlayerRendererMixin",
-    "client.PrimaryLevelDataMixin",
     "client.SingleQuadParticleMixin"
   ],
   "mixins": [

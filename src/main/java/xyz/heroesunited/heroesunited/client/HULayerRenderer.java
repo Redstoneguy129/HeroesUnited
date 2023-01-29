@@ -66,7 +66,12 @@ public class HULayerRenderer<T extends LivingEntity, M extends HumanoidModel<T>>
         });
 
         for (EquipmentSlot slot : HUPlayerUtil.ARMOR_SLOTS) {
-            renderSuit(matrixStack, buffer, entity, slot, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+            ItemStack itemstack = entity.getItemBySlot(slot);
+            if (itemstack.getItem() instanceof SuitItem suitItem) {
+                if (suitItem.getSlot() == slot) {
+                    suitItem.getSuit().renderLayer(this.context, this.renderer, entity, itemstack, slot, matrixStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+                }
+            }
         }
     }
 
@@ -95,18 +100,7 @@ public class HULayerRenderer<T extends LivingEntity, M extends HumanoidModel<T>>
                     suitModel.rightLeg.visible = cap.getInventory().haveStack(slot);
         }
 
-
-
         suitModel.copyPropertiesFrom(livingRenderer.getModel());
         suitModel.renderToBuffer(matrixStack, buffer.getBuffer(RenderType.entityTranslucent(accessoire.getTexture(stack, entity, slot))), packedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
-    }
-
-    private void renderSuit(PoseStack poseStack, MultiBufferSource buffer, T entity, EquipmentSlot slot, int packedLight, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        ItemStack itemstack = entity.getItemBySlot(slot);
-        if (itemstack.getItem() instanceof SuitItem suitItem) {
-            if (suitItem.getSlot() == slot) {
-                suitItem.getSuit().renderLayer(this.context, this.renderer, entity, itemstack, slot, poseStack, buffer, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
-            }
-        }
     }
 }
