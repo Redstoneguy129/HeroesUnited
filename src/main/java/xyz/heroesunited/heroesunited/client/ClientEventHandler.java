@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -14,6 +15,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.layers.*;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
@@ -22,6 +24,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
@@ -30,6 +33,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.*;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -40,6 +44,7 @@ import org.lwjgl.glfw.GLFW;
 import xyz.heroesunited.heroesunited.HeroesUnited;
 import xyz.heroesunited.heroesunited.client.events.*;
 import xyz.heroesunited.heroesunited.client.gui.AbilitiesScreen;
+import xyz.heroesunited.heroesunited.client.renderer.GeckoSuitRenderer;
 import xyz.heroesunited.heroesunited.client.renderer.space.CelestialBodyRenderer;
 import xyz.heroesunited.heroesunited.common.abilities.*;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
@@ -58,6 +63,7 @@ import xyz.heroesunited.heroesunited.common.objects.items.HUItems;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
 import xyz.heroesunited.heroesunited.common.space.CelestialBodies;
 import xyz.heroesunited.heroesunited.common.space.CelestialBody;
+import xyz.heroesunited.heroesunited.hupacks.HUPackLayers;
 import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.util.*;
 
@@ -314,7 +320,6 @@ public class ClientEventHandler {
     @SubscribeEvent
     public void renderPlayerPre(RenderPlayerEvent.Pre event) {
         Player player = event.getEntity();
-        AbilityHelper.getAbilities(player).forEach(ability -> ability.getClientProperties().renderPlayerPre(event));
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             IFlyingAbility ability = IFlyingAbility.getFlyingAbility(player);
             if (ability != null && ability.isFlying(player) && ability.renderFlying(player)) {
@@ -340,13 +345,12 @@ public class ClientEventHandler {
             event.getPoseStack().mulPose(HUClientUtil.quatFromXYZ(90F + event.getEntity().getXRot(), 0, 0, true));
             event.getPoseStack().mulPose(HUClientUtil.quatFromXYZ(0, event.getEntity().getYRot(), 0, true));
         }
-        AbilityHelper.getAbilityMap(event.getEntity()).values().forEach(ability -> ability.getClientProperties().renderPlayerPreAlways(event));
+        AbilityHelper.getAbilityMap(event.getEntity()).values().forEach(ability -> ability.getClientProperties().renderPlayerPre(event));
     }
 
     @SubscribeEvent
     public void renderPlayerPost(RenderPlayerEvent.Post event) {
-        AbilityHelper.getAbilities(event.getEntity()).forEach(ability -> ability.getClientProperties().renderPlayerPost(event));
-        AbilityHelper.getAbilityMap(event.getEntity()).values().forEach(ability -> ability.getClientProperties().renderPlayerPostAlways(event));
+        AbilityHelper.getAbilityMap(event.getEntity()).values().forEach(ability -> ability.getClientProperties().renderPlayerPost(event));
         IFlyingAbility ability = IFlyingAbility.getFlyingAbility(event.getEntity());
         event.getEntity().getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             if (ability != null && ability.isFlying(event.getEntity()) && ability.renderFlying(event.getEntity())) {
@@ -469,23 +473,24 @@ public class ClientEventHandler {
         AbilityHelper.getAbilityMap(event.getEntity()).values().forEach(ability -> ability.getClientProperties().renderAlwaysFirstPersonArm(Minecraft.getInstance().getEntityModels(), event.getRenderer(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), event.getEntity(), event.getSide()));
     }
 
-    /*@SubscribeEvent
+    @SubscribeEvent
     public void renderPlayerLayers(RenderLayerEvent.Armor.Post event) {
         for (EquipmentSlot slot : EquipmentSlot.values()) {
-            SuitItem suitItem = Suit.getSuitItem(slot, event.getLivingEntity());
-            if (suitItem != null && event.getRenderer().getModel() instanceof HumanoidModel) {
+            ItemStack itemStack = event.getLivingEntity().getItemBySlot(slot);
+            if (itemStack.getItem() instanceof SuitItem suitItem && event.getRenderer().getModel() instanceof HumanoidModel<? extends LivingEntity> model) {
                 HUPackLayers.Layer layer = HUPackLayers.getInstance().getLayer(suitItem.getSuit().getRegistryName());
                 if (layer != null) {
                     if (layer.getTexture("cape") != null && slot.equals(EquipmentSlot.CHEST)) {
-                        HUClientUtil.renderCape(event.getRenderer(), event.getLivingEntity(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), event.getPartialTicks(), layer.getTexture("cape"));
+                        HUClientUtil.renderCape(model, event.getLivingEntity(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), event.getPartialTicks(), layer.getTexture("cape"));
                     }
-                    if (layer.getTexture("lights") != null) {
-                        ForgeHooksClient.getArmorModel(event.getLivingEntity(), event.getLivingEntity().getItemBySlot(slot), slot, (HumanoidModel) event.getRenderer().getModel()).renderToBuffer(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.getLight(layer.getTexture("lights"))), event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+                    var itemModel = IClientItemExtensions.of(itemStack).getHumanoidArmorModel(event.getLivingEntity(), itemStack, slot, model);
+                    if (!(itemModel instanceof GeckoSuitRenderer<?>) && layer.getTexture("lights") != null) {
+                        itemModel.renderToBuffer(event.getPoseStack(), event.getMultiBufferSource().getBuffer(HUClientUtil.HURenderTypes.getLight(layer.getTexture("lights"))), event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
                     }
                 }
             }
         }
-    }*/
+    }
 
     @SubscribeEvent
     public void renderPlayerLayers(RenderLayerEvent.Player event) {

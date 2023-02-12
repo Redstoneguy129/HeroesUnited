@@ -137,13 +137,17 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, GeoItem {
                 model = armorRenderer.getGeoModel().getBakedModel(armorRenderer.getGeoModel().getModelResource(this));
             }
 
-            armorRenderer.prepForRender(player, stack, getSlot(), humanoidModel);
-
             long instanceId = armorRenderer.getInstanceId(stack.getItem());
-            armorRenderer.getGeoModel().handleAnimations(this, instanceId, new AnimationState(this, 0, 0, 0, false));
+            armorRenderer.getGeoModel().handleAnimations(this, instanceId, new AnimationState<>(this, 0, 0, Minecraft.getInstance().getFrameTime(), false));
+            if (armorRenderer instanceof GeckoSuitRenderer<?> && renderer == null) {
+                return;
+            }
+
+            armorRenderer.prepForRender(player, stack, getSlot(), humanoidModel);
             if (model.topLevelBones().isEmpty())
                 throw new GeckoLibException(ForgeRegistries.ITEMS.getKey(this), "Model doesn't have any parts");
             GeoBone bone = side == HumanoidArm.LEFT ? armorRenderer.getLeftArmBone() : armorRenderer.getRightArmBone();
+            assert bone != null;
             armorRenderer.attackTime = 0.0F;
             armorRenderer.crouching = false;
             armorRenderer.swimAmount = 0.0F;
@@ -242,6 +246,11 @@ public class SuitItem extends ArmorItem implements IAbilityProvider, GeoItem {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         getSuit().registerControllers(controllers, this);
+    }
+
+    @Override
+    public double getTick(Object obj) {
+        return ((Entity)obj).tickCount + Minecraft.getInstance().getFrameTime();
     }
 
     @Override

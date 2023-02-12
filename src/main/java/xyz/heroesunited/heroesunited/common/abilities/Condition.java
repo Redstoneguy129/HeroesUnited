@@ -4,14 +4,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.netty.util.internal.StringUtil;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.FluidState;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -25,10 +24,10 @@ import xyz.heroesunited.heroesunited.hupacks.HUPackSuperpowers;
 import xyz.heroesunited.heroesunited.util.HUJsonUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class Condition {
 
@@ -148,11 +147,9 @@ public class Condition {
     }));
 
     public static final Condition IS_IN_FLUID = register("is_in_fluid", new Condition((c) -> {
-        for (FluidState state : Fluid.FLUID_STATE_REGISTRY) {
-            for (TagKey<Fluid> tag : state.getTags().collect(Collectors.toList())) {
-                if (tag.location().getPath().equals(GsonHelper.getAsString(c.jsonObject(), "fluid"))) {
-                    return c.player().isEyeInFluid(tag);
-                }
+        for (Map.Entry<ResourceKey<FluidType>, FluidType> e : ForgeRegistries.FLUID_TYPES.get().getEntries()) {
+            if (e.getKey().location().getPath().equals(GsonHelper.getAsString(c.jsonObject(), "fluid"))) {
+                return c.player().isEyeInFluidType(e.getValue());
             }
         }
         return false;

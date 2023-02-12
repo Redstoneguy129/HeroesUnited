@@ -44,7 +44,7 @@ public class GeckoAbility extends JSONAbility implements GeoAbility {
             public boolean renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
                 if (getEnabled()) {
                     this.abilityRenderer.prepForRender(player, renderer.getModel());
-                    this.abilityRenderer.renderFirstPersonArm(renderer, poseStack, bufferIn, packedLightIn, side);
+                    this.abilityRenderer.renderFirstPersonArm(renderer, side, poseStack, bufferIn, packedLightIn);
                 }
                 return true;
             }

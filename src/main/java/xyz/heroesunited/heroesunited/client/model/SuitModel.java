@@ -16,7 +16,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import xyz.heroesunited.heroesunited.client.renderer.IHUModelPart;
+import org.joml.Vector3f;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
 
 public class SuitModel<T extends LivingEntity> extends HumanoidModel<T> {
@@ -33,7 +33,7 @@ public class SuitModel<T extends LivingEntity> extends HumanoidModel<T> {
 
     public SuitModel(ModelPart mainPart, float size) {
         super(mainPart, RenderType::entityTranslucent);
-        mainPart.getAllParts().filter((p_170824_) -> !p_170824_.isEmpty()).forEach(part -> ((IHUModelPart) (Object) part).setSize(new CubeDeformation(size)));
+        mainPart.getAllParts().filter((p_170824_) -> !p_170824_.isEmpty()).forEach(part -> part.offsetScale(new Vector3f(size - 1.0F)));
     }
 
     public static MeshDefinition createMesh(CubeDeformation size, boolean slim) {

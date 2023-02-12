@@ -5,7 +5,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -32,13 +31,11 @@ import xyz.heroesunited.heroesunited.client.HULayerRenderer;
 import xyz.heroesunited.heroesunited.client.events.HideLayerEvent;
 import xyz.heroesunited.heroesunited.client.events.RendererChangeEvent;
 import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
-import xyz.heroesunited.heroesunited.client.renderer.IHUModelPart;
 import xyz.heroesunited.heroesunited.client.renderer.IPlayerModel;
 import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.PlayerGeoModel;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
-import xyz.heroesunited.heroesunited.util.PlayerPart;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -76,13 +73,9 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
         boolean flag = !isBodyVisible(entity) && !player.isInvisibleTo(Minecraft.getInstance().player);
         RenderType type = getRenderType(entity, isBodyVisible(entity), flag, Minecraft.getInstance().shouldEntityAppearGlowing(player));
         if (type != null) {
-            for (PlayerPart value : PlayerPart.values()) {
-                ((IHUModelPart) (Object) value.modelPart(playerModel)).resetSize();
-            }
             player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
                 cap.getAnimatedModel().getBakedModel(cap.getAnimatedModel().getModelResource(cap));
                 MinecraftForge.EVENT_BUS.post(new SetupAnimEvent(player, playerModel, iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch()));
-                HUClientUtil.copyAnglesToWear(playerModel);
 
                 AnimationState<IHUPlayer> animationState = new AnimationState<>(cap, iModel.limbSwing(), iModel.limbSwingAmount(), partialTicks, false);
                 long instanceId = player.getId();
@@ -97,32 +90,13 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
                     if (controller.getCurrentAnimation() != null && controller.getAnimationState() != AnimationController.State.STOPPED) {
                         for (String s : Arrays.asList("player", "bipedHead", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg")) {
                             cap.getAnimatedModel().getBone(s).ifPresent(bone -> {
-                                ModelPart modelPart = HUClientUtil.getModelRendererById(playerModel, s);
-                                IHUModelPart part = ((IHUModelPart) (Object) modelPart);
                                 for (BoneAnimation boneAnimation : controller.getCurrentAnimation().animation().boneAnimations()) {
                                     if (boneAnimation.boneName().equals(s)) {
                                         if (s.equals("player")) {
                                             RenderUtils.prepMatrixForBone(matrixStack, bone);
                                             break;
                                         }
-                                        modelPart.xRot = -bone.getRotX();
-                                        modelPart.yRot = -bone.getRotY();
-                                        modelPart.zRot = bone.getRotZ();
-
-                                        if (bone.getPosX() != 0) {
-                                            modelPart.x = -(bone.getPivotX() + bone.getPosX());
-                                        }
-                                        if (bone.getPosY() != 0) {
-                                            modelPart.y = (24 - bone.getPivotY()) - bone.getPosY();
-                                        }
-                                        if (bone.getPosZ() != 0) {
-                                            modelPart.z = bone.getPivotZ() + bone.getPosZ();
-                                        }
-
-                                        if (bone.getName().endsWith("Leg")) {
-                                            modelPart.y = modelPart.y - bone.getScaleY() * 2;
-                                        }
-                                        part.setSize(part.size().extend(bone.getScaleX() - 1.0F, bone.getScaleY() - 1.0F, bone.getScaleZ() - 1.0F));
+                                        HUClientUtil.setupPlayerBones(bone, HUClientUtil.getModelRendererById(playerModel, s));
                                     }
                                 }
                             });
@@ -134,6 +108,7 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
                 if (MinecraftForge.EVENT_BUS.post(new RendererChangeEvent(player, renderer, matrixStack, buffer, buffer.getBuffer(type), light, getOverlayCoords(player, getWhiteOverlayProgress(entity, partialTicks)), iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch()))) {
                     playerModel.setAllVisible(false);
                 }
+                HUClientUtil.copyAnglesToWear(playerModel);
             });
 
         }

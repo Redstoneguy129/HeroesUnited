@@ -1,6 +1,7 @@
 package xyz.heroesunited.heroesunited.common.capabilities;
 
 import com.google.common.collect.Maps;
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -9,22 +10,18 @@ import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.PacketDistributor;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.Animation;
 import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import xyz.heroesunited.heroesunited.common.events.RegisterPlayerControllerEvent;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
-import xyz.heroesunited.heroesunited.common.networking.client.ClientSetAnimation;
 import xyz.heroesunited.heroesunited.common.networking.client.ClientSyncHUPlayer;
+import xyz.heroesunited.heroesunited.common.networking.client.ClientTriggerPlayerAnim;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesInventory;
 
 import javax.annotation.Nullable;
@@ -74,18 +71,16 @@ public class HUPlayer implements IHUPlayer {
     }
 
     @Override
-    public void setAnimation(String name, String controllerName, ResourceLocation animationFile, boolean loop) {
+    public void triggerAnim(@Nullable String controllerName, String animName, ResourceLocation animationFile) {
         this.animationFile = animationFile;
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            AnimationController controller = getController(controllerName);
+        if (this.livingEntity.getLevel().isClientSide()) {
+            var controller = getController(controllerName);
             if (controller != null) {
-                controller.setAnimation(RawAnimation.begin().then(name, loop ? Animation.LoopType.LOOP : Animation.LoopType.PLAY_ONCE));
+                controller.tryTriggerAnimation(animName);
             }
-        });
-        if (!livingEntity.level.isClientSide) {
-            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity), new ClientSetAnimation(livingEntity.getId(), name, controllerName, this.modelProvider.getAnimationResource(this), loop));
+        } else {
+            HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> this.livingEntity), new ClientTriggerPlayerAnim(this.livingEntity.getId(), controllerName, animName, animationFile));
         }
-        syncToAll();
     }
 
     @Override
@@ -166,7 +161,7 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public AnimationController getController(String controllerName) {
-        return getAnimatableInstanceCache().getManagerForId(livingEntity.getUUID().hashCode()).getAnimationControllers().get(controllerName);
+        return getAnimatableInstanceCache().getManagerForId(this.livingEntity.getId()).getAnimationControllers().get(controllerName);
     }
 
     @Override
@@ -221,5 +216,10 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return this.cache;
+    }
+
+    @Override
+    public double getTick(Object object) {
+        return ((Entity) object).tickCount + Minecraft.getInstance().getFrameTime();
     }
 }

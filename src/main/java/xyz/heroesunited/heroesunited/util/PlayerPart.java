@@ -5,9 +5,8 @@ import com.google.common.collect.Lists;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.world.entity.EquipmentSlot;
-import xyz.heroesunited.heroesunited.client.renderer.IHUModelPart;
+import org.joml.Vector3f;
 
 import java.util.List;
 
@@ -45,9 +44,9 @@ public enum PlayerPart {
                 } else {
                     if (!visible) {
                         if (this == PlayerPart.HEAD_WEAR) {
-                            ((IHUModelPart) (Object) modelRenderer).setSize(new CubeDeformation(size * -0.499F));
+                            modelRenderer.offsetScale(new Vector3f((size * -0.499F) - 1.0F));
                         } else {
-                            ((IHUModelPart) (Object) modelRenderer).setSize(new CubeDeformation(size * -0.249F));
+                            modelRenderer.offsetScale(new Vector3f((size * -0.249F) - 1.0F));
                         }
                     }
                 }

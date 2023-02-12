@@ -72,21 +72,11 @@ public interface IAbilityClientProperties {
     }
 
     default void renderAlways(EntityRendererProvider.Context context, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-
     }
 
     default void setAlwaysRotationAngles(SetupAnimEvent event) {
-
-    }
-
-    default void renderPlayerPreAlways(RenderPlayerEvent.Pre event) {
-
-    }
-
-    default void renderPlayerPostAlways(RenderPlayerEvent.Post event) {
     }
 
     default void renderAlwaysFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
-
     }
 }

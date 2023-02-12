@@ -8,39 +8,37 @@ import xyz.heroesunited.heroesunited.common.capabilities.HUPlayerProvider;
 
 import java.util.function.Supplier;
 
-public class ServerSetPlayerAnimation {
+public class ServerTriggerPlayerAnim {
 
-    public String name;
-    public final String controllerName;
-    public ResourceLocation animationFile;
-    public boolean loop;
+    private final String animName;
+    private final String controllerName;
+    private final ResourceLocation animationFile;
 
-    public ServerSetPlayerAnimation(String name, String controllerName, ResourceLocation animationFile, boolean loop) {
-        this.name = name;
+    public ServerTriggerPlayerAnim(String animName, String controllerName, ResourceLocation animationFile) {
+        this.animName = animName;
         this.controllerName = controllerName;
         this.animationFile = animationFile;
-        this.loop = loop;
     }
 
-    public ServerSetPlayerAnimation(FriendlyByteBuf buffer) {
-        this.name = buffer.readUtf();
+    public ServerTriggerPlayerAnim(FriendlyByteBuf buffer) {
+        this.animName = buffer.readUtf();
         this.controllerName = buffer.readUtf();
         this.animationFile = new ResourceLocation(buffer.readUtf());
-        this.loop = buffer.readBoolean();
     }
 
     public void toBytes(FriendlyByteBuf buffer) {
-        buffer.writeUtf(this.name);
+        buffer.writeUtf(this.animName);
         buffer.writeUtf(this.controllerName);
         buffer.writeUtf(this.animationFile.toString());
-        buffer.writeBoolean(this.loop);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             Player player = ctx.get().getSender();
             if (player != null) {
-                player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> cap.setAnimation(this.name, this.controllerName, this.animationFile, this.loop));
+                player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
+                    cap.triggerAnim(this.controllerName, this.animName, this.animationFile);
+                });
             }
         });
         ctx.get().setPacketHandled(true);

@@ -4,13 +4,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.common.util.INBTSerializable;
-import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animation.AnimationController;
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesInventory;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 
-public interface IHUPlayer extends INBTSerializable<CompoundTag>, GeoEntity {
+public interface IHUPlayer extends INBTSerializable<CompoundTag>, GeoAnimatable {
 
     void updateFlyAmount();
 
@@ -21,7 +22,7 @@ public interface IHUPlayer extends INBTSerializable<CompoundTag>, GeoEntity {
     /**
      * Can be used for custom player animations
      */
-    void setAnimation(String name, String controllerName, ResourceLocation animationFile, boolean loop);
+    void triggerAnim(@Nullable String controllerName, String animName, ResourceLocation animationFile);
 
     PlayerGeoModel getAnimatedModel();
 

@@ -19,10 +19,10 @@ public class HUNetworking {
     public static void registerMessages() {
         INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(HeroesUnited.MODID, "networking"), () -> "1.0", s -> true, s -> true);
         //Client
-        INSTANCE.registerMessage(NextID(), ClientAbilityAnimTrigger.class, ClientAbilityAnimTrigger::toBytes, ClientAbilityAnimTrigger::new, ClientAbilityAnimTrigger::handle);
+        INSTANCE.registerMessage(NextID(), ClientTriggerPlayerAnim.class, ClientTriggerPlayerAnim::toBytes, ClientTriggerPlayerAnim::new, ClientTriggerPlayerAnim::handle);
+        INSTANCE.registerMessage(NextID(), ClientTriggerAbilityAnim.class, ClientTriggerAbilityAnim::toBytes, ClientTriggerAbilityAnim::new, ClientTriggerAbilityAnim::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncHUPlayer.class, ClientSyncHUPlayer::toBytes, ClientSyncHUPlayer::new, ClientSyncHUPlayer::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncAbilityCap.class, ClientSyncAbilityCap::toBytes, ClientSyncAbilityCap::new, ClientSyncAbilityCap::handle);
-        INSTANCE.registerMessage(NextID(), ClientSetAnimation.class, ClientSetAnimation::toBytes, ClientSetAnimation::new, ClientSetAnimation::handle);
         INSTANCE.registerMessage(NextID(), ClientSyncHUData.class, ClientSyncHUData::toBytes, ClientSyncHUData::new, ClientSyncHUData::handle);
         INSTANCE.registerMessage(NextID(), ClientDisableAbility.class, ClientDisableAbility::toBytes, ClientDisableAbility::new, ClientDisableAbility::handle);
         INSTANCE.registerMessage(NextID(), ClientEnableAbility.class, ClientEnableAbility::toBytes, ClientEnableAbility::new, ClientEnableAbility::handle);
@@ -32,7 +32,7 @@ public class HUNetworking {
         INSTANCE.registerMessage(NextID(), ClientSyncCelestialBody.class, ClientSyncCelestialBody::toBytes, ClientSyncCelestialBody::new, ClientSyncCelestialBody::handle);
         INSTANCE.registerMessage(NextID(), ClientOpenAccessoriesScreen.class, ClientOpenAccessoriesScreen::toBytes, ClientOpenAccessoriesScreen::new, ClientOpenAccessoriesScreen::handle);
         //Server
-        INSTANCE.registerMessage(NextID(), ServerSetPlayerAnimation.class, ServerSetPlayerAnimation::toBytes, ServerSetPlayerAnimation::new, ServerSetPlayerAnimation::handle);
+        INSTANCE.registerMessage(NextID(), ServerTriggerPlayerAnim.class, ServerTriggerPlayerAnim::toBytes, ServerTriggerPlayerAnim::new, ServerTriggerPlayerAnim::handle);
         INSTANCE.registerMessage(NextID(), ServerAbilityKeyInput.class, ServerAbilityKeyInput::toBytes, ServerAbilityKeyInput::new, ServerAbilityKeyInput::handle);
         INSTANCE.registerMessage(NextID(), ServerSetTheme.class, ServerSetTheme::toBytes, ServerSetTheme::new, ServerSetTheme::handle);
         INSTANCE.registerMessage(NextID(), ServerSyncAbility.class, ServerSyncAbility::toBytes, ServerSyncAbility::new, ServerSyncAbility::handle);

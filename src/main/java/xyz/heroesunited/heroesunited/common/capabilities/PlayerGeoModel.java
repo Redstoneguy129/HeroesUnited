@@ -4,6 +4,7 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import software.bernie.geckolib.core.animation.AnimationState;
@@ -57,15 +58,27 @@ public class PlayerGeoModel extends DefaultedGeoModel<IHUPlayer> {
         MolangParser parser = MolangParser.INSTANCE;
         if (animatable != null && this.modelData != null) {
             for (PlayerPart part : PlayerPart.bodyParts()) {
+                String name = part == PlayerPart.CHEST ? "body" : part.name().toLowerCase();
                 ModelPart renderer = part.initialModelPart(this.modelData.model);
-                parser.setMemoizedValue(String.format("player.%s.x_rot", part.name().toLowerCase()), () -> renderer.xRot / Math.PI * 180.0);
-                parser.setMemoizedValue(String.format("player.%s.y_rot", part.name().toLowerCase()), () -> renderer.yRot / Math.PI * 180.0);
-                parser.setMemoizedValue(String.format("player.%s.z_rot", part.name().toLowerCase()), () -> renderer.zRot / Math.PI * 180.0);
+                parser.setMemoizedValue(String.format("player.%s.x_rot", name), () -> renderer.xRot / Math.PI * 180.0);
+                parser.setMemoizedValue(String.format("player.%s.y_rot", name), () -> renderer.yRot / Math.PI * 180.0);
+                parser.setMemoizedValue(String.format("player.%s.z_rot", name), () -> renderer.zRot / Math.PI * 180.0);
 
-                parser.setMemoizedValue(String.format("player.%s.x", part.name().toLowerCase()), () -> renderer.x);
-                parser.setMemoizedValue(String.format("player.%s.y", part.name().toLowerCase()), () -> renderer.y);
-                parser.setMemoizedValue(String.format("player.%s.z", part.name().toLowerCase()), () -> renderer.z);
+                parser.setMemoizedValue(String.format("player.%s.x", name), () -> switch (part) {
+                    case RIGHT_ARM -> renderer.x + 5;
+                    case LEFT_ARM -> renderer.x - 5;
+                    case RIGHT_LEG -> renderer.x + 2;
+                    case LEFT_LEG -> renderer.x - 2;
+                    default -> renderer.x;
+                });
+                parser.setMemoizedValue(String.format("player.%s.y", name), () -> switch (part) {
+                    case RIGHT_ARM, LEFT_ARM -> 2 - renderer.y;
+                    case RIGHT_LEG, LEFT_LEG -> 12 - renderer.y;
+                    default -> renderer.y;
+                });
+                parser.setMemoizedValue(String.format("player.%s.z", name), () -> renderer.z);
             }
+            parser.setMemoizedValue("player.leftIsMainArm", () -> animatable.getLivingEntity().getMainArm() == HumanoidArm.LEFT ? 1 : 0);
             parser.setMemoizedValue("player.x_rot", () -> animatable.getLivingEntity().getXRot());
             parser.setMemoizedValue("player.y_rot", () -> animatable.getLivingEntity().getYRot());
             parser.setMemoizedValue("player.limbSwing", () -> this.modelData.limbSwing);
@@ -80,15 +93,17 @@ public class PlayerGeoModel extends DefaultedGeoModel<IHUPlayer> {
         MolangParser parser = MolangParser.INSTANCE;
 
         for (PlayerPart part : PlayerPart.bodyParts()) {
-            parser.register(new LazyVariable(String.format("player.%s.x_rot", part.name().toLowerCase()), 0));
-            parser.register(new LazyVariable(String.format("player.%s.y_rot", part.name().toLowerCase()), 0));
-            parser.register(new LazyVariable(String.format("player.%s.z_rot", part.name().toLowerCase()), 0));
+            String name = part.name().toLowerCase();
+            parser.register(new LazyVariable(String.format("player.%s.x_rot", name), 0));
+            parser.register(new LazyVariable(String.format("player.%s.y_rot", name), 0));
+            parser.register(new LazyVariable(String.format("player.%s.z_rot", name), 0));
 
-            parser.register(new LazyVariable(String.format("player.%s.x", part.name().toLowerCase()), 0));
-            parser.register(new LazyVariable(String.format("player.%s.y", part.name().toLowerCase()), 0));
-            parser.register(new LazyVariable(String.format("player.%s.z", part.name().toLowerCase()), 0));
+            parser.register(new LazyVariable(String.format("player.%s.x", name), 0));
+            parser.register(new LazyVariable(String.format("player.%s.y", name), 0));
+            parser.register(new LazyVariable(String.format("player.%s.z", name), 0));
         }
 
+        parser.register(new LazyVariable("player.leftIsMainArm", 0));
         parser.register(new LazyVariable("player.x_rot", 0));
         parser.register(new LazyVariable("player.y_rot", 0));
         parser.register(new LazyVariable("player.limbSwing", 0));

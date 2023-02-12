@@ -31,12 +31,12 @@ public abstract class Ability implements INBTSerializable<CompoundTag> {
 
     public String name;
     public final AbilityType type;
+    protected IAbilityClientProperties clientProperties;
     protected CompoundTag additionalData = new CompoundTag();
     protected final JsonObject jsonObject;
     protected final HUDataManager dataManager = new HUDataManager(this);
     protected final ConditionManager conditionManager = new ConditionManager(this);
     protected final Player player;
-    private IAbilityClientProperties clientProperties;
 
     public Ability(AbilityType type, Player player, @Nonnull JsonObject jsonObject) {
         this.type = type;

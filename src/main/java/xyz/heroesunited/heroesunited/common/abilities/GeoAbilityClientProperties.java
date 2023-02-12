@@ -3,6 +3,7 @@ package xyz.heroesunited.heroesunited.common.abilities;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.model.GeoModel;
@@ -34,7 +35,7 @@ public abstract class GeoAbilityClientProperties<T extends Ability & GeoAbility>
     }
 
     public GeoModel<T> getGeoModel() {
-        return new GeoModel<T>() {
+        return new GeoModel<>() {
             @Override
             public ResourceLocation getModelResource(T ability) {
                 return GeoAbilityClientProperties.this.getModelPath();
@@ -56,8 +57,8 @@ public abstract class GeoAbilityClientProperties<T extends Ability & GeoAbility>
         return true;
     }
 
-    public boolean renderGeoAbilityRenderer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, boolean firstPerson, BakedGeoModel model, AbstractClientPlayer player, GeoAbilityRenderer<T> renderer) {
-        return false;
+    public boolean continueRendering(GeoAbilityRenderer<T> renderer, BakedGeoModel model, AbstractClientPlayer player, boolean firstPerson, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, VertexConsumer vertexConsumer, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+        return true;
     }
 
     public GeoAbilityRenderer<T> getGeoRenderer() {

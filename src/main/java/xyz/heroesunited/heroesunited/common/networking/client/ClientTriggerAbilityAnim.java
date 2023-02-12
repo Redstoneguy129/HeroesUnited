@@ -11,13 +11,13 @@ import xyz.heroesunited.heroesunited.common.abilities.animatable.GeoAbility;
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
-public class ClientAbilityAnimTrigger {
+public class ClientTriggerAbilityAnim {
     private final int entityId;
     private final String abilityName;
     private final String controllerName;
     private final String animName;
 
-    public ClientAbilityAnimTrigger(int entityId, String abilityName, @Nullable String controllerName, String animName) {
+    public ClientTriggerAbilityAnim(int entityId, String abilityName, @Nullable String controllerName, String animName) {
         this.entityId = entityId;
         this.abilityName = abilityName;
         this.controllerName = controllerName == null ? "" : controllerName;
@@ -31,7 +31,7 @@ public class ClientAbilityAnimTrigger {
         buffer.writeUtf(this.animName);
     }
 
-    public ClientAbilityAnimTrigger(FriendlyByteBuf buffer) {
+    public ClientTriggerAbilityAnim(FriendlyByteBuf buffer) {
         this.entityId = buffer.readInt();
         this.abilityName = buffer.readUtf();
         this.controllerName = buffer.readUtf();

@@ -17,11 +17,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import software.bernie.geckolib.constant.DataTickets;
+import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.keyframe.BoneAnimation;
+import software.bernie.geckolib.util.RenderUtils;
 import xyz.heroesunited.heroesunited.client.events.RenderLayerEvent;
 import xyz.heroesunited.heroesunited.client.events.RenderPlayerHandEvent;
 import xyz.heroesunited.heroesunited.client.model.SuitModel;
-import xyz.heroesunited.heroesunited.client.renderer.IHUModelPart;
 import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.suit.Suit;
@@ -31,7 +33,10 @@ import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
 import xyz.heroesunited.heroesunited.common.capabilities.PlayerGeoModel;
 import xyz.heroesunited.heroesunited.common.objects.container.EquipmentAccessoriesSlot;
 import xyz.heroesunited.heroesunited.common.objects.items.IAccessory;
+import xyz.heroesunited.heroesunited.util.HUClientUtil;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
+
+import java.util.Arrays;
 
 @Mixin(PlayerRenderer.class)
 public abstract class PlayerRendererMixin {
@@ -51,10 +56,6 @@ public abstract class PlayerRendererMixin {
         HumanoidArm side = rendererArmIn == playerRenderer.getModel().rightArm ? HumanoidArm.RIGHT : HumanoidArm.LEFT;
         boolean renderArm = true;
         EntityModelSet modelSet = Minecraft.getInstance().getEntityModels();
-        ((IHUModelPart) (Object) rendererArmIn).resetSize();
-        ((IHUModelPart) (Object) rendererArmwearIn).resetSize();
-
-        MinecraftForge.EVENT_BUS.post(new RenderPlayerHandEvent.Post(player, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, side));
 
         player.getCapability(HUPlayerProvider.CAPABILITY).ifPresent(cap -> {
             cap.getAnimatedModel().getBakedModel(cap.getAnimatedModel().getModelResource(cap));
@@ -67,6 +68,25 @@ public abstract class PlayerRendererMixin {
             animationState.setData(PlayerGeoModel.PLAYER_MODEL_DATA, new PlayerGeoModel.ModelData(playerRenderer.getModel()));
             cap.getAnimatedModel().addAdditionalStateData(cap, instanceId, animationState::setData);
             cap.getAnimatedModel().handleAnimations(cap, instanceId, animationState);
+
+            for (AnimationController<?> controller : cap.getAnimatableInstanceCache().getManagerForId(instanceId).getAnimationControllers().values()) {
+                if (controller.getCurrentAnimation() != null && controller.getAnimationState() != AnimationController.State.STOPPED) {
+                    for (String s : Arrays.asList("player", "bipedRightArm", "bipedLeftArm")) {
+                        cap.getAnimatedModel().getBone(s).ifPresent(bone -> {
+                            for (BoneAnimation boneAnimation : controller.getCurrentAnimation().animation().boneAnimations()) {
+                                if (boneAnimation.boneName().equals(s)) {
+                                    if (s.equals("player")) {
+                                        RenderUtils.prepMatrixForBone(matrixStackIn, bone);
+                                        break;
+                                    }
+                                    HUClientUtil.setupPlayerBones(bone, HUClientUtil.getModelRendererById(playerRenderer.getModel(), s));
+                                }
+                            }
+                        });
+                    }
+
+                }
+            }
         });
         for (Ability ability : AbilityHelper.getAbilities(player)) {
             if (!ability.getClientProperties().renderFirstPersonArm(modelSet, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, player, side)) {
@@ -120,5 +140,7 @@ public abstract class PlayerRendererMixin {
                 }
             });
         }
+        MinecraftForge.EVENT_BUS.post(new RenderPlayerHandEvent.Post(player, playerRenderer, matrixStackIn, bufferIn, combinedLightIn, side));
+        HUClientUtil.copyAnglesToWear(playerRenderer.getModel());
     }
 }

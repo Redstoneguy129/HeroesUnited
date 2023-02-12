@@ -22,6 +22,7 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.object.Color;
 import software.bernie.geckolib.core.object.DataTicket;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
@@ -41,6 +42,7 @@ public class GeoAbilityRenderer<T extends Ability & GeoAbility> extends Humanoid
     protected final List<GeoRenderLayer<T>> renderLayers = new ObjectArrayList<>();
     protected final GeoModel<T> model;
     protected final GeoAbilityClientProperties<T> clientProperties;
+    protected Color color = null;
 
     protected T ability;
     protected HumanoidModel<?> baseModel;
@@ -169,9 +171,16 @@ public class GeoAbilityRenderer<T extends Ability & GeoAbility> extends Humanoid
 
         float partialTick = mc.getFrameTime();
         RenderType renderType = getRenderType(this.ability, getTextureLocation(this.ability), bufferSource, partialTick);
-        if (alpha != 0F && !this.clientProperties.renderGeoAbilityRenderer(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, false, getGeoModel().getBakedModel(getGeoModel().getModelResource(this.ability)), this.player, this)) {
-            defaultRender(poseStack, this.ability, bufferSource, renderType, bufferSource.getBuffer(renderType), 0, partialTick, packedLight);
+        Color color = Color.ofRGBA(red, green, blue, alpha);
+        if (this.color == null || !this.color.equals(color)) {
+            this.color = color;
         }
+        defaultRender(poseStack, this.ability, bufferSource, renderType, bufferSource.getBuffer(renderType), 0, partialTick, packedLight);
+    }
+
+    @Override
+    public Color getRenderColor(T animatable, float partialTick, int packedLight) {
+        return this.color != null ? this.color : GeoRenderer.super.getRenderColor(animatable, partialTick, packedLight);
     }
 
     @Override
@@ -187,8 +196,9 @@ public class GeoAbilityRenderer<T extends Ability & GeoAbility> extends Humanoid
         }
 
         this.modelRenderTranslations = new Matrix4f(poseStack.last().pose());
-
-        GeoRenderer.super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+        if (alpha != 0F && this.clientProperties.continueRendering(this, getGeoModel().getBakedModel(getGeoModel().getModelResource(this.ability)), this.player, false, partialTick, poseStack, bufferSource, buffer, packedLight, packedOverlay, red, green, blue, alpha)) {
+            GeoRenderer.super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+        }
         poseStack.popPose();
     }
 
@@ -340,14 +350,14 @@ public class GeoAbilityRenderer<T extends Ability & GeoAbility> extends Humanoid
     }
 
 
-    public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource buffer, int packedLightIn, HumanoidArm side) {
-        this.renderFirstPersonArm(renderer, poseStack, buffer.getBuffer(RenderType.entityTranslucent(getTextureLocation(ability))), packedLightIn, OverlayTexture.NO_OVERLAY, side, 1f, 1f, 1f, 1f);
+    public void renderFirstPersonArm(PlayerRenderer renderer, HumanoidArm side, PoseStack poseStack, MultiBufferSource buffer, int packedLightIn) {
+        this.renderFirstPersonArm(renderer, side, poseStack, buffer, buffer.getBuffer(RenderType.entityTranslucent(getTextureLocation(ability))), packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
     }
 
-    public void renderFirstPersonArm(PlayerRenderer renderer, PoseStack poseStack, VertexConsumer builder, int packedLightIn, int packedOverlayIn, HumanoidArm side, float red, float green, float blue, float alpha) {
+    public void renderFirstPersonArm(PlayerRenderer renderer, HumanoidArm side, PoseStack poseStack, MultiBufferSource bufferSource, VertexConsumer builder, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
         BakedGeoModel model = this.model.getBakedModel(getModelLocation(this.ability));
         if (!this.clientProperties.showingAnimationAlways()) this.doAnimationProcess();
-        if (alpha == 0F || model.topLevelBones().isEmpty())
+        if (model.topLevelBones().isEmpty())
             return;
 
         this.attackTime = 0.0F;
@@ -356,9 +366,9 @@ public class GeoAbilityRenderer<T extends Ability & GeoAbility> extends Humanoid
         poseStack.pushPose();
         poseStack.translate(0.0D, 1.5F, 0.0D);
         poseStack.scale(-1.0F, -1.0F, 1.0F);
-        if (!this.clientProperties.renderGeoAbilityRenderer(poseStack, builder, packedLightIn, packedOverlayIn, red, green, blue, alpha, true, model, this.player, this)) {
+        if (alpha != 0F && this.clientProperties.continueRendering(this, model, this.player, true, Minecraft.getInstance().getPartialTick(), poseStack, bufferSource, builder, packedLightIn, packedOverlayIn, red, green, blue, alpha)) {
             GeoBone bone = side == HumanoidArm.LEFT ? getLeftArmBone() : getRightArmBone();
-            if (!bone.getChildBones().isEmpty() || !bone.getCubes().isEmpty()) {
+            if (bone != null && (!bone.getChildBones().isEmpty() || !bone.getCubes().isEmpty())) {
                 ModelPart modelRenderer = side == HumanoidArm.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
                 RenderUtils.matchModelPartRot(modelRenderer, bone);
                 bone.updatePosition(side == HumanoidArm.LEFT ? modelRenderer.x - 5 : modelRenderer.x + 5, 2 - modelRenderer.y, modelRenderer.z);
