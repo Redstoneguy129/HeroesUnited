@@ -13,10 +13,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.PacketDistributor;
+import org.apache.commons.compress.utils.Lists;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import xyz.heroesunited.heroesunited.common.events.RegisterPlayerControllerEvent;
 import xyz.heroesunited.heroesunited.common.networking.HUNetworking;
@@ -25,6 +26,7 @@ import xyz.heroesunited.heroesunited.common.networking.client.ClientTriggerPlaye
 import xyz.heroesunited.heroesunited.common.objects.container.AccessoriesInventory;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("rawtypes")
@@ -73,6 +75,7 @@ public class HUPlayer implements IHUPlayer {
     @Override
     public void triggerAnim(@Nullable String controllerName, String animName, ResourceLocation animationFile) {
         this.animationFile = animationFile;
+        this.registerNewPlayerControllers();
         if (this.livingEntity.getLevel().isClientSide()) {
             var controller = getController(controllerName);
             if (controller != null) {
@@ -161,7 +164,7 @@ public class HUPlayer implements IHUPlayer {
 
     @Override
     public AnimationController getController(String controllerName) {
-        return getAnimatableInstanceCache().getManagerForId(this.livingEntity.getId()).getAnimationControllers().get(controllerName);
+        return getAnimatableInstanceCache().getManagerForId(this.livingEntity.getUUID().hashCode()).getAnimationControllers().get(controllerName);
     }
 
     @Override
@@ -203,13 +206,28 @@ public class HUPlayer implements IHUPlayer {
         inventory.getItems().clear();
         ContainerHelper.loadAllItems(nbt, inventory.getItems());
 
+        this.registerNewPlayerControllers();
     }
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "controller", state -> PlayState.CONTINUE));
         if (livingEntity instanceof Player) {
-            MinecraftForge.EVENT_BUS.post(new RegisterPlayerControllerEvent(this, (Player) livingEntity, controllers));
+            List<AnimationController<? extends GeoAnimatable>> animationControllers = Lists.newArrayList();
+            MinecraftForge.EVENT_BUS.post(new RegisterPlayerControllerEvent(this, (Player) livingEntity, animationControllers));
+            animationControllers.forEach(controllers::add);
+        }
+    }
+
+    public void registerNewPlayerControllers() {
+        if (livingEntity instanceof Player) {
+            List<AnimationController<? extends GeoAnimatable>> animationControllers = Lists.newArrayList();
+            MinecraftForge.EVENT_BUS.post(new RegisterPlayerControllerEvent(this, (Player) livingEntity, animationControllers));
+            AnimatableManager manager = this.cache.getManagerForId(this.livingEntity.getUUID().hashCode());
+            for (AnimationController<? extends GeoAnimatable> controller : animationControllers) {
+                if (!manager.getAnimationControllers().containsKey(controller.getName())) {
+                    manager.addController(controller);
+                }
+            }
         }
     }
 

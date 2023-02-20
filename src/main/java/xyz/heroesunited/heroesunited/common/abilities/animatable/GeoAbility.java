@@ -19,7 +19,7 @@ public interface GeoAbility extends GeoAnimatable {
 
     default void triggerAnim(@Nullable String controllerName, String animName) {
         Ability ability = (Ability) this;
-        long instanceId = ability.name.hashCode() + ability.getPlayer().getId();
+        long instanceId = ability.name.hashCode() + ability.getPlayer().getUUID().hashCode();
 
         if (ability.getPlayer().getLevel().isClientSide()) {
             getAnimatableInstanceCache().getManagerForId(instanceId).tryTriggerAnimation(controllerName, animName);

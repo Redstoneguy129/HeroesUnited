@@ -4,7 +4,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.network.NetworkEvent;
-import xyz.heroesunited.heroesunited.common.abilities.Ability;
 import xyz.heroesunited.heroesunited.common.abilities.AbilityHelper;
 import xyz.heroesunited.heroesunited.common.abilities.animatable.GeoAbility;
 
@@ -41,10 +40,8 @@ public class ClientTriggerAbilityAnim {
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             Entity entity = Minecraft.getInstance().level.getEntity(this.entityId);
-            for (Ability ability : AbilityHelper.getAbilityMap(entity).values()) {
-                if (ability.name.equals(this.abilityName) && ability instanceof GeoAbility a) {
-                    a.triggerAnim(this.controllerName.isEmpty() ? null : this.controllerName, this.animName);
-                }
+            if (entity != null && AbilityHelper.getAbilityMap(entity).get(this.abilityName) instanceof GeoAbility a) {
+                a.triggerAnim(this.controllerName.isEmpty() ? null : this.controllerName, this.animName);
             }
         });
         ctx.get().setPacketHandled(true);

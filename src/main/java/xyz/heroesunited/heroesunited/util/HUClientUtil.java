@@ -353,14 +353,16 @@ public class HUClientUtil {
         builder.vertex(matrix4f, x + (p_229116_14_ ? additional : -additional), y * y2, z + (p_229116_15_ ? additional : -additional)).color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F).uv2(packedLight).endVertex();
     }
 
-    public static void setupPlayerBones(GeoBone bone, ModelPart modelPart) {
+    public static void setupPlayerBones(GeoBone bone, ModelPart modelPart, boolean changePos) {
         //Rotation
         modelPart.setRotation(-bone.getRotX(), -bone.getRotY(), bone.getRotZ());
 
         //Position
-        modelPart.x -= bone.getPosX();
-        modelPart.y -= bone.getPosY();
-        modelPart.z += bone.getPosZ();
+        if (changePos) {
+            modelPart.x = -bone.getPivotX() + bone.getPosX();
+            modelPart.y = (24 - bone.getPivotY()) - bone.getPosY();
+            modelPart.z = bone.getPivotZ() + bone.getPosZ();
+        }
 
         //Scale
         modelPart.offsetScale(new Vector3f(bone.getScaleZ() - 1.0F, bone.getScaleY() - 1.0F, bone.getScaleZ() - 1.0F));

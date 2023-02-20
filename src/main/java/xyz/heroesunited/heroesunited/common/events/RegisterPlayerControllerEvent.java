@@ -2,15 +2,18 @@ package xyz.heroesunited.heroesunited.common.events;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animation.AnimationController;
 import xyz.heroesunited.heroesunited.common.capabilities.IHUPlayer;
+
+import java.util.List;
 
 public class RegisterPlayerControllerEvent extends PlayerEvent {
 
     private final IHUPlayer capability;
-    private final AnimatableManager.ControllerRegistrar controllers;
+    private final List<AnimationController<? extends GeoAnimatable>> controllers;
 
-    public RegisterPlayerControllerEvent(IHUPlayer capability, Player player, AnimatableManager.ControllerRegistrar controllers) {
+    public RegisterPlayerControllerEvent(IHUPlayer capability, Player player, List<AnimationController<? extends GeoAnimatable>> controllers) {
         super(player);
         this.capability = capability;
         this.controllers = controllers;
@@ -20,7 +23,7 @@ public class RegisterPlayerControllerEvent extends PlayerEvent {
         return capability;
     }
 
-    public AnimatableManager.ControllerRegistrar getControllers() {
+    public List<AnimationController<? extends GeoAnimatable>> getControllers() {
         return controllers;
     }
 }

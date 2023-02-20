@@ -53,10 +53,6 @@ public abstract class GeoAbilityClientProperties<T extends Ability & GeoAbility>
         };
     }
 
-    public boolean showingAnimationAlways() {
-        return true;
-    }
-
     public boolean continueRendering(GeoAbilityRenderer<T> renderer, BakedGeoModel model, AbstractClientPlayer player, boolean firstPerson, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, VertexConsumer vertexConsumer, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
         return true;
     }

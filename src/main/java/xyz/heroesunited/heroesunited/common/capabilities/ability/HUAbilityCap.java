@@ -89,8 +89,8 @@ public class HUAbilityCap implements IHUAbilityCap {
     @Override
     public void addAbility(String id, Ability ability) {
         if (!containedAbilities.containsKey(id)) {
-            containedAbilities.put(id, ability);
             ability.name = id;
+            containedAbilities.put(id, ability);
             if (!player.level.isClientSide)
                 HUNetworking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientSyncAbilities(player.getId(), this.getAbilities()));
         }

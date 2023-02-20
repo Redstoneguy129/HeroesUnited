@@ -61,7 +61,7 @@ public abstract class PlayerRendererMixin {
             cap.getAnimatedModel().getBakedModel(cap.getAnimatedModel().getModelResource(cap));
 
             AnimationState<IHUPlayer> animationState = new AnimationState<>(cap, 0, 0, Minecraft.getInstance().getFrameTime(), false);
-            long instanceId = player.getId();
+            long instanceId = player.getUUID().hashCode();
 
             animationState.setData(DataTickets.TICK, cap.getTick(player));
             animationState.setData(DataTickets.ENTITY, player);
@@ -79,7 +79,8 @@ public abstract class PlayerRendererMixin {
                                         RenderUtils.prepMatrixForBone(matrixStackIn, bone);
                                         break;
                                     }
-                                    HUClientUtil.setupPlayerBones(bone, HUClientUtil.getModelRendererById(playerRenderer.getModel(), s));
+                                    HUClientUtil.setupPlayerBones(bone, HUClientUtil.getModelRendererById(playerRenderer.getModel(), s), false);
+                                    HUClientUtil.copyAnglesToWear(playerRenderer.getModel());
                                 }
                             }
                         });

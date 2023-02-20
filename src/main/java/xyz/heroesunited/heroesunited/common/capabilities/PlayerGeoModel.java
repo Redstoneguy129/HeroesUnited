@@ -74,7 +74,7 @@ public class PlayerGeoModel extends DefaultedGeoModel<IHUPlayer> {
                 parser.setMemoizedValue(String.format("player.%s.y", name), () -> switch (part) {
                     case RIGHT_ARM, LEFT_ARM -> 2 - renderer.y;
                     case RIGHT_LEG, LEFT_LEG -> 12 - renderer.y;
-                    default -> renderer.y;
+                    default -> -renderer.y;
                 });
                 parser.setMemoizedValue(String.format("player.%s.z", name), () -> renderer.z);
             }

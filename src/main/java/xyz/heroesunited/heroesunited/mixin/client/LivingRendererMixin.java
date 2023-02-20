@@ -78,7 +78,7 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
                 MinecraftForge.EVENT_BUS.post(new SetupAnimEvent(player, playerModel, iModel.limbSwing(), iModel.limbSwingAmount(), iModel.ageInTicks(), iModel.netHeadYaw(), iModel.headPitch()));
 
                 AnimationState<IHUPlayer> animationState = new AnimationState<>(cap, iModel.limbSwing(), iModel.limbSwingAmount(), partialTicks, false);
-                long instanceId = player.getId();
+                long instanceId = player.getUUID().hashCode();
 
                 animationState.setData(DataTickets.TICK, cap.getTick(player));
                 animationState.setData(DataTickets.ENTITY, player);
@@ -86,7 +86,7 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
                 cap.getAnimatedModel().addAdditionalStateData(cap, instanceId, animationState::setData);
                 cap.getAnimatedModel().handleAnimations(cap, instanceId, animationState);
 
-                for (AnimationController<?> controller : cap.getAnimatableInstanceCache().getManagerForId(player.getUUID().hashCode()).getAnimationControllers().values()) {
+                for (AnimationController<?> controller : cap.getAnimatableInstanceCache().getManagerForId(instanceId).getAnimationControllers().values()) {
                     if (controller.getCurrentAnimation() != null && controller.getAnimationState() != AnimationController.State.STOPPED) {
                         for (String s : Arrays.asList("player", "bipedHead", "bipedBody", "bipedRightArm", "bipedLeftArm", "bipedRightLeg", "bipedLeftLeg")) {
                             cap.getAnimatedModel().getBone(s).ifPresent(bone -> {
@@ -96,7 +96,7 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
                                             RenderUtils.prepMatrixForBone(matrixStack, bone);
                                             break;
                                         }
-                                        HUClientUtil.setupPlayerBones(bone, HUClientUtil.getModelRendererById(playerModel, s));
+                                        HUClientUtil.setupPlayerBones(bone, HUClientUtil.getModelRendererById(playerModel, s), true);
                                     }
                                 }
                             });

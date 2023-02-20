@@ -49,7 +49,10 @@ public class AbilityHelper {
 
     public static Map<String, Ability> getAbilityMap(Entity entity) {
         Map<String, Ability> map = Maps.newLinkedHashMap();
-        entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent((f) -> map.putAll(f.getAbilities()));
+        entity.getCapability(HUAbilityCap.CAPABILITY).ifPresent((f) -> {
+            map.putAll(f.getAbilities());
+            map.putAll(f.getActiveAbilities());
+        });
         return map;
     }
 

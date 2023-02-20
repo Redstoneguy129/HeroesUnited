@@ -76,7 +76,7 @@ public class GeoAbilityRenderer<T extends Ability & GeoAbility> extends Humanoid
 
     @Override
     public long getInstanceId(T animatable) {
-        return ability.name.hashCode() + this.player.getId();
+        return animatable.name.hashCode() + this.player.getUUID().hashCode();
     }
 
     @Override
@@ -191,12 +191,12 @@ public class GeoAbilityRenderer<T extends Ability & GeoAbility> extends Humanoid
         poseStack.translate(0, 24 / 16f, 0);
         poseStack.scale(-1, -1, 1);
 
-        if (!isReRender && !this.clientProperties.showingAnimationAlways()) {
+        if (!isReRender) {
             this.doAnimationProcess();
         }
 
         this.modelRenderTranslations = new Matrix4f(poseStack.last().pose());
-        if (alpha != 0F && this.clientProperties.continueRendering(this, getGeoModel().getBakedModel(getGeoModel().getModelResource(this.ability)), this.player, false, partialTick, poseStack, bufferSource, buffer, packedLight, packedOverlay, red, green, blue, alpha)) {
+        if (alpha != 0F && this.clientProperties.continueRendering(this, this.model.getBakedModel(getModelLocation(this.ability)), this.player, false, partialTick, poseStack, bufferSource, buffer, packedLight, packedOverlay, red, green, blue, alpha)) {
             GeoRenderer.super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
         }
         poseStack.popPose();
@@ -204,6 +204,7 @@ public class GeoAbilityRenderer<T extends Ability & GeoAbility> extends Humanoid
 
     public void doAnimationProcess() {
         if (this.player != null && this.model != null) {
+            this.model.getBakedModel(getModelLocation(this.ability));
             AnimationState<T> animationState = new AnimationState<>(this.ability, 0, 0, Minecraft.getInstance().getFrameTime(), false);
             long instanceId = getInstanceId(this.ability);
 
@@ -356,7 +357,7 @@ public class GeoAbilityRenderer<T extends Ability & GeoAbility> extends Humanoid
 
     public void renderFirstPersonArm(PlayerRenderer renderer, HumanoidArm side, PoseStack poseStack, MultiBufferSource bufferSource, VertexConsumer builder, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
         BakedGeoModel model = this.model.getBakedModel(getModelLocation(this.ability));
-        if (!this.clientProperties.showingAnimationAlways()) this.doAnimationProcess();
+        this.doAnimationProcess();
         if (model.topLevelBones().isEmpty())
             return;
 
