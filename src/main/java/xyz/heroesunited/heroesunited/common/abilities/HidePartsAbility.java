@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
+import xyz.heroesunited.heroesunited.client.events.RendererChangeEvent;
 import xyz.heroesunited.heroesunited.client.events.SetupAnimEvent;
 import xyz.heroesunited.heroesunited.util.PlayerPart;
 
@@ -27,9 +28,20 @@ public class HidePartsAbility extends JSONAbility {
     public void initializeClient(Consumer<IAbilityClientProperties> consumer) {
         super.initializeClient(consumer);
         consumer.accept(new IAbilityClientProperties() {
+
+            @Override
+            public void rendererChange(RendererChangeEvent event) {
+                IAbilityClientProperties.super.rendererChange(event);
+                if (getJsonObject().has("visibility_parts") && getEnabled()) {
+                    if (getJsonObject().get("visibility_parts").isJsonPrimitive() && !GsonHelper.getAsBoolean(getJsonObject(), "visibility_parts", true)) {
+                        event.setCanceled(true);
+                    }
+                }
+            }
+
             @Override
             public void setupAnim(SetupAnimEvent event) {
-                if (getJsonObject().has("visibility_parts") && getEnabled()) {
+                if (getJsonObject().has("visibility_parts") && getEnabled() && getJsonObject().get("visibility_parts").isJsonObject()) {
                     JsonObject overrides = GsonHelper.getAsJsonObject(getJsonObject(), "visibility_parts");
 
                     for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
@@ -50,21 +62,24 @@ public class HidePartsAbility extends JSONAbility {
             @Override
             public boolean renderFirstPersonArm(EntityModelSet modelSet, PlayerRenderer renderer, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, HumanoidArm side) {
                 if (getJsonObject().has("visibility_parts") && getEnabled()) {
-                    JsonObject overrides = GsonHelper.getAsJsonObject(getJsonObject(), "visibility_parts");
-                    for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
-                        PlayerPart part = PlayerPart.byName(entry.getKey());
-                        if (part != null) {
-                            ModelPart modelPart = side == HumanoidArm.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
-                            if (modelPart == part.modelPart(renderer.getModel())) {
-                                if (entry.getValue() instanceof JsonObject && GsonHelper.getAsBoolean((JsonObject) entry.getValue(), "show")) {
-                                    return false;
-                                }
-                                if (GsonHelper.getAsBoolean(overrides, entry.getKey())) {
-                                    return false;
+                    if (getJsonObject().get("visibility_parts").isJsonObject()) {
+                        JsonObject overrides = GsonHelper.getAsJsonObject(getJsonObject(), "visibility_parts");
+                        for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
+                            PlayerPart part = PlayerPart.byName(entry.getKey());
+                            if (part != null) {
+                                ModelPart modelPart = side == HumanoidArm.LEFT ? renderer.getModel().leftArm : renderer.getModel().rightArm;
+                                if (modelPart == part.modelPart(renderer.getModel())) {
+                                    if (entry.getValue() instanceof JsonObject && GsonHelper.getAsBoolean((JsonObject) entry.getValue(), "show")) {
+                                        return false;
+                                    }
+                                    if (GsonHelper.getAsBoolean(overrides, entry.getKey())) {
+                                        return false;
+                                    }
                                 }
                             }
                         }
                     }
+                    return !getJsonObject().get("visibility_parts").isJsonPrimitive() || GsonHelper.getAsBoolean(getJsonObject(), "visibility_parts", true);
                 }
                 return true;
             }
