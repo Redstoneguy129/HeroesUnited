@@ -366,6 +366,7 @@ public class HUClientUtil {
 
         //Scale
         modelPart.offsetScale(new Vector3f(bone.getScaleZ() - 1.0F, bone.getScaleY() - 1.0F, bone.getScaleZ() - 1.0F));
+        ((HUPartSize) (Object) modelPart).changedScale();
     }
 
     public static class HURenderStateShard extends RenderStateShard {

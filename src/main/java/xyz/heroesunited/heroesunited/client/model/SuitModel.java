@@ -1,5 +1,6 @@
 package xyz.heroesunited.heroesunited.client.model;
 
+import com.google.common.collect.Iterables;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.HumanoidModel;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import org.joml.Vector3f;
 import xyz.heroesunited.heroesunited.util.HUClientUtil;
+import xyz.heroesunited.heroesunited.util.HUPartSize;
 
 public class SuitModel<T extends LivingEntity> extends HumanoidModel<T> {
 
@@ -26,6 +28,7 @@ public class SuitModel<T extends LivingEntity> extends HumanoidModel<T> {
     public final ModelPart leftPants = this.leftLeg.getChild("left_pants");
     public final ModelPart rightPants = this.rightLeg.getChild("right_pants");
     public final ModelPart jacket = this.body.getChild("jacket");
+    protected final float size;
 
     public SuitModel(Entity entity, float size) {
         this(HUClientUtil.getSuitModelPart(entity), size);
@@ -33,7 +36,8 @@ public class SuitModel<T extends LivingEntity> extends HumanoidModel<T> {
 
     public SuitModel(ModelPart mainPart, float size) {
         super(mainPart, RenderType::entityTranslucent);
-        mainPart.getAllParts().filter((p_170824_) -> !p_170824_.isEmpty()).forEach(part -> part.offsetScale(new Vector3f(size - 1.0F)));
+        this.size = size;
+        Iterables.concat(this.bodyParts(), this.headParts()).forEach(part -> ((HUPartSize) (Object) part).setSize(new Vector3f(size)));
     }
 
     public static MeshDefinition createMesh(CubeDeformation size, boolean slim) {
@@ -81,9 +85,7 @@ public class SuitModel<T extends LivingEntity> extends HumanoidModel<T> {
             this.rightLeg.yRot = 0.019F * armorStand.getRightLegPose().getY();
             this.rightLeg.yRot = 0.019F * armorStand.getRightLegPose().getZ();
             this.rightLeg.setPos(-1.9F, 11.0F, 0.0F);
-            this.hat.copyFrom(this.head);
         }
-
     }
 
     public void copyPropertiesFrom(HumanoidModel<T> model) {

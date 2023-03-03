@@ -44,10 +44,11 @@ public enum PlayerPart {
                 } else {
                     if (!visible) {
                         if (this == PlayerPart.HEAD_WEAR) {
-                            modelRenderer.offsetScale(new Vector3f((size * -0.499F) - 1.0F));
+                            modelRenderer.offsetScale(new Vector3f(size * -0.499F));
                         } else {
-                            modelRenderer.offsetScale(new Vector3f((size * -0.249F) - 1.0F));
+                            modelRenderer.offsetScale(new Vector3f(size * -0.249F));
                         }
+                        ((HUPartSize) (Object) modelRenderer).changedScale();
                     }
                 }
             }
