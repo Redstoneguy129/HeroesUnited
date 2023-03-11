@@ -21,16 +21,17 @@ public class JSONAbility extends Ability {
     @Override
     public void onUpdate(Player player) {
         super.onUpdate(player);
-        if (this.getActionType() == ActionType.ACTION) {
-            if (this.dataManager.getAsBoolean("enabled")) {
+        if (this.dataManager.getAsBoolean("enabled")) {
+            if (this.getActionType() == ActionType.ACTION) {
                 this.setEnabled(player, false);
                 return;
+            } else {
+                this.action(player);
             }
         } else {
-            this.action(player);
-        }
-        if (this.getActionType() == ActionType.CONSTANT && !this.dataManager.getAsBoolean("enabled")) {
-            this.setEnabled(player, true);
+            if (this.getActionType() == ActionType.CONSTANT) {
+                this.setEnabled(player, true);
+            }
         }
 
         for (Map.Entry<String, Boolean> entry : this.conditionManager.getMethodConditions().entrySet()) {
